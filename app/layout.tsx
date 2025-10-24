@@ -24,10 +24,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <Providers>
-          {children}
-          <Footer />
-        </Providers>
+        {children}
+        <Footer />
         <Analytics />
       </body>
     </html>
