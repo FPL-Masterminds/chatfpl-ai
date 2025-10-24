@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -36,6 +37,27 @@ export default function ChatPage() {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [messagesUsed, setMessagesUsed] = useState(0)
+  const [messagesLimit, setMessagesLimit] = useState(5)
+
+  useEffect(() => {
+    // Fetch current usage on page load
+    const fetchUsage = async () => {
+      try {
+        const response = await fetch("/api/account")
+        if (response.ok) {
+          const data = await response.json()
+          setMessagesUsed(data.usage.messages_used)
+          setMessagesLimit(data.usage.messages_limit)
+        }
+      } catch (error) {
+        console.error("Failed to fetch usage:", error)
+      }
+    }
+    fetchUsage()
+  }, [])
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
 
@@ -50,18 +72,46 @@ export default function ChatPage() {
     setInput("")
     setIsLoading(true)
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: input,
+          conversationId,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to get response")
+      }
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content:
-          "This is a demo response. In production, this would connect to the AI SDK to provide real FPL insights based on live data from the official FPL API.",
+        content: data.answer,
         timestamp: new Date(),
       }
+
       setMessages((prev) => [...prev, aiMessage])
+      setConversationId(data.conversation_id)
+      setMessagesUsed(data.messages_used)
+      setMessagesLimit(data.messages_limit)
+    } catch (error: any) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: error.message || "Sorry, something went wrong. Please try again.",
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -79,7 +129,11 @@ export default function ChatPage() {
         <div className="flex items-center gap-3">
           <div className="hidden items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-sm md:flex">
             <Sparkles className="h-4 w-4 text-accent" />
-            <span className="text-foreground">Free Plan: 3/5 messages today</span>
+            <span className="text-foreground">
+              {messagesLimit === 999999
+                ? "Unlimited messages"
+                : `${messagesUsed}/${messagesLimit} messages used`}
+            </span>
           </div>
 
           <DropdownMenu>
@@ -90,17 +144,15 @@ export default function ChatPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem asChild>
-                <Link href="/account">Account Settings</Link>
+                <Link href="/admin">Account Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/#pricing">Upgrade Plan</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </Link>
+              <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
