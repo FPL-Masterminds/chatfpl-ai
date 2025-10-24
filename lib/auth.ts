@@ -1,13 +1,11 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { Pool } from "pg";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -20,36 +18,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        try {
-          const result = await pool.query(
-            "SELECT * FROM users WHERE email = $1",
-            [credentials.email]
-          );
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email as string },
+        });
 
-          const user = result.rows[0];
-
-          if (!user) {
-            return null;
-          }
-
-          const isPasswordValid = await bcrypt.compare(
-            credentials.password as string,
-            user.password_hash
-          );
-
-          if (!isPasswordValid) {
-            return null;
-          }
-
-          return {
-            id: user.id.toString(),
-            email: user.email,
-            name: user.name,
-          };
-        } catch (error) {
-          console.error("Auth error:", error);
+        if (!user) {
           return null;
         }
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password as string,
+          user.password_hash
+        );
+
+        if (!isPasswordValid) {
+          return null;
+        }
+
+        return {
+          id: user.id.toString(),
+          email: user.email,
+          name: user.name,
+        };
       },
     }),
   ],
@@ -73,5 +63,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: "jwt",
   },
+  secret: process.env.NEXTAUTH_SECRET,
 });
-

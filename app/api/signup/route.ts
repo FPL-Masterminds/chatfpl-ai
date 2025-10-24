@@ -1,71 +1,74 @@
 import { NextResponse } from "next/server";
-import { Pool } from "pg";
 import bcrypt from "bcryptjs";
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
     const { email, password, name } = await request.json();
 
-    if (!email || !password) {
+    if (!email || !password || !name) {
       return NextResponse.json(
-        { error: "Email and password are required" },
+        { error: "Name, email, and password are required" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters" },
         { status: 400 }
       );
     }
 
     // Check if user already exists
-    const existingUser = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
-    if (existingUser.rows.length > 0) {
+    if (existingUser) {
       return NextResponse.json(
-        { error: "User already exists" },
-        { status: 400 }
+        { error: "User with this email already exists" },
+        { status: 409 }
       );
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const userResult = await pool.query(
-      "INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, email, name",
-      [email, hashedPassword, name || null]
-    );
-
-    const user = userResult.rows[0];
-
-    // Create default subscription (Free plan)
-    await pool.query(
-      "INSERT INTO subscriptions (user_id, plan, status) VALUES ($1, $2, $3)",
-      [user.id, "free", "active"]
-    );
-
-    // Create initial usage tracking for current month
     const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
+    const oneMonthLater = new Date();
+    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
 
-    await pool.query(
-      "INSERT INTO usage_tracking (user_id, month, year, messages_used, messages_limit) VALUES ($1, $2, $3, $4, $5)",
-      [user.id, month, year, 0, 5]
-    );
-
-    return NextResponse.json(
-      {
-        success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password_hash: hashedPassword,
+        subscriptions: {
+          create: {
+            plan: "Free",
+            status: "active",
+            current_period_start: now,
+            current_period_end: oneMonthLater,
+          },
+        },
+        usageTracking: {
+          create: {
+            month: now.getMonth() + 1,
+            year: now.getFullYear(),
+            messages_used: 0,
+            messages_limit: 5,
+          },
         },
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    return NextResponse.json(
+      { message: "User created successfully", user: newUser },
       { status: 201 }
     );
   } catch (error) {
@@ -76,4 +79,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
