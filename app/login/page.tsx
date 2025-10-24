@@ -18,8 +18,32 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError("Login not implemented yet. Please sign up first.")
-    setLoading(false)
+    setError("")
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || "Something went wrong")
+        setLoading(false)
+        return
+      }
+
+      // Success - redirect to chat
+      router.push("/chat")
+    } catch (err) {
+      setError("Something went wrong. Please try again.")
+      setLoading(false)
+    }
   }
 
   return (
