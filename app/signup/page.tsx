@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,17 +24,14 @@ export default function SignupPage() {
   console.log("Form state:", { name, email, agreedToTerms, loading })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("handleSubmit called!")
     e.preventDefault()
     setError("")
 
     // Validation
     if (!agreedToTerms) {
-      console.log("Terms not agreed")
       setError("Please agree to the Terms of Service and Privacy Policy")
       return
     }
-    console.log("Validation passed, proceeding...")
 
     if (password !== confirmPassword) {
       setError("Passwords do not match")
@@ -50,7 +46,6 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      // Create account
       const response = await fetch("/api/signup", {
         method: "POST",
         headers: {
@@ -67,21 +62,10 @@ export default function SignupPage() {
         return
       }
 
-      // Auto-login after signup
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        setError("Account created but login failed. Please try logging in.")
-      } else {
-        router.push("/chat")
-      }
+      // Success - redirect to login
+      router.push("/login")
     } catch (err) {
       setError("Something went wrong. Please try again.")
-    } finally {
       setLoading(false)
     }
   }
