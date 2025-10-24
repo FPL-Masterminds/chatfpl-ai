@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Header } from "@/components/header"
 
 export default function SignupPage() {
+  console.log("SignupPage component loaded")
   const router = useRouter()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -20,16 +21,21 @@ export default function SignupPage() {
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  
+  console.log("Form state:", { name, email, agreedToTerms, loading })
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("handleSubmit called!")
     e.preventDefault()
     setError("")
 
     // Validation
     if (!agreedToTerms) {
+      console.log("Terms not agreed")
       setError("Please agree to the Terms of Service and Privacy Policy")
       return
     }
+    console.log("Validation passed, proceeding...")
 
     if (password !== confirmPassword) {
       setError("Passwords do not match")
