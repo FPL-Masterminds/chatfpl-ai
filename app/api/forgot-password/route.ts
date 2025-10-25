@@ -9,6 +9,12 @@ export async function POST(request: Request) {
   try {
     const { email } = await request.json();
 
+    // Debug logging
+    console.log("Forgot password request for:", email);
+    console.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
+    console.log("RESEND_API_KEY starts with re_:", process.env.RESEND_API_KEY?.startsWith("re_"));
+    console.log("EMAIL_FROM:", process.env.EMAIL_FROM);
+
     if (!email) {
       return NextResponse.json(
         { error: "Email is required" },
@@ -46,7 +52,10 @@ export async function POST(request: Request) {
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
 
     // Send email
-    await resend.emails.send({
+    console.log("Attempting to send email to:", email);
+    console.log("From address:", process.env.EMAIL_FROM);
+    
+    const emailResponse = await resend.emails.send({
       from: process.env.EMAIL_FROM!,
       to: email,
       subject: "Reset Your ChatFPL Password",
@@ -88,6 +97,8 @@ export async function POST(request: Request) {
 </html>
       `,
     });
+
+    console.log("Resend API response:", JSON.stringify(emailResponse, null, 2));
 
     return NextResponse.json(
       { message: "If an account exists with that email, we've sent a reset link." },
