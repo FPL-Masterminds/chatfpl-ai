@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
-import { Footer } from "@/components/footer"
+import { ConditionalFooter } from "./conditional-footer"
 import { Providers } from "./providers"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -26,7 +26,7 @@ export default function RootLayout({
       <body className={`font-sans antialiased`}>
         <Providers>
           {children}
-          <Footer />
+          <ConditionalFooter />
         </Providers>
         <Analytics />
       </body>

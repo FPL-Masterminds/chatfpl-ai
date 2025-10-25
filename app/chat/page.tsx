@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Send, Sparkles, User, Menu, LogOut } from "lucide-react"
@@ -40,6 +41,46 @@ export default function ChatPage() {
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [messagesUsed, setMessagesUsed] = useState(0)
   const [messagesLimit, setMessagesLimit] = useState(5)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  // Parse markdown images in message content
+  const renderMessageContent = (content: string) => {
+    // Split by markdown image syntax: ![alt](url)
+    const parts = content.split(/!\[([^\]]*)\]\(([^)]+)\)/)
+    const elements: (string | JSX.Element)[] = []
+    
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 3 === 0 && parts[i]) {
+        // Regular text
+        elements.push(parts[i])
+      } else if (i % 3 === 1) {
+        // Alt text (parts[i]) and URL (parts[i+1])
+        const alt = parts[i]
+        const url = parts[i + 1]
+        if (url) {
+          elements.push(
+            <img 
+              key={`img-${i}`}
+              src={url} 
+              alt={alt} 
+              className="inline-block h-12 w-auto rounded mx-1"
+            />
+          )
+        }
+        i++ // Skip the URL part as we've used it
+      }
+    }
+    
+    return elements
+  }
 
   useEffect(() => {
     // Fetch current usage on page load
@@ -115,9 +156,9 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="fixed inset-0 flex flex-col bg-background">
       {/* Header */}
-      <header className="flex h-16 items-center justify-between border-b border-border/40 bg-card/50 px-4 backdrop-blur-sm">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/40 bg-card/50 px-4">
         <Link href="/" className="flex items-center gap-2">
           <div className="text-xl font-bold">
             <span className="text-foreground">Chat</span>
@@ -159,8 +200,8 @@ export default function ChatPage() {
         </div>
       </header>
 
-      {/* Chat Messages */}
-      <ScrollArea className="flex-1 px-4">
+      {/* Chat Messages - scrollable */}
+      <div className="flex-1 overflow-y-auto px-4">
         <div className="mx-auto max-w-3xl space-y-6 py-8">
           {messages.map((message) => (
             <div key={message.id} className={`flex gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -172,18 +213,29 @@ export default function ChatPage() {
                 </Avatar>
               )}
 
-              <Card
-                className={`max-w-[80%] border-border/50 p-4 ${
-                  message.role === "user"
-                    ? "bg-accent/10 text-foreground"
-                    : "bg-card/50 text-foreground backdrop-blur-sm"
-                }`}
-              >
-                <p className="text-sm leading-relaxed">{message.content}</p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                </p>
-              </Card>
+                          <Card
+                            className={`max-w-[80%] border-border/50 p-4 ${
+                              message.role === "user"
+                                ? "bg-accent/10 text-foreground"
+                                : "bg-card/50 text-foreground backdrop-blur-sm"
+                            }`}
+                          >
+                            <div className="text-sm leading-relaxed space-y-2">
+                              {message.content.split('\n\n').map((paragraph, i) => (
+                                <p key={i} className="whitespace-pre-wrap">
+                                  {paragraph.split('\n').map((line, j) => (
+                                    <span key={j}>
+                                      {renderMessageContent(line)}
+                                      {j < paragraph.split('\n').length - 1 && <br />}
+                                    </span>
+                                  ))}
+                                </p>
+                              ))}
+                            </div>
+                            <p className="mt-2 text-xs text-muted-foreground">
+                              {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          </Card>
 
               {message.role === "user" && (
                 <Avatar className="h-8 w-8 border border-border bg-muted">
@@ -211,21 +263,28 @@ export default function ChatPage() {
               </Card>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Input Area */}
-      <div className="border-t border-border/40 bg-card/50 p-4 backdrop-blur-sm">
+      <div className="shrink-0 border-t border-border/40 bg-card/50 p-3">
         <div className="mx-auto max-w-3xl">
           <div className="flex gap-2">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Ask about FPL players, transfers, captains..."
-              className="flex-1 bg-background"
-              disabled={isLoading}
-            />
+                        <Textarea
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault()
+                              handleSend()
+                            }
+                          }}
+                          placeholder="Ask about FPL players, transfers, captains..."
+                          className="flex-1 bg-background min-h-[44px] max-h-[200px] resize-none"
+                          disabled={isLoading}
+                          rows={1}
+                        />
             <Button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
@@ -234,7 +293,7 @@ export default function ChatPage() {
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          <p className="mt-2 text-center text-xs text-muted-foreground">
+          <p className="mt-1 text-center text-xs text-muted-foreground">
             ChatFPL can make mistakes. Verify important information.
           </p>
         </div>
