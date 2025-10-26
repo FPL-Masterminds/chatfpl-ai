@@ -24,7 +24,7 @@ export function Header() {
               alt="ChatFPL" 
               width={40} 
               height={40}
-              className="h-10 w-auto"
+              className="h-8 w-auto md:h-10"
             />
           </Link>
 
@@ -71,7 +71,8 @@ export function Header() {
                 <Button 
                   size="sm"
                   onClick={() => signOut({ callbackUrl: "/login" })}
-                  className="bg-purple-600 text-white hover:bg-purple-700"
+                  style={{ backgroundColor: '#2E0032', color: '#00FF86' }}
+                  className="hover:opacity-90"
                 >
                   Log Out
                 </Button>
@@ -144,7 +145,8 @@ export function Header() {
                     closeMobileMenu()
                     signOut({ callbackUrl: "/login" })
                   }}
-                  className="w-full bg-purple-600 text-white hover:bg-purple-700"
+                  style={{ backgroundColor: '#2E0032', color: '#00FF86' }}
+                  className="w-full hover:opacity-90"
                 >
                   Log Out
                 </Button>

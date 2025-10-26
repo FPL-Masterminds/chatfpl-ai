@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { signOut } from "next-auth/react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -159,12 +160,14 @@ export default function ChatPage() {
     <div className="fixed inset-0 flex flex-col bg-background">
       {/* Header */}
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/40 bg-card/50 px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="text-xl font-bold">
-            <span className="text-foreground">Chat</span>
-            <span className="text-accent">FPL</span>
-            <span className="text-muted-foreground">.ai</span>
-          </div>
+        <Link href="/">
+          <Image 
+            src="/ChatFPL_Logo.png" 
+            alt="ChatFPL" 
+            width={40} 
+            height={40}
+            className="h-8 w-auto md:h-10"
+          />
         </Link>
 
         <div className="flex items-center gap-3">

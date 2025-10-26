@@ -46,9 +46,6 @@ export function HeroSection() {
               <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
                 <Link href="/#pricing">Start Chatting</Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="border-2 bg-transparent text-white hover:bg-white/10">
-                <Link href="/login">Login</Link>
-              </Button>
             </div>
           </div>
 
