@@ -99,7 +99,7 @@ export default function AdminPage() {
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
-        <main className="flex flex-1 items-center justify-center">
+        <main className="flex flex-1 items-center justify-center pt-16">
           <p className="text-lg text-muted-foreground">Loading your account...</p>
         </main>
       </div>
@@ -110,7 +110,7 @@ export default function AdminPage() {
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
-        <main className="flex flex-1 items-center justify-center">
+        <main className="flex flex-1 items-center justify-center pt-16">
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle className="text-destructive">Error</CardTitle>
@@ -134,7 +134,7 @@ export default function AdminPage() {
     <div className="flex min-h-screen flex-col bg-[#1E1E1E]">
       <Header />
 
-      <main className="flex-1 px-4 py-12">
+      <main className="flex-1 px-4 pt-24 pb-12">
         <div className="mx-auto max-w-6xl space-y-8">
           {/* Header Section */}
           <div className="flex items-center justify-between">
