@@ -12,19 +12,14 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-white/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/">
           <Image 
             src="/ChatFPL_Logo.png" 
-            alt="ChatFPL Logo" 
+            alt="ChatFPL" 
             width={40} 
             height={40}
             className="h-10 w-auto"
           />
-          <div className="text-2xl font-bold">
-            <span className="text-foreground">Chat</span>
-            <span className="text-accent">FPL</span>
-            <span className="text-muted-foreground">.ai</span>
-          </div>
         </Link>
 
         {!isLoggedIn && (

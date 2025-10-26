@@ -15,9 +15,9 @@ export default function HomePage() {
       <section className="relative overflow-hidden pt-24">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url(/hero-bg.png)" }}
+          style={{ backgroundImage: "url(/gradient_hero_bg.png)" }}
         />
-        <div className="absolute inset-0 bg-primary/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
         <div className="container relative mx-auto px-4 py-24 text-center md:py-32">
           <div className="mx-auto max-w-4xl space-y-8">
             <div className="inline-flex items-center gap-2 rounded-full border-2 border-accent bg-white px-4 py-2 text-sm font-semibold text-accent">

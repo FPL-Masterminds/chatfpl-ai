@@ -13,20 +13,13 @@ export function Footer() {
       <div className="container relative mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Image 
-                src="/ChatFPL_Logo.png" 
-                alt="ChatFPL Logo" 
-                width={48} 
-                height={48}
-                className="h-12 w-auto"
-              />
-              <div className="text-xl font-bold">
-                <span className="text-white">Chat</span>
-                <span className="text-accent">FPL</span>
-                <span className="text-white/80">.ai</span>
-              </div>
-            </div>
+            <Image 
+              src="/ChatFPL_Logo.png" 
+              alt="ChatFPL" 
+              width={48} 
+              height={48}
+              className="h-12 w-auto"
+            />
             <p className="text-sm text-white/80">AI-powered Fantasy Premier League assistant for smarter decisions.</p>
           </div>
 
