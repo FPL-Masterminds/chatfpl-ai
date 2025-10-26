@@ -29,11 +29,11 @@ export function HeroSection() {
         style={{ backgroundImage: "url(/gradient_hero_bg.png)" }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
-      <div className="container relative mx-auto px-4 py-24 md:py-32">
+      <div className="container relative mx-auto px-4 py-16 md:py-20">
         <div className="grid gap-8 md:grid-cols-2 md:items-center">
           {/* Left Column - Hero Content */}
-          <div className="space-y-8 text-center md:text-left">
-            <h1 className="text-balance text-5xl font-bold leading-tight tracking-tight text-white md:text-6xl lg:text-7xl">
+          <div className="space-y-6 text-center md:text-left">
+            <h1 className="text-balance text-5xl font-bold leading-[1.1] tracking-tight text-white md:text-6xl lg:text-7xl">
               Chat with Fantasy Premier League Data
             </h1>
 
