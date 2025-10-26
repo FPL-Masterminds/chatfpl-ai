@@ -22,12 +22,13 @@ export default function HomePage() {
               className="mb-4 text-balance text-4xl font-bold uppercase"
               style={{ 
                 fontFamily: "'Futura Maxi CG', sans-serif",
-                color: 'white',
-                WebkitTextStroke: '6px #2E0032',
+                WebkitTextStroke: '8px #2E0032',
                 paintOrder: 'stroke fill'
               }}
             >
-              Everything you need for FPL success
+              <span style={{ color: 'white' }}>Everything you need for </span>
+              <span style={{ color: '#00FFFF' }}>FPL </span>
+              <span style={{ color: '#00FF86' }}>success</span>
             </h2>
             <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
               Powered by real-time data and AI intelligence
