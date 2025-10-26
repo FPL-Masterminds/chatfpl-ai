@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 
@@ -11,7 +12,14 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-white/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-3">
+          <Image 
+            src="/ChatFPL_Logo.png" 
+            alt="ChatFPL Logo" 
+            width={40} 
+            height={40}
+            className="h-10 w-auto"
+          />
           <div className="text-2xl font-bold">
             <span className="text-foreground">Chat</span>
             <span className="text-accent">FPL</span>
