@@ -19,12 +19,12 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
             <h2 
-              className="mb-4 text-balance text-4xl font-bold uppercase inline-block"
+              className="mb-4 text-balance text-4xl font-bold uppercase"
               style={{ 
                 fontFamily: "'Futura Maxi CG', sans-serif",
                 color: 'white',
-                border: '10px solid #2E0032',
-                padding: '1rem 2rem'
+                WebkitTextStroke: '10px #2E0032',
+                paintOrder: 'stroke fill'
               }}
             >
               Everything you need for FPL success
