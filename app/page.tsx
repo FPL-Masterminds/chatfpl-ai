@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { Database, Brain, MessageSquare, Check, Sparkles } from "lucide-react"
+import { Database, Brain, MessageSquare, Check } from "lucide-react"
 
 export default function HomePage() {
   return (
@@ -20,11 +20,6 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
         <div className="container relative mx-auto px-4 py-24 text-center md:py-32">
           <div className="mx-auto max-w-4xl space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border-2 border-accent bg-white px-4 py-2 text-sm font-semibold text-accent">
-              <Sparkles className="h-4 w-4" />
-              <span>Powered by AI</span>
-            </div>
-
             <h1 className="text-balance text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl">
               Chat with Fantasy Premier League Data
             </h1>
