@@ -2,6 +2,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'Futura Maxi CG';
+  src: url('/fonts/copyfonts.com_futuramaxicgboldopentype.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Making all text pure black for maximum contrast on white */
   --background: oklch(1 0 0); /* Pure white */

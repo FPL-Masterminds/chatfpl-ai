@@ -18,7 +18,15 @@ export default function HomePage() {
       <section id="features" className="bg-white py-24">
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-balance text-4xl font-bold text-foreground">
+            <h2 
+              className="mb-4 text-balance text-4xl font-bold uppercase inline-block"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                color: 'white',
+                border: '10px solid #2E0032',
+                padding: '1rem 2rem'
+              }}
+            >
               Everything you need for FPL success
             </h2>
             <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
