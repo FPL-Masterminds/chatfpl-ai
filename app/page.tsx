@@ -23,7 +23,7 @@ export default function HomePage() {
               style={{ 
                 fontFamily: "'Futura Maxi CG', sans-serif",
                 color: 'white',
-                WebkitTextStroke: '10px #2E0032',
+                WebkitTextStroke: '6px #2E0032',
                 paintOrder: 'stroke fill'
               }}
             >
