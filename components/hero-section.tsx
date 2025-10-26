@@ -53,7 +53,7 @@ export function HeroSection() {
           </div>
 
           {/* Right Column - Rotating Player Images */}
-          <div className="relative flex items-center justify-center">
+          <div className="relative flex items-center justify-center w-full max-w-lg mx-auto aspect-square">
             {HERO_IMAGES.map((image, index) => (
               <Image
                 key={image.src}
@@ -61,8 +61,8 @@ export function HeroSection() {
                 alt={image.alt}
                 width={600}
                 height={600}
-                className={`w-full max-w-lg h-auto transition-opacity duration-1000 ${
-                  index === currentImageIndex ? "opacity-100" : "opacity-0 absolute inset-0"
+                className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ${
+                  index === currentImageIndex ? "opacity-100" : "opacity-0"
                 }`}
                 priority={index === 0}
               />
