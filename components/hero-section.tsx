@@ -49,15 +49,15 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column - Rotating Player Images */}
-          <div className="relative flex items-center justify-center w-full max-w-lg mx-auto aspect-square">
+          {/* Right Column - Rotating Player Images (Hidden on Mobile/Tablet) */}
+          <div className="hidden lg:flex relative items-center justify-center w-full max-w-md mx-auto aspect-square">
             {HERO_IMAGES.map((image, index) => (
               <Image
                 key={image.src}
                 src={image.src}
                 alt={image.alt}
-                width={600}
-                height={600}
+                width={500}
+                height={500}
                 className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ${
                   index === currentImageIndex ? "opacity-100" : "opacity-0"
                 }`}
