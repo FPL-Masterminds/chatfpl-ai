@@ -33,22 +33,22 @@ export function Header() {
             <nav className="hidden items-center gap-6 md:flex">
               <Link
                 href="/#features"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
+                className="text-sm font-semibold text-muted-foreground transition-colors hover:text-accent"
               >
                 Features
               </Link>
               <Link
                 href="/#pricing"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
+                className="text-sm font-semibold text-muted-foreground transition-colors hover:text-accent"
               >
                 Pricing
               </Link>
-              <Link href="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent">
+              <Link href="/about" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-accent">
                 About
               </Link>
               <Link
                 href="/contact"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent"
+                className="text-sm font-semibold text-muted-foreground transition-colors hover:text-accent"
               >
                 Contact
               </Link>
@@ -59,7 +59,7 @@ export function Header() {
           <div className="hidden items-center gap-3 md:flex">
             {isLoggedIn ? (
               <>
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-sm font-semibold text-foreground">
                   Welcome {session?.user?.name?.split(" ")[0] || "User"}
                 </span>
                 <Button variant="ghost" size="sm" asChild>
@@ -127,14 +127,14 @@ export function Header() {
                 <Link
                   href="/chat"
                   onClick={closeMobileMenu}
-                  className="text-base font-medium text-accent hover:text-accent/80 transition-colors"
+                  className="text-base font-semibold text-accent hover:text-accent/80 transition-colors"
                 >
                   ChatFPL
                 </Link>
                 <Link
                   href="/admin"
                   onClick={closeMobileMenu}
-                  className="text-base font-medium text-foreground hover:text-accent transition-colors"
+                  className="text-base font-semibold text-foreground hover:text-accent transition-colors"
                 >
                   Admin Dashboard
                 </Link>
@@ -159,28 +159,28 @@ export function Header() {
                 <Link
                   href="/#features"
                   onClick={closeMobileMenu}
-                  className="text-base font-medium text-foreground hover:text-accent transition-colors"
+                  className="text-base font-semibold text-foreground hover:text-accent transition-colors"
                 >
                   Features
                 </Link>
                 <Link
                   href="/#pricing"
                   onClick={closeMobileMenu}
-                  className="text-base font-medium text-foreground hover:text-accent transition-colors"
+                  className="text-base font-semibold text-foreground hover:text-accent transition-colors"
                 >
                   Pricing
                 </Link>
                 <Link
                   href="/about"
                   onClick={closeMobileMenu}
-                  className="text-base font-medium text-foreground hover:text-accent transition-colors"
+                  className="text-base font-semibold text-foreground hover:text-accent transition-colors"
                 >
                   About
                 </Link>
                 <Link
                   href="/contact"
                   onClick={closeMobileMenu}
-                  className="text-base font-medium text-foreground hover:text-accent transition-colors"
+                  className="text-base font-semibold text-foreground hover:text-accent transition-colors"
                 >
                   Contact
                 </Link>
