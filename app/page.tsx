@@ -22,7 +22,7 @@ export default function HomePage() {
               className="mb-4 text-balance text-4xl font-bold uppercase"
               style={{ 
                 fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '8px #2E0032',
+                WebkitTextStroke: '7px #2E0032',
                 paintOrder: 'stroke fill'
               }}
             >
