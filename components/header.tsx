@@ -28,32 +28,6 @@ export function Header() {
             />
           </Link>
 
-          {/* Desktop Navigation - Logged Out */}
-          {!isLoggedIn && (
-            <nav className="hidden items-center gap-6 md:flex">
-              <Link
-                href="/#features"
-                className="text-sm font-semibold text-muted-foreground transition-colors hover:text-accent"
-              >
-                Features
-              </Link>
-              <Link
-                href="/#pricing"
-                className="text-sm font-semibold text-muted-foreground transition-colors hover:text-accent"
-              >
-                Pricing
-              </Link>
-              <Link href="/about" className="text-sm font-semibold text-muted-foreground transition-colors hover:text-accent">
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="text-sm font-semibold text-muted-foreground transition-colors hover:text-accent"
-              >
-                Contact
-              </Link>
-            </nav>
-          )}
 
           {/* Desktop Actions */}
           <div className="hidden items-center gap-3 md:flex">
@@ -78,14 +52,14 @@ export function Header() {
                 </Button>
               </>
             ) : (
-              <>
-                <Button variant="ghost" asChild>
-                  <Link href="/login">Login</Link>
-                </Button>
-                <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-                  <Link href="/signup">Get Started</Link>
-                </Button>
-              </>
+            <>
+              <Button variant="ghost" asChild className="hover:bg-muted">
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </>
             )}
           </div>
 
@@ -155,42 +129,12 @@ export function Header() {
           ) : (
             <>
               {/* Logged Out Menu */}
-              <nav className="flex flex-col space-y-4">
-                <Link
-                  href="/#features"
-                  onClick={closeMobileMenu}
-                  className="text-base font-semibold text-foreground hover:text-accent transition-colors"
-                >
-                  Features
-                </Link>
-                <Link
-                  href="/#pricing"
-                  onClick={closeMobileMenu}
-                  className="text-base font-semibold text-foreground hover:text-accent transition-colors"
-                >
-                  Pricing
-                </Link>
-                <Link
-                  href="/about"
-                  onClick={closeMobileMenu}
-                  className="text-base font-semibold text-foreground hover:text-accent transition-colors"
-                >
-                  About
-                </Link>
-                <Link
-                  href="/contact"
-                  onClick={closeMobileMenu}
-                  className="text-base font-semibold text-foreground hover:text-accent transition-colors"
-                >
-                  Contact
-                </Link>
-              </nav>
-              <div className="flex flex-col gap-3 pt-4 border-t border-border mt-auto">
-                <Button variant="outline" asChild className="w-full">
+              <div className="flex flex-col gap-3 mt-auto">
+                <Button variant="outline" asChild className="w-full hover:bg-muted">
                   <Link href="/login" onClick={closeMobileMenu}>Login</Link>
                 </Button>
                 <Button asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                  <Link href="/signup" onClick={closeMobileMenu}>Get Started</Link>
+                  <Link href="/signup" onClick={closeMobileMenu}>Sign Up</Link>
                 </Button>
               </div>
             </>
