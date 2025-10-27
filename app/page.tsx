@@ -130,7 +130,18 @@ export default function HomePage() {
       <section className="bg-muted/30 py-24">
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-balance text-4xl font-bold text-foreground">What users say</h2>
+            <h2 
+              className="mb-4 text-balance text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '7px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>What </span>
+              <span style={{ color: '#00FFFF' }}>users </span>
+              <span style={{ color: '#00FF86' }}>say</span>
+            </h2>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
@@ -174,7 +185,18 @@ export default function HomePage() {
       <section id="pricing" className="bg-white py-24">
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-balance text-4xl font-bold text-foreground">Simple, transparent pricing</h2>
+            <h2 
+              className="mb-4 text-balance text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '7px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>Simple, </span>
+              <span style={{ color: '#00FFFF' }}>transparent </span>
+              <span style={{ color: '#00FF86' }}>pricing</span>
+            </h2>
             <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
               Choose the plan that fits your FPL ambitions
             </p>
@@ -302,7 +324,18 @@ export default function HomePage() {
       <section className="bg-muted/30 py-24">
         <div className="container mx-auto px-4">
           <div className="mb-16 text-center">
-            <h2 className="mb-4 text-balance text-4xl font-bold text-foreground">Frequently asked questions</h2>
+            <h2 
+              className="mb-4 text-balance text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '7px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>Frequently </span>
+              <span style={{ color: '#00FFFF' }}>asked </span>
+              <span style={{ color: '#00FF86' }}>questions</span>
+            </h2>
           </div>
 
           <div className="mx-auto max-w-3xl">
@@ -348,30 +381,6 @@ export default function HomePage() {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="bg-white py-24">
-        <div className="container mx-auto px-4">
-          <div className="relative overflow-hidden rounded-2xl border-2 border-accent/30 p-12 text-center md:p-16">
-            <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: "url(/hero-bg.png)" }}
-            />
-            <div className="absolute inset-0 bg-primary/40" />
-            <div className="relative z-10 mx-auto max-w-3xl space-y-6">
-              <h2 className="text-balance text-4xl font-bold text-white md:text-5xl">
-                Get smarter FPL decisions. Start your free trial today.
-              </h2>
-              <p className="text-pretty text-lg text-white/90">
-                Join thousands of FPL managers using AI to gain a competitive edge.
-              </p>
-              <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-                <Link href="/signup">Start Chatting</Link>
-              </Button>
-            </div>
           </div>
         </div>
       </section>
