@@ -38,12 +38,11 @@ export function HeroSection() {
           {/* Left Column - Hero Content */}
           <div className="space-y-6 text-center md:text-left">
             <h1 className="text-balance font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: '60px' }}>
-              Chat with Fantasy Premier League Data
+              Chat with your Fantasy Premier League AI Assistant
             </h1>
 
             <p className="text-pretty text-lg text-white/90 md:text-xl">
-              Ask live FPL questions. Get instant AI answers powered by real stats, expert knowledge, and natural
-              conversation.
+              Ask live FPL questions. Get instant AI answers powered by real stats and natural conversation.
             </p>
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row md:justify-start">
