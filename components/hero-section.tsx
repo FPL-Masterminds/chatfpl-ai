@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 const HERO_IMAGES = [
   { src: "/Haaland_Hero.png", alt: "Erling Haaland" },
   { src: "/Salah_Hero.png", alt: "Mohamed Salah" },
-  // Add more hero images here 
+  // Add more hero images here  
 ]
 
 export function HeroSection() {
