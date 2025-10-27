@@ -36,40 +36,46 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            <Card className="border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
-              <CardHeader>
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-accent/5">
-                  <Database className="h-6 w-6 text-accent" />
-                </div>
-                <CardTitle className="text-foreground">Live Data</CardTitle>
-                <CardDescription>
-                  Connects to the official FPL API for real-time stats, fixtures, and player performance data.
-                </CardDescription>
-              </CardHeader>
+            <Card className="border-0 bg-white shadow-lg transition-shadow hover:shadow-xl p-6">
+              <div className="mb-4">
+                <span className="inline-block px-4 py-1 text-xs font-bold uppercase tracking-wider text-white" style={{ backgroundColor: '#00FF86' }}>
+                  Live Data
+                </span>
+              </div>
+              <h3 className="mb-3 text-2xl font-bold text-foreground">
+                Real-Time FPL Stats
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Connects to the official FPL API for real-time stats, fixtures, and player performance data.
+              </p>
             </Card>
 
-            <Card className="border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
-              <CardHeader>
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/5">
-                  <Brain className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-foreground">Expert Knowledge</CardTitle>
-                <CardDescription>
-                  Enhanced with FPL rules, strategy guides, and expert insights to give you the best advice.
-                </CardDescription>
-              </CardHeader>
+            <Card className="border-0 bg-white shadow-lg transition-shadow hover:shadow-xl p-6">
+              <div className="mb-4">
+                <span className="inline-block px-4 py-1 text-xs font-bold uppercase tracking-wider text-white" style={{ backgroundColor: '#2E0032' }}>
+                  Expert Knowledge
+                </span>
+              </div>
+              <h3 className="mb-3 text-2xl font-bold text-foreground">
+                Strategic Insights
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Enhanced with FPL rules, strategy guides, and expert insights to give you the best advice.
+              </p>
             </Card>
 
-            <Card className="border border-border bg-white shadow-sm transition-shadow hover:shadow-md">
-              <CardHeader>
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-accent/5">
-                  <MessageSquare className="h-6 w-6 text-accent" />
-                </div>
-                <CardTitle className="text-foreground">Natural Chat</CardTitle>
-                <CardDescription>
-                  Ask anything from "Who to captain?" to "Compare Salah vs Son" in plain English.
-                </CardDescription>
-              </CardHeader>
+            <Card className="border-0 bg-white shadow-lg transition-shadow hover:shadow-xl p-6">
+              <div className="mb-4">
+                <span className="inline-block px-4 py-1 text-xs font-bold uppercase tracking-wider text-white" style={{ backgroundColor: '#00FFFF' }}>
+                  Natural Chat
+                </span>
+              </div>
+              <h3 className="mb-3 text-2xl font-bold text-foreground">
+                Ask Anything
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Ask anything from "Who to captain?" to "Compare Salah vs Son" in plain English.
+              </p>
             </Card>
           </div>
         </div>
