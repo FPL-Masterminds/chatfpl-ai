@@ -47,7 +47,7 @@ export function HeroSection() {
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row md:justify-start">
               <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-                <Link href="/#pricing">Start Chatting</Link>
+                <Link href="/#pricing">Start your 5-message free trial today</Link>
               </Button>
             </div>
           </div>
