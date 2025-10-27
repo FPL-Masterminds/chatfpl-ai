@@ -142,6 +142,9 @@ export default function HomePage() {
               <span style={{ color: '#00FFFF' }}>users </span>
               <span style={{ color: '#00FF86' }}>say</span>
             </h2>
+            <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
+              Real feedback from FPL managers using ChatFPL
+            </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
@@ -203,10 +206,10 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            {/* Free Plan */}
+            {/* Free Trial */}
             <Card className="border border-border bg-white shadow-sm">
               <CardHeader>
-                <CardTitle className="text-foreground">Free</CardTitle>
+                <CardTitle className="text-foreground">Free Trial</CardTitle>
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-foreground">£0</span>
                   <span className="text-muted-foreground">/month</span>
@@ -216,16 +219,16 @@ export default function HomePage() {
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
-                    <span className="text-sm text-foreground">5 messages per day</span>
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
+                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    </div>
+                    <span className="text-sm text-foreground">5 free messages</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
+                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    </div>
                     <span className="text-sm text-foreground">Live FPL data access</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
-                    <span className="text-sm text-foreground">Basic AI insights</span>
                   </li>
                 </ul>
               </CardContent>
@@ -244,7 +247,7 @@ export default function HomePage() {
               <CardHeader>
                 <CardTitle className="text-foreground">Pro</CardTitle>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-foreground">£4.99</span>
+                  <span className="text-4xl font-bold text-foreground">£19.99</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
                 <CardDescription className="mt-4">For serious FPL managers</CardDescription>
@@ -252,19 +255,21 @@ export default function HomePage() {
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
-                    <span className="text-sm text-foreground">50 messages per day</span>
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
+                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    </div>
+                    <span className="text-sm text-foreground">100 messages per month</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
+                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    </div>
                     <span className="text-sm text-foreground">Live FPL data access</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
-                    <span className="text-sm text-foreground">Advanced AI insights</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
+                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    </div>
                     <span className="text-sm text-foreground">Priority support</span>
                   </li>
                 </ul>
@@ -281,7 +286,7 @@ export default function HomePage() {
               <CardHeader>
                 <CardTitle className="text-foreground">Elite</CardTitle>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-foreground">£9.99</span>
+                  <span className="text-4xl font-bold text-foreground">£49.99</span>
                   <span className="text-muted-foreground">/month</span>
                 </div>
                 <CardDescription className="mt-4">For elite FPL competitors</CardDescription>
@@ -289,24 +294,22 @@ export default function HomePage() {
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
-                    <span className="text-sm text-foreground">Unlimited messages</span>
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
+                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    </div>
+                    <span className="text-sm text-foreground">500 messages per month</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
+                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    </div>
                     <span className="text-sm text-foreground">Live FPL data access</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
-                    <span className="text-sm text-foreground">Premium AI insights</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
+                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    </div>
                     <span className="text-sm text-foreground">Priority support</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-accent" />
-                    <span className="text-sm text-foreground">Early access to features</span>
                   </li>
                 </ul>
               </CardContent>
@@ -336,6 +339,9 @@ export default function HomePage() {
               <span style={{ color: '#00FFFF' }}>asked </span>
               <span style={{ color: '#00FF86' }}>questions</span>
             </h2>
+            <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
+              Everything you need to know about ChatFPL
+            </p>
           </div>
 
           <div className="mx-auto max-w-3xl">
