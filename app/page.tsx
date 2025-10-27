@@ -36,46 +36,91 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            <Card className="border-0 bg-white shadow-lg transition-shadow hover:shadow-xl p-6">
-              <div className="mb-4">
-                <span className="inline-block px-4 py-1 text-xs font-bold uppercase tracking-wider text-white" style={{ backgroundColor: '#00FF86' }}>
+            {/* Card 1 - Green */}
+            <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
+              <div className="aspect-video bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
+                <Database className="h-16 w-16 text-accent/40" />
+              </div>
+              <div className="p-6">
+                <h3 className="mb-3 text-xl font-bold text-foreground">
                   Live Data
-                </span>
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Connects to the official FPL API for real-time stats, fixtures, and player performance data.
+                </p>
               </div>
-              <h3 className="mb-3 text-2xl font-bold text-foreground">
-                Real-Time FPL Stats
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Connects to the official FPL API for real-time stats, fixtures, and player performance data.
-              </p>
+              <div className="grid grid-cols-3 text-center text-white" style={{ backgroundColor: '#00FF86' }}>
+                <div className="py-3">
+                  <div className="text-lg font-bold">700+</div>
+                  <div className="text-xs uppercase">Players</div>
+                </div>
+                <div className="py-3 border-l border-white/20">
+                  <div className="text-lg font-bold">38</div>
+                  <div className="text-xs uppercase">Gameweeks</div>
+                </div>
+                <div className="py-3 border-l border-white/20">
+                  <div className="text-lg font-bold">Live</div>
+                  <div className="text-xs uppercase">Updates</div>
+                </div>
+              </div>
             </Card>
 
-            <Card className="border-0 bg-white shadow-lg transition-shadow hover:shadow-xl p-6">
-              <div className="mb-4">
-                <span className="inline-block px-4 py-1 text-xs font-bold uppercase tracking-wider text-white" style={{ backgroundColor: '#2E0032' }}>
+            {/* Card 2 - Purple */}
+            <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
+              <div className="aspect-video bg-gradient-to-br from-purple-900/20 to-purple-900/5 flex items-center justify-center">
+                <Brain className="h-16 w-16 text-purple-900/40" />
+              </div>
+              <div className="p-6">
+                <h3 className="mb-3 text-xl font-bold text-foreground">
                   Expert Knowledge
-                </span>
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Enhanced with FPL rules, strategy guides, and expert insights to give you the best advice.
+                </p>
               </div>
-              <h3 className="mb-3 text-2xl font-bold text-foreground">
-                Strategic Insights
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Enhanced with FPL rules, strategy guides, and expert insights to give you the best advice.
-              </p>
+              <div className="grid grid-cols-3 text-center text-white" style={{ backgroundColor: '#2E0032' }}>
+                <div className="py-3">
+                  <div className="text-lg font-bold">AI</div>
+                  <div className="text-xs uppercase">Powered</div>
+                </div>
+                <div className="py-3 border-l border-white/20">
+                  <div className="text-lg font-bold">24/7</div>
+                  <div className="text-xs uppercase">Available</div>
+                </div>
+                <div className="py-3 border-l border-white/20">
+                  <div className="text-lg font-bold">Smart</div>
+                  <div className="text-xs uppercase">Advice</div>
+                </div>
+              </div>
             </Card>
 
-            <Card className="border-0 bg-white shadow-lg transition-shadow hover:shadow-xl p-6">
-              <div className="mb-4">
-                <span className="inline-block px-4 py-1 text-xs font-bold uppercase tracking-wider text-white" style={{ backgroundColor: '#00FFFF' }}>
-                  Natural Chat
-                </span>
+            {/* Card 3 - Cyan */}
+            <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
+              <div className="aspect-video bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center">
+                <MessageSquare className="h-16 w-16 text-cyan-500/40" />
               </div>
-              <h3 className="mb-3 text-2xl font-bold text-foreground">
-                Ask Anything
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Ask anything from "Who to captain?" to "Compare Salah vs Son" in plain English.
-              </p>
+              <div className="p-6">
+                <h3 className="mb-3 text-xl font-bold text-foreground">
+                  Natural Chat
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Ask anything from "Who to captain?" to "Compare Salah vs Son" in plain English.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 text-center text-foreground" style={{ backgroundColor: '#00FFFF' }}>
+                <div className="py-3">
+                  <div className="text-lg font-bold">Fast</div>
+                  <div className="text-xs uppercase">Response</div>
+                </div>
+                <div className="py-3 border-l border-black/10">
+                  <div className="text-lg font-bold">Easy</div>
+                  <div className="text-xs uppercase">To Use</div>
+                </div>
+                <div className="py-3 border-l border-black/10">
+                  <div className="text-lg font-bold">Clear</div>
+                  <div className="text-xs uppercase">Answers</div>
+                </div>
+              </div>
             </Card>
           </div>
         </div>
@@ -330,8 +375,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   )
 }

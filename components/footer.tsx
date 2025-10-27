@@ -7,9 +7,8 @@ export function Footer() {
     <footer className="relative border-t border-border">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url(/hero-bg.png)" }}
+        style={{ backgroundImage: "url(/gradient_hero_bg.png)" }}
       />
-      <div className="absolute inset-0 bg-primary/40" />
       <div className="container relative mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
