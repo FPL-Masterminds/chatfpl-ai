@@ -33,7 +33,7 @@ export function HeroSection() {
         <div className="grid gap-8 md:grid-cols-2 md:items-center">
           {/* Left Column - Hero Content */}
           <div className="space-y-6 text-center md:text-left">
-            <h1 className="text-balance font-bold leading-[1.1] tracking-tight text-white" style={{ fontSize: '60px' }}>
+            <h1 className="text-balance font-bold leading-[1.1] text-white" style={{ fontSize: '60px', letterSpacing: '-1px' }}>
               Chat with Fantasy Premier League Data
             </h1>
 
