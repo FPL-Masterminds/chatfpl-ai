@@ -323,7 +323,7 @@ export default function ChatPage() {
   return (
     <div className="fixed inset-0 flex bg-background">
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-full md:w-1/2 lg:w-2/5 border-r border-border bg-card transition-transform duration-300`}>
+      <div className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-full md:w-1/4 border-r border-border bg-card transition-transform duration-300`}>
         <div className="flex h-14 items-center justify-between border-b border-border px-4">
           <h2 className="font-semibold text-foreground">Chat History</h2>
           <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
@@ -381,7 +381,13 @@ export default function ChatPage() {
                       onClick={() => loadConversation(conv.id)}
                     >
                       <p className="text-sm font-medium text-foreground" style={{ wordBreak: 'break-word', whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
-                        {conv.title || conv.messages[0]?.content || "New Chat"}
+                        {(() => {
+                          const text = conv.title || conv.messages[0]?.content || "New Chat"
+                          if (text.length > 252) {
+                            return text.substring(0, 252) + "..."
+                          }
+                          return text
+                        })()}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         {new Date(conv.updated_at).toLocaleDateString()}
