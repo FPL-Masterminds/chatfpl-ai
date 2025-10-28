@@ -268,12 +268,13 @@ You now have access to FPL expected points predictions, ownership trends (transf
 
                 // Append FPL data and formatting instructions to the user's message
                 const formattingInstructions = `FORMATTING RULES:
-- Format your response with clear paragraphs separated by blank lines
+- Format your response with clear paragraphs separated by TWO blank lines
 - Use bullet points (•) for lists and multiple items
-- Break up long blocks of text into readable sections
-- Use line breaks between different topics or players
-- Keep each paragraph focused and concise
-- Make comparisons easy to read with clear formatting
+- Add a blank line between each major section or topic
+- Use HYPHENS (-) not em-dashes when writing (e.g., "Man City (FWD)" not "Man City — FWD")
+- Keep each paragraph short (2-3 sentences max)
+- Add extra spacing between different players or topics for readability
+- Make comparisons easy to read with clear formatting and spacing
 - IMPORTANT: When mentioning a player, ALWAYS include their photo using this exact format: ![PlayerName](PhotoURL)
 - The PhotoURL is provided in the player data above
 - Example: "![Salah](https://resources.premierleague.com/premierleague25/photos/players/110x140/118748.png) Mohamed Salah is in great form..."
