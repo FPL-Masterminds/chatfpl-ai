@@ -6,7 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
-import { Database, Brain, MessageSquare, Check, Star } from "lucide-react"
+import { Database, Brain, MessageSquare, Check, Star, User } from "lucide-react"
 
 export default function HomePage() {
   return (
@@ -50,16 +50,16 @@ export default function HomePage() {
                   Connects to the official FPL API for real-time stats, fixtures, and player performance data.
                 </p>
               </div>
-              <div className="grid grid-cols-3 text-center text-white" style={{ backgroundColor: '#00FF86' }}>
+              <div className="grid grid-cols-3 text-center" style={{ backgroundColor: '#00FF86', color: '#2E0032' }}>
                 <div className="py-3">
                   <div className="text-lg font-bold">700+</div>
                   <div className="text-xs uppercase">Players</div>
                 </div>
-                <div className="py-3 border-l border-white/20">
+                <div className="py-3 border-l border-[#2E0032]/20">
                   <div className="text-lg font-bold">38</div>
                   <div className="text-xs uppercase">Gameweeks</div>
                 </div>
-                <div className="py-3 border-l border-white/20">
+                <div className="py-3 border-l border-[#2E0032]/20">
                   <div className="text-lg font-bold">Live</div>
                   <div className="text-xs uppercase">Updates</div>
                 </div>
@@ -153,50 +153,64 @@ export default function HomePage() {
               {
                 quote:
                   "ChatFPL helped me climb from 2M to top 100k in just 8 gameweeks. The AI insights are incredible.",
-                author: "Alex McKinney",
-                role: "FPL Manager",
-                avatar: "/placeholder-user.jpg",
+                author: "Ryan Anderson",
+                role: "Early User",
+                circleColor: "#00FF86",
+                iconColor: "#2E0032",
               },
               {
                 quote:
                   "Finally, an AI that actually understands FPL strategy. The captain picks alone are worth the subscription.",
-                author: "Sarah Murphy",
-                role: "Top 10k Finisher",
-                avatar: "/placeholder-user.jpg",
+                author: "Oliver Hughes",
+                role: "New Subscriber",
+                circleColor: "#2E0032",
+                iconColor: "#FFFFFF",
               },
               {
                 quote: "I use it every gameweek for transfer decisions. It's like having an FPL expert on speed dial.",
-                author: "James Robinson",
-                role: "FPL Veteran",
-                avatar: "/placeholder-user.jpg",
+                author: "Daniel Brown",
+                role: "Beta-Tester",
+                circleColor: "#00FFFF",
+                iconColor: "#2E0032",
               },
             ].map((testimonial, i) => (
               <Card key={i} className="overflow-hidden border-0 bg-white shadow-md">
-                {/* Stars at top */}
-                <div className="bg-white p-6 pb-4">
-                  <div className="mb-4 flex gap-1">
+                <div className="bg-white p-6">
+                  {/* User Icon Circle */}
+                  <div className="mb-4 flex justify-center">
+                    <div 
+                      className="flex h-16 w-16 items-center justify-center rounded-full"
+                      style={{ backgroundColor: testimonial.circleColor }}
+                    >
+                      <User className="h-8 w-8" style={{ color: testimonial.iconColor }} strokeWidth={2} />
+                    </div>
+                  </div>
+                  
+                  {/* Stars */}
+                  <div className="mb-4 flex justify-center gap-1">
                     {[...Array(5)].map((_, starIndex) => (
-                      <Star key={starIndex} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                      <Star 
+                        key={starIndex} 
+                        className="h-5 w-5" 
+                        style={{ fill: '#D4AF37', color: '#D4AF37' }}
+                      />
                     ))}
                   </div>
-                  {/* Quote text */}
-                  <p className="text-sm leading-relaxed text-gray-700">
-                    {testimonial.quote}
+                  
+                  {/* Name */}
+                  <h3 className="mb-1 text-center text-lg font-bold text-foreground">
+                    {testimonial.author}
+                  </h3>
+                  
+                  {/* Role */}
+                  <p className="mb-4 text-center text-sm font-semibold" style={{ color: '#00FF86' }}>
+                    {testimonial.role}
                   </p>
-                </div>
-                {/* Orange footer with avatar and details */}
-                <div className="flex items-center gap-4 bg-[#FF6B35] p-6 pt-4">
-                  <Image
-                    src={testimonial.avatar}
-                    alt={testimonial.author}
-                    width={56}
-                    height={56}
-                    className="h-14 w-14 rounded-full border-2 border-white object-cover"
-                  />
-                  <div>
-                    <p className="font-bold text-white">{testimonial.author}</p>
-                    <p className="text-sm text-white/90">{testimonial.role}</p>
-                  </div>
+                  
+                  {/* Quote */}
+                  <p className="text-center text-sm leading-relaxed text-muted-foreground">
+                    "{testimonial.quote}"
+                  </p>
                 </div>
               </Card>
             ))}
