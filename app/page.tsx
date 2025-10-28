@@ -39,7 +39,7 @@ export default function HomePage() {
           <div className="grid gap-8 md:grid-cols-3">
             {/* Card 1 - Green */}
             <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
-              <div className="aspect-video bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
+              <div className="aspect-[4/3] bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
                 <Database className="h-16 w-16 text-accent/40" />
               </div>
               <div className="p-6">
@@ -68,7 +68,7 @@ export default function HomePage() {
 
             {/* Card 2 - Purple */}
             <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
-              <div className="aspect-video bg-gradient-to-br from-purple-900/20 to-purple-900/5 flex items-center justify-center">
+              <div className="aspect-[4/3] bg-gradient-to-br from-purple-900/20 to-purple-900/5 flex items-center justify-center">
                 <Brain className="h-16 w-16 text-purple-900/40" />
               </div>
               <div className="p-6">
@@ -97,7 +97,7 @@ export default function HomePage() {
 
             {/* Card 3 - Cyan */}
             <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
-              <div className="aspect-video bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center">
+              <div className="aspect-[4/3] bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center">
                 <MessageSquare className="h-16 w-16 text-cyan-500/40" />
               </div>
               <div className="p-6">
