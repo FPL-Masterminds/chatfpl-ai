@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
+import { PricingButton } from "@/components/pricing-button"
 import { Database, Brain, MessageSquare, Check, Star, User } from "lucide-react"
 
 export default function HomePage() {
@@ -277,24 +278,13 @@ export default function HomePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button 
-                  variant="outline" 
-                  className="w-full border-2 bg-transparent transition-all hover:border-2" 
-                  style={{
-                    borderColor: 'hsl(var(--border))',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#00FF86'
-                    e.currentTarget.style.color = '#2E0032'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent'
-                    e.currentTarget.style.color = ''
-                  }}
-                  asChild
+                <PricingButton 
+                  href="/signup"
+                  hoverBg="#00FF86"
+                  hoverColor="#2E0032"
                 >
-                  <Link href="/signup">Get Started</Link>
-                </Button>
+                  Get Started
+                </PricingButton>
               </CardFooter>
             </Card>
 
@@ -338,7 +328,7 @@ export default function HomePage() {
               </CardContent>
               <CardFooter>
                 <Button 
-                  className="w-full text-accent-foreground hover:bg-accent/90" 
+                  className="w-full hover:opacity-90" 
                   style={{ backgroundColor: '#2E0032', color: '#FFFFFF' }}
                   asChild
                 >
@@ -380,26 +370,13 @@ export default function HomePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button 
-                  variant="outline" 
-                  className="w-full bg-transparent transition-all hover:border-2" 
-                  style={{
-                    border: '2px solid hsl(var(--border))',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#00FFFF'
-                    e.currentTarget.style.color = '#2E0032'
-                    e.currentTarget.style.borderColor = '#00FFFF'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent'
-                    e.currentTarget.style.color = ''
-                    e.currentTarget.style.borderColor = 'hsl(var(--border))'
-                  }}
-                  asChild
+                <PricingButton 
+                  href="/signup"
+                  hoverBg="#00FFFF"
+                  hoverColor="#2E0032"
                 >
-                  <Link href="/signup">Subscribe</Link>
-                </Button>
+                  Subscribe
+                </PricingButton>
               </CardFooter>
             </Card>
           </div>
