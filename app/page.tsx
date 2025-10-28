@@ -189,11 +189,15 @@ export default function HomePage() {
                   {/* Stars */}
                   <div className="mb-4 flex justify-center gap-1">
                     {[...Array(5)].map((_, starIndex) => (
-                      <Star 
-                        key={starIndex} 
-                        className="h-5 w-5" 
-                        style={{ fill: '#D4AF37', color: '#D4AF37' }}
-                      />
+                      <svg
+                        key={starIndex}
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        className="h-5 w-5"
+                        fill="#D4AF37"
+                      >
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
                     ))}
                   </div>
                   
@@ -203,7 +207,7 @@ export default function HomePage() {
                   </h3>
                   
                   {/* Role */}
-                  <p className="mb-4 text-center text-sm font-semibold" style={{ color: '#00FF86' }}>
+                  <p className="mb-4 text-center text-sm font-semibold" style={{ color: '#2E0032' }}>
                     {testimonial.role}
                   </p>
                   
