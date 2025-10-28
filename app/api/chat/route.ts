@@ -57,16 +57,112 @@ export async function POST(request: Request) {
         const currentGameweek = fplData.events?.find((e: any) => e.is_current) || fplData.events?.[0];
         const nextGameweek = fplData.events?.find((e: any) => e.is_next);
         
-        // Get ALL players and format efficiently with photo URLs
+        // Get ALL players first
         const allPlayers = fplData.elements?.map((p: any) => {
           const team = fplData.teams?.find((t: any) => t.id === p.team);
           const position = fplData.element_types?.find((pt: any) => pt.id === p.element_type);
           const photoCode = p.photo?.replace('.jpg', '').replace('.png', '') || p.code;
           const photoUrl = `https://resources.premierleague.com/premierleague25/photos/players/110x140/${photoCode}.png`;
-          return `${p.web_name}|${p.first_name} ${p.second_name}|${team?.short_name}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|${p.status}|${p.chance_of_playing_next_round || 100}%fit|${photoUrl}`;
-        });
+          return {
+            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${team?.short_name}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|${p.status}|${p.chance_of_playing_next_round || 100}%fit|${photoUrl}`,
+            rawData: p,
+            team: team?.short_name,
+            position: position?.singular_name_short
+          };
+        }) || [];
 
-        // Build context string
+        // Smart filtering based on question keywords
+        const messageLower = message.toLowerCase();
+        let filteredPlayers = allPlayers;
+        let filterNote = "";
+
+        // Check for specific player names mentioned
+        const mentionedPlayers = allPlayers.filter(p => 
+          messageLower.includes(p.rawData.web_name.toLowerCase()) ||
+          messageLower.includes(p.rawData.first_name.toLowerCase()) ||
+          messageLower.includes(p.rawData.second_name.toLowerCase())
+        );
+
+        if (mentionedPlayers.length > 0 && mentionedPlayers.length <= 5) {
+          // User asked about specific players - send those + top alternatives
+          filteredPlayers = [
+            ...mentionedPlayers,
+            ...allPlayers
+              .filter(p => !mentionedPlayers.includes(p))
+              .sort((a, b) => b.rawData.total_points - a.rawData.total_points)
+              .slice(0, 100)
+          ];
+          filterNote = `Focused on mentioned players plus top alternatives`;
+        }
+        else if (messageLower.includes('differential') || messageLower.includes('under the radar') || messageLower.includes('hidden gem')) {
+          // Differentials: Low ownership (<12%), decent form, playing regularly
+          filteredPlayers = allPlayers.filter(p => 
+            parseFloat(p.rawData.selected_by_percent) < 12 &&
+            parseFloat(p.rawData.form) > 3.0 &&
+            p.rawData.minutes > 200
+          ).slice(0, 150);
+          filterNote = `Showing players with <12% ownership, good form, and regular minutes`;
+        }
+        else if (messageLower.includes('premium') || messageLower.includes('expensive') || messageLower.includes('high price')) {
+          // Premium players: £9.0m+
+          filteredPlayers = allPlayers.filter(p => p.rawData.now_cost >= 90).slice(0, 100);
+          filterNote = `Showing premium players (£9.0m+)`;
+        }
+        else if (messageLower.includes('budget') || messageLower.includes('cheap') || messageLower.includes('enabler')) {
+          // Budget players: <£6.0m
+          filteredPlayers = allPlayers.filter(p => p.rawData.now_cost < 60).slice(0, 150);
+          filterNote = `Showing budget players (<£6.0m)`;
+        }
+        else if (messageLower.includes('captain')) {
+          // Captain picks: High points, good form, playing regularly
+          filteredPlayers = allPlayers
+            .filter(p => p.rawData.total_points > 30 && parseFloat(p.rawData.form) > 4.0)
+            .sort((a, b) => b.rawData.total_points - a.rawData.total_points)
+            .slice(0, 120);
+          filterNote = `Showing top captaincy options based on points and form`;
+        }
+        else if (messageLower.includes('transfer') || messageLower.includes('who to get') || messageLower.includes('who should i bring in')) {
+          // Transfer targets: Good form, decent points, available
+          filteredPlayers = allPlayers
+            .filter(p => 
+              parseFloat(p.rawData.form) > 4.0 &&
+              p.rawData.total_points > 20 &&
+              p.rawData.status === 'a'
+            )
+            .sort((a, b) => parseFloat(b.rawData.form) - parseFloat(a.rawData.form))
+            .slice(0, 150);
+          filterNote = `Showing in-form transfer targets`;
+        }
+        else if (messageLower.match(/\b(gk|goalkeeper|keeper)\b/)) {
+          filteredPlayers = allPlayers.filter(p => p.position === 'GKP').slice(0, 80);
+          filterNote = `Showing goalkeepers only`;
+        }
+        else if (messageLower.match(/\b(def|defender|defence|defense)\b/)) {
+          filteredPlayers = allPlayers.filter(p => p.position === 'DEF').slice(0, 120);
+          filterNote = `Showing defenders only`;
+        }
+        else if (messageLower.match(/\b(mid|midfielder|midfield)\b/)) {
+          filteredPlayers = allPlayers.filter(p => p.position === 'MID').slice(0, 150);
+          filterNote = `Showing midfielders only`;
+        }
+        else if (messageLower.match(/\b(fwd|forward|striker|attacker)\b/)) {
+          filteredPlayers = allPlayers.filter(p => p.position === 'FWD').slice(0, 100);
+          filterNote = `Showing forwards only`;
+        }
+        else {
+          // General question: Send top 150 most relevant players
+          filteredPlayers = allPlayers
+            .filter(p => 
+              p.rawData.total_points > 15 || 
+              parseFloat(p.rawData.form) > 4.0 ||
+              p.rawData.minutes > 300
+            )
+            .sort((a, b) => b.rawData.total_points - a.rawData.total_points)
+            .slice(0, 150);
+          filterNote = `Showing top 150 most relevant players (by points, form, and minutes)`;
+        }
+
+        // Build context string with filtered players
         fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
 CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.id})
@@ -75,8 +171,9 @@ CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.
 
 ${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time}` : ""}
 
-ALL ${allPlayers?.length || 0} FPL PLAYERS (Format: WebName|FullName|Team|Pos|Price|TotalPts|Form|PPG|Ownership|Status|Fitness|PhotoURL):
-${allPlayers?.join("\n")}
+FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
+Format: WebName|FullName|Team|Pos|Price|TotalPts|Form|PPG|Ownership|Status|Fitness|PhotoURL
+${filteredPlayers.map(p => p.formatted).join("\n")}
 
 TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
