@@ -37,7 +37,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            {/* Card 1 - Live Data with updated image */}
+            {/* Card 1 - Live Data feature card */}
             <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
               <div className="aspect-[4/3] relative">
                 <Image 
