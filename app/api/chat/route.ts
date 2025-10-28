@@ -69,8 +69,9 @@ export async function POST(request: Request) {
           const position = fplData.element_types?.find((pt: any) => pt.id === p.element_type);
           const photoCode = p.photo?.replace('.jpg', '').replace('.png', '') || p.code;
           const photoUrl = `https://resources.premierleague.com/premierleague25/photos/players/110x140/${photoCode}.png`;
+          const injuryNews = p.news ? `[${p.news}]` : '';
           return {
-            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${team?.short_name}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|${p.status}|${p.chance_of_playing_next_round || 100}%fit|${photoUrl}`,
+            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${team?.short_name}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|${p.minutes}min|xP:${p.ep_next}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
             rawData: p,
             team: team?.short_name,
             position: position?.singular_name_short
@@ -220,14 +221,28 @@ TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
-Format: WebName|FullName|Team|Pos|Price|TotalPts|Form|PPG|Ownership|Status|Fitness|PhotoURL
+Format: WebName|FullName|Team|Pos|Price|TotalPts|Form|PPG|Ownership%|Minutes|xP(ExpectedPts)|xG(ExpectedGoals)|xA(ExpectedAssists)|xGI(ExpectedGoalInvolvement)|Goals|Assists|CleanSheets|Bonus|BPS(BonusPointsSystem)|ICT(ICTIndex)|Inf(Influence)|Cre(Creativity)|Thr(Threat)|Status|Fitness%|[InjuryNews]|PhotoURL
 ${filteredPlayers.map(p => p.formatted).join("\n")}
 
 TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
+FIELD EXPLANATIONS:
+- xP = Expected points for next gameweek
+- xG = Expected goals (total season)
+- xA = Expected assists (total season)  
+- xGI = Expected goal involvements (total season)
+- ICT = ICT Index (combination of Influence, Creativity, Threat)
+- BPS = Bonus Points System score (determines bonus point allocation)
+- Inf/Cre/Thr = Individual ICT components (higher = better)
+- Minutes = Total minutes played this season
+- Status: a=available, d=doubtful, i=injured, u=unavailable, s=suspended
+- Fitness% = Chance of playing next round
+- [InjuryNews] = Latest injury/availability news if any
+
 FIXTURE DIFFICULTY: 1=Easy, 2=Favorable, 3=Medium, 4=Tough, 5=Very Difficult. H=Home, A=Away.
-Use this live data to answer the user's question accurately. Check team fixtures before recommending players. All data is current as of today.`;
+
+You now have access to ALL FPL metrics including expected stats (xG, xA, xP), minutes, injury updates, bonus data, and ICT indices. Use this live data to answer the user's question accurately. Check team fixtures before recommending players. All data is current as of today.`;
       }
     } catch (fplError) {
       console.error("FPL API fetch error:", fplError);
