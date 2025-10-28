@@ -6,7 +6,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
-import { PricingButton } from "@/components/pricing-button"
 import { Database, Brain, MessageSquare, Check, Star, User } from "lucide-react"
 
 export default function HomePage() {
@@ -278,13 +277,13 @@ export default function HomePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <PricingButton 
-                  href="/signup"
-                  hoverBg="#00FF86"
-                  hoverColor="#2E0032"
+                <Button 
+                  className="w-full hover:opacity-90" 
+                  style={{ backgroundColor: '#00FF86', color: '#2E0032' }}
+                  asChild
                 >
-                  Get Started
-                </PricingButton>
+                  <Link href="/signup">Get Started</Link>
+                </Button>
               </CardFooter>
             </Card>
 
@@ -292,7 +291,7 @@ export default function HomePage() {
             <Card className="relative border-2 bg-white shadow-lg" style={{ borderColor: '#2E0032' }}>
               <div 
                 className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-sm font-semibold"
-                style={{ backgroundColor: '#2E0032', color: '#00FF86' }}
+                style={{ backgroundColor: '#2E0032', color: '#FFFFFF' }}
               >
                 Most Popular
               </div>
@@ -370,13 +369,13 @@ export default function HomePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <PricingButton 
-                  href="/signup"
-                  hoverBg="#00FFFF"
-                  hoverColor="#2E0032"
+                <Button 
+                  className="w-full hover:opacity-90" 
+                  style={{ backgroundColor: '#00FF86', color: '#2E0032' }}
+                  asChild
                 >
-                  Subscribe
-                </PricingButton>
+                  <Link href="/signup">Subscribe</Link>
+                </Button>
               </CardFooter>
             </Card>
           </div>
