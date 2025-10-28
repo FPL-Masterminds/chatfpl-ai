@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Send, Sparkles, User, Menu, LogOut, MessageSquarePlus } from "lucide-react"
+import { Send, Sparkles, User, Menu, LogOut, MessageSquarePlus, Trash2, MessageSquare, X } from "lucide-react"
 import Link from "next/link"
 import {
   DropdownMenu,
@@ -26,13 +26,23 @@ type Message = {
   timestamp: Date
 }
 
+type Conversation = {
+  id: string
+  title: string | null
+  created_at: string
+  updated_at: string
+  messages: Message[]
+}
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const [conversationId, setConversationId] = useState<string | null>(null)
+  const [conversations, setConversations] = useState<Conversation[]>([])
   const [messagesUsed, setMessagesUsed] = useState(0)
   const [messagesLimit, setMessagesLimit] = useState(5)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -45,13 +55,21 @@ export default function ChatPage() {
     scrollToBottom()
   }, [messages])
 
-  // Load chat history on mount
+  // Load all conversations on mount
   useEffect(() => {
-    const loadHistory = async () => {
+    const loadData = async () => {
       try {
-        const response = await fetch("/api/chat/history")
-        if (response.ok) {
-          const data = await response.json()
+        // Load all conversations
+        const convsResponse = await fetch("/api/chat/conversations")
+        if (convsResponse.ok) {
+          const convsData = await convsResponse.json()
+          setConversations(convsData.conversations || [])
+        }
+
+        // Load most recent conversation
+        const historyResponse = await fetch("/api/chat/history")
+        if (historyResponse.ok) {
+          const data = await historyResponse.json()
           if (data.messages && data.messages.length > 0) {
             setMessages(data.messages.map((msg: any) => ({
               ...msg,
@@ -69,7 +87,7 @@ export default function ChatPage() {
           }
         }
       } catch (error) {
-        console.error("Failed to load chat history:", error)
+        console.error("Failed to load chat data:", error)
         // Show welcome message on error
         setMessages([{
           id: "welcome",
@@ -82,11 +100,11 @@ export default function ChatPage() {
       }
     }
 
-    loadHistory()
+    loadData()
   }, [])
 
   // Start a new chat
-  const startNewChat = () => {
+  const startNewChat = async () => {
     setMessages([{
       id: "welcome",
       role: "assistant",
@@ -95,6 +113,54 @@ export default function ChatPage() {
     }])
     setConversationId(null)
     setInput("")
+    setIsSidebarOpen(false)
+    
+    // Reload conversations list
+    const response = await fetch("/api/chat/conversations")
+    if (response.ok) {
+      const data = await response.json()
+      setConversations(data.conversations || [])
+    }
+  }
+
+  // Load a specific conversation
+  const loadConversation = async (convId: string) => {
+    try {
+      const conv = conversations.find(c => c.id === convId)
+      if (conv && conv.messages) {
+        setMessages(conv.messages.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        })))
+        setConversationId(convId)
+        setIsSidebarOpen(false)
+      }
+    } catch (error) {
+      console.error("Failed to load conversation:", error)
+    }
+  }
+
+  // Delete a conversation
+  const deleteConversation = async (convId: string) => {
+    try {
+      const response = await fetch("/api/chat/conversations", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId: convId }),
+      })
+
+      if (response.ok) {
+        // Remove from list
+        setConversations(prev => prev.filter(c => c.id !== convId))
+        
+        // If we deleted the current conversation, start a new one
+        if (convId === conversationId) {
+          startNewChat()
+        }
+      }
+    } catch (error) {
+      console.error("Failed to delete conversation:", error)
+    }
   }
 
   // Parse markdown images in message content
@@ -214,20 +280,88 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-background">
-      {/* Header */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/40 bg-card/50 px-4">
-        <Link href="/">
-          <Image 
-            src="/ChatFPL_Logo.png" 
-            alt="ChatFPL" 
-            width={40} 
-            height={40}
-            className="h-8 w-auto md:h-10"
-          />
-        </Link>
+    <div className="fixed inset-0 flex bg-background">
+      {/* Sidebar */}
+      <div className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 border-r border-border bg-card transition-transform duration-300 md:relative md:translate-x-0`}>
+        <div className="flex h-14 items-center justify-between border-b border-border px-4">
+          <h2 className="font-semibold text-foreground">Chat History</h2>
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsSidebarOpen(false)}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="p-2">
+          <Button onClick={startNewChat} className="w-full justify-start gap-2" variant="outline">
+            <MessageSquarePlus className="h-4 w-4" />
+            New Chat
+          </Button>
+        </div>
 
-        <div className="flex items-center gap-3">
+        <ScrollArea className="h-[calc(100vh-120px)]">
+          <div className="space-y-1 p-2">
+            {conversations.length === 0 ? (
+              <p className="px-3 py-2 text-sm text-muted-foreground">No conversations yet</p>
+            ) : (
+              conversations.map((conv) => (
+                <div
+                  key={conv.id}
+                  className={`group relative flex items-center justify-between rounded-lg p-3 hover:bg-accent/10 cursor-pointer ${conv.id === conversationId ? 'bg-accent/20' : ''}`}
+                  onClick={() => loadConversation(conv.id)}
+                >
+                  <div className="flex-1 overflow-hidden">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {conv.title || conv.messages[0]?.content.substring(0, 30) || "New Chat"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(conv.updated_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      deleteConversation(conv.id)
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Main Content */}
+      <div className="flex flex-1 flex-col">
+        {/* Header */}
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/40 bg-card/50 px-4">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsSidebarOpen(true)}>
+              <MessageSquare className="h-5 w-5" />
+            </Button>
+            <Link href="/">
+              <Image 
+                src="/ChatFPL_Logo.png" 
+                alt="ChatFPL" 
+                width={40} 
+                height={40}
+                className="h-8 w-auto md:h-10"
+              />
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-3">
           <div className="hidden items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-sm md:flex">
             <Sparkles className="h-4 w-4 text-accent" />
             <span className="text-foreground">
@@ -362,6 +496,7 @@ export default function ChatPage() {
             ChatFPL can make mistakes. Verify important information.
           </p>
         </div>
+      </div>
       </div>
     </div>
   )
