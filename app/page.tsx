@@ -113,8 +113,13 @@ export default function HomePage() {
 
             {/* Card 3 - Cyan */}
             <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
-              <div className="aspect-[4/3] bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center">
-                <MessageSquare className="h-16 w-16 text-cyan-500/40" />
+              <div className="aspect-[4/3] relative">
+                <Image 
+                  src="/Natural_Chat.png" 
+                  alt="Natural Chat" 
+                  fill
+                  className="object-cover"
+                />
               </div>
               <div className="p-6 text-center">
                 <h3 className="mb-2 text-xl font-bold text-foreground">
