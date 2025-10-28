@@ -383,8 +383,8 @@ export default function ChatPage() {
                       <p className="text-sm font-medium text-foreground" style={{ wordBreak: 'break-word', whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
                         {(() => {
                           const text = conv.title || conv.messages[0]?.content || "New Chat"
-                          if (text.length > 252) {
-                            return text.substring(0, 252) + "..."
+                          if (text.length > 47) {
+                            return text.substring(0, 47) + "..."
                           }
                           return text
                         })()}
