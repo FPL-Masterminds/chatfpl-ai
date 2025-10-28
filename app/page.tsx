@@ -234,7 +234,7 @@ export default function HomePage() {
                 paintOrder: 'stroke fill'
               }}
             >
-              <span style={{ color: 'white' }}>Simple, </span>
+              <span style={{ color: 'white' }}>Simple </span>
               <span style={{ color: '#00FFFF' }}>transparent </span>
               <span style={{ color: '#00FF86' }}>pricing</span>
             </h2>
@@ -371,7 +371,7 @@ export default function HomePage() {
               <CardFooter>
                 <Button 
                   className="w-full hover:opacity-90" 
-                  style={{ backgroundColor: '#00FF86', color: '#2E0032' }}
+                  style={{ backgroundColor: '#00FFFF', color: '#2E0032' }}
                   asChild
                 >
                   <Link href="/signup">Subscribe</Link>
