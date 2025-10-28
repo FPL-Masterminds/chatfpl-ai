@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Send, Sparkles, User, Menu, LogOut } from "lucide-react"
+import { Send, Sparkles, User, Menu, LogOut, MessageSquarePlus } from "lucide-react"
 import Link from "next/link"
 import {
   DropdownMenu,
@@ -27,17 +27,10 @@ type Message = {
 }
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content:
-        "Hello! I'm your FPL AI assistant. Ask me anything about Fantasy Premier League - player stats, transfer advice, captain picks, or strategy tips!",
-      timestamp: new Date(),
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true)
 
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [messagesUsed, setMessagesUsed] = useState(0)
@@ -51,6 +44,58 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Load chat history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const response = await fetch("/api/chat/history")
+        if (response.ok) {
+          const data = await response.json()
+          if (data.messages && data.messages.length > 0) {
+            setMessages(data.messages.map((msg: any) => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp)
+            })))
+            setConversationId(data.conversationId)
+          } else {
+            // No history, show welcome message
+            setMessages([{
+              id: "welcome",
+              role: "assistant",
+              content: "Hello! I'm your FPL AI assistant. Ask me anything about Fantasy Premier League - player stats, transfer advice, captain picks, or strategy tips!",
+              timestamp: new Date(),
+            }])
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load chat history:", error)
+        // Show welcome message on error
+        setMessages([{
+          id: "welcome",
+          role: "assistant",
+          content: "Hello! I'm your FPL AI assistant. Ask me anything about Fantasy Premier League - player stats, transfer advice, captain picks, or strategy tips!",
+          timestamp: new Date(),
+        }])
+      } finally {
+        setIsLoadingHistory(false)
+      }
+    }
+
+    loadHistory()
+  }, [])
+
+  // Start a new chat
+  const startNewChat = () => {
+    setMessages([{
+      id: "welcome",
+      role: "assistant",
+      content: "Hello! I'm your FPL AI assistant. Ask me anything about Fantasy Premier League - player stats, transfer advice, captain picks, or strategy tips!",
+      timestamp: new Date(),
+    }])
+    setConversationId(null)
+    setInput("")
+  }
 
   // Parse markdown images in message content
   const renderMessageContent = (content: string) => {
@@ -156,6 +201,18 @@ export default function ChatPage() {
     }
   }
 
+  // Show loading spinner while loading history
+  if (isLoadingHistory) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Sparkles className="mx-auto h-8 w-8 animate-spin text-accent" />
+          <p className="mt-4 text-sm text-muted-foreground">Loading your chat history...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="fixed inset-0 flex flex-col bg-background">
       {/* Header */}
@@ -187,6 +244,11 @@ export default function ChatPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={startNewChat}>
+                <MessageSquarePlus className="mr-2 h-4 w-4" />
+                New Chat
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/admin">Account Settings</Link>
               </DropdownMenuItem>
