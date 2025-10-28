@@ -176,7 +176,7 @@ export default function HomePage() {
             {[
               {
                 quote:
-                  "I asked ChatFPL for a detailed player comparison between Haaland and Isak. It gave me expected goals, form trends, and fixture difficulty - exactly what I needed for my transfer decision.",
+                  "I asked ChatFPL for a detailed player comparison between Haaland and Joao Pedro. It gave me expected goals, form trends, and fixture difficulty - exactly what I needed for my transfer decision.",
                 author: "Ryan Anderson",
                 role: "Premium Subscriber",
                 circleColor: "#00FF86",
@@ -184,7 +184,7 @@ export default function HomePage() {
               },
               {
                 quote:
-                  "I use ChatFPL to write my FPL YouTube scripts. It analyzes the data and helps me create engaging content about captain picks and differentials in minutes instead of hours.",
+                  "I use ChatFPL to write my FPL YouTube scripts. It analyses the data and helps me create engaging content about captain picks and differentials in minutes instead of hours.",
                 author: "Oliver Hughes",
                 role: "Content Creator",
                 circleColor: "#2E0032",
