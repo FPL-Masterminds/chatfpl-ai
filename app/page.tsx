@@ -74,10 +74,15 @@ export default function HomePage() {
               </div>
             </Card>
 
-            {/* Card 2 - Purple */}
+            {/* Card 2 - Expert Knowledge */}
             <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
-              <div className="aspect-[4/3] bg-gradient-to-br from-purple-900/20 to-purple-900/5 flex items-center justify-center">
-                <Brain className="h-16 w-16 text-purple-900/40" />
+              <div className="aspect-[4/3] relative">
+                <Image 
+                  src="/Expert_Knowledge.png" 
+                  alt="Expert Knowledge" 
+                  fill
+                  className="object-cover"
+                />
               </div>
               <div className="p-6 text-center">
                 <h3 className="mb-2 text-xl font-bold text-foreground">
