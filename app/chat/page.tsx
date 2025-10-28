@@ -43,12 +43,47 @@ export default function ChatPage() {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; conversationId: string } | null>(null)
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState("")
+  const [userFirstName, setUserFirstName] = useState<string>("there")
 
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [messagesUsed, setMessagesUsed] = useState(0)
   const [messagesLimit, setMessagesLimit] = useState(5)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // 25 welcome message variations
+  const welcomeMessages = [
+    "Hi {firstName}! ChatFPL here. What FPL questions can I help you with today?",
+    "Welcome back, {firstName}! I'm ChatFPL - ask me anything about Fantasy Premier League.",
+    "Hey {firstName}! ChatFPL ready to help. Player stats, transfers, captains - just ask!",
+    "{firstName}, let's talk FPL! I'm ChatFPL, your AI assistant for all things Fantasy Premier League.",
+    "Hello {firstName}! ChatFPL here with live FPL data. What would you like to know?",
+    "Hi there, {firstName}! I'm ChatFPL - here to help with your FPL decisions. Fire away!",
+    "{firstName}! ChatFPL at your service. Need transfer advice, captain picks, or player analysis?",
+    "Welcome, {firstName}! ChatFPL here. Let's dive into some FPL strategy together.",
+    "Hey {firstName}! I'm ChatFPL - powered by live FPL data. What's on your mind?",
+    "Hi {firstName}! ChatFPL ready to assist. Ask me about players, fixtures, or strategy!",
+    "{firstName}, good to see you! I'm ChatFPL - your FPL companion. What can I help with?",
+    "Hello {firstName}! ChatFPL here with the latest FPL insights. What would you like to explore?",
+    "Hey there, {firstName}! I'm ChatFPL - let's optimize your Fantasy Premier League team!",
+    "{firstName}! ChatFPL reporting for duty. Player stats, differentials, captains - I've got you covered.",
+    "Hi {firstName}! I'm ChatFPL, here to help you dominate your FPL mini-leagues. What's your question?",
+    "Welcome {firstName}! ChatFPL ready with live data and expert FPL advice. Ask away!",
+    "{firstName}, let's get started! I'm ChatFPL - here for all your Fantasy Premier League needs.",
+    "Hey {firstName}! ChatFPL here. Whether it's transfers, tactics, or stats - I'm here to help.",
+    "Hi {firstName}! I'm ChatFPL, your FPL AI assistant. What gameweek decisions can I help with?",
+    "{firstName}! ChatFPL at the ready. Need help with your FPL team? Just ask!",
+    "Hello there, {firstName}! ChatFPL here with real-time FPL data. What's your first question?",
+    "Hey {firstName}! I'm ChatFPL - let's make some smart FPL moves together. What do you need?",
+    "{firstName}, welcome! ChatFPL here to help you climb those ranks. Fire away with your questions!",
+    "Hi {firstName}! ChatFPL ready to analyze players, fixtures, and strategy. What would you like to know?",
+    "{firstName}! I'm ChatFPL, your Fantasy Premier League companion. Let's talk tactics, transfers, or captains!"
+  ]
+
+  const getRandomWelcomeMessage = (firstName: string) => {
+    const randomIndex = Math.floor(Math.random() * welcomeMessages.length)
+    return welcomeMessages[randomIndex].replace(/{firstName}/g, firstName)
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -62,6 +97,15 @@ export default function ChatPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Get user's first name first
+        let firstName = "there"
+        const accountResponse = await fetch("/api/account")
+        if (accountResponse.ok) {
+          const accountData = await accountResponse.json()
+          firstName = accountData.user?.name?.split(' ')[0] || "there"
+          setUserFirstName(firstName)
+        }
+
         // Load all conversations
         const convsResponse = await fetch("/api/chat/conversations")
         if (convsResponse.ok) {
@@ -80,22 +124,23 @@ export default function ChatPage() {
             })))
             setConversationId(data.conversationId)
           } else {
-            // No history, show welcome message
+            // No history, show random welcome message with firstName
             setMessages([{
               id: "welcome",
               role: "assistant",
-              content: "Hello! I'm your FPL AI assistant. Ask me anything about Fantasy Premier League - player stats, transfer advice, captain picks, or strategy tips!",
+              content: getRandomWelcomeMessage(firstName),
               timestamp: new Date(),
             }])
           }
         }
       } catch (error) {
         console.error("Failed to load chat data:", error)
-        // Show welcome message on error
+        // Show welcome message on error with firstName
+        const firstName = userFirstName || "there"
         setMessages([{
           id: "welcome",
           role: "assistant",
-          content: "Hello! I'm your FPL AI assistant. Ask me anything about Fantasy Premier League - player stats, transfer advice, captain picks, or strategy tips!",
+          content: getRandomWelcomeMessage(firstName),
           timestamp: new Date(),
         }])
       } finally {
@@ -111,7 +156,7 @@ export default function ChatPage() {
     setMessages([{
       id: "welcome",
       role: "assistant",
-      content: "Hello! I'm your FPL AI assistant. Ask me anything about Fantasy Premier League - player stats, transfer advice, captain picks, or strategy tips!",
+      content: getRandomWelcomeMessage(userFirstName),
       timestamp: new Date(),
     }])
     setConversationId(null)
@@ -208,7 +253,7 @@ export default function ChatPage() {
   const renderMessageContent = (content: string) => {
     // Split by markdown image syntax: ![alt](url)
     const parts = content.split(/!\[([^\]]*)\]\(([^)]+)\)/)
-    const elements: (string | JSX.Element)[] = []
+    const elements: (string | React.ReactElement)[] = []
     
     for (let i = 0; i < parts.length; i++) {
       if (i % 3 === 0 && parts[i]) {

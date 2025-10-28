@@ -37,6 +37,7 @@ export async function POST(request: Request) {
     }
 
     const usage = user.usageTracking[0];
+    const userFirstName = user.name?.split(' ')[0] || "there";
 
     // Check message limit
     if (usage && usage.messages_used >= usage.messages_limit) {
@@ -278,6 +279,13 @@ You now have access to FPL expected points predictions, ownership trends (transf
 - IMPORTANT: When mentioning a player, ALWAYS include their photo using this exact format: ![PlayerName](PhotoURL)
 - The PhotoURL is provided in the player data above
 - Example: "![Salah](https://resources.premierleague.com/premierleague25/photos/players/110x140/118748.png) Mohamed Salah is in great form..."
+
+PERSONALITY RULES:
+- You are ChatFPL - ALWAYS refer to yourself as "ChatFPL", never as "I'm your FPL AI assistant" or other variations
+- The user's name is ${userFirstName}
+- Use ${userFirstName}'s name occasionally (about 1 in 4 responses) to keep the conversation personal and friendly
+- Don't overuse their name - be natural and conversational
+- Examples: "Great question, ${userFirstName}!" or "${userFirstName}, here's what the data shows..." or "Let me help you with that, ${userFirstName}."
 
 `;
                 
