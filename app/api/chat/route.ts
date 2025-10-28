@@ -71,7 +71,7 @@ export async function POST(request: Request) {
           const photoUrl = `https://resources.premierleague.com/premierleague25/photos/players/110x140/${photoCode}.png`;
           const injuryNews = p.news ? `[${p.news}]` : '';
           return {
-            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${team?.short_name}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
+            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${team?.short_name}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
             rawData: p,
             team: team?.short_name,
             position: position?.singular_name_short
@@ -221,15 +221,20 @@ TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
-Format: WebName|FullName|Team|Pos|Price|TotalPts|Form|PPG|Ownership%|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|Status|Fitness%|[InjuryNews]|PhotoURL
+Format: WebName|FullName|Team|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|Status|Fitness%|[InjuryNews]|PhotoURL
 ${filteredPlayers.map(p => p.formatted).join("\n")}
 
 TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
-- xPNext = Expected points for NEXT gameweek (FPL's prediction)
-- xPThis = Expected points for THIS gameweek (FPL's prediction)
+- xPNext = Expected points for NEXT gameweek (FPL's official prediction)
+- xPThis = Expected points for THIS gameweek (FPL's official prediction)
+- TI_GW = Transfers IN this gameweek (shows trending players)
+- TO_GW = Transfers OUT this gameweek (shows who managers are selling)
+- TI_Total = Total transfers IN this season
+- TO_Total = Total transfers OUT this season
+- Ownership% = Percentage of teams that own this player
 - Goals/Assists/CleanSheets = Actual stats this season
 - ICT = ICT Index (combination of Influence, Creativity, Threat)
 - BPS = Bonus Points System score (determines bonus point allocation)
@@ -238,12 +243,12 @@ FIELD EXPLANATIONS:
 - YC/RC = Yellow/Red cards this season
 - Saves/Pens/PensMissed = Goalkeeper/penalty stats
 - Status: a=available, d=doubtful, i=injured, u=unavailable, s=suspended
-- Fitness% = Chance of playing next round
+- Fitness% = Chance of playing next round (0-100)
 - [InjuryNews] = Latest injury/availability news if any
 
 FIXTURE DIFFICULTY: 1=Easy, 2=Favorable, 3=Medium, 4=Tough, 5=Very Difficult. H=Home, A=Away.
 
-You now have access to FPL expected points predictions, actual performance stats (goals, assists, minutes, clean sheets), bonus/ICT data, injury updates, and disciplinary records. Use this live data to answer the user's question accurately. Check team fixtures before recommending players. All data is current as of today.`;
+You now have access to FPL expected points predictions, ownership trends (transfers in/out this GW and total season), actual performance stats (goals, assists, minutes, clean sheets), bonus/ICT data, injury updates, and disciplinary records. Use this live data to answer the user's question accurately. Check team fixtures and transfer trends before recommending players. All data is current as of today.`;
       }
     } catch (fplError) {
       console.error("FPL API fetch error:", fplError);
