@@ -111,22 +111,15 @@ Use this live data to answer the user's question accurately. All player stats, p
 - The PhotoURL is provided in the player data above
 - Example: "![Salah](https://resources.premierleague.com/premierleague25/photos/players/110x140/118748.png) Mohamed Salah is in great form..."
 
-EFFICIENCY GUIDELINES FOR BROAD QUESTIONS:
-- For general gameweek insights/tips: Focus on 6-8 key players maximum across different positions
-- Prioritize players with high form, good fixtures, or important status updates
-- For "expert insights" or "things I might have missed": Highlight 3-4 unexpected differentials, fixture swings, or under-the-radar options
-- Don't try to analyze every player - be selective and strategic
-- Aim to respond in 60-90 seconds by being focused and efficient
-
 `;
                 
                 const enhancedMessage = fplContext 
                   ? `${fplContext}\n\n${formattingInstructions}\n---\n\nUser Question: ${message}`
                   : `${formattingInstructions}\n---\n\nUser Question: ${message}`;
 
-    // Add 120 second timeout for Dify API call (increased for complex queries)
+    // Add 60 second timeout for Dify API call
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 120000);
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
 
     let difyData: any;
     
@@ -172,9 +165,9 @@ EFFICIENCY GUIDELINES FOR BROAD QUESTIONS:
       clearTimeout(timeoutId);
       
       if (fetchError.name === "AbortError") {
-        console.error("Dify API timeout - request exceeded 120 seconds");
+        console.error("Dify API timeout - request exceeded 60 seconds");
         return NextResponse.json(
-          { error: "Your question is taking longer than expected. Please try:\n\n• Asking about specific players or positions (e.g., 'Best midfield captains for GW10')\n• Breaking complex questions into smaller parts\n• Focusing on 3-5 players at a time for comparisons\n\nGeneral tips: Instead of 'What are all the insights?', try 'What are 3 differential picks for GW10?' for faster results." },
+          { error: "Your question is taking longer than expected. Please try:\n\n• Asking about fewer players at once\n• Breaking your question into smaller parts\n• Simplifying your request\n\nFor squad analysis, focus on 2-3 players at a time for best results." },
           { status: 504 }
         );
       }
