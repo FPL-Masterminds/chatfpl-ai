@@ -49,9 +49,15 @@ export async function POST(request: Request) {
     // Fetch live FPL data
     let fplContext = "";
     try {
-      const fplResponse = await fetch("https://fantasy.premierleague.com/api/bootstrap-static/");
-      if (fplResponse.ok) {
+      // Fetch both bootstrap data and fixtures
+      const [fplResponse, fixturesResponse] = await Promise.all([
+        fetch("https://fantasy.premierleague.com/api/bootstrap-static/"),
+        fetch("https://fantasy.premierleague.com/api/fixtures/")
+      ]);
+      
+      if (fplResponse.ok && fixturesResponse.ok) {
         const fplData = await fplResponse.json();
+        const fixturesData = await fixturesResponse.json();
         
         // Extract key data
         const currentGameweek = fplData.events?.find((e: any) => e.is_current) || fplData.events?.[0];
@@ -162,6 +168,16 @@ export async function POST(request: Request) {
           filterNote = `Showing top 150 most relevant players (by points, form, and minutes)`;
         }
 
+        // Get upcoming fixtures (next 5 gameweeks from current/next)
+        const currentGW = currentGameweek?.id || 1;
+        const upcomingFixtures = fixturesData
+          .filter((f: any) => f.event >= currentGW && f.event <= currentGW + 4 && !f.finished)
+          .map((f: any) => {
+            const homeTeam = fplData.teams?.find((t: any) => t.id === f.team_h);
+            const awayTeam = fplData.teams?.find((t: any) => t.id === f.team_a);
+            return `GW${f.event}: ${homeTeam?.short_name || 'TBC'} (H) vs ${awayTeam?.short_name || 'TBC'} (A) | Difficulty: ${homeTeam?.short_name} ${f.team_h_difficulty}/5, ${awayTeam?.short_name} ${f.team_a_difficulty}/5 | Kickoff: ${f.kickoff_time || 'TBC'}`;
+          });
+
         // Build context string with filtered players
         fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
@@ -171,6 +187,9 @@ CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.
 
 ${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time}` : ""}
 
+UPCOMING FIXTURES (Next 5 Gameweeks):
+${upcomingFixtures.join("\n")}
+
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
 Format: WebName|FullName|Team|Pos|Price|TotalPts|Form|PPG|Ownership|Status|Fitness|PhotoURL
 ${filteredPlayers.map(p => p.formatted).join("\n")}
@@ -178,7 +197,8 @@ ${filteredPlayers.map(p => p.formatted).join("\n")}
 TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
-Use this live data to answer the user's question accurately. All player stats, prices, availability, and photo URLs are current as of today.`;
+FIXTURE DIFFICULTY RATING: 1 = Easy, 5 = Very Difficult
+Use this live data to answer the user's question accurately. All player stats, prices, availability, fixtures, and photo URLs are current as of today.`;
       }
     } catch (fplError) {
       console.error("FPL API fetch error:", fplError);
