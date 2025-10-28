@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import crypto from "crypto";
+import { Resend } from "resend";
 
 export async function POST(request: Request) {
   try {
@@ -34,6 +36,11 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const tokenExpiry = new Date();
+    tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hour expiry
+
     const now = new Date();
     const oneMonthLater = new Date();
     oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
@@ -43,6 +50,8 @@ export async function POST(request: Request) {
         name,
         email,
         password_hash: hashedPassword,
+        emailVerificationToken: verificationToken,
+        emailVerificationExpires: tokenExpiry,
         subscriptions: {
           create: {
             plan: "Free",
@@ -67,8 +76,39 @@ export async function POST(request: Request) {
       },
     });
 
+    // Send verification email
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const verificationUrl = `${process.env.NEXTAUTH_URL || 'https://chatfpl.ai'}/api/verify-email?token=${verificationToken}`;
+
+      await resend.emails.send({
+        from: process.env.EMAIL_FROM || "ChatFPL <noreply@chatfpl.ai>",
+        to: email,
+        subject: "Verify your ChatFPL email",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #2E0032;">Welcome to ChatFPL, ${name}!</h2>
+            <p>Thanks for signing up. Please verify your email address to start using ChatFPL.</p>
+            <p>Click the button below to verify your email:</p>
+            <a href="${verificationUrl}" style="display: inline-block; background-color: #00FF86; color: #2E0032; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0;">Verify Email</a>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="color: #666; font-size: 14px; word-break: break-all;">${verificationUrl}</p>
+            <p style="color: #999; font-size: 12px; margin-top: 30px;">This link will expire in 24 hours.</p>
+            <p style="color: #999; font-size: 12px;">If you didn't create an account, you can safely ignore this email.</p>
+          </div>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+      // Don't fail signup if email fails - user can request a new one
+    }
+
     return NextResponse.json(
-      { message: "User created successfully", user: newUser },
+      { 
+        message: "User created successfully. Please check your email to verify your account.", 
+        user: newUser,
+        requiresVerification: true 
+      },
       { status: 201 }
     );
   } catch (error) {

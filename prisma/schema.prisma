@@ -16,8 +16,11 @@ model User {
   image                  String?
   created_at             DateTime       @default(now()) @db.Timestamp(6)
   updated_at             DateTime       @default(now()) @db.Timestamp(6)
-  resetPasswordToken     String?        @unique
-  resetPasswordExpires   DateTime?
+  resetPasswordToken       String?        @unique
+  resetPasswordExpires     DateTime?
+  emailVerificationToken   String?        @unique
+  emailVerificationExpires DateTime?
+  viral_rewards_claimed    Boolean        @default(false)
   
   accounts      Account[]
   sessions      Session[]

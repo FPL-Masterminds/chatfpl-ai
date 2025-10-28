@@ -65,8 +65,8 @@ export default function SignupPage() {
         return
       }
 
-      // Success - redirect to login
-      router.push("/login")
+      // Success - redirect to verify email page
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`)
     } catch (err) {
       setError("Something went wrong. Please try again.")
       setLoading(false)
