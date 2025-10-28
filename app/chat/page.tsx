@@ -379,7 +379,7 @@ export default function ChatPage() {
                       className="cursor-pointer p-3"
                       onClick={() => loadConversation(conv.id)}
                     >
-                      <p className="text-sm font-medium text-foreground line-clamp-2">
+                      <p className="text-sm font-medium text-foreground break-words">
                         {conv.title || conv.messages[0]?.content || "New Chat"}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
