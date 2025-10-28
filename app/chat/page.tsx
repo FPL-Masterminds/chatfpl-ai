@@ -348,6 +348,7 @@ export default function ChatPage() {
                   key={conv.id}
                   className={`relative rounded-lg hover:bg-accent/10 ${conv.id === conversationId ? 'bg-accent/20' : ''}`}
                   onContextMenu={(e) => handleContextMenu(e, conv.id)}
+                  style={{ overflow: 'visible' }}
                 >
                   {renamingId === conv.id ? (
                     <div className="p-3">
@@ -379,7 +380,7 @@ export default function ChatPage() {
                       className="cursor-pointer p-3"
                       onClick={() => loadConversation(conv.id)}
                     >
-                      <p className="text-sm font-medium text-foreground whitespace-normal break-all">
+                      <p className="text-sm font-medium text-foreground" style={{ wordBreak: 'break-word', whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
                         {conv.title || conv.messages[0]?.content || "New Chat"}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
