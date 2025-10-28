@@ -33,7 +33,7 @@ export function HeroSection() {
         style={{ backgroundImage: "url(/gradient_hero_bg.png)" }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
-      <div className="container relative mx-auto px-4 py-16 md:py-20">
+      <div className="container relative mx-auto max-w-7xl px-4 py-16 md:py-20">
         <div className="grid gap-8 md:grid-cols-2 md:items-center">
           {/* Left Column - Hero Content */}
           <div className="space-y-6 text-center md:text-left">

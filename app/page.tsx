@@ -1,11 +1,12 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
-import { Database, Brain, MessageSquare, Check } from "lucide-react"
+import { Database, Brain, MessageSquare, Check, Star } from "lucide-react"
 
 export default function HomePage() {
   return (
@@ -16,7 +17,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section id="features" className="bg-white py-24">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto max-w-7xl px-4">
           <div className="mb-16 text-center">
             <h2 
               className="mb-4 text-balance text-4xl font-bold uppercase"
@@ -128,7 +129,7 @@ export default function HomePage() {
 
       {/* Testimonials Section */}
       <section className="bg-muted/30 py-24">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto max-w-7xl px-4">
           <div className="mb-16 text-center">
             <h2 
               className="mb-4 text-balance text-4xl font-bold uppercase"
@@ -152,32 +153,51 @@ export default function HomePage() {
               {
                 quote:
                   "ChatFPL helped me climb from 2M to top 100k in just 8 gameweeks. The AI insights are incredible.",
-                author: "Alex M.",
+                author: "Alex McKinney",
                 role: "FPL Manager",
+                avatar: "/placeholder-user.jpg",
               },
               {
                 quote:
                   "Finally, an AI that actually understands FPL strategy. The captain picks alone are worth the subscription.",
-                author: "Sarah K.",
+                author: "Sarah Murphy",
                 role: "Top 10k Finisher",
+                avatar: "/placeholder-user.jpg",
               },
               {
                 quote: "I use it every gameweek for transfer decisions. It's like having an FPL expert on speed dial.",
-                author: "James R.",
+                author: "James Robinson",
                 role: "FPL Veteran",
+                avatar: "/placeholder-user.jpg",
               },
             ].map((testimonial, i) => (
-              <Card key={i} className="border border-border bg-white shadow-sm">
-                <div className="absolute -top-4 left-6 h-8 w-8 rounded-full bg-accent" />
-                <CardHeader>
-                  <CardDescription className="text-base leading-relaxed text-muted-foreground">
-                    "{testimonial.quote}"
-                  </CardDescription>
-                </CardHeader>
-                <CardFooter className="flex-col items-start">
-                  <p className="font-semibold text-foreground">{testimonial.author}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                </CardFooter>
+              <Card key={i} className="overflow-hidden border-0 bg-white shadow-md">
+                {/* Stars at top */}
+                <div className="bg-white p-6 pb-4">
+                  <div className="mb-4 flex gap-1">
+                    {[...Array(5)].map((_, starIndex) => (
+                      <Star key={starIndex} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  {/* Quote text */}
+                  <p className="text-sm leading-relaxed text-gray-700">
+                    {testimonial.quote}
+                  </p>
+                </div>
+                {/* Orange footer with avatar and details */}
+                <div className="flex items-center gap-4 bg-[#FF6B35] p-6 pt-4">
+                  <Image
+                    src={testimonial.avatar}
+                    alt={testimonial.author}
+                    width={56}
+                    height={56}
+                    className="h-14 w-14 rounded-full border-2 border-white object-cover"
+                  />
+                  <div>
+                    <p className="font-bold text-white">{testimonial.author}</p>
+                    <p className="text-sm text-white/90">{testimonial.role}</p>
+                  </div>
+                </div>
               </Card>
             ))}
           </div>
@@ -186,7 +206,7 @@ export default function HomePage() {
 
       {/* Pricing Section */}
       <section id="pricing" className="bg-white py-24">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto max-w-7xl px-4">
           <div className="mb-16 text-center">
             <h2 
               className="mb-4 text-balance text-4xl font-bold uppercase"
@@ -325,7 +345,7 @@ export default function HomePage() {
 
       {/* FAQ Section */}
       <section className="bg-muted/30 py-24">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto max-w-7xl px-4">
           <div className="mb-16 text-center">
             <h2 
               className="mb-4 text-balance text-4xl font-bold uppercase"
