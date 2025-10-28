@@ -168,15 +168,36 @@ export async function POST(request: Request) {
           filterNote = `Showing top 150 most relevant players (by points, form, and minutes)`;
         }
 
-        // Get upcoming fixtures (next 5 gameweeks from current/next)
+        // Get upcoming fixtures grouped by team (next 5 gameweeks)
         const currentGW = currentGameweek?.id || 1;
-        const upcomingFixtures = fixturesData
-          .filter((f: any) => f.event >= currentGW && f.event <= currentGW + 4 && !f.finished)
-          .map((f: any) => {
-            const homeTeam = fplData.teams?.find((t: any) => t.id === f.team_h);
-            const awayTeam = fplData.teams?.find((t: any) => t.id === f.team_a);
-            return `GW${f.event}: ${homeTeam?.short_name || 'TBC'} (H) vs ${awayTeam?.short_name || 'TBC'} (A) | Difficulty: ${homeTeam?.short_name} ${f.team_h_difficulty}/5, ${awayTeam?.short_name} ${f.team_a_difficulty}/5 | Kickoff: ${f.kickoff_time || 'TBC'}`;
-          });
+        const upcomingFixtures = fixturesData.filter((f: any) => 
+          f.event >= currentGW && f.event <= currentGW + 4 && !f.finished
+        );
+
+        // Build fixture run for each team
+        const teamFixtures: { [key: string]: string[] } = {};
+        
+        fplData.teams?.forEach((team: any) => {
+          const teamCode = team.short_name;
+          const fixtures = upcomingFixtures
+            .filter((f: any) => f.team_h === team.id || f.team_a === team.id)
+            .sort((a: any, b: any) => a.event - b.event)
+            .slice(0, 5)
+            .map((f: any) => {
+              const isHome = f.team_h === team.id;
+              const opponent = isHome 
+                ? fplData.teams?.find((t: any) => t.id === f.team_a)
+                : fplData.teams?.find((t: any) => t.id === f.team_h);
+              const difficulty = isHome ? f.team_h_difficulty : f.team_a_difficulty;
+              return `${opponent?.short_name || 'TBC'}(${isHome ? 'H' : 'A'}-${difficulty})`;
+            });
+          
+          teamFixtures[teamCode] = fixtures;
+        });
+
+        const fixtureRunsText = Object.entries(teamFixtures)
+          .map(([team, fixtures]) => `${team}: ${fixtures.join(', ')}`)
+          .join('\n');
 
         // Build context string with filtered players
         fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
@@ -187,8 +208,8 @@ CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.
 
 ${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time}` : ""}
 
-UPCOMING FIXTURES (Next 5 Gameweeks):
-${upcomingFixtures.join("\n")}
+TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
+${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
 Format: WebName|FullName|Team|Pos|Price|TotalPts|Form|PPG|Ownership|Status|Fitness|PhotoURL
@@ -197,8 +218,8 @@ ${filteredPlayers.map(p => p.formatted).join("\n")}
 TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
-FIXTURE DIFFICULTY RATING: 1 = Easy, 5 = Very Difficult
-Use this live data to answer the user's question accurately. All player stats, prices, availability, fixtures, and photo URLs are current as of today.`;
+FIXTURE DIFFICULTY: 1=Easy, 2=Favorable, 3=Medium, 4=Tough, 5=Very Difficult. H=Home, A=Away.
+Use this live data to answer the user's question accurately. Check team fixtures before recommending players. All data is current as of today.`;
       }
     } catch (fplError) {
       console.error("FPL API fetch error:", fplError);
