@@ -39,7 +39,10 @@ export default function ChatPage() {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false) // Desktop starts closed
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; conversationId: string } | null>(null)
+  const [renamingId, setRenamingId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState("")
 
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -158,10 +161,48 @@ export default function ChatPage() {
           startNewChat()
         }
       }
+      setContextMenu(null)
     } catch (error) {
       console.error("Failed to delete conversation:", error)
     }
   }
+
+  // Rename a conversation
+  const renameConversation = async (convId: string, newTitle: string) => {
+    try {
+      const response = await fetch("/api/chat/conversations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId: convId, title: newTitle }),
+      })
+
+      if (response.ok) {
+        // Update in list
+        setConversations(prev => 
+          prev.map(c => c.id === convId ? { ...c, title: newTitle } : c)
+        )
+      }
+      setRenamingId(null)
+      setRenameValue("")
+    } catch (error) {
+      console.error("Failed to rename conversation:", error)
+    }
+  }
+
+  // Handle context menu
+  const handleContextMenu = (e: React.MouseEvent, convId: string) => {
+    e.preventDefault()
+    setContextMenu({ x: e.clientX, y: e.clientY, conversationId: convId })
+  }
+
+  // Close context menu on click outside
+  useEffect(() => {
+    const handleClickOutside = () => setContextMenu(null)
+    if (contextMenu) {
+      document.addEventListener("click", handleClickOutside)
+      return () => document.removeEventListener("click", handleClickOutside)
+    }
+  }, [contextMenu])
 
   // Parse markdown images in message content
   const renderMessageContent = (content: string) => {
@@ -282,10 +323,10 @@ export default function ChatPage() {
   return (
     <div className="fixed inset-0 flex bg-background">
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-64 border-r border-border bg-card transition-transform duration-300 md:relative md:translate-x-0`}>
+      <div className={`${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-50 w-full md:w-1/2 lg:w-2/5 border-r border-border bg-card transition-transform duration-300`}>
         <div className="flex h-14 items-center justify-between border-b border-border px-4">
           <h2 className="font-semibold text-foreground">Chat History</h2>
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsSidebarOpen(false)}>
+          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -305,28 +346,47 @@ export default function ChatPage() {
               conversations.map((conv) => (
                 <div
                   key={conv.id}
-                  className={`group relative flex items-center justify-between rounded-lg p-3 hover:bg-accent/10 cursor-pointer ${conv.id === conversationId ? 'bg-accent/20' : ''}`}
-                  onClick={() => loadConversation(conv.id)}
+                  className={`relative rounded-lg hover:bg-accent/10 ${conv.id === conversationId ? 'bg-accent/20' : ''}`}
+                  onContextMenu={(e) => handleContextMenu(e, conv.id)}
                 >
-                  <div className="flex-1 overflow-hidden">
-                    <p className="truncate text-sm font-medium text-foreground">
-                      {conv.title || conv.messages[0]?.content.substring(0, 30) || "New Chat"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(conv.updated_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      deleteConversation(conv.id)
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                  {renamingId === conv.id ? (
+                    <div className="p-3">
+                      <Input
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            renameConversation(conv.id, renameValue)
+                          } else if (e.key === "Escape") {
+                            setRenamingId(null)
+                            setRenameValue("")
+                          }
+                        }}
+                        onBlur={() => {
+                          if (renameValue.trim()) {
+                            renameConversation(conv.id, renameValue)
+                          } else {
+                            setRenamingId(null)
+                            setRenameValue("")
+                          }
+                        }}
+                        autoFocus
+                        className="text-sm"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="cursor-pointer p-3"
+                      onClick={() => loadConversation(conv.id)}
+                    >
+                      <p className="text-sm font-medium text-foreground line-clamp-2">
+                        {conv.title || conv.messages[0]?.content || "New Chat"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(conv.updated_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))
             )}
@@ -334,12 +394,40 @@ export default function ChatPage() {
         </ScrollArea>
       </div>
 
-      {/* Overlay for mobile */}
+      {/* Overlay for backdrop */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
           onClick={() => setIsSidebarOpen(false)}
         />
+      )}
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <div
+          className="fixed z-50 min-w-[160px] rounded-md border border-border bg-card shadow-lg"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+        >
+          <button
+            className="w-full px-4 py-2 text-left text-sm hover:bg-accent/10"
+            onClick={() => {
+              const conv = conversations.find(c => c.id === contextMenu.conversationId)
+              if (conv) {
+                setRenamingId(conv.id)
+                setRenameValue(conv.title || conv.messages[0]?.content.substring(0, 50) || "")
+              }
+              setContextMenu(null)
+            }}
+          >
+            Rename
+          </button>
+          <button
+            className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-accent/10"
+            onClick={() => deleteConversation(contextMenu.conversationId)}
+          >
+            Delete
+          </button>
+        </div>
       )}
 
       {/* Main Content */}
@@ -347,7 +435,7 @@ export default function ChatPage() {
         {/* Header */}
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/40 bg-card/50 px-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsSidebarOpen(true)}>
+            <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)}>
               <MessageSquare className="h-5 w-5" />
             </Button>
             <Link href="/">

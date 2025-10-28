@@ -41,6 +41,58 @@ export async function GET(request: Request) {
   }
 }
 
+// Update/rename a conversation
+export async function PATCH(request: Request) {
+  try {
+    const session = await auth();
+
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { conversationId, title } = await request.json();
+
+    if (!conversationId || !title) {
+      return NextResponse.json({ error: "Conversation ID and title required" }, { status: 400 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Verify conversation belongs to user
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id: conversationId,
+        user_id: user.id
+      }
+    });
+
+    if (!conversation) {
+      return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+    }
+
+    // Update conversation title
+    await prisma.conversation.update({
+      where: { id: conversationId },
+      data: { title: title.substring(0, 200) } // Limit to 200 chars
+    });
+
+    return NextResponse.json({ success: true });
+
+  } catch (error) {
+    console.error("Error updating conversation:", error);
+    return NextResponse.json(
+      { error: "Failed to update conversation" },
+      { status: 500 }
+    );
+  }
+}
+
 // Delete a conversation
 export async function DELETE(request: Request) {
   try {
