@@ -31,7 +31,7 @@ export default function HomePage() {
               <span style={{ color: '#00FFFF' }}>FPL </span>
               <span style={{ color: '#00FF86' }}>success</span>
             </h2>
-            <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
+            <p className="mx-auto max-w-2xl text-pretty text-lg" style={{ color: '#4B5563' }}>
               Powered by real-time data and AI intelligence
             </p>
           </div>
@@ -42,7 +42,7 @@ export default function HomePage() {
               <div className="aspect-[4/3] bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center">
                 <Database className="h-16 w-16 text-accent/40" />
               </div>
-              <div className="p-6">
+              <div className="p-6 text-center">
                 <h3 className="mb-3 text-xl font-bold text-foreground">
                   Live Data
                 </h3>
@@ -71,7 +71,7 @@ export default function HomePage() {
               <div className="aspect-[4/3] bg-gradient-to-br from-purple-900/20 to-purple-900/5 flex items-center justify-center">
                 <Brain className="h-16 w-16 text-purple-900/40" />
               </div>
-              <div className="p-6">
+              <div className="p-6 text-center">
                 <h3 className="mb-3 text-xl font-bold text-foreground">
                   Expert Knowledge
                 </h3>
@@ -100,7 +100,7 @@ export default function HomePage() {
               <div className="aspect-[4/3] bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 flex items-center justify-center">
                 <MessageSquare className="h-16 w-16 text-cyan-500/40" />
               </div>
-              <div className="p-6">
+              <div className="p-6 text-center">
                 <h3 className="mb-3 text-xl font-bold text-foreground">
                   Natural Chat
                 </h3>
@@ -143,7 +143,7 @@ export default function HomePage() {
               <span style={{ color: '#00FFFF' }}>users </span>
               <span style={{ color: '#00FF86' }}>say</span>
             </h2>
-            <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
+            <p className="mx-auto max-w-2xl text-pretty text-lg" style={{ color: '#4B5563' }}>
               Real feedback from FPL managers using ChatFPL
             </p>
           </div>
@@ -152,24 +152,24 @@ export default function HomePage() {
             {[
               {
                 quote:
-                  "ChatFPL helped me climb from 2M to top 100k in just 8 gameweeks. The AI insights are incredible.",
+                  "I asked ChatFPL for a detailed player comparison between Haaland and Isak. It gave me expected goals, form trends, and fixture difficulty - exactly what I needed for my transfer decision.",
                 author: "Ryan Anderson",
-                role: "Early User",
+                role: "Premium Subscriber",
                 circleColor: "#00FF86",
                 iconColor: "#2E0032",
               },
               {
                 quote:
-                  "Finally, an AI that actually understands FPL strategy. The captain picks alone are worth the subscription.",
+                  "I use ChatFPL to write my FPL YouTube scripts. It analyzes the data and helps me create engaging content about captain picks and differentials in minutes instead of hours.",
                 author: "Oliver Hughes",
-                role: "New Subscriber",
+                role: "Content Creator",
                 circleColor: "#2E0032",
                 iconColor: "#FFFFFF",
               },
               {
-                quote: "I use it every gameweek for transfer decisions. It's like having an FPL expert on speed dial.",
+                quote: "Every gameweek I ask for transfer suggestions based on my team. ChatFPL considers fixtures, form, and my budget to give me 3-4 solid options with detailed reasoning.",
                 author: "Daniel Brown",
-                role: "Beta-Tester",
+                role: "Elite Subscriber",
                 circleColor: "#00FFFF",
                 iconColor: "#2E0032",
               },
