@@ -43,9 +43,12 @@ export default function HomePage() {
                 <Database className="h-16 w-16 text-accent/40" />
               </div>
               <div className="p-6 text-center">
-                <h3 className="mb-3 text-xl font-bold text-foreground">
+                <h3 className="mb-2 text-xl font-bold text-foreground">
                   Live Data
                 </h3>
+                <p className="mb-3 text-sm font-semibold" style={{ color: '#4B5563' }}>
+                  Real-time FPL statistics
+                </p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Connects to the official FPL API for real-time stats, fixtures, and player performance data.
                 </p>
@@ -72,9 +75,12 @@ export default function HomePage() {
                 <Brain className="h-16 w-16 text-purple-900/40" />
               </div>
               <div className="p-6 text-center">
-                <h3 className="mb-3 text-xl font-bold text-foreground">
+                <h3 className="mb-2 text-xl font-bold text-foreground">
                   Expert Knowledge
                 </h3>
+                <p className="mb-3 text-sm font-semibold" style={{ color: '#4B5563' }}>
+                  AI-powered FPL expertise
+                </p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Enhanced with FPL rules, strategy guides, and expert insights to give you the best advice.
                 </p>
@@ -101,9 +107,12 @@ export default function HomePage() {
                 <MessageSquare className="h-16 w-16 text-cyan-500/40" />
               </div>
               <div className="p-6 text-center">
-                <h3 className="mb-3 text-xl font-bold text-foreground">
+                <h3 className="mb-2 text-xl font-bold text-foreground">
                   Natural Chat
                 </h3>
+                <p className="mb-3 text-sm font-semibold" style={{ color: '#4B5563' }}>
+                  Conversational AI assistant
+                </p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Ask anything from "Who to captain?" to "Compare Salah vs Son" in plain English.
                 </p>
@@ -207,7 +216,7 @@ export default function HomePage() {
                   </h3>
                   
                   {/* Role */}
-                  <p className="mb-4 text-center text-sm font-semibold" style={{ color: '#2E0032' }}>
+                  <p className="mb-4 text-center text-sm font-semibold" style={{ color: '#4B5563' }}>
                     {testimonial.role}
                   </p>
                   
