@@ -199,6 +199,14 @@ export async function POST(request: Request) {
           .map(([team, fixtures]) => `${team}: ${fixtures.join(', ')}`)
           .join('\n');
 
+        console.log('=== FIXTURE DATA DEBUG ===');
+        console.log('Total fixtures fetched:', fixturesData.length);
+        console.log('Current GW:', currentGW);
+        console.log('Filtered fixtures count:', upcomingFixtures.length);
+        console.log('Arsenal fixtures:', teamFixtures['ARS']);
+        console.log('Fixture runs text length:', fixtureRunsText.length);
+        console.log('=== END DEBUG ===');
+
         // Build context string with filtered players
         fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
@@ -255,6 +263,12 @@ Use this live data to answer the user's question accurately. Check team fixtures
                   ? `${fplContext}\n\n${formattingInstructions}\n---\n\nUser Question: ${message}`
                   : `${formattingInstructions}\n---\n\nUser Question: ${message}`;
 
+    console.log('=== DIFY PAYLOAD DEBUG ===');
+    console.log('Enhanced message length:', enhancedMessage.length);
+    console.log('FPL context length:', fplContext.length);
+    console.log('First 500 chars of enhanced message:', enhancedMessage.substring(0, 500));
+    console.log('=== END PAYLOAD DEBUG ===');
+
     // Add 60 second timeout for Dify API call
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000);
@@ -284,7 +298,10 @@ Use this live data to answer the user's question accurately. Check team fixtures
         // Log technical error for debugging
         try {
           const errorData = await difyResponse.json();
-          console.error("Dify API error:", difyResponse.status, errorData);
+          console.error("=== DIFY ERROR ===");
+          console.error("Status:", difyResponse.status);
+          console.error("Error data:", JSON.stringify(errorData, null, 2));
+          console.error("=== END DIFY ERROR ===");
         } catch (e) {
           console.error("Failed to parse Dify error response");
         }
