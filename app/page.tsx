@@ -246,74 +246,102 @@ export default function HomePage() {
           <div className="grid gap-8 md:grid-cols-3">
             {/* Free Trial */}
             <Card className="border border-border bg-white shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-foreground">Free Trial</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-foreground">£0</span>
-                  <span className="text-muted-foreground">/month</span>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-bold text-foreground">Free Trial</CardTitle>
+                <div className="mt-6">
+                  <span className="text-5xl font-bold text-foreground">£0</span>
+                  <span className="text-lg text-muted-foreground">/month</span>
                 </div>
-                <CardDescription className="mt-4">Perfect for trying out ChatFPL</CardDescription>
+                <CardDescription className="mt-4 text-base">Perfect for trying out ChatFPL</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-3">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
-                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#00FF86' }}>
+                      <Check className="h-4 w-4" style={{ color: '#2E0032' }} strokeWidth={3} />
                     </div>
                     <span className="text-sm text-foreground">5 free messages</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
-                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#00FF86' }}>
+                      <Check className="h-4 w-4" style={{ color: '#2E0032' }} strokeWidth={3} />
                     </div>
                     <span className="text-sm text-foreground">Live FPL data access</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#00FF86' }}>
+                      <Check className="h-4 w-4" style={{ color: '#2E0032' }} strokeWidth={3} />
+                    </div>
+                    <span className="text-sm text-foreground">Limited support</span>
                   </li>
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full border-2 bg-transparent" asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-2 bg-transparent transition-all hover:border-2" 
+                  style={{
+                    borderColor: 'hsl(var(--border))',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#00FF86'
+                    e.currentTarget.style.color = '#2E0032'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                    e.currentTarget.style.color = ''
+                  }}
+                  asChild
+                >
                   <Link href="/signup">Get Started</Link>
                 </Button>
               </CardFooter>
             </Card>
 
-            {/* Pro Plan */}
-            <Card className="relative border-2 border-accent bg-white shadow-lg">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-accent px-4 py-1 text-sm font-semibold text-accent-foreground">
+            {/* Premium Plan */}
+            <Card className="relative border-2 bg-white shadow-lg" style={{ borderColor: '#2E0032' }}>
+              <div 
+                className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-sm font-semibold"
+                style={{ backgroundColor: '#2E0032', color: '#00FF86' }}
+              >
                 Most Popular
               </div>
-              <CardHeader>
-                <CardTitle className="text-foreground">Pro</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-foreground">£19.99</span>
-                  <span className="text-muted-foreground">/month</span>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-bold text-foreground">Premium Subscription</CardTitle>
+                <div className="mt-6">
+                  <span className="text-5xl font-bold text-foreground">£19.99</span>
+                  <span className="text-lg text-muted-foreground">/month</span>
                 </div>
-                <CardDescription className="mt-4">For serious FPL managers</CardDescription>
+                <CardDescription className="mt-4 text-base">For serious FPL managers</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-3">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
-                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#2E0032' }}>
+                      <Check className="h-4 w-4" style={{ color: '#FFFFFF' }} strokeWidth={3} />
                     </div>
                     <span className="text-sm text-foreground">100 messages per month</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
-                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#2E0032' }}>
+                      <Check className="h-4 w-4" style={{ color: '#FFFFFF' }} strokeWidth={3} />
                     </div>
                     <span className="text-sm text-foreground">Live FPL data access</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
-                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#2E0032' }}>
+                      <Check className="h-4 w-4" style={{ color: '#FFFFFF' }} strokeWidth={3} />
                     </div>
                     <span className="text-sm text-foreground">Priority support</span>
                   </li>
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90" asChild>
+                <Button 
+                  className="w-full text-accent-foreground hover:bg-accent/90" 
+                  style={{ backgroundColor: '#2E0032', color: '#FFFFFF' }}
+                  asChild
+                >
                   <Link href="/signup">Subscribe</Link>
                 </Button>
               </CardFooter>
@@ -321,38 +349,55 @@ export default function HomePage() {
 
             {/* Elite Plan */}
             <Card className="border border-border bg-white shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-foreground">Elite</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-foreground">£49.99</span>
-                  <span className="text-muted-foreground">/month</span>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-bold text-foreground">Elite Subscription</CardTitle>
+                <div className="mt-6">
+                  <span className="text-5xl font-bold text-foreground">£49.99</span>
+                  <span className="text-lg text-muted-foreground">/month</span>
                 </div>
-                <CardDescription className="mt-4">For elite FPL competitors</CardDescription>
+                <CardDescription className="mt-4 text-base">For elite FPL competitors</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
                   <li className="flex items-center gap-3">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
-                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#00FFFF' }}>
+                      <Check className="h-4 w-4" style={{ color: '#2E0032' }} strokeWidth={3} />
                     </div>
                     <span className="text-sm text-foreground">500 messages per month</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
-                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#00FFFF' }}>
+                      <Check className="h-4 w-4" style={{ color: '#2E0032' }} strokeWidth={3} />
                     </div>
                     <span className="text-sm text-foreground">Live FPL data access</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-accent shrink-0">
-                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#00FFFF' }}>
+                      <Check className="h-4 w-4" style={{ color: '#2E0032' }} strokeWidth={3} />
                     </div>
                     <span className="text-sm text-foreground">Priority support</span>
                   </li>
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full border-2 border-primary bg-transparent" asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full bg-transparent transition-all hover:border-2" 
+                  style={{
+                    border: '2px solid hsl(var(--border))',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#00FFFF'
+                    e.currentTarget.style.color = '#2E0032'
+                    e.currentTarget.style.borderColor = '#00FFFF'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                    e.currentTarget.style.color = ''
+                    e.currentTarget.style.borderColor = 'hsl(var(--border))'
+                  }}
+                  asChild
+                >
                   <Link href="/signup">Subscribe</Link>
                 </Button>
               </CardFooter>
