@@ -15,6 +15,7 @@ interface AccountData {
     id: number
     name: string
     email: string
+    role: string
     created_at: string
   }
   subscription: {
@@ -34,6 +35,9 @@ export default function AdminPage() {
   const [data, setData] = useState<AccountData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [vipEmail, setVipEmail] = useState("")
+  const [vipLoading, setVipLoading] = useState(false)
+  const [vipMessage, setVipMessage] = useState("")
 
   useEffect(() => {
     fetchAccountData()
@@ -66,13 +70,42 @@ export default function AdminPage() {
     await signOut({ redirect: true, callbackUrl: "/login" })
   }
 
+  const handleMakeVIP = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setVipLoading(true)
+    setVipMessage("")
+
+    try {
+      const response = await fetch("/api/admin/make-vip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: vipEmail })
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setVipMessage(`✅ ${result.message}`)
+        setVipEmail("") // Clear input
+        setTimeout(() => setVipMessage(""), 5000) // Clear message after 5s
+      } else {
+        setVipMessage(`❌ ${result.error}`)
+      }
+    } catch (error) {
+      setVipMessage("❌ Failed to grant VIP access. Please try again.")
+    } finally {
+      setVipLoading(false)
+    }
+  }
+
   const getPlanBadgeColor = (plan: string) => {
     switch (plan.toLowerCase()) {
       case "admin":
         return "bg-purple-600 text-white border-[#00FF87]"
-      case "pro":
-        return "bg-[#00FF87] text-[#1E1E1E]"
+      case "vip":
+        return "bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#2E0032] border-[#FFD700]"
       case "premium":
+      case "elite":
         return "bg-[#2E0032] text-[#00FF87] border-[#00FF87]"
       default:
         return "bg-[#2A2A2A] text-[#EEEEEE]"
@@ -341,30 +374,94 @@ export default function AdminPage() {
             </CardContent>
           </Card>
 
-          {/* Admin Only Section */}
-          {data.subscription.plan.toLowerCase() === "admin" && (
-            <Card className="border-[#00FF87] bg-gradient-to-br from-purple-900/50 to-[#2E0032]/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-xl text-[#00FF87]">🔐 Admin Dashboard</CardTitle>
-                <CardDescription className="text-[#EEEEEE]">
-                  System overview and analytics
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-4 sm:grid-cols-3">
-                <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
-                  <p className="text-sm text-[#EEEEEE]">Total Users</p>
-                  <p className="text-3xl font-bold text-white">-</p>
-                </div>
-                <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
-                  <p className="text-sm text-[#EEEEEE]">Active Subscriptions</p>
-                  <p className="text-3xl font-bold text-white">-</p>
-                </div>
-                <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
-                  <p className="text-sm text-[#EEEEEE]">Chat Sessions Today</p>
-                  <p className="text-3xl font-bold text-white">-</p>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Admin Only Sections */}
+          {data.user.role === "admin" && (
+            <>
+              {/* Make VIP Form */}
+              <Card className="border-[#FFD700] bg-gradient-to-br from-[#2E0032]/50 to-[#1E1E1E]/50 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl text-[#FFD700]">👑 Grant VIP Access</CardTitle>
+                  <CardDescription className="text-[#EEEEEE]">
+                    Give friends & family 100 free messages per month
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-4" onSubmit={handleMakeVIP}>
+                    <div>
+                      <label htmlFor="vip-email" className="text-sm font-medium text-[#EEEEEE]">
+                        User Email
+                      </label>
+                      <input
+                        id="vip-email"
+                        type="email"
+                        placeholder="friend@example.com"
+                        value={vipEmail}
+                        onChange={(e) => setVipEmail(e.target.value)}
+                        className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#FFD700] focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
+                        required
+                        disabled={vipLoading}
+                      />
+                    </div>
+                    {vipMessage && (
+                      <div className={`rounded-lg p-3 text-sm ${vipMessage.includes("✅") ? "bg-green-900/30 text-green-400" : "bg-red-900/30 text-red-400"}`}>
+                        {vipMessage}
+                      </div>
+                    )}
+                    <Button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#2E0032] hover:opacity-90"
+                      disabled={vipLoading}
+                    >
+                      {vipLoading ? "Processing..." : "Make VIP"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Pending Reward Claims (Phase 1 - Coming Soon) */}
+              <Card className="border-[#00FF87] bg-gradient-to-br from-purple-900/50 to-[#2E0032]/50 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl text-[#00FF87]">🎁 Pending Reward Claims</CardTitle>
+                  <CardDescription className="text-[#EEEEEE]">
+                    Verify user social shares & referrals
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-8 text-center">
+                    <p className="text-lg text-[#EEEEEE]">
+                      No pending claims yet
+                    </p>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Phase 1 viral gamification coming soon
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* System Analytics */}
+              <Card className="border-[#00FF87] bg-gradient-to-br from-purple-900/50 to-[#2E0032]/50 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl text-[#00FF87]">📊 System Analytics</CardTitle>
+                  <CardDescription className="text-[#EEEEEE]">
+                    System overview and metrics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
+                    <p className="text-sm text-[#EEEEEE]">Total Users</p>
+                    <p className="text-3xl font-bold text-white">-</p>
+                  </div>
+                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
+                    <p className="text-sm text-[#EEEEEE]">Active Subscriptions</p>
+                    <p className="text-3xl font-bold text-white">-</p>
+                  </div>
+                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
+                    <p className="text-sm text-[#EEEEEE]">Chat Sessions Today</p>
+                    <p className="text-3xl font-bold text-white">-</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
           )}
         </div>
       </main>

@@ -43,6 +43,7 @@ export async function GET() {
         id: userData.id,
         name: userData.name,
         email: userData.email,
+        role: userData.role || "user",
         created_at: userData.created_at.toISOString(),
       },
       subscription: {
