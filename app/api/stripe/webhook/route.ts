@@ -14,7 +14,7 @@ const relevantEvents = new Set([
 ]);
 
 export async function POST(request: Request) {
-  console.log('[Webhook] Received request');
+  console.log('[Webhook] Received request'); // Production ready
   const body = await request.text();
   const signature = request.headers.get('stripe-signature');
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
