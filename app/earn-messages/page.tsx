@@ -273,8 +273,8 @@ export default function EarnMessagesPage() {
             <CardContent className="py-6">
               <div className="text-center">
                 <p className="text-sm text-[#EEEEEE]">Total Messages Earned</p>
-                <p className="text-5xl font-bold text-[#00FF87]">{userData?.totalEarned || 0}</p>
-                <p className="mt-2 text-xs text-gray-400">Lifetime cap: 50 messages</p>
+                <p className="text-5xl font-bold text-[#00FF87]">{userData?.totalEarned || 0} <span className="text-2xl text-gray-400">of 50</span></p>
+                <p className="mt-2 text-xs text-gray-400">Lifetime cap ensures fair usage for all free users</p>
               </div>
             </CardContent>
           </Card>
@@ -388,7 +388,7 @@ export default function EarnMessagesPage() {
                   </div>
                   <CardTitle className="text-white">Refer a Friend</CardTitle>
                   <CardDescription className="text-[#EEEEEE]">
-                    Invite a friend who signs up and verifies their email - earn 10 messages!
+                    Invite friends who sign up and verify their email - earn 10 messages per referral! (Maximum 5 referrals)
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -454,11 +454,13 @@ export default function EarnMessagesPage() {
             <CardContent className="py-6">
               <h3 className="mb-2 font-semibold text-white">Terms & Conditions</h3>
               <ul className="space-y-1 text-sm text-gray-400">
-                <li>• Each reward can only be claimed once per account</li>
+                <li>• Social rewards (X, Reddit, Facebook) can only be claimed once per account</li>
+                <li>• Review reward can be claimed once per account (5 or 10 messages depending on type)</li>
+                <li>• Referral rewards: maximum 5 referrals per account (10 messages each)</li>
                 <li>• Email verification required before claiming rewards</li>
-                <li>• Social shares require admin verification (allow 24-48 hours)</li>
-                <li>• Referral rewards granted after referred user verifies email</li>
-                <li>• Maximum 50 bonus messages per account (lifetime)</li>
+                <li>• Social shares and reviews require admin verification (allow 24-48 hours)</li>
+                <li>• Referral rewards granted automatically after referred user verifies email</li>
+                <li>• Lifetime cap: 50 bonus messages total per account</li>
                 <li>• Rewards only available for Free tier users</li>
               </ul>
             </CardContent>

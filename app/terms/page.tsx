@@ -59,7 +59,10 @@ export default function TermsPage() {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">6. Bonus Message Rewards Program</h2>
               <p className="leading-relaxed text-muted-foreground">
-                Free tier users may earn bonus messages by participating in our rewards program, which includes social media sharing, submitting reviews, and referring friends. All reward claims are subject to manual verification by our team.
+                Free tier users may earn bonus messages by participating in our rewards program, which includes social media sharing, submitting reviews, and referring friends. All reward claims are subject to manual verification by our team, except for referral rewards which are granted automatically when the referred user verifies their email.
+              </p>
+              <p className="leading-relaxed text-muted-foreground">
+                <strong>Reward Limits:</strong> Social rewards (X, Reddit, Facebook) and review rewards can each be claimed once per account. Referral rewards are limited to a maximum of 5 referrals per account. All users are subject to a lifetime cap of 50 bonus messages total, regardless of how the messages are earned. This cap ensures fair usage for all free tier users.
               </p>
               <p className="leading-relaxed text-muted-foreground">
                 We reserve the right to deny or revoke reward messages at our sole discretion, including but not limited to cases where we determine that a review or social post contains negative, defamatory, or unhelpful content about our service. Rewards are intended to encourage genuine, positive engagement with ChatFPL.ai.

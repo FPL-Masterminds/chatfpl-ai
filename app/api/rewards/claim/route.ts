@@ -97,6 +97,18 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
+    } else {
+      // For referrals, check if user has already reached the 5 referral limit
+      const referralCount = user.socialActions.filter(
+        action => action.action_type === "referral" && action.status === "verified"
+      ).length;
+
+      if (referralCount >= 5) {
+        return NextResponse.json(
+          { error: "You have reached the maximum limit of 5 referrals" },
+          { status: 400 }
+        );
+      }
     }
 
     // Check lifetime cap (50 messages)

@@ -7,7 +7,7 @@ import { normalizeEmail, isDisposableEmail } from "@/lib/email-utils";
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name } = await request.json();
+    const { email, password, name, referralCode } = await request.json();
 
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -57,6 +57,25 @@ export async function POST(request: Request) {
     const oneMonthLater = new Date();
     oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
 
+    // Decode referral code if provided
+    let referrerId: string | null = null;
+    if (referralCode) {
+      try {
+        referrerId = Buffer.from(referralCode, 'base64').toString('utf-8');
+        // Verify the referrer exists
+        const referrer = await prisma.user.findUnique({
+          where: { id: referrerId },
+          select: { id: true }
+        });
+        if (!referrer) {
+          referrerId = null; // Invalid referrer ID, ignore it
+        }
+      } catch (error) {
+        console.error("Invalid referral code:", error);
+        referrerId = null; // Invalid referral code, ignore it
+      }
+    }
+
     const newUser = await prisma.user.create({
       data: {
         name,
@@ -64,6 +83,7 @@ export async function POST(request: Request) {
         password_hash: hashedPassword,
         emailVerificationToken: verificationToken,
         emailVerificationExpires: tokenExpiry,
+        referred_by: referrerId,
         subscriptions: {
           create: {
             plan: "Free",

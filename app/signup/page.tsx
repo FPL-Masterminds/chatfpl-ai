@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,10 +10,12 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Header } from "@/components/header"
 import { Eye, EyeOff } from "lucide-react"
+import { Suspense } from "react"
 
-export default function SignupPage() {
-  console.log("SignupPage component loaded")
+function SignupForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const [referralCode, setReferralCode] = useState<string | null>(null)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -23,6 +25,15 @@ export default function SignupPage() {
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    // Capture referral code from URL
+    const ref = searchParams.get('ref')
+    if (ref) {
+      setReferralCode(ref)
+      console.log("Referral code captured:", ref)
+    }
+  }, [searchParams])
   
   console.log("Form state:", { name, email, agreedToTerms, loading })
 
@@ -54,7 +65,12 @@ export default function SignupPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, name }),
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          name,
+          ...(referralCode && { referralCode })
+        }),
       })
 
       const data = await response.json()
@@ -200,5 +216,20 @@ export default function SignupPage() {
         </Card>
       </main>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex flex-1 items-center justify-center px-4 py-24">
+          <p className="text-lg text-muted-foreground">Loading...</p>
+        </main>
+      </div>
+    }>
+      <SignupForm />
+    </Suspense>
   )
 }
