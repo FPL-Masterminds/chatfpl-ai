@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     }
 
     // Get request data
-    const { claim_id, action } = await request.json();
+    const { claim_id, action, displayOnHomepage } = await request.json();
 
     if (!claim_id || !action) {
       return NextResponse.json(
@@ -79,7 +79,8 @@ export async function POST(request: Request) {
         where: { id: claim_id },
         data: {
           status: "verified",
-          verified_at: new Date()
+          verified_at: new Date(),
+          display_on_homepage: displayOnHomepage === true && claim.action_type === "review"
         }
       });
 

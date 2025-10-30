@@ -128,15 +128,16 @@ model Message {
 }
 
 model SocialAction {
-  id              String   @id @default(cuid())
-  user_id         String
-  action_type     String   @db.VarChar(50) // 'twitter', 'reddit', 'facebook', 'review', 'referral'
-  status          String   @db.VarChar(20) // 'pending', 'verified', 'rejected'
-  reward_messages Int      @default(0)
-  proof_url       String?  @db.Text // URL to tweet/post/review OR referred user's ID for referrals
-  created_at      DateTime @default(now()) @db.Timestamp(6)
-  verified_at     DateTime? @db.Timestamp(6)
-  metadata        Json? // Store additional data like reviewType, xConsent
+  id                  String   @id @default(cuid())
+  user_id             String
+  action_type         String   @db.VarChar(50) // 'twitter', 'reddit', 'facebook', 'review', 'referral'
+  status              String   @db.VarChar(20) // 'pending', 'verified', 'rejected'
+  reward_messages     Int      @default(0)
+  proof_url           String?  @db.Text // URL to tweet/post/review OR referred user's ID for referrals
+  created_at          DateTime @default(now()) @db.Timestamp(6)
+  verified_at         DateTime? @db.Timestamp(6)
+  metadata            Json? // Store additional data like reviewType, xConsent, rating, description, reviewText
+  display_on_homepage Boolean  @default(false) // Whether this review should appear on the homepage
   
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
   

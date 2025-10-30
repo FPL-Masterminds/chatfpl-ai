@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
+import { TestimonialsSection } from "@/components/testimonials-section"
 import { Database, Brain, MessageSquare, Check, Star, User } from "lucide-react"
 
 export default function HomePage() {
@@ -152,99 +153,7 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="bg-muted/30 py-24">
-        <div className="container mx-auto max-w-7xl px-4">
-          <div className="mb-16 text-center">
-            <h2 
-              className="mb-4 text-balance text-4xl font-bold uppercase"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '7px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
-            >
-              <span style={{ color: 'white' }}>What </span>
-              <span style={{ color: '#00FFFF' }}>users </span>
-              <span style={{ color: '#00FF86' }}>say</span>
-            </h2>
-            <p className="mx-auto max-w-2xl text-pretty text-lg" style={{ color: '#4B5563' }}>
-              Real feedback from FPL managers using ChatFPL
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            {[
-              {
-                quote:
-                  "I asked ChatFPL for a detailed player comparison between Haaland and Joao Pedro. It gave me expected goals, form trends, and fixture difficulty - exactly what I needed for my transfer decision.",
-                author: "Ryan Anderson",
-                role: "Premium Subscriber",
-                circleColor: "#00FF86",
-                iconColor: "#2E0032",
-              },
-              {
-                quote:
-                  "I use ChatFPL to write my FPL YouTube scripts. It analyses the data and helps me create engaging content about captain picks and differentials in minutes instead of hours.",
-                author: "Oliver Hughes",
-                role: "Content Creator",
-                circleColor: "#2E0032",
-                iconColor: "#FFFFFF",
-              },
-              {
-                quote: "Every gameweek I ask for transfer suggestions based on my team. ChatFPL considers fixtures, form, and my budget to give me 3-4 solid options with detailed reasoning.",
-                author: "Daniel Brown",
-                role: "Elite Subscriber",
-                circleColor: "#00FFFF",
-                iconColor: "#2E0032",
-              },
-            ].map((testimonial, i) => (
-              <Card key={i} className="overflow-hidden border-0 bg-white shadow-md">
-                <div className="bg-white p-6">
-                  {/* User Icon Circle */}
-                  <div className="mb-4 flex justify-center">
-                    <div 
-                      className="flex h-16 w-16 items-center justify-center rounded-full"
-                      style={{ backgroundColor: testimonial.circleColor }}
-                    >
-                      <User className="h-8 w-8" style={{ color: testimonial.iconColor }} strokeWidth={2} />
-                    </div>
-                  </div>
-                  
-                  {/* Stars */}
-                  <div className="mb-4 flex justify-center gap-1">
-                    {[...Array(5)].map((_, starIndex) => (
-                      <svg
-                        key={starIndex}
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        className="h-5 w-5"
-                        fill="#D4AF37"
-                      >
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    ))}
-                  </div>
-                  
-                  {/* Name */}
-                  <h3 className="mb-1 text-center text-lg font-bold text-foreground">
-                    {testimonial.author}
-                  </h3>
-                  
-                  {/* Role */}
-                  <p className="mb-4 text-center text-sm font-semibold" style={{ color: '#4B5563' }}>
-                    {testimonial.role}
-                  </p>
-                  
-                  {/* Quote */}
-                  <p className="text-center text-sm leading-relaxed text-muted-foreground">
-                    "{testimonial.quote}"
-                  </p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialsSection />
 
       {/* Pricing Section */}
       <section id="pricing" className="bg-white py-24">

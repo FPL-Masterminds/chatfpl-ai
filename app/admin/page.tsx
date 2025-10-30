@@ -38,6 +38,13 @@ interface PendingClaim {
   reward_messages: number
   proof_url: string | null
   created_at: string
+  metadata?: {
+    reviewType?: string
+    rating?: number
+    description?: string
+    reviewText?: string
+    xConsent?: boolean
+  }
 }
 
 interface Analytics {
@@ -166,12 +173,12 @@ export default function AdminPage() {
     }
   }
 
-  const handleVerifyClaim = async (claimId: string, action: "approve" | "reject") => {
+  const handleVerifyClaim = async (claimId: string, action: "approve" | "reject", displayOnHomepage: boolean = false) => {
     try {
       const response = await fetch("/api/rewards/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ claim_id: claimId, action })
+        body: JSON.stringify({ claim_id: claimId, action, displayOnHomepage })
       })
 
       const result = await response.json()
@@ -582,6 +589,47 @@ export default function AdminPage() {
                               {new Date(claim.created_at).toLocaleDateString()}
                             </p>
                           </div>
+
+                          {/* Review Preview for Review Type Claims */}
+                          {claim.action_type === "review" && claim.metadata && (
+                            <div className="mb-3 rounded-lg border border-[#FFD700]/30 bg-[#2E0032]/30 p-4">
+                              <p className="text-xs font-semibold uppercase text-[#FFD700] mb-2">Review Preview</p>
+                              
+                              {/* Star Rating */}
+                              <div className="mb-2 flex gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <span key={star} className={`text-lg ${star <= (claim.metadata?.rating || 5) ? 'text-[#FFD700]' : 'text-gray-600'}`}>
+                                    ★
+                                  </span>
+                                ))}
+                              </div>
+
+                              {/* Description */}
+                              <p className="text-sm font-semibold text-white mb-1">
+                                {claim.metadata.description || "Subscriber"}
+                              </p>
+
+                              {/* Review Text */}
+                              {claim.metadata.reviewText && (
+                                <p className="text-sm text-[#EEEEEE] italic">
+                                  "{claim.metadata.reviewText}"
+                                </p>
+                              )}
+
+                              {/* Review Type Badge */}
+                              <div className="mt-2 flex items-center gap-2">
+                                <Badge className={claim.metadata.reviewType === 'xpost' ? 'bg-black text-white' : 'bg-[#FFD700] text-[#2E0032]'}>
+                                  {claim.metadata.reviewType === 'xpost' ? 'X Post' : 'Written Review'}
+                                </Badge>
+                                {claim.metadata.xConsent && (
+                                  <Badge className="bg-green-600 text-white">
+                                    Homepage Consent Given
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
                           {claim.proof_url && (
                             <div className="mb-3">
                               <p className="text-xs text-gray-400 mb-1">Proof URL:</p>
@@ -595,22 +643,55 @@ export default function AdminPage() {
                               </a>
                             </div>
                           )}
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              className="flex-1 bg-green-600 text-white hover:bg-green-700"
-                              onClick={() => handleVerifyClaim(claim.id, "approve")}
-                            >
-                              Approve
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="flex-1 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-                              onClick={() => handleVerifyClaim(claim.id, "reject")}
-                            >
-                              Reject
-                            </Button>
+
+                          {/* Action Buttons */}
+                          <div className="flex flex-col gap-2">
+                            {claim.action_type === "review" ? (
+                              <>
+                                <Button
+                                  size="sm"
+                                  className="w-full bg-[#FFD700] text-[#2E0032] hover:bg-[#FFD700]/90 font-semibold"
+                                  onClick={() => handleVerifyClaim(claim.id, "approve", true)}
+                                >
+                                  ⭐ Approve & Add to Homepage
+                                </Button>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 bg-green-600 text-white hover:bg-green-700"
+                                    onClick={() => handleVerifyClaim(claim.id, "approve", false)}
+                                  >
+                                    Approve Only
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex-1 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                                    onClick={() => handleVerifyClaim(claim.id, "reject")}
+                                  >
+                                    Reject
+                                  </Button>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  className="flex-1 bg-green-600 text-white hover:bg-green-700"
+                                  onClick={() => handleVerifyClaim(claim.id, "approve")}
+                                >
+                                  Approve
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="flex-1 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                                  onClick={() => handleVerifyClaim(claim.id, "reject")}
+                                >
+                                  Reject
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
