@@ -7,6 +7,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
 import { TestimonialsSection } from "@/components/testimonials-section"
+import { StripeCheckoutButton } from "@/components/stripe-checkout-button"
 import { Database, Brain, MessageSquare, Check, Star, User } from "lucide-react"
 
 export default function HomePage() {
@@ -259,13 +260,11 @@ export default function HomePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button 
-                  className="w-full hover:opacity-90" 
+                <StripeCheckoutButton
+                  plan="Premium"
+                  className="w-full hover:opacity-90"
                   style={{ backgroundColor: '#2E0032', color: '#FFFFFF' }}
-                  asChild
-                >
-                  <Link href="/signup">Subscribe</Link>
-                </Button>
+                />
               </CardFooter>
             </Card>
 
@@ -302,13 +301,11 @@ export default function HomePage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button 
-                  className="w-full hover:opacity-90" 
+                <StripeCheckoutButton
+                  plan="Elite"
+                  className="w-full hover:opacity-90"
                   style={{ backgroundColor: '#00FFFF', color: '#2E0032' }}
-                  asChild
-                >
-                  <Link href="/signup">Subscribe</Link>
-                </Button>
+                />
               </CardFooter>
             </Card>
           </div>

@@ -78,8 +78,10 @@ model Subscription {
   user_id                String
   plan                   String    @db.VarChar(50)
   status                 String    @db.VarChar(50)
-  stripe_customer_id     String?   @db.VarChar(255)
-  stripe_subscription_id String?   @db.VarChar(255)
+  stripe_customer_id     String?   @unique @db.VarChar(255)
+  stripe_subscription_id String?   @unique @db.VarChar(255)
+  stripe_price_id        String?   @db.VarChar(255)
+  cancel_at_period_end   Boolean   @default(false)
   current_period_start   DateTime? @db.Timestamp(6)
   current_period_end     DateTime? @db.Timestamp(6)
   
@@ -98,6 +100,7 @@ model UsageTracking {
   
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@unique([user_id, month, year], name: "user_id_month_year")
   @@map("usage_tracking")
 }
 
