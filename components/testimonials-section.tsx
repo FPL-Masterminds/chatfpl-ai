@@ -35,11 +35,16 @@ export function TestimonialsSection() {
       const response = await fetch("/api/reviews/homepage")
       if (response.ok) {
         const data = await response.json()
-        setReviews(data.reviews)
         
-        // Randomly select 3 reviews or use all if less than 3
-        const selectedReviews = selectRandomReviews(data.reviews, 3)
-        setDisplayedReviews(selectedReviews)
+        // If no approved reviews exist, use static reviews
+        if (!data.reviews || data.reviews.length === 0) {
+          setDisplayedReviews(getStaticReviews())
+        } else {
+          setReviews(data.reviews)
+          // Randomly select 3 reviews or use all if less than 3
+          const selectedReviews = selectRandomReviews(data.reviews, 3)
+          setDisplayedReviews(selectedReviews)
+        }
       } else {
         // Fallback to static reviews if API fails
         setDisplayedReviews(getStaticReviews())
