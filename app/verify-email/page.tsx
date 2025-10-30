@@ -4,8 +4,9 @@ import { useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Mail, CheckCircle, AlertCircle } from "lucide-react"
+import { CheckCircle, AlertCircle } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams()
@@ -44,7 +45,13 @@ function VerifyEmailContent() {
       <Card className="w-full max-w-md p-8 text-center">
         <div className="mb-6 flex justify-center">
           <div className="rounded-full bg-accent/10 p-4">
-            <Mail className="h-12 w-12 text-accent" />
+            <Image 
+              src="/ChatFPL_Logo.png" 
+              alt="ChatFPL" 
+              width={48} 
+              height={48}
+              className="h-12 w-12"
+            />
           </div>
         </div>
 
