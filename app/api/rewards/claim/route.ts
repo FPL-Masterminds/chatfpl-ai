@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Get request data
-    const { action_type, proof_url } = await request.json();
+    const { action_type, proof_url, metadata } = await request.json();
 
     if (!action_type) {
       return NextResponse.json(
@@ -33,10 +33,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // Require proof URL for social shares and reviews
-    if (["twitter", "reddit", "facebook", "review"].includes(action_type) && !proof_url) {
+    // Require proof URL for social shares (not for written reviews)
+    if (["twitter", "reddit", "facebook"].includes(action_type) && !proof_url) {
       return NextResponse.json(
         { error: "Proof URL is required for this action" },
+        { status: 400 }
+      );
+    }
+
+    // For reviews, either written review or X post URL required
+    if (action_type === "review" && !proof_url) {
+      return NextResponse.json(
+        { error: "Review content or X post URL is required" },
         { status: 400 }
       );
     }
@@ -96,7 +104,15 @@ export async function POST(request: Request) {
       .filter(action => action.status === "verified")
       .reduce((sum, action) => sum + action.reward_messages, 0);
 
-    const rewardAmount = action_type === "referral" ? 10 : 5;
+    // Calculate reward amount
+    let rewardAmount = 5; // Default for social shares
+    if (action_type === "referral") {
+      rewardAmount = 10;
+    } else if (action_type === "review") {
+      // Review: 5 for written, 10 for X consent
+      const isXConsent = metadata?.reviewType === "xpost" && metadata?.xConsent === true;
+      rewardAmount = isXConsent ? 10 : 5;
+    }
 
     if (totalEarned + rewardAmount > 50) {
       return NextResponse.json(

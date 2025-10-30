@@ -57,7 +57,20 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground">6. Acceptable Use</h2>
+              <h2 className="text-2xl font-semibold text-foreground">6. Bonus Message Rewards Program</h2>
+              <p className="leading-relaxed text-muted-foreground">
+                Free tier users may earn bonus messages by participating in our rewards program, which includes social media sharing, submitting reviews, and referring friends. All reward claims are subject to manual verification by our team.
+              </p>
+              <p className="leading-relaxed text-muted-foreground">
+                We reserve the right to deny or revoke reward messages at our sole discretion, including but not limited to cases where we determine that a review or social post contains negative, defamatory, or unhelpful content about our service. Rewards are intended to encourage genuine, positive engagement with ChatFPL.ai.
+              </p>
+              <p className="leading-relaxed text-muted-foreground">
+                By submitting a review or consenting to the use of your social media content, you grant ChatFPL.ai a non-exclusive, worldwide license to display your review, post content, username, and profile photo on our website and marketing materials. All reward claims must be made in good faith, and abuse of the rewards program may result in account suspension.
+              </p>
+            </section>
+
+            <section className="space-y-4">
+              <h2 className="text-2xl font-semibold text-foreground">7. Acceptable Use</h2>
               <p className="leading-relaxed text-muted-foreground">
                 You agree not to use the service for any unlawful purpose or in any way that could damage, disable, or
                 impair the service. You may not attempt to gain unauthorized access to any part of the service or its
@@ -66,7 +79,7 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground">7. Disclaimer of Warranties</h2>
+              <h2 className="text-2xl font-semibold text-foreground">8. Disclaimer of Warranties</h2>
               <p className="leading-relaxed text-muted-foreground">
                 ChatFPL.ai is provided "as is" without warranties of any kind. We do not guarantee the accuracy,
                 completeness, or usefulness of any information provided by the AI. Fantasy Premier League decisions are
@@ -75,7 +88,7 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground">8. Limitation of Liability</h2>
+              <h2 className="text-2xl font-semibold text-foreground">9. Limitation of Liability</h2>
               <p className="leading-relaxed text-muted-foreground">
                 ChatFPL.ai shall not be liable for any indirect, incidental, special, consequential, or punitive damages
                 resulting from your use of or inability to use the service.
@@ -83,7 +96,7 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground">9. Changes to Terms</h2>
+              <h2 className="text-2xl font-semibold text-foreground">10. Changes to Terms</h2>
               <p className="leading-relaxed text-muted-foreground">
                 We reserve the right to modify these terms at any time. We will notify users of any material changes via
                 email or through the service. Your continued use of the service after such modifications constitutes
@@ -92,7 +105,7 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground">10. Contact Information</h2>
+              <h2 className="text-2xl font-semibold text-foreground">11. Contact Information</h2>
               <p className="leading-relaxed text-muted-foreground">
                 If you have any questions about these Terms of Service, please contact us through our contact page.
               </p>

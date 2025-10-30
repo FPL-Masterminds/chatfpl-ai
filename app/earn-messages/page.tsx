@@ -36,6 +36,9 @@ export default function EarnMessagesPage() {
   const [proofUrl, setProofUrl] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [referralLink, setReferralLink] = useState("")
+  const [reviewType, setReviewType] = useState<"written" | "xpost">("written")
+  const [writtenReview, setWrittenReview] = useState("")
+  const [xConsentGiven, setXConsentGiven] = useState(false)
   const [resultModal, setResultModal] = useState<{ show: boolean; success: boolean; message: string }>({ 
     show: false, 
     success: false, 
@@ -92,17 +95,60 @@ export default function EarnMessagesPage() {
   const handleClaimReward = (rewardType: string) => {
     setClaimingReward(rewardType)
     setProofUrl("")
+    setReviewType("written")
+    setWrittenReview("")
+    setXConsentGiven(false)
   }
 
   const submitClaim = async () => {
     if (!claimingReward) return
 
-    // Referrals don't need proof URL
-    if (claimingReward !== "referral" && !proofUrl.trim()) {
+    // Special handling for review type
+    if (claimingReward === "review") {
+      if (reviewType === "written") {
+        if (!writtenReview.trim()) {
+          setResultModal({
+            show: true,
+            success: false,
+            message: "Please write your review (max 280 characters)"
+          })
+          return
+        }
+        if (writtenReview.length > 280) {
+          setResultModal({
+            show: true,
+            success: false,
+            message: "Review must be 280 characters or less"
+          })
+          return
+        }
+      } else {
+        // X post consent
+        if (!proofUrl.trim()) {
+          setResultModal({
+            show: true,
+            success: false,
+            message: "Please provide the link to your X post"
+          })
+          return
+        }
+        if (!xConsentGiven) {
+          setResultModal({
+            show: true,
+            success: false,
+            message: "Please confirm consent to use your X post on the homepage"
+          })
+          return
+        }
+      }
+    }
+
+    // Validation for other reward types
+    if (claimingReward !== "referral" && claimingReward !== "review" && !proofUrl.trim()) {
       setResultModal({
         show: true,
         success: false,
-        message: "Please enter the URL to your post/review"
+        message: "Please enter the URL to your post"
       })
       return
     }
@@ -115,7 +161,13 @@ export default function EarnMessagesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action_type: claimingReward,
-          proof_url: proofUrl.trim() || null
+          proof_url: claimingReward === "review" && reviewType === "written" 
+            ? `WRITTEN_REVIEW: ${writtenReview}` 
+            : proofUrl.trim() || null,
+          metadata: claimingReward === "review" ? {
+            reviewType,
+            xConsent: reviewType === "xpost" ? xConsentGiven : false
+          } : null
         })
       })
 
@@ -124,6 +176,8 @@ export default function EarnMessagesPage() {
       if (response.ok) {
         setClaimingReward(null)
         setProofUrl("")
+        setWrittenReview("")
+        setXConsentGiven(false)
         setResultModal({
           show: true,
           success: true,
@@ -423,29 +477,119 @@ export default function EarnMessagesPage() {
               <CardDescription className="text-[#EEEEEE]">
                 {claimingReward === "referral"
                   ? "Your referral will be tracked automatically when your friend signs up."
-                  : "Paste the URL to your post or review to claim your reward."}
+                  : claimingReward === "review"
+                  ? "Choose how you want to submit your review"
+                  : claimingReward === "twitter"
+                  ? "Paste the URL to your X post"
+                  : claimingReward === "reddit"
+                  ? "Paste the URL to your Reddit post"
+                  : claimingReward === "facebook"
+                  ? "Paste the URL to your Facebook post"
+                  : "Paste the URL to your post to claim your reward."}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {claimingReward !== "referral" && (
+              {/* Review Type Selection */}
+              {claimingReward === "review" && (
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={reviewType === "written" ? "default" : "outline"}
+                      className={reviewType === "written" ? "flex-1 bg-[#FFD700] text-[#2E0032]" : "flex-1"}
+                      onClick={() => setReviewType("written")}
+                    >
+                      Write Review (5 msgs)
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={reviewType === "xpost" ? "default" : "outline"}
+                      className={reviewType === "xpost" ? "flex-1 bg-[#00FF87] text-[#2E0032]" : "flex-1"}
+                      onClick={() => setReviewType("xpost")}
+                    >
+                      Use X Post (10 msgs)
+                    </Button>
+                  </div>
+
+                  {reviewType === "written" ? (
+                    <div>
+                      <label htmlFor="written-review" className="text-sm font-medium text-[#EEEEEE]">
+                        Your Review (max 280 chars) *
+                      </label>
+                      <textarea
+                        id="written-review"
+                        placeholder="Share your experience with ChatFPL..."
+                        value={writtenReview}
+                        onChange={(e) => setWrittenReview(e.target.value)}
+                        maxLength={280}
+                        rows={4}
+                        className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#00FF87] focus:outline-none focus:ring-1 focus:ring-[#00FF87]"
+                        disabled={submitting}
+                      />
+                      <p className="mt-1 text-xs text-gray-400">
+                        {writtenReview.length}/280 characters • May appear on homepage
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <label htmlFor="x-post-url" className="text-sm font-medium text-[#EEEEEE]">
+                          X Post URL *
+                        </label>
+                        <input
+                          id="x-post-url"
+                          type="url"
+                          placeholder="https://x.com/yourpost..."
+                          value={proofUrl}
+                          onChange={(e) => setProofUrl(e.target.value)}
+                          className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#00FF87] focus:outline-none focus:ring-1 focus:ring-[#00FF87]"
+                          disabled={submitting}
+                        />
+                      </div>
+                      <div className="flex items-start gap-2 rounded-lg bg-[#1E1E1E] p-3">
+                        <input
+                          type="checkbox"
+                          id="x-consent"
+                          checked={xConsentGiven}
+                          onChange={(e) => setXConsentGiven(e.target.checked)}
+                          className="mt-1"
+                          disabled={submitting}
+                        />
+                        <label htmlFor="x-consent" className="text-sm text-[#EEEEEE]">
+                          I consent to ChatFPL using my X post content and profile photo on the homepage testimonials (10 messages reward)
+                        </label>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Standard URL Input for Social Posts */}
+              {claimingReward !== "referral" && claimingReward !== "review" && (
                 <div>
                   <label htmlFor="proof-url" className="text-sm font-medium text-[#EEEEEE]">
-                    Proof URL *
+                    Post URL *
                   </label>
                   <input
                     id="proof-url"
                     type="url"
-                    placeholder="https://x.com/..."
+                    placeholder={
+                      claimingReward === "twitter" ? "https://x.com/yourpost..." :
+                      claimingReward === "reddit" ? "https://reddit.com/r/.../comments/..." :
+                      claimingReward === "facebook" ? "https://facebook.com/..." :
+                      "https://..."
+                    }
                     value={proofUrl}
                     onChange={(e) => setProofUrl(e.target.value)}
                     className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#00FF87] focus:outline-none focus:ring-1 focus:ring-[#00FF87]"
                     disabled={submitting}
                   />
                   <p className="mt-1 text-xs text-gray-400">
-                    We'll verify your {claimingReward} post within 24-48 hours
+                    We'll verify your post within 24-48 hours
                   </p>
                 </div>
               )}
+
               <div className="flex gap-2">
                 <Button
                   className="flex-1 bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90"
@@ -460,6 +604,8 @@ export default function EarnMessagesPage() {
                   onClick={() => {
                     setClaimingReward(null)
                     setProofUrl("")
+                    setWrittenReview("")
+                    setXConsentGiven(false)
                   }}
                   disabled={submitting}
                 >
