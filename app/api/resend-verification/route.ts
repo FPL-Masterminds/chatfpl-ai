@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { Resend } from "resend";
+import { normalizeEmail } from "@/lib/email-utils";
 
 export async function POST(request: Request) {
   try {
@@ -11,9 +12,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
+    // Normalize email to match signup normalization
+    const normalizedEmail = normalizeEmail(email);
+
     // Find user
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (!user) {

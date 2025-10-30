@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { normalizeEmail } from "@/lib/email-utils";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -18,8 +19,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Email and password required");
         }
 
+        // Normalize email to match signup normalization
+        const normalizedEmail = normalizeEmail(credentials.email as string);
+
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email: normalizedEmail },
         });
 
         if (!user) {

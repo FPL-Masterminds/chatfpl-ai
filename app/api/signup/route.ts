@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { Resend } from "resend";
+import { normalizeEmail, isDisposableEmail } from "@/lib/email-utils";
 
 export async function POST(request: Request) {
   try {
@@ -22,9 +23,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if user already exists
+    // Normalize email to prevent abuse (removes +aliases and Gmail dots)
+    const normalizedEmail = normalizeEmail(email);
+
+    // Block disposable email providers
+    if (isDisposableEmail(normalizedEmail)) {
+      return NextResponse.json(
+        { error: "Disposable email addresses are not allowed" },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already exists (using normalized email)
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -48,7 +60,7 @@ export async function POST(request: Request) {
     const newUser = await prisma.user.create({
       data: {
         name,
-        email,
+        email: normalizedEmail, // Store normalized email in database
         password_hash: hashedPassword,
         emailVerificationToken: verificationToken,
         emailVerificationExpires: tokenExpiry,
@@ -83,7 +95,7 @@ export async function POST(request: Request) {
 
       await resend.emails.send({
         from: process.env.EMAIL_FROM || "ChatFPL <noreply@chatfpl.ai>",
-        to: email,
+        to: email, // Send to original email (user's actual address)
         subject: "Verify your ChatFPL email",
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

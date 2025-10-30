@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { normalizeEmail } from "@/lib/email-utils";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -22,9 +23,12 @@ export async function POST(request: Request) {
       );
     }
 
+    // Normalize email to match signup normalization
+    const normalizedEmail = normalizeEmail(email);
+
     // Find user
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     // Always return success even if user doesn't exist (security best practice)
