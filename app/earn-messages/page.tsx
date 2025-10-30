@@ -284,6 +284,9 @@ export default function EarnMessagesPage() {
                 <p className="text-sm text-[#EEEEEE]">Total Messages Earned</p>
                 <p className="text-5xl font-bold text-[#00FF87]">{userData?.totalEarned || 0} <span className="text-2xl text-gray-400">of 50</span></p>
                 <p className="mt-2 text-xs text-gray-400">Lifetime cap ensures fair usage for all free users</p>
+                <p className="mt-3 text-xs text-yellow-300">
+                  ⚠️ Bonus messages expire on your renewal date - use them or lose them!
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -470,6 +473,7 @@ export default function EarnMessagesPage() {
                 <li>• Social shares and reviews require admin verification (allow 24-48 hours)</li>
                 <li>• Referral rewards granted automatically after referred user verifies email</li>
                 <li>• Lifetime cap: 50 bonus messages total per account</li>
+                <li>• <span className="font-semibold text-yellow-300">⚠️ Bonus messages expire on your renewal date</span> - use them or lose them!</li>
                 <li>• Rewards only available for Free tier users</li>
               </ul>
             </CardContent>

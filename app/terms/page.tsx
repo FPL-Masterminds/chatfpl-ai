@@ -65,6 +65,9 @@ export default function TermsPage() {
                 <strong>Reward Limits:</strong> Social rewards (X, Reddit, Facebook) can each be claimed once per account (5 messages each). Review rewards can be claimed once per account (5 or 10 messages depending on type). Referral rewards are limited to a maximum of 3 referrals per account (5 messages each). All users are subject to a lifetime cap of 50 bonus messages total, regardless of how the messages are earned. This cap ensures fair usage for all free tier users.
               </p>
               <p className="leading-relaxed text-muted-foreground">
+                <strong>Message Expiration:</strong> Bonus messages earned through the rewards program expire on your subscription renewal date. For Free tier users, this means all bonus messages must be used within your monthly billing cycle or they will be lost. Only your base plan allowance (5 trial messages for Free tier) will carry forward to the next cycle. Paid subscriptions (Premium, Elite, VIP) are not subject to message expiration and renew monthly with their full allowance.
+              </p>
+              <p className="leading-relaxed text-muted-foreground">
                 We reserve the right to deny or revoke reward messages at our sole discretion, including but not limited to cases where we determine that a review or social post contains negative, defamatory, or unhelpful content about our service. Rewards are intended to encourage genuine, positive engagement with ChatFPL.ai.
               </p>
               <p className="leading-relaxed text-muted-foreground">

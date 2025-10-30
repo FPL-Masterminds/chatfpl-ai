@@ -442,6 +442,16 @@ export default function AdminPage() {
                     {data.subscription.plan.toLowerCase() === "free" ? "trial messages" : "messages this month"}
                   </p>
                 </div>
+                {data.subscription.plan.toLowerCase() === "free" && data.usage.messages_limit > 5 && (
+                  <div className="rounded-lg border border-yellow-600/50 bg-yellow-900/20 p-3">
+                    <p className="text-center text-xs text-yellow-200">
+                      ⚠️ <span className="font-semibold">Bonus messages expire on {formatDate(data.subscription.current_period_end)}</span>
+                    </p>
+                    <p className="mt-1 text-center text-xs text-yellow-300/80">
+                      Use them or lose them! Upgrade to Premium to keep your messages.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

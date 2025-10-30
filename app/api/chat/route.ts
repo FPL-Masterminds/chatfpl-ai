@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { resetFreeMessagesIfExpired } from "@/lib/reset-free-messages";
 
 export const runtime = "nodejs";
 
@@ -36,7 +37,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const usage = user.usageTracking[0];
+    // Reset bonus messages if past renewal date (Free tier only)
+    const updatedUsage = await resetFreeMessagesIfExpired(user.id);
+    const usage = updatedUsage || user.usageTracking[0];
     const userFirstName = user.name?.split(' ')[0] || "there";
 
     // Check message limit
