@@ -6,7 +6,7 @@ const LOGO_URL = "https://chatfpl.ai/ChatFPL_Logo.png";
 
 export function getEmailHeader() {
   return `
-    <div style="background: linear-gradient(135deg, #2E0032 0%, #1E1E1E 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+    <div style="background: #FFFFFF; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
       <img src="${LOGO_URL}" alt="ChatFPL" style="height: 50px; margin-bottom: 15px;" />
     </div>
   `;
