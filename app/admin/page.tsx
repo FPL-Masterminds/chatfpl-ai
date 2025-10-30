@@ -50,6 +50,11 @@ export default function AdminPage() {
   const [vipMessage, setVipMessage] = useState("")
   const [pendingClaims, setPendingClaims] = useState<PendingClaim[]>([])
   const [claimsLoading, setClaimsLoading] = useState(false)
+  const [resultModal, setResultModal] = useState<{ show: boolean; success: boolean; message: string }>({ 
+    show: false, 
+    success: false, 
+    message: "" 
+  })
 
   useEffect(() => {
     fetchAccountData()
@@ -144,14 +149,26 @@ export default function AdminPage() {
       const result = await response.json()
 
       if (response.ok) {
-        alert(`✅ ${result.message}`)
+        setResultModal({
+          show: true,
+          success: true,
+          message: result.message
+        })
         // Refresh pending claims
         fetchPendingClaims()
       } else {
-        alert(`❌ ${result.error}`)
+        setResultModal({
+          show: true,
+          success: false,
+          message: result.error
+        })
       }
     } catch (error) {
-      alert("❌ Failed to process claim. Please try again.")
+      setResultModal({
+        show: true,
+        success: false,
+        message: "Failed to process claim. Please try again."
+      })
     }
   }
 
@@ -594,6 +611,42 @@ export default function AdminPage() {
           )}
         </div>
       </main>
+
+      {/* Result Modal */}
+      {resultModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
+          <Card className={`w-full max-w-md ${resultModal.success ? 'border-[#00FF87]' : 'border-red-600'} bg-[#2A2A2A]`}>
+            <CardHeader>
+              <CardTitle className={resultModal.success ? 'text-[#00FF87]' : 'text-red-400'}>
+                {resultModal.success ? (
+                  <div className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Success
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Error
+                  </div>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-[#EEEEEE]">{resultModal.message}</p>
+              <Button
+                className="w-full bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90"
+                onClick={() => setResultModal({ show: false, success: false, message: "" })}
+              >
+                OK
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

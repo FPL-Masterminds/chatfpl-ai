@@ -6,7 +6,7 @@ import { Header } from "@/components/header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Gift, Twitter, MessageCircle, Star, Users, CheckCircle, Clock, XCircle } from "lucide-react"
+import { Gift, MessageCircle, Star, Users, CheckCircle, Clock, XCircle } from "lucide-react"
 
 interface RewardStatus {
   action_type: string
@@ -36,6 +36,11 @@ export default function EarnMessagesPage() {
   const [proofUrl, setProofUrl] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [referralLink, setReferralLink] = useState("")
+  const [resultModal, setResultModal] = useState<{ show: boolean; success: boolean; message: string }>({ 
+    show: false, 
+    success: false, 
+    message: "" 
+  })
 
   useEffect(() => {
     fetchRewardStatus()
@@ -94,7 +99,11 @@ export default function EarnMessagesPage() {
 
     // Referrals don't need proof URL
     if (claimingReward !== "referral" && !proofUrl.trim()) {
-      alert("Please enter the URL to your post/review")
+      setResultModal({
+        show: true,
+        success: false,
+        message: "Please enter the URL to your post/review"
+      })
       return
     }
 
@@ -113,16 +122,28 @@ export default function EarnMessagesPage() {
       const result = await response.json()
 
       if (response.ok) {
-        alert(`✅ ${result.message}`)
         setClaimingReward(null)
         setProofUrl("")
+        setResultModal({
+          show: true,
+          success: true,
+          message: result.message
+        })
         // Refresh reward status
         fetchRewardStatus()
       } else {
-        alert(`❌ ${result.error}`)
+        setResultModal({
+          show: true,
+          success: false,
+          message: result.error
+        })
       }
     } catch (error) {
-      alert("❌ Failed to submit claim. Please try again.")
+      setResultModal({
+        show: true,
+        success: false,
+        message: "Failed to submit claim. Please try again."
+      })
     } finally {
       setSubmitting(false)
     }
@@ -208,21 +229,23 @@ export default function EarnMessagesPage() {
           <div>
             <h2 className="mb-4 text-2xl font-bold text-white">Available Rewards</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Twitter */}
-              <Card className="border-[#1DA1F2] bg-[#2A2A2A]/50">
+              {/* X (Twitter) */}
+              <Card className="border-[#000000] bg-[#2A2A2A]/50">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <Twitter className="h-8 w-8 text-[#1DA1F2]" />
+                    <svg className="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
                     <Badge className="bg-[#00FF87] text-[#2E0032]">+5 messages</Badge>
                   </div>
-                  <CardTitle className="text-white">Post on Twitter</CardTitle>
+                  <CardTitle className="text-white">Post on X</CardTitle>
                   <CardDescription className="text-[#EEEEEE]">
-                    Share ChatFPL on Twitter and earn 5 free messages
+                    Share ChatFPL on X (Twitter) and earn 5 free messages
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button
-                    className="w-full bg-[#1DA1F2] text-white hover:bg-[#1DA1F2]/90"
+                    className="w-full bg-black text-white hover:bg-black/90"
                     onClick={() => handleClaimReward("twitter")}
                     disabled={!userData?.availableRewards.twitter}
                   >
@@ -326,7 +349,11 @@ export default function EarnMessagesPage() {
                     onClick={() => {
                       if (referralLink) {
                         navigator.clipboard.writeText(referralLink)
-                        alert("Referral link copied!")
+                        setResultModal({
+                          show: true,
+                          success: true,
+                          message: "Referral link copied to clipboard!"
+                        })
                       }
                     }}
                     disabled={!referralLink}
@@ -408,7 +435,7 @@ export default function EarnMessagesPage() {
                   <input
                     id="proof-url"
                     type="url"
-                    placeholder="https://twitter.com/..."
+                    placeholder="https://x.com/..."
                     value={proofUrl}
                     onChange={(e) => setProofUrl(e.target.value)}
                     className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#00FF87] focus:outline-none focus:ring-1 focus:ring-[#00FF87]"
@@ -439,6 +466,38 @@ export default function EarnMessagesPage() {
                   Cancel
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Result Modal */}
+      {resultModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
+          <Card className={`w-full max-w-md ${resultModal.success ? 'border-[#00FF87]' : 'border-red-600'} bg-[#2A2A2A]`}>
+            <CardHeader>
+              <CardTitle className={resultModal.success ? 'text-[#00FF87]' : 'text-red-400'}>
+                {resultModal.success ? (
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-6 w-6" />
+                    Success
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <XCircle className="h-6 w-6" />
+                    Error
+                  </div>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-[#EEEEEE]">{resultModal.message}</p>
+              <Button
+                className="w-full bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90"
+                onClick={() => setResultModal({ show: false, success: false, message: "" })}
+              >
+                OK
+              </Button>
             </CardContent>
           </Card>
         </div>
