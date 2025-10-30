@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import TiltedCard from "@/components/tilted-card"
 
 const HERO_IMAGES = [
   { src: "/Haaland_Hero.png", alt: "Erling Haaland" },
@@ -52,20 +52,26 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column - Rotating Player Images (Hidden on Mobile/Tablet) */}
+          {/* Right Column - Rotating Player Images with Tilt Effect (Hidden on Mobile/Tablet) */}
           <div className="hidden lg:flex relative items-center justify-center w-full max-w-md mx-auto aspect-square">
             {HERO_IMAGES.map((image, index) => (
-              <Image
+              <div
                 key={image.src}
-                src={image.src}
-                alt={image.alt}
-                width={500}
-                height={500}
-                className={`absolute inset-0 w-full h-full object-contain transition-opacity duration-1000 ${
+                className={`absolute inset-0 transition-opacity duration-1000 ${
                   index === currentImageIndex ? "opacity-100" : "opacity-0"
                 }`}
-                priority={index === 0}
-              />
+              >
+                <TiltedCard
+                  imageSrc={image.src}
+                  altText={image.alt}
+                  containerHeight="500px"
+                  containerWidth="500px"
+                  imageHeight="500"
+                  imageWidth="500"
+                  rotateAmplitude={12}
+                  scaleOnHover={1.05}
+                />
+              </div>
             ))}
           </div>
         </div>
