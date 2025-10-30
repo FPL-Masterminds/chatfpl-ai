@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 import { Resend } from "resend";
 import { normalizeEmail, isDisposableEmail } from "@/lib/email-utils";
+import { wrapEmailContent } from "@/lib/email-templates";
 
 export async function POST(request: Request) {
   try {
@@ -113,26 +114,51 @@ export async function POST(request: Request) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       const verificationUrl = `${process.env.NEXTAUTH_URL || 'https://chatfpl.ai'}/api/verify-email?token=${verificationToken}`;
 
+      const emailContent = `
+        <h2 style="color: #2E0032;">Welcome to ChatFPL, ${name}! 🎉</h2>
+        <p>Thanks for signing up. Please verify your email address to start using your <strong>5 free messages</strong>.</p>
+        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; font-size: 14px; color: #666;">✅ <strong>Your Free Trial Includes:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px; color: #666;">
+            <li>5 AI-powered FPL messages</li>
+            <li>Live data access</li>
+            <li>Earn more messages by sharing</li>
+          </ul>
+        </div>
+        <p>Click the button below to verify your email and start chatting:</p>
+        <div style="text-align: center;">
+          <a href="${verificationUrl}" class="button">Verify Email & Start Chatting</a>
+        </div>
+        <p>Or copy and paste this link into your browser:</p>
+        <p style="color: #666; font-size: 14px; word-break: break-all;">${verificationUrl}</p>
+        <p style="color: #999; font-size: 12px; margin-top: 30px;">⏰ This link will expire in 24 hours.</p>
+        <p style="color: #999; font-size: 12px;">If you didn't create an account, you can safely ignore this email.</p>
+      `;
+
       await resend.emails.send({
         from: process.env.EMAIL_FROM || "ChatFPL <noreply@chatfpl.ai>",
-        to: email, // Send to original email (user's actual address)
-        subject: "Verify your ChatFPL email",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2E0032;">Welcome to ChatFPL, ${name}!</h2>
-            <p>Thanks for signing up. Please verify your email address to start using ChatFPL.</p>
-            <p>Click the button below to verify your email:</p>
-            <a href="${verificationUrl}" style="display: inline-block; background-color: #00FF86; color: #2E0032; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0;">Verify Email</a>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="color: #666; font-size: 14px; word-break: break-all;">${verificationUrl}</p>
-            <p style="color: #999; font-size: 12px; margin-top: 30px;">This link will expire in 24 hours.</p>
-            <p style="color: #999; font-size: 12px;">If you didn't create an account, you can safely ignore this email.</p>
-          </div>
-        `,
+        to: email,
+        subject: "Welcome to ChatFPL - Verify Your Email 🎉",
+        html: wrapEmailContent(emailContent),
       });
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);
       // Don't fail signup if email fails - user can request a new one
+    }
+
+    // Notify admin of new signup (fire and forget)
+    try {
+      fetch(`${process.env.NEXTAUTH_URL || 'https://chatfpl.ai'}/api/admin/notify-signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userName: name,
+          userEmail: email,
+          plan: "Free"
+        })
+      }).catch(err => console.error("Admin signup notification failed:", err));
+    } catch (err) {
+      console.error("Failed to send admin signup notification:", err);
     }
 
     return NextResponse.json(
