@@ -139,9 +139,28 @@ export async function POST(request: Request) {
         action_type,
         status: "pending",
         reward_messages: rewardAmount,
-        proof_url: proof_url || null
+        proof_url: proof_url || null,
+        metadata: metadata || null
       }
     });
+
+    // Send email notification to admin (don't wait for it, fire and forget)
+    try {
+      fetch(`${process.env.NEXTAUTH_URL || 'https://chatfpl.ai'}/api/rewards/notify-admin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userName: user.name,
+          userEmail: user.email,
+          actionType: action_type,
+          rewardMessages: rewardAmount,
+          proofUrl: proof_url
+        })
+      }).catch(err => console.error("Admin notification failed:", err));
+    } catch (err) {
+      console.error("Failed to send admin notification:", err);
+      // Don't fail the claim submission if email fails
+    }
 
     return NextResponse.json({
       message: "Reward claim submitted! Our team will verify it within 24-48 hours.",
