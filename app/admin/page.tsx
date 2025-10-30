@@ -53,6 +53,7 @@ export default function AdminPage() {
   const [data, setData] = useState<AccountData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [activeTab, setActiveTab] = useState<"account" | "rewards" | "admin">("account")
   const [vipEmail, setVipEmail] = useState("")
   const [vipLoading, setVipLoading] = useState(false)
   const [vipMessage, setVipMessage] = useState("")
@@ -273,7 +274,7 @@ export default function AdminPage() {
           {/* Header Section */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-white">Your Account</h1>
+              <h1 className="text-4xl font-bold text-white">Account Dashboard</h1>
               <p className="mt-2 text-lg text-[#EEEEEE]">
                 Manage your ChatFPL.ai subscription, usage, and settings
               </p>
@@ -287,8 +288,54 @@ export default function AdminPage() {
             </Button>
           </div>
 
-          {/* User Summary */}
-          <Card className="border-[#2A2A2A] bg-[#2A2A2A]/50 backdrop-blur-sm">
+          {/* Tab Navigation */}
+          <div className="flex gap-2 border-b border-[#2A2A2A]">
+            <button
+              onClick={() => setActiveTab("account")}
+              className={`px-6 py-3 text-sm font-semibold transition-all ${
+                activeTab === "account"
+                  ? "border-b-2 border-[#00FF87] text-[#00FF87]"
+                  : "text-[#EEEEEE] hover:text-[#00FF87]"
+              }`}
+            >
+              My Account
+            </button>
+            {data.user.role === "admin" && (
+              <>
+                <button
+                  onClick={() => setActiveTab("rewards")}
+                  className={`relative px-6 py-3 text-sm font-semibold transition-all ${
+                    activeTab === "rewards"
+                      ? "border-b-2 border-[#00FF87] text-[#00FF87]"
+                      : "text-[#EEEEEE] hover:text-[#00FF87]"
+                  }`}
+                >
+                  Reward Management
+                  {pendingClaims.length > 0 && (
+                    <span className="ml-2 rounded-full bg-[#00FF87] px-2 py-0.5 text-xs font-bold text-[#2E0032]">
+                      {pendingClaims.length}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setActiveTab("admin")}
+                  className={`px-6 py-3 text-sm font-semibold transition-all ${
+                    activeTab === "admin"
+                      ? "border-b-2 border-[#00FF87] text-[#00FF87]"
+                      : "text-[#EEEEEE] hover:text-[#00FF87]"
+                  }`}
+                >
+                  Administration
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Account Tab */}
+          {activeTab === "account" && (
+            <>
+              {/* User Summary */}
+              <Card className="border-[#2A2A2A] bg-[#2A2A2A]/50 backdrop-blur-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -481,51 +528,12 @@ export default function AdminPage() {
               </Link>
             </CardContent>
           </Card>
+            </>
+          )}
 
-          {/* Admin Only Sections */}
-          {data.user.role === "admin" && (
+          {/* Rewards Management Tab */}
+          {activeTab === "rewards" && data.user.role === "admin" && (
             <>
-              {/* Make VIP Form */}
-              <Card className="border-[#FFD700] bg-gradient-to-br from-[#2E0032]/50 to-[#1E1E1E]/50 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="text-xl text-[#FFD700]">👑 Grant VIP Access</CardTitle>
-                  <CardDescription className="text-[#EEEEEE]">
-                    Give friends & family 100 free messages per month
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form className="space-y-4" onSubmit={handleMakeVIP}>
-                    <div>
-                      <label htmlFor="vip-email" className="text-sm font-medium text-[#EEEEEE]">
-                        User Email
-                      </label>
-                      <input
-                        id="vip-email"
-                        type="email"
-                        placeholder="friend@example.com"
-                        value={vipEmail}
-                        onChange={(e) => setVipEmail(e.target.value)}
-                        className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#FFD700] focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
-                        required
-                        disabled={vipLoading}
-                      />
-                    </div>
-                    {vipMessage && (
-                      <div className={`rounded-lg p-3 text-sm ${vipMessage.includes("✅") ? "bg-green-900/30 text-green-400" : "bg-red-900/30 text-red-400"}`}>
-                        {vipMessage}
-                      </div>
-                    )}
-                    <Button
-                      type="submit"
-                      className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#2E0032] hover:opacity-90"
-                      disabled={vipLoading}
-                    >
-                      {vipLoading ? "Processing..." : "Make VIP"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-
               {/* Pending Reward Claims */}
               <Card className="border-[#00FF87] bg-gradient-to-br from-purple-900/50 to-[#2E0032]/50 backdrop-blur-sm">
                 <CardHeader>
@@ -608,6 +616,52 @@ export default function AdminPage() {
                       ))}
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+          {/* Administration Tab */}
+          {activeTab === "admin" && data.user.role === "admin" && (
+            <>
+              {/* Make VIP Form */}
+              <Card className="border-[#FFD700] bg-gradient-to-br from-[#2E0032]/50 to-[#1E1E1E]/50 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl text-[#FFD700]">👑 Grant VIP Access</CardTitle>
+                  <CardDescription className="text-[#EEEEEE]">
+                    Give friends & family 100 free messages per month
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-4" onSubmit={handleMakeVIP}>
+                    <div>
+                      <label htmlFor="vip-email" className="text-sm font-medium text-[#EEEEEE]">
+                        User Email
+                      </label>
+                      <input
+                        id="vip-email"
+                        type="email"
+                        placeholder="friend@example.com"
+                        value={vipEmail}
+                        onChange={(e) => setVipEmail(e.target.value)}
+                        className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#FFD700] focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
+                        required
+                        disabled={vipLoading}
+                      />
+                    </div>
+                    {vipMessage && (
+                      <div className={`rounded-lg p-3 text-sm ${vipMessage.includes("✅") ? "bg-green-900/30 text-green-400" : "bg-red-900/30 text-red-400"}`}>
+                        {vipMessage}
+                      </div>
+                    )}
+                    <Button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#2E0032] hover:opacity-90"
+                      disabled={vipLoading}
+                    >
+                      {vipLoading ? "Processing..." : "Make VIP"}
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
 
