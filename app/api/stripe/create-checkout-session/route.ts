@@ -41,7 +41,7 @@ export async function POST(request: Request) {
         },
       ],
       mode: "subscription",
-      success_url: `${process.env.NEXTAUTH_URL}/account?success=true`,
+      success_url: `${process.env.NEXTAUTH_URL}/admin?success=true`,
       cancel_url: `${process.env.NEXTAUTH_URL}/#pricing`,
       metadata: {
         user_email: session.user.email,
