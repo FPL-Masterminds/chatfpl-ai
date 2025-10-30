@@ -1,0 +1,449 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Header } from "@/components/header"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Gift, Twitter, MessageCircle, Star, Users, CheckCircle, Clock, XCircle } from "lucide-react"
+
+interface RewardStatus {
+  action_type: string
+  status: string
+  reward_messages: number
+  created_at: string
+}
+
+interface UserData {
+  totalEarned: number
+  availableRewards: {
+    twitter: boolean
+    reddit: boolean
+    facebook: boolean
+    review: boolean
+    referral: boolean
+  }
+  claimedRewards: RewardStatus[]
+}
+
+export default function EarnMessagesPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [error, setError] = useState("")
+  const [claimingReward, setClaimingReward] = useState<string | null>(null)
+  const [proofUrl, setProofUrl] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [referralLink, setReferralLink] = useState("")
+
+  useEffect(() => {
+    fetchRewardStatus()
+    fetchReferralLink()
+  }, [])
+
+  const fetchRewardStatus = async () => {
+    try {
+      const response = await fetch("/api/rewards/status")
+      
+      if (response.status === 401) {
+        router.push("/login")
+        return
+      }
+
+      if (response.status === 403) {
+        const data = await response.json()
+        setError(data.error)
+        setLoading(false)
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch reward status")
+      }
+
+      const data = await response.json()
+      setUserData(data)
+    } catch (err) {
+      setError("Failed to load reward data")
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchReferralLink = async () => {
+    try {
+      const response = await fetch("/api/referral/generate")
+      if (response.ok) {
+        const data = await response.json()
+        setReferralLink(data.referralLink)
+      }
+    } catch (error) {
+      console.error("Failed to fetch referral link:", error)
+    }
+  }
+
+  const handleClaimReward = (rewardType: string) => {
+    setClaimingReward(rewardType)
+    setProofUrl("")
+  }
+
+  const submitClaim = async () => {
+    if (!claimingReward) return
+
+    // Referrals don't need proof URL
+    if (claimingReward !== "referral" && !proofUrl.trim()) {
+      alert("Please enter the URL to your post/review")
+      return
+    }
+
+    setSubmitting(true)
+
+    try {
+      const response = await fetch("/api/rewards/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action_type: claimingReward,
+          proof_url: proofUrl.trim() || null
+        })
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        alert(`✅ ${result.message}`)
+        setClaimingReward(null)
+        setProofUrl("")
+        // Refresh reward status
+        fetchRewardStatus()
+      } else {
+        alert(`❌ ${result.error}`)
+      }
+    } catch (error) {
+      alert("❌ Failed to submit claim. Please try again.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "verified":
+        return <Badge className="bg-green-600 text-white"><CheckCircle className="mr-1 h-3 w-3" />Verified</Badge>
+      case "pending":
+        return <Badge className="bg-yellow-600 text-white"><Clock className="mr-1 h-3 w-3" />Pending</Badge>
+      case "rejected":
+        return <Badge className="bg-red-600 text-white"><XCircle className="mr-1 h-3 w-3" />Rejected</Badge>
+      default:
+        return null
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex flex-1 items-center justify-center pt-16">
+          <p className="text-lg text-muted-foreground">Loading...</p>
+        </main>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col bg-[#1E1E1E]">
+        <Header />
+        <main className="flex flex-1 items-center justify-center px-4 pt-24">
+          <Card className="w-full max-w-md border-red-600 bg-[#2A2A2A]/50">
+            <CardHeader>
+              <CardTitle className="text-red-400">Access Restricted</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-[#EEEEEE]">{error}</p>
+              <Button 
+                className="mt-4 w-full bg-[#00FF87] text-[#1E1E1E] hover:bg-[#00FF87]/90"
+                onClick={() => router.push("/")}
+              >
+                View Pricing Plans
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-[#1E1E1E]">
+      <Header />
+
+      <main className="flex-1 px-4 pt-24 pb-12">
+        <div className="mx-auto max-w-6xl space-y-8">
+          {/* Header Section */}
+          <div className="text-center">
+            <div className="mb-4 flex justify-center">
+              <Gift className="h-16 w-16 text-[#00FF87]" />
+            </div>
+            <h1 className="text-4xl font-bold text-white">Earn Free Messages</h1>
+            <p className="mt-2 text-lg text-[#EEEEEE]">
+              Share ChatFPL with others and earn bonus messages!
+            </p>
+          </div>
+
+          {/* Total Earned Banner */}
+          <Card className="border-[#00FF87] bg-gradient-to-r from-[#2E0032] to-[#1E1E1E]">
+            <CardContent className="py-6">
+              <div className="text-center">
+                <p className="text-sm text-[#EEEEEE]">Total Messages Earned</p>
+                <p className="text-5xl font-bold text-[#00FF87]">{userData?.totalEarned || 0}</p>
+                <p className="mt-2 text-xs text-gray-400">Lifetime cap: 50 messages</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Available Rewards */}
+          <div>
+            <h2 className="mb-4 text-2xl font-bold text-white">Available Rewards</h2>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {/* Twitter */}
+              <Card className="border-[#1DA1F2] bg-[#2A2A2A]/50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <Twitter className="h-8 w-8 text-[#1DA1F2]" />
+                    <Badge className="bg-[#00FF87] text-[#2E0032]">+5 messages</Badge>
+                  </div>
+                  <CardTitle className="text-white">Post on Twitter</CardTitle>
+                  <CardDescription className="text-[#EEEEEE]">
+                    Share ChatFPL on Twitter and earn 5 free messages
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    className="w-full bg-[#1DA1F2] text-white hover:bg-[#1DA1F2]/90"
+                    onClick={() => handleClaimReward("twitter")}
+                    disabled={!userData?.availableRewards.twitter}
+                  >
+                    {userData?.availableRewards.twitter ? "Claim Reward" : "Already Claimed"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Reddit */}
+              <Card className="border-[#FF4500] bg-[#2A2A2A]/50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <MessageCircle className="h-8 w-8 text-[#FF4500]" />
+                    <Badge className="bg-[#00FF87] text-[#2E0032]">+5 messages</Badge>
+                  </div>
+                  <CardTitle className="text-white">Post on Reddit</CardTitle>
+                  <CardDescription className="text-[#EEEEEE]">
+                    Share ChatFPL on Reddit and earn 5 free messages
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    className="w-full bg-[#FF4500] text-white hover:bg-[#FF4500]/90"
+                    onClick={() => handleClaimReward("reddit")}
+                    disabled={!userData?.availableRewards.reddit}
+                  >
+                    {userData?.availableRewards.reddit ? "Claim Reward" : "Already Claimed"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Facebook */}
+              <Card className="border-[#1877F2] bg-[#2A2A2A]/50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <svg className="h-8 w-8 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    <Badge className="bg-[#00FF87] text-[#2E0032]">+5 messages</Badge>
+                  </div>
+                  <CardTitle className="text-white">Post on Facebook</CardTitle>
+                  <CardDescription className="text-[#EEEEEE]">
+                    Share ChatFPL on Facebook and earn 5 free messages
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    className="w-full bg-[#1877F2] text-white hover:bg-[#1877F2]/90"
+                    onClick={() => handleClaimReward("facebook")}
+                    disabled={!userData?.availableRewards.facebook}
+                  >
+                    {userData?.availableRewards.facebook ? "Claim Reward" : "Already Claimed"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Review */}
+              <Card className="border-[#FFD700] bg-[#2A2A2A]/50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <Star className="h-8 w-8 text-[#FFD700]" />
+                    <Badge className="bg-[#00FF87] text-[#2E0032]">+5 messages</Badge>
+                  </div>
+                  <CardTitle className="text-white">Leave a Review</CardTitle>
+                  <CardDescription className="text-[#EEEEEE]">
+                    Review ChatFPL on Trustpilot and earn 5 free messages
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    className="w-full bg-[#FFD700] text-[#2E0032] hover:bg-[#FFD700]/90"
+                    onClick={() => handleClaimReward("review")}
+                    disabled={!userData?.availableRewards.review}
+                  >
+                    {userData?.availableRewards.review ? "Claim Reward" : "Already Claimed"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Referral */}
+              <Card className="border-[#00FF87] bg-[#2A2A2A]/50 md:col-span-2">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <Users className="h-8 w-8 text-[#00FF87]" />
+                    <Badge className="bg-[#00FF87] text-[#2E0032]">+10 messages</Badge>
+                  </div>
+                  <CardTitle className="text-white">Refer a Friend</CardTitle>
+                  <CardDescription className="text-[#EEEEEE]">
+                    Invite a friend who signs up and verifies their email - earn 10 messages!
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="rounded-lg bg-[#1E1E1E] p-3">
+                    <p className="text-xs text-gray-400 mb-2">Your Referral Link</p>
+                    <p className="text-sm text-[#00FF87] break-all">
+                      {referralLink || "Loading..."}
+                    </p>
+                  </div>
+                  <Button
+                    className="w-full bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90"
+                    onClick={() => {
+                      if (referralLink) {
+                        navigator.clipboard.writeText(referralLink)
+                        alert("Referral link copied!")
+                      }
+                    }}
+                    disabled={!referralLink}
+                  >
+                    Copy Referral Link
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Claimed Rewards History */}
+          {userData && userData.claimedRewards.length > 0 && (
+            <div>
+              <h2 className="mb-4 text-2xl font-bold text-white">Your Claims</h2>
+              <Card className="border-[#2A2A2A] bg-[#2A2A2A]/50">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    {userData.claimedRewards.map((reward, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between rounded-lg border border-[#1E1E1E] bg-[#1E1E1E] p-4"
+                      >
+                        <div>
+                          <p className="font-semibold capitalize text-white">{reward.action_type}</p>
+                          <p className="text-sm text-gray-400">
+                            Claimed {new Date(reward.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          {getStatusBadge(reward.status)}
+                          <p className="mt-1 text-sm text-[#00FF87]">+{reward.reward_messages} messages</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Terms */}
+          <Card className="border-[#2A2A2A] bg-[#2A2A2A]/30">
+            <CardContent className="py-6">
+              <h3 className="mb-2 font-semibold text-white">Terms & Conditions</h3>
+              <ul className="space-y-1 text-sm text-gray-400">
+                <li>• Each reward can only be claimed once per account</li>
+                <li>• Email verification required before claiming rewards</li>
+                <li>• Social shares require admin verification (allow 24-48 hours)</li>
+                <li>• Referral rewards granted after referred user verifies email</li>
+                <li>• Maximum 50 bonus messages per account (lifetime)</li>
+                <li>• Rewards only available for Free tier users</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+
+      {/* Claim Reward Modal */}
+      {claimingReward && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
+          <Card className="w-full max-w-md border-[#00FF87] bg-[#2A2A2A]">
+            <CardHeader>
+              <CardTitle className="text-white">
+                Claim {claimingReward.charAt(0).toUpperCase() + claimingReward.slice(1)} Reward
+              </CardTitle>
+              <CardDescription className="text-[#EEEEEE]">
+                {claimingReward === "referral"
+                  ? "Your referral will be tracked automatically when your friend signs up."
+                  : "Paste the URL to your post or review to claim your reward."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {claimingReward !== "referral" && (
+                <div>
+                  <label htmlFor="proof-url" className="text-sm font-medium text-[#EEEEEE]">
+                    Proof URL *
+                  </label>
+                  <input
+                    id="proof-url"
+                    type="url"
+                    placeholder="https://twitter.com/..."
+                    value={proofUrl}
+                    onChange={(e) => setProofUrl(e.target.value)}
+                    className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#00FF87] focus:outline-none focus:ring-1 focus:ring-[#00FF87]"
+                    disabled={submitting}
+                  />
+                  <p className="mt-1 text-xs text-gray-400">
+                    We'll verify your {claimingReward} post within 24-48 hours
+                  </p>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  className="flex-1 bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90"
+                  onClick={submitClaim}
+                  disabled={submitting}
+                >
+                  {submitting ? "Submitting..." : "Submit Claim"}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                  onClick={() => {
+                    setClaimingReward(null)
+                    setProofUrl("")
+                  }}
+                  disabled={submitting}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  )
+}
+

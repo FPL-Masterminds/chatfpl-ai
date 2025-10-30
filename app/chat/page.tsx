@@ -49,6 +49,7 @@ export default function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [messagesUsed, setMessagesUsed] = useState(0)
   const [messagesLimit, setMessagesLimit] = useState(5)
+  const [userPlan, setUserPlan] = useState<string>("Free")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // 25 welcome message variations
@@ -289,6 +290,7 @@ export default function ChatPage() {
           const data = await response.json()
           setMessagesUsed(data.usage.messages_used)
           setMessagesLimit(data.usage.messages_limit)
+          setUserPlan(data.subscription?.plan || "Free")
         }
       } catch (error) {
         console.error("Failed to fetch usage:", error)
@@ -526,6 +528,16 @@ export default function ChatPage() {
               <DropdownMenuItem asChild>
                 <Link href="/admin">Account Settings</Link>
               </DropdownMenuItem>
+              {userPlan.toLowerCase() === "free" && (
+                <DropdownMenuItem asChild>
+                  <Link href="/earn-messages" className="text-[#FFD700]">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                    </svg>
+                    Earn Messages
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem asChild>
                 <Link href="/#pricing">Upgrade Plan</Link>
               </DropdownMenuItem>

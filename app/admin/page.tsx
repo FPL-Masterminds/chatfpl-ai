@@ -30,6 +30,16 @@ interface AccountData {
   }
 }
 
+interface PendingClaim {
+  id: string
+  user_name: string
+  user_email: string
+  action_type: string
+  reward_messages: number
+  proof_url: string | null
+  created_at: string
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const [data, setData] = useState<AccountData | null>(null)
@@ -38,10 +48,19 @@ export default function AdminPage() {
   const [vipEmail, setVipEmail] = useState("")
   const [vipLoading, setVipLoading] = useState(false)
   const [vipMessage, setVipMessage] = useState("")
+  const [pendingClaims, setPendingClaims] = useState<PendingClaim[]>([])
+  const [claimsLoading, setClaimsLoading] = useState(false)
 
   useEffect(() => {
     fetchAccountData()
   }, [])
+
+  useEffect(() => {
+    // If user is admin, fetch pending claims
+    if (data?.user.role === "admin") {
+      fetchPendingClaims()
+    }
+  }, [data?.user.role])
 
   const fetchAccountData = async () => {
     try {
@@ -95,6 +114,44 @@ export default function AdminPage() {
       setVipMessage("❌ Failed to grant VIP access. Please try again.")
     } finally {
       setVipLoading(false)
+    }
+  }
+
+  const fetchPendingClaims = async () => {
+    try {
+      setClaimsLoading(true)
+      const response = await fetch("/api/rewards/verify")
+      
+      if (response.ok) {
+        const data = await response.json()
+        setPendingClaims(data.claims)
+      }
+    } catch (error) {
+      console.error("Failed to fetch pending claims:", error)
+    } finally {
+      setClaimsLoading(false)
+    }
+  }
+
+  const handleVerifyClaim = async (claimId: string, action: "approve" | "reject") => {
+    try {
+      const response = await fetch("/api/rewards/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ claim_id: claimId, action })
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        alert(`✅ ${result.message}`)
+        // Refresh pending claims
+        fetchPendingClaims()
+      } else {
+        alert(`❌ ${result.error}`)
+      }
+    } catch (error) {
+      alert("❌ Failed to process claim. Please try again.")
     }
   }
 
@@ -349,12 +406,19 @@ export default function AdminPage() {
             <CardHeader>
               <CardTitle className="text-xl text-white">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-3">
+            <CardContent className="grid gap-4 sm:grid-cols-3 md:grid-cols-4">
               <Link href="/chat" className="w-full">
                 <Button className="w-full bg-[#00FF87] text-[#1E1E1E] hover:bg-[#00FF87]/90">
                   Go to Chat
                 </Button>
               </Link>
+              {data.subscription.plan.toLowerCase() === "free" && (
+                <Link href="/earn-messages" className="w-full">
+                  <Button className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#2E0032] hover:opacity-90">
+                    Earn Messages
+                  </Button>
+                </Link>
+              )}
               <Link href="/pricing" className="w-full">
                 <Button
                   className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-[#1E1E1E]"
@@ -418,23 +482,88 @@ export default function AdminPage() {
                 </CardContent>
               </Card>
 
-              {/* Pending Reward Claims (Phase 1 - Coming Soon) */}
+              {/* Pending Reward Claims */}
               <Card className="border-[#00FF87] bg-gradient-to-br from-purple-900/50 to-[#2E0032]/50 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-xl text-[#00FF87]">🎁 Pending Reward Claims</CardTitle>
-                  <CardDescription className="text-[#EEEEEE]">
-                    Verify user social shares & referrals
-                  </CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl text-[#00FF87]">🎁 Pending Reward Claims</CardTitle>
+                      <CardDescription className="text-[#EEEEEE]">
+                        Verify user social shares & referrals
+                      </CardDescription>
+                    </div>
+                    {pendingClaims.length > 0 && (
+                      <Badge className="bg-[#00FF87] text-[#2E0032]">
+                        {pendingClaims.length} pending
+                      </Badge>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-8 text-center">
-                    <p className="text-lg text-[#EEEEEE]">
-                      No pending claims yet
-                    </p>
-                    <p className="mt-2 text-sm text-gray-500">
-                      Phase 1 viral gamification coming soon
-                    </p>
-                  </div>
+                  {claimsLoading ? (
+                    <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-8 text-center">
+                      <p className="text-lg text-[#EEEEEE]">Loading claims...</p>
+                    </div>
+                  ) : pendingClaims.length === 0 ? (
+                    <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-8 text-center">
+                      <p className="text-lg text-[#EEEEEE]">No pending claims</p>
+                      <p className="mt-2 text-sm text-gray-500">
+                        Claims will appear here when users submit them
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {pendingClaims.map((claim) => (
+                        <div
+                          key={claim.id}
+                          className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4"
+                        >
+                          <div className="mb-3 flex items-start justify-between">
+                            <div>
+                              <p className="font-semibold text-white">{claim.user_name || claim.user_email}</p>
+                              <p className="text-sm text-gray-400">{claim.user_email}</p>
+                              <p className="mt-1 text-sm text-[#00FF87]">
+                                {claim.action_type.charAt(0).toUpperCase() + claim.action_type.slice(1)} - {claim.reward_messages} messages
+                              </p>
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {new Date(claim.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {claim.proof_url && (
+                            <div className="mb-3">
+                              <p className="text-xs text-gray-400 mb-1">Proof URL:</p>
+                              <a
+                                href={claim.proof_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-[#00FF87] hover:underline break-all"
+                              >
+                                {claim.proof_url}
+                              </a>
+                            </div>
+                          )}
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              className="flex-1 bg-green-600 text-white hover:bg-green-700"
+                              onClick={() => handleVerifyClaim(claim.id, "approve")}
+                            >
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-1 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                              onClick={() => handleVerifyClaim(claim.id, "reject")}
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
