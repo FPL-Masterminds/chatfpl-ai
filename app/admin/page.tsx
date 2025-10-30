@@ -235,7 +235,9 @@ export default function AdminPage() {
               <CardContent className="space-y-6">
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="text-sm font-medium text-[#EEEEEE]">Monthly Messages</p>
+                    <p className="text-sm font-medium text-[#EEEEEE]">
+                      {data.subscription.plan.toLowerCase() === "free" ? "Trial Messages" : "Monthly Messages"}
+                    </p>
                     <p className="text-sm text-[#EEEEEE]">
                       {data.usage.messages_used} / {data.usage.messages_limit.toLocaleString()}
                     </p>
@@ -249,7 +251,7 @@ export default function AdminPage() {
                   <p className="text-center text-lg text-white">
                     You've used <span className="font-bold text-[#00FF87]">{data.usage.messages_used}</span> of{" "}
                     <span className="font-bold text-[#00FF87]">{data.usage.messages_limit.toLocaleString()}</span>{" "}
-                    messages this month
+                    {data.subscription.plan.toLowerCase() === "free" ? "trial messages" : "messages this month"}
                   </p>
                 </div>
               </CardContent>
