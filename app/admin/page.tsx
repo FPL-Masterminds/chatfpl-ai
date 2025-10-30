@@ -40,6 +40,14 @@ interface PendingClaim {
   created_at: string
 }
 
+interface Analytics {
+  totalUsers: number
+  activeSubscriptions: number
+  messagesToday: number
+  chatSessionsToday: number
+  allTimeMessages: number
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const [data, setData] = useState<AccountData | null>(null)
@@ -50,6 +58,8 @@ export default function AdminPage() {
   const [vipMessage, setVipMessage] = useState("")
   const [pendingClaims, setPendingClaims] = useState<PendingClaim[]>([])
   const [claimsLoading, setClaimsLoading] = useState(false)
+  const [analytics, setAnalytics] = useState<Analytics | null>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [resultModal, setResultModal] = useState<{ show: boolean; success: boolean; message: string }>({ 
     show: false, 
     success: false, 
@@ -61,9 +71,10 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => {
-    // If user is admin, fetch pending claims
+    // If user is admin, fetch pending claims and analytics
     if (data?.user.role === "admin") {
       fetchPendingClaims()
+      fetchAnalytics()
     }
   }, [data?.user.role])
 
@@ -135,6 +146,22 @@ export default function AdminPage() {
       console.error("Failed to fetch pending claims:", error)
     } finally {
       setClaimsLoading(false)
+    }
+  }
+
+  const fetchAnalytics = async () => {
+    try {
+      setAnalyticsLoading(true)
+      const response = await fetch("/api/admin/analytics")
+      
+      if (response.ok) {
+        const data = await response.json()
+        setAnalytics(data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch analytics:", error)
+    } finally {
+      setAnalyticsLoading(false)
     }
   }
 
@@ -589,21 +616,33 @@ export default function AdminPage() {
                 <CardHeader>
                   <CardTitle className="text-xl text-[#00FF87]">📊 System Analytics</CardTitle>
                   <CardDescription className="text-[#EEEEEE]">
-                    System overview and metrics
+                    Real-time system metrics
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-4 sm:grid-cols-3">
+                <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
                     <p className="text-sm text-[#EEEEEE]">Total Users</p>
-                    <p className="text-3xl font-bold text-white">-</p>
+                    <p className="text-3xl font-bold text-white">
+                      {analyticsLoading ? "..." : analytics?.totalUsers.toLocaleString() || "0"}
+                    </p>
                   </div>
                   <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
                     <p className="text-sm text-[#EEEEEE]">Active Subscriptions</p>
-                    <p className="text-3xl font-bold text-white">-</p>
+                    <p className="text-3xl font-bold text-white">
+                      {analyticsLoading ? "..." : analytics?.activeSubscriptions.toLocaleString() || "0"}
+                    </p>
                   </div>
                   <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
-                    <p className="text-sm text-[#EEEEEE]">Chat Sessions Today</p>
-                    <p className="text-3xl font-bold text-white">-</p>
+                    <p className="text-sm text-[#EEEEEE]">Messages Today</p>
+                    <p className="text-3xl font-bold text-white">
+                      {analyticsLoading ? "..." : analytics?.messagesToday.toLocaleString() || "0"}
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
+                    <p className="text-sm text-[#EEEEEE]">All Time Messages</p>
+                    <p className="text-3xl font-bold text-[#00FF87]">
+                      {analyticsLoading ? "..." : analytics?.allTimeMessages.toLocaleString() || "0"}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
