@@ -384,11 +384,11 @@ export default function EarnMessagesPage() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <Users className="h-8 w-8 text-[#00FF87]" />
-                    <Badge className="bg-[#00FF87] text-[#2E0032]">+10 messages</Badge>
+                    <Badge className="bg-[#00FF87] text-[#2E0032]">+5 messages</Badge>
                   </div>
                   <CardTitle className="text-white">Refer a Friend</CardTitle>
                   <CardDescription className="text-[#EEEEEE]">
-                    Invite friends who sign up and verify their email - earn 10 messages per referral! (Maximum 5 referrals)
+                    Invite friends who sign up and verify their email - earn 5 messages per referral! (Maximum 3 referrals)
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -454,9 +454,9 @@ export default function EarnMessagesPage() {
             <CardContent className="py-6">
               <h3 className="mb-2 font-semibold text-white">Terms & Conditions</h3>
               <ul className="space-y-1 text-sm text-gray-400">
-                <li>• Social rewards (X, Reddit, Facebook) can only be claimed once per account</li>
+                <li>• Social rewards (X, Reddit, Facebook) can only be claimed once per account (5 messages each)</li>
                 <li>• Review reward can be claimed once per account (5 or 10 messages depending on type)</li>
-                <li>• Referral rewards: maximum 5 referrals per account (10 messages each)</li>
+                <li>• Referral rewards: maximum 3 referrals per account (5 messages each)</li>
                 <li>• Email verification required before claiming rewards</li>
                 <li>• Social shares and reviews require admin verification (allow 24-48 hours)</li>
                 <li>• Referral rewards granted automatically after referred user verifies email</li>

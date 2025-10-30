@@ -98,14 +98,14 @@ export async function POST(request: Request) {
         );
       }
     } else {
-      // For referrals, check if user has already reached the 5 referral limit
+      // For referrals, check if user has already reached the 3 referral limit
       const referralCount = user.socialActions.filter(
         action => action.action_type === "referral" && action.status === "verified"
       ).length;
 
-      if (referralCount >= 5) {
+      if (referralCount >= 3) {
         return NextResponse.json(
-          { error: "You have reached the maximum limit of 5 referrals" },
+          { error: "You have reached the maximum limit of 3 referrals" },
           { status: 400 }
         );
       }
@@ -117,14 +117,13 @@ export async function POST(request: Request) {
       .reduce((sum, action) => sum + action.reward_messages, 0);
 
     // Calculate reward amount
-    let rewardAmount = 5; // Default for social shares
-    if (action_type === "referral") {
-      rewardAmount = 10;
-    } else if (action_type === "review") {
+    let rewardAmount = 5; // Default for social shares and referrals
+    if (action_type === "review") {
       // Review: 5 for written, 10 for X consent
       const isXConsent = metadata?.reviewType === "xpost" && metadata?.xConsent === true;
       rewardAmount = isXConsent ? 10 : 5;
     }
+    // Referrals now also get 5 messages (same as default)
 
     if (totalEarned + rewardAmount > 50) {
       return NextResponse.json(

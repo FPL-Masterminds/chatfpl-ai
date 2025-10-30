@@ -71,31 +71,31 @@ export async function GET(request: Request) {
           }
         });
 
-        // Only reward if referrer exists, is on Free plan, hasn't hit 5 referrals, and hasn't hit 50 message cap
+        // Only reward if referrer exists, is on Free plan, hasn't hit 3 referrals, and hasn't hit 50 message cap
         if (referrer && referrer.subscriptions[0]?.plan?.toLowerCase() === 'free') {
           const referralCount = referrer.socialActions.length;
           const totalEarned = referrer.socialActions.reduce((sum, action) => sum + action.reward_messages, 0);
 
-          if (referralCount < 5 && totalEarned + 10 <= 50) {
+          if (referralCount < 3 && totalEarned + 5 <= 50) {
             // Create verified SocialAction for the referrer
             await prisma.socialAction.create({
               data: {
                 user_id: user.referred_by,
                 action_type: 'referral',
                 status: 'verified',
-                reward_messages: 10,
+                reward_messages: 5,
                 proof_url: `Referred user: ${user.email}`,
                 verified_at: new Date()
               }
             });
 
-            // Add 10 messages to referrer's balance
+            // Add 5 messages to referrer's balance
             if (referrer.usageTracking[0]) {
               await prisma.usageTracking.update({
                 where: { id: referrer.usageTracking[0].id },
                 data: {
                   messages_limit: {
-                    increment: 10
+                    increment: 5
                   }
                 }
               });
