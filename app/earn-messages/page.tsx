@@ -307,11 +307,11 @@ export default function EarnMessagesPage() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <Star className="h-8 w-8 text-[#FFD700]" />
-                    <Badge className="bg-[#00FF87] text-[#2E0032]">+5 messages</Badge>
+                    <Badge className="bg-[#00FF87] text-[#2E0032]">+5 or +10 messages</Badge>
                   </div>
-                  <CardTitle className="text-white">Leave a Review</CardTitle>
+                  <CardTitle className="text-white">Submit a Review</CardTitle>
                   <CardDescription className="text-[#EEEEEE]">
-                    Review ChatFPL on Trustpilot and earn 5 free messages
+                    Write a review (5 messages) or let us use your X post (10 messages!)
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
