@@ -38,6 +38,8 @@ export default function EarnMessagesPage() {
   const [referralLink, setReferralLink] = useState("")
   const [reviewType, setReviewType] = useState<"written" | "xpost">("written")
   const [writtenReview, setWrittenReview] = useState("")
+  const [reviewRating, setReviewRating] = useState(5)
+  const [reviewDescription, setReviewDescription] = useState("")
   const [xConsentGiven, setXConsentGiven] = useState(false)
   const [resultModal, setResultModal] = useState<{ show: boolean; success: boolean; message: string }>({ 
     show: false, 
@@ -97,6 +99,8 @@ export default function EarnMessagesPage() {
     setProofUrl("")
     setReviewType("written")
     setWrittenReview("")
+    setReviewRating(5)
+    setReviewDescription("")
     setXConsentGiven(false)
   }
 
@@ -166,7 +170,10 @@ export default function EarnMessagesPage() {
             : proofUrl.trim() || null,
           metadata: claimingReward === "review" ? {
             reviewType,
-            xConsent: reviewType === "xpost" ? xConsentGiven : false
+            xConsent: reviewType === "xpost" ? xConsentGiven : false,
+            rating: reviewType === "xpost" ? 5 : reviewRating,
+            description: reviewDescription.trim() || "Subscriber",
+            reviewText: reviewType === "written" ? writtenReview : null
           } : null
         })
       })
@@ -177,6 +184,8 @@ export default function EarnMessagesPage() {
         setClaimingReward(null)
         setProofUrl("")
         setWrittenReview("")
+        setReviewRating(5)
+        setReviewDescription("")
         setXConsentGiven(false)
         setResultModal({
           show: true,
@@ -514,26 +523,94 @@ export default function EarnMessagesPage() {
                   </div>
 
                   {reviewType === "written" ? (
-                    <div>
-                      <label htmlFor="written-review" className="text-sm font-medium text-[#EEEEEE]">
-                        Your Review (max 280 chars) *
-                      </label>
-                      <textarea
-                        id="written-review"
-                        placeholder="Share your experience with ChatFPL..."
-                        value={writtenReview}
-                        onChange={(e) => setWrittenReview(e.target.value)}
-                        maxLength={280}
-                        rows={4}
-                        className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#00FF87] focus:outline-none focus:ring-1 focus:ring-[#00FF87]"
-                        disabled={submitting}
-                      />
-                      <p className="mt-1 text-xs text-gray-400">
-                        {writtenReview.length}/280 characters • May appear on homepage
-                      </p>
+                    <div className="space-y-4">
+                      {/* Star Rating */}
+                      <div>
+                        <label className="text-sm font-medium text-[#EEEEEE] mb-2 block">
+                          Rating *
+                        </label>
+                        <div className="flex gap-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setReviewRating(star)}
+                              className="text-3xl transition-all hover:scale-110"
+                              disabled={submitting}
+                            >
+                              {star <= reviewRating ? (
+                                <span className="text-[#FFD700]">★</span>
+                              ) : (
+                                <span className="text-gray-600">☆</span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Description/Role */}
+                      <div>
+                        <label htmlFor="review-description" className="text-sm font-medium text-[#EEEEEE]">
+                          Description (optional)
+                        </label>
+                        <input
+                          id="review-description"
+                          type="text"
+                          placeholder="e.g., FPL Manager, Premium Subscriber (defaults to 'Subscriber')"
+                          value={reviewDescription}
+                          onChange={(e) => setReviewDescription(e.target.value)}
+                          maxLength={50}
+                          className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#00FF87] focus:outline-none focus:ring-1 focus:ring-[#00FF87]"
+                          disabled={submitting}
+                        />
+                        <p className="mt-1 text-xs text-gray-400">
+                          Will default to "Subscriber" if left blank
+                        </p>
+                      </div>
+
+                      {/* Review Text */}
+                      <div>
+                        <label htmlFor="written-review" className="text-sm font-medium text-[#EEEEEE]">
+                          Your Review (max 280 chars) *
+                        </label>
+                        <textarea
+                          id="written-review"
+                          placeholder="Share your experience with ChatFPL..."
+                          value={writtenReview}
+                          onChange={(e) => setWrittenReview(e.target.value)}
+                          maxLength={280}
+                          rows={4}
+                          className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#00FF87] focus:outline-none focus:ring-1 focus:ring-[#00FF87]"
+                          disabled={submitting}
+                        />
+                        <p className="mt-1 text-xs text-gray-400">
+                          {writtenReview.length}/280 characters • May appear on homepage
+                        </p>
+                      </div>
                     </div>
                   ) : (
-                    <>
+                    <div className="space-y-4">
+                      {/* Description/Role */}
+                      <div>
+                        <label htmlFor="xpost-description" className="text-sm font-medium text-[#EEEEEE]">
+                          Description (optional)
+                        </label>
+                        <input
+                          id="xpost-description"
+                          type="text"
+                          placeholder="e.g., FPL Manager, Premium Subscriber (defaults to 'Subscriber')"
+                          value={reviewDescription}
+                          onChange={(e) => setReviewDescription(e.target.value)}
+                          maxLength={50}
+                          className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#00FF87] focus:outline-none focus:ring-1 focus:ring-[#00FF87]"
+                          disabled={submitting}
+                        />
+                        <p className="mt-1 text-xs text-gray-400">
+                          Will default to "Subscriber" if left blank
+                        </p>
+                      </div>
+
+                      {/* X Post URL */}
                       <div>
                         <label htmlFor="x-post-url" className="text-sm font-medium text-[#EEEEEE]">
                           X Post URL *
@@ -548,6 +625,18 @@ export default function EarnMessagesPage() {
                           disabled={submitting}
                         />
                       </div>
+
+                      {/* Rating Display */}
+                      <div className="rounded-lg bg-[#1E1E1E] p-3">
+                        <p className="text-xs text-gray-400 mb-1">Rating (auto-set for X posts)</p>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span key={star} className="text-xl text-[#FFD700]">★</span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Consent Checkbox */}
                       <div className="flex items-start gap-2 rounded-lg bg-[#1E1E1E] p-3">
                         <input
                           type="checkbox"
@@ -561,7 +650,7 @@ export default function EarnMessagesPage() {
                           I consent to ChatFPL using my X post content and profile photo on the homepage testimonials (10 messages reward)
                         </label>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
@@ -600,19 +689,21 @@ export default function EarnMessagesPage() {
                 >
                   {submitting ? "Submitting..." : "Submit Claim"}
                 </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-                  onClick={() => {
-                    setClaimingReward(null)
-                    setProofUrl("")
-                    setWrittenReview("")
-                    setXConsentGiven(false)
-                  }}
-                  disabled={submitting}
-                >
-                  Cancel
-                </Button>
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                    onClick={() => {
+                      setClaimingReward(null)
+                      setProofUrl("")
+                      setWrittenReview("")
+                      setReviewRating(5)
+                      setReviewDescription("")
+                      setXConsentGiven(false)
+                    }}
+                    disabled={submitting}
+                  >
+                    Cancel
+                  </Button>
               </div>
             </CardContent>
           </Card>
