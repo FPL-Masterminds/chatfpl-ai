@@ -400,7 +400,7 @@ export default function AdminPage() {
                 {data.subscription.plan.toLowerCase() === "free" ? (
                   <Button
                     className="w-full bg-[#00FF87] text-[#1E1E1E] hover:bg-[#00FF87]/90"
-                    onClick={() => router.push("/pricing")}
+                    onClick={() => router.push("/#pricing")}
                   >
                     Upgrade to Premium
                   </Button>
@@ -527,7 +527,7 @@ export default function AdminPage() {
                   </Button>
                 </Link>
               )}
-              <Link href="/pricing" className="w-full">
+              <Link href="/#pricing" className="w-full">
                 <Button
                   className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-[#1E1E1E]"
                   variant="outline"
