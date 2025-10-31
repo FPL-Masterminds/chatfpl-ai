@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -57,11 +57,7 @@ export default function ContactPage() {
           </div>
 
           <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle>Send us a message</CardTitle>
-              <CardDescription>Fill out the form below and we'll get back to you shortly</CardDescription>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {status === "success" && (
                 <div className="mb-4 rounded-md bg-accent/10 p-3 text-sm text-accent">
                   Thank you! Your message has been sent successfully. We'll get back to you soon.
