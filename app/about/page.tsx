@@ -1,4 +1,6 @@
+import Link from "next/link"
 import { Header } from "@/components/header"
+import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Database, Brain, Zap, Users } from "lucide-react"
 
@@ -12,10 +14,10 @@ export default function AboutPage() {
           {/* Hero Section */}
           <div className="mb-16 text-center">
             <h1 
-              className="mb-6 text-balance text-5xl font-bold uppercase"
+              className="mb-6 text-balance text-4xl font-bold uppercase"
               style={{ 
                 fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '7px #2E0032',
+                WebkitTextStroke: '6px #2E0032',
                 paintOrder: 'stroke fill'
               }}
             >
@@ -23,18 +25,15 @@ export default function AboutPage() {
               <span style={{ color: '#00FFFF' }}>FPL </span>
               <span style={{ color: '#00FF86' }}>AI</span>
             </h1>
-            <p className="mx-auto max-w-2xl text-lg" style={{ color: '#4B5563' }}>
+            <p className="mx-auto max-w-3xl text-lg font-semibold" style={{ color: '#4B5563' }}>
               Your AI-powered Fantasy Premier League assistant - built by managers, for managers.
             </p>
           </div>
 
           {/* Introduction */}
           <section className="mb-16">
-            <p className="text-lg leading-relaxed text-center" style={{ color: '#4B5563' }}>
-              ChatFPL AI helps Fantasy Premier League players make sharper, faster, and more informed decisions.
-            </p>
-            <p className="mt-4 text-lg leading-relaxed text-center" style={{ color: '#4B5563' }}>
-              It blends <strong>real-time FPL data</strong> with <strong>advanced AI insights</strong> to deliver instant, personalized advice that keeps you one step ahead of the competition.
+            <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
+              ChatFPL AI helps Fantasy Premier League players make sharper, faster, and more informed decisions. It blends <strong>real-time FPL data</strong> with <strong>advanced AI insights</strong> to deliver instant, personalized advice that keeps you one step ahead of the competition.
             </p>
           </section>
 
@@ -55,16 +54,28 @@ export default function AboutPage() {
             <p className="mb-8 text-center text-lg font-semibold" style={{ color: '#4B5563' }}>
               Engineered for Insight
             </p>
-            <p className="mb-4 text-lg leading-relaxed" style={{ color: '#4B5563' }}>
+            <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
               We created ChatFPL AI so every manager - casual or seasoned - can access the kind of tactical insight and data-driven analysis that was once only available to experts. We combine the power of artificial intelligence with real-time FPL data to provide instant, personalized advice that helps you climb the rankings.
             </p>
           </section>
 
           {/* How It Works */}
           <section className="mb-16">
-            <h3 className="mb-8 text-center text-3xl font-bold" style={{ color: '#2E0032' }}>
-              How It Works
+            <h3 
+              className="mb-4 text-center text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '6px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>How </span>
+              <span style={{ color: '#00FFFF' }}>It </span>
+              <span style={{ color: '#00FF86' }}>Works</span>
             </h3>
+            <p className="mb-8 text-center text-lg font-semibold" style={{ color: '#4B5563' }}>
+              Real-time insights, powered by AI
+            </p>
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                 <CardHeader>
@@ -72,7 +83,7 @@ export default function AboutPage() {
                     <Database className="h-6 w-6" style={{ color: '#00FF86' }} />
                   </div>
                   <CardTitle>Live Data Feed</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-sm">
                     We connect directly to up-to-the-minute player statistics, fixture difficulty, player availability, performance and transfer trends.
                   </CardDescription>
                 </CardHeader>
@@ -84,7 +95,7 @@ export default function AboutPage() {
                     <Brain className="h-6 w-6" style={{ color: '#00FF86' }} />
                   </div>
                   <CardTitle>AI-Driven Insights</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-sm">
                     Our AI generates context-rich, actionable recommendations - not just numbers.
                   </CardDescription>
                 </CardHeader>
@@ -96,7 +107,7 @@ export default function AboutPage() {
                     <Zap className="h-6 w-6" style={{ color: '#00FF86' }} />
                   </div>
                   <CardTitle>Instant Answers</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-sm">
                     Ask anything in plain English and get an instant response. No spreadsheets, no scraping, just straight-to-the-point analysis.
                   </CardDescription>
                 </CardHeader>
@@ -108,7 +119,7 @@ export default function AboutPage() {
                     <Users className="h-6 w-6" style={{ color: '#00FF86' }} />
                   </div>
                   <CardTitle>Community-Built</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-sm">
                     Created by FPL obsessives who live the game every week. ChatFPL AI evolves through feedback, strategy discussions, and real-world testing from the community itself.
                   </CardDescription>
                 </CardHeader>
@@ -117,7 +128,7 @@ export default function AboutPage() {
           </section>
 
           {/* Why ChatFPL AI Section */}
-          <section>
+          <section className="mb-16">
             <h2 
               className="mb-4 text-center text-4xl font-bold uppercase"
               style={{ 
@@ -133,12 +144,39 @@ export default function AboutPage() {
             <p className="mb-6 text-center text-lg font-semibold" style={{ color: '#4B5563' }}>
               Fantasy Premier League changes fast
             </p>
-            <p className="mb-4 text-lg leading-relaxed" style={{ color: '#4B5563' }}>
+            <p className="mb-4 text-sm leading-relaxed" style={{ color: '#4B5563' }}>
               Fixtures shift, players explode, data evolves. ChatFPL AI gives you the power to react in seconds, not hours, using real insights, not guesswork.
             </p>
-            <p className="text-lg leading-relaxed" style={{ color: '#4B5563' }}>
+            <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
               Whether you're setting your captain, planning transfers, or analysing upcoming fixtures, ChatFPL AI is your always-on tactical partner, built to help you climb the ranks and enjoy the game even more.
             </p>
+          </section>
+
+          {/* CTA Section */}
+          <section>
+            <div 
+              className="rounded-lg border-4 p-12 text-center"
+              style={{ 
+                backgroundColor: '#2E0032',
+                borderColor: '#00FF86'
+              }}
+            >
+              <p className="mb-6 text-xl font-semibold text-white">
+                Stop guessing and start winning. Subscribe now to unlock the Combined Hot Score and get the ultimate transfer cheat sheet.
+              </p>
+              <Link href="/signup">
+                <Button 
+                  size="lg"
+                  className="font-semibold text-lg px-8 py-6"
+                  style={{ 
+                    backgroundColor: '#00FF86',
+                    color: '#2E0032'
+                  }}
+                >
+                  Start your 5-message free trial today
+                </Button>
+              </Link>
+            </div>
           </section>
         </div>
       </main>
