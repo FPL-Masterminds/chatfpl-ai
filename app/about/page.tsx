@@ -3,7 +3,7 @@ import Image from "next/image"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Database, Brain } from "lucide-react"
+import { Database } from "lucide-react"
 
 export default function AboutPage() {
   return (
@@ -79,7 +79,13 @@ export default function AboutPage() {
               <Card className="border-0 bg-white shadow-md">
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#2E0032' }}>
-                    <Brain className="h-8 w-8" style={{ color: '#FFFFFF' }} />
+                    <Image 
+                      src="/AI-Driven_Insights.png"
+                      alt="AI-Driven Insights"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8"
+                    />
                   </div>
                   <CardTitle className="text-xl mb-2">AI-Driven Insights</CardTitle>
                   <CardDescription className="text-sm leading-relaxed">
