@@ -192,16 +192,59 @@ export async function POST(request: Request) {
             ? new Date(rawPeriodEndUpdated * 1000)
             : null;
           
+          const updatedPriceId = subscription.items.data[0]?.price.id;
+          
+          // Determine plan based on price ID
+          let updatedPlan = 'Premium';
+          if (updatedPriceId === process.env.STRIPE_PRICE_ID_ELITE) {
+            updatedPlan = 'Elite';
+          }
+          
+          // Determine messages_limit based on plan
+          const updatedMessagesLimit = updatedPlan === 'Elite' ? 500 : 100;
+          
+          console.log(`[Webhook] Updating to plan: ${updatedPlan}, messages limit: ${updatedMessagesLimit}`);
+          
           await prisma.subscription.updateMany({
             where: { stripe_subscription_id: subscription.id },
             data: {
               status: subscription.status,
-              stripe_price_id: subscription.items.data[0]?.price.id,
+              stripe_price_id: updatedPriceId,
+              plan: updatedPlan,
               current_period_start: updatedPeriodStartForDb,
               current_period_end: updatedPeriodEndForDb,
               cancel_at_period_end: subscription.cancel_at_period_end,
             },
           });
+          
+          // Update usage tracking for plan upgrade
+          const userSub = await prisma.subscription.findFirst({
+            where: { stripe_subscription_id: subscription.id },
+          });
+          
+          if (userSub) {
+            const now = new Date();
+            await prisma.usageTracking.upsert({
+              where: {
+                user_id_month_year: {
+                  user_id: userSub.user_id,
+                  month: now.getMonth() + 1,
+                  year: now.getFullYear(),
+                },
+              },
+              update: {
+                messages_limit: updatedMessagesLimit,
+              },
+              create: {
+                user_id: userSub.user_id,
+                month: now.getMonth() + 1,
+                year: now.getFullYear(),
+                messages_used: 0,
+                messages_limit: updatedMessagesLimit,
+              },
+            });
+          }
+          
           console.log(`[Webhook] DB Update completed for SubID: ${subscription.id}`);
           break;
         }
