@@ -1,8 +1,9 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Database, Brain, Zap } from "lucide-react"
+import { Database, Brain } from "lucide-react"
 
 export default function AboutPage() {
   return (
@@ -67,14 +68,9 @@ export default function AboutPage() {
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#00FF86' }}>
                     <Database className="h-8 w-8" style={{ color: '#2E0032' }} />
                   </div>
-                  <div className="mb-3 flex justify-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} style={{ color: '#FFD700', fontSize: '20px' }}>★</span>
-                    ))}
-                  </div>
                   <CardTitle className="text-xl mb-2">Live Data Feed</CardTitle>
                   <CardDescription className="text-sm leading-relaxed">
-                    "We connect directly to up-to-the-minute player statistics, fixture difficulty, player availability, performance and transfer trends."
+                    We connect directly to up-to-the-minute player statistics, fixture difficulty, player availability, performance and transfer trends.
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -85,14 +81,9 @@ export default function AboutPage() {
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#2E0032' }}>
                     <Brain className="h-8 w-8" style={{ color: '#FFFFFF' }} />
                   </div>
-                  <div className="mb-3 flex justify-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} style={{ color: '#FFD700', fontSize: '20px' }}>★</span>
-                    ))}
-                  </div>
                   <CardTitle className="text-xl mb-2">AI-Driven Insights</CardTitle>
                   <CardDescription className="text-sm leading-relaxed">
-                    "Our AI generates context-rich, actionable recommendations - not just numbers."
+                    Our AI generates context-rich, actionable recommendations and insights for your FPL squad, not just raw numbers and figures.
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -101,16 +92,17 @@ export default function AboutPage() {
               <Card className="border-0 bg-white shadow-md">
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#00FFFF' }}>
-                    <Zap className="h-8 w-8" style={{ color: '#2E0032' }} />
-                  </div>
-                  <div className="mb-3 flex justify-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} style={{ color: '#FFD700', fontSize: '20px' }}>★</span>
-                    ))}
+                    <Image 
+                      src="/Instant_Answers.png"
+                      alt="Instant Answers"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8"
+                    />
                   </div>
                   <CardTitle className="text-xl mb-2">Instant Answers</CardTitle>
                   <CardDescription className="text-sm leading-relaxed">
-                    "Ask anything in plain English and get an instant response. No spreadsheets, no scraping, just straight-to-the-point analysis."
+                    Ask anything in plain English and get an instant response. No spreadsheets, no scraping, just straight-to-the-point analysis.
                   </CardDescription>
                 </CardHeader>
               </Card>
