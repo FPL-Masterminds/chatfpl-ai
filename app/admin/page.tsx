@@ -392,19 +392,10 @@ export default function AdminPage() {
             <CardHeader>
               <CardTitle className="text-xl text-gray-900">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+            <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               <Link href="/chat" className="w-full">
                 <Button className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold">
                   ChatFPL
-                </Button>
-              </Link>
-              
-              <Link href="/#pricing" className="w-full">
-                <Button
-                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
-                  variant="outline"
-                >
-                  Upgrade Plan
                 </Button>
               </Link>
               
@@ -423,7 +414,7 @@ export default function AdminPage() {
                   onClick={handleManageBilling}
                   disabled={billingLoading}
                 >
-                  {billingLoading ? "Cancelling..." : "Cancel Subscription"}
+                  {billingLoading ? "Loading..." : "Manage Subscription"}
                 </Button>
               )}
             </CardContent>
