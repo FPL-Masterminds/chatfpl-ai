@@ -73,6 +73,7 @@ export default function AdminPage() {
     success: false, 
     message: "" 
   })
+  const [billingLoading, setBillingLoading] = useState(false)
 
   useEffect(() => {
     fetchAccountData()
@@ -170,6 +171,35 @@ export default function AdminPage() {
       console.error("Failed to fetch analytics:", error)
     } finally {
       setAnalyticsLoading(false)
+    }
+  }
+
+  const handleManageBilling = async () => {
+    try {
+      setBillingLoading(true)
+      const response = await fetch("/api/stripe/create-portal-session", {
+        method: "POST",
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.url) {
+        window.location.href = result.url
+      } else {
+        setResultModal({
+          show: true,
+          success: false,
+          message: result.error || "Failed to open billing portal"
+        })
+      }
+    } catch (error) {
+      setResultModal({
+        show: true,
+        success: false,
+        message: "An error occurred. Please try again."
+      })
+    } finally {
+      setBillingLoading(false)
     }
   }
 
@@ -408,8 +438,10 @@ export default function AdminPage() {
                   <Button
                     className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-[#1E1E1E]"
                     variant="outline"
+                    onClick={handleManageBilling}
+                    disabled={billingLoading}
                   >
-                    Manage Billing
+                    {billingLoading ? "Loading..." : "Manage Billing"}
                   </Button>
                 )}
               </CardContent>
