@@ -309,7 +309,7 @@ export default function AdminPage() {
       <main className="flex-1 px-4 pt-24 pb-12">
         <div className="mx-auto max-w-6xl space-y-8">
           {/* Header Section */}
-          <div>
+          <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900">Account Dashboard</h1>
             <p className="mt-2 text-lg text-gray-600">
               Manage your ChatFPL.ai subscription, usage, and settings
@@ -369,16 +369,48 @@ export default function AdminPage() {
                 <div>
                   <CardTitle className="text-2xl text-gray-900">{data.user.name}</CardTitle>
                   <CardDescription className="text-gray-600">{data.user.email}</CardDescription>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Member since {formatDate(data.user.created_at)}
+                  </p>
                 </div>
-                <Badge className={`${getPlanBadgeColor(data.subscription.plan)} border px-4 py-2 text-lg font-semibold`}>
-                  {data.subscription.plan}
-                </Badge>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Member since {formatDate(data.user.created_at)}
-              </p>
+          </Card>
+
+          {/* Navigation Shortcuts */}
+          <Card className="border-[#00FF87]/30 bg-gradient-to-br from-[#00FF87]/5 to-white shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-xl text-gray-900">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-3 md:grid-cols-4">
+              <Link href="/chat" className="w-full">
+                <Button className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold">
+                  Go to Chat
+                </Button>
+              </Link>
+              {data.subscription.plan.toLowerCase() === "free" && (
+                <Link href="/earn-messages" className="w-full">
+                  <Button className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-gray-900 hover:opacity-90 font-semibold">
+                    Earn Messages
+                  </Button>
+                </Link>
+              )}
+              <Link href="/#pricing" className="w-full">
+                <Button
+                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
+                  variant="outline"
+                >
+                  Upgrade Plan
+                </Button>
+              </Link>
+              <Link href="/contact" className="w-full">
+                <Button
+                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
+                  variant="outline"
+                >
+                  Support
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -406,12 +438,14 @@ export default function AdminPage() {
                     {data.subscription.status}
                   </Badge>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Renewal Date</p>
-                  <p className="text-lg text-gray-900">
-                    {formatDate(data.subscription.current_period_end)}
-                  </p>
-                </div>
+                {data.subscription.plan.toLowerCase() !== "free" && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Renewal Date</p>
+                    <p className="text-lg text-gray-900">
+                      {data.subscription.current_period_end ? formatDate(data.subscription.current_period_end) : "Not available"}
+                    </p>
+                  </div>
+                )}
                 <div>
                   <p className="text-sm font-medium text-gray-600">Messages Remaining</p>
                   <p className="text-3xl font-bold text-[#00FF87]">
@@ -427,12 +461,12 @@ export default function AdminPage() {
                   </Button>
                 ) : (
                   <Button
-                    className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
+                    className="w-full border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-semibold"
                     variant="outline"
                     onClick={handleManageBilling}
                     disabled={billingLoading}
                   >
-                    {billingLoading ? "Loading..." : "Manage Billing"}
+                    {billingLoading ? "Loading..." : "Cancel Subscription"}
                   </Button>
                 )}
               </CardContent>
@@ -477,90 +511,7 @@ export default function AdminPage() {
                 )}
               </CardContent>
             </Card>
-
-            {/* Account Settings */}
-            <Card className="border-gray-200 bg-white shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl text-gray-900">Account Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  className="w-full justify-start border-gray-300 text-gray-600 hover:border-[#00FF87] hover:text-[#00FF87]"
-                  variant="outline"
-                  disabled
-                >
-                  Change Password
-                </Button>
-                <Button
-                  className="w-full justify-start border-gray-300 text-gray-600 hover:border-[#00FF87] hover:text-[#00FF87]"
-                  variant="outline"
-                  disabled
-                >
-                  Change Email
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Payment Settings */}
-            <Card className="border-gray-200 bg-white shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-xl text-gray-900">Payment Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  className="w-full justify-start border-gray-300 text-gray-600 hover:border-[#00FF87] hover:text-[#00FF87]"
-                  variant="outline"
-                  disabled
-                >
-                  Change Payment Method
-                </Button>
-                <Button
-                  className="w-full justify-start border-gray-300 text-gray-600 hover:border-[#00FF87] hover:text-[#00FF87]"
-                  variant="outline"
-                  disabled
-                >
-                  Download Latest Invoice
-                </Button>
-              </CardContent>
-            </Card>
           </div>
-
-          {/* Navigation Shortcuts */}
-          <Card className="border-[#00FF87]/30 bg-gradient-to-br from-[#00FF87]/5 to-white shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-xl text-gray-900">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-3 md:grid-cols-4">
-              <Link href="/chat" className="w-full">
-                <Button className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold">
-                  Go to Chat
-                </Button>
-              </Link>
-              {data.subscription.plan.toLowerCase() === "free" && (
-                <Link href="/earn-messages" className="w-full">
-                  <Button className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-gray-900 hover:opacity-90 font-semibold">
-                    Earn Messages
-                  </Button>
-                </Link>
-              )}
-              <Link href="/#pricing" className="w-full">
-                <Button
-                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
-                  variant="outline"
-                >
-                  Upgrade Plan
-                </Button>
-              </Link>
-              <Link href="/contact" className="w-full">
-                <Button
-                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
-                  variant="outline"
-                >
-                  Support
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
             </>
           )}
 
