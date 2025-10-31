@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Database, Brain, Zap, Users } from "lucide-react"
+import { Database, Brain, Zap } from "lucide-react"
 
 export default function AboutPage() {
   return (
@@ -38,6 +38,9 @@ export default function AboutPage() {
             <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
               We created ChatFPL AI so every manager - casual or seasoned - can access the kind of tactical insight and data-driven analysis that was once only available to experts. We combine the power of artificial intelligence with real-time FPL data to provide instant, personalized advice that helps you climb the rankings.
             </p>
+            <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
+              Created by FPL obsessives who live the game every week. ChatFPL AI evolves through feedback, strategy discussions, and real-world testing from the community itself.
+            </p>
           </section>
 
           {/* How It Works */}
@@ -57,51 +60,57 @@ export default function AboutPage() {
             <p className="mb-8 text-center text-lg font-semibold" style={{ color: '#4B5563' }}>
               Real-time insights, powered by AI
             </p>
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg" style={{ backgroundColor: 'rgba(0, 255, 134, 0.1)' }}>
-                    <Database className="h-6 w-6" style={{ color: '#00FF86' }} />
+            <div className="grid gap-6 md:grid-cols-3">
+              {/* Live Data Feed Card */}
+              <Card className="border-0 bg-white shadow-md">
+                <CardHeader className="text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#00FF86' }}>
+                    <Database className="h-8 w-8" style={{ color: '#2E0032' }} />
                   </div>
-                  <CardTitle>Live Data Feed</CardTitle>
-                  <CardDescription className="text-sm">
-                    We connect directly to up-to-the-minute player statistics, fixture difficulty, player availability, performance and transfer trends.
+                  <div className="mb-3 flex justify-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} style={{ color: '#FFD700', fontSize: '20px' }}>★</span>
+                    ))}
+                  </div>
+                  <CardTitle className="text-xl mb-2">Live Data Feed</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    "We connect directly to up-to-the-minute player statistics, fixture difficulty, player availability, performance and transfer trends."
                   </CardDescription>
                 </CardHeader>
               </Card>
 
-              <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg" style={{ backgroundColor: 'rgba(0, 255, 134, 0.1)' }}>
-                    <Brain className="h-6 w-6" style={{ color: '#00FF86' }} />
+              {/* AI-Driven Insights Card */}
+              <Card className="border-0 bg-white shadow-md">
+                <CardHeader className="text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#2E0032' }}>
+                    <Brain className="h-8 w-8" style={{ color: '#FFFFFF' }} />
                   </div>
-                  <CardTitle>AI-Driven Insights</CardTitle>
-                  <CardDescription className="text-sm">
-                    Our AI generates context-rich, actionable recommendations - not just numbers.
+                  <div className="mb-3 flex justify-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} style={{ color: '#FFD700', fontSize: '20px' }}>★</span>
+                    ))}
+                  </div>
+                  <CardTitle className="text-xl mb-2">AI-Driven Insights</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    "Our AI generates context-rich, actionable recommendations - not just numbers."
                   </CardDescription>
                 </CardHeader>
               </Card>
 
-              <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg" style={{ backgroundColor: 'rgba(0, 255, 134, 0.1)' }}>
-                    <Zap className="h-6 w-6" style={{ color: '#00FF86' }} />
+              {/* Instant Answers Card */}
+              <Card className="border-0 bg-white shadow-md">
+                <CardHeader className="text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#00FFFF' }}>
+                    <Zap className="h-8 w-8" style={{ color: '#2E0032' }} />
                   </div>
-                  <CardTitle>Instant Answers</CardTitle>
-                  <CardDescription className="text-sm">
-                    Ask anything in plain English and get an instant response. No spreadsheets, no scraping, just straight-to-the-point analysis.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg" style={{ backgroundColor: 'rgba(0, 255, 134, 0.1)' }}>
-                    <Users className="h-6 w-6" style={{ color: '#00FF86' }} />
+                  <div className="mb-3 flex justify-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} style={{ color: '#FFD700', fontSize: '20px' }}>★</span>
+                    ))}
                   </div>
-                  <CardTitle>Community-Built</CardTitle>
-                  <CardDescription className="text-sm">
-                    Created by FPL obsessives who live the game every week. ChatFPL AI evolves through feedback, strategy discussions, and real-world testing from the community itself.
+                  <CardTitle className="text-xl mb-2">Instant Answers</CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    "Ask anything in plain English and get an instant response. No spreadsheets, no scraping, just straight-to-the-point analysis."
                   </CardDescription>
                 </CardHeader>
               </Card>
