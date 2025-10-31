@@ -44,7 +44,7 @@ export default function ContactPage() {
 
       <main className="flex-1 px-4 pt-20 pb-6">
         <div className="container mx-auto max-w-3xl">
-          <div className="mb-12 text-center">
+          <div className="mb-6 text-center">
             <h1 
               className="mb-6 text-balance text-4xl font-bold uppercase"
               style={{ 
