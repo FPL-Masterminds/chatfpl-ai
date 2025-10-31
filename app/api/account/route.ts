@@ -51,6 +51,7 @@ export async function GET() {
         status: subscription?.status || "active",
         current_period_start: subscription?.current_period_start?.toISOString() || null,
         current_period_end: subscription?.current_period_end?.toISOString() || null,
+        cancel_at_period_end: subscription?.cancel_at_period_end || false,
       },
       usage: {
         messages_used: usage?.messages_used || 0,

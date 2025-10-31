@@ -23,6 +23,7 @@ interface AccountData {
     status: string
     current_period_start: string | null
     current_period_end: string | null
+    cancel_at_period_end: boolean | null
   }
   usage: {
     messages_used: number
@@ -74,6 +75,7 @@ export default function AdminPage() {
     message: "" 
   })
   const [billingLoading, setBillingLoading] = useState(false)
+  const [cancellationDate, setCancellationDate] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAccountData()
@@ -177,6 +179,8 @@ export default function AdminPage() {
   const handleManageBilling = async () => {
     try {
       setBillingLoading(true)
+      
+      // Open Stripe Customer Portal for cancellation
       const response = await fetch("/api/stripe/create-portal-session", {
         method: "POST",
       })
@@ -184,7 +188,13 @@ export default function AdminPage() {
       const result = await response.json()
 
       if (response.ok && result.url) {
-        window.location.href = result.url
+        // Open portal in new window
+        window.open(result.url, '_blank')
+        
+        // Refresh account data after a short delay to catch any changes
+        setTimeout(() => {
+          fetchAccountData()
+        }, 2000)
       } else {
         setResultModal({
           show: true,
@@ -385,36 +395,18 @@ export default function AdminPage() {
             <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
               <Link href="/chat" className="w-full">
                 <Button className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold">
-                  Go to Chat
+                  ChatFPL
                 </Button>
               </Link>
               
-              {data.subscription.plan.toLowerCase() === "free" ? (
-                <Link href="/earn-messages" className="w-full">
-                  <Button className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-gray-900 hover:opacity-90 font-semibold">
-                    Earn Messages
-                  </Button>
-                </Link>
-              ) : (
+              <Link href="/#pricing" className="w-full">
                 <Button
-                  className="w-full bg-[#2E0032] text-[#00FF87] hover:bg-[#2E0032]/90 font-semibold"
-                  onClick={handleManageBilling}
-                  disabled={billingLoading}
+                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
+                  variant="outline"
                 >
-                  {billingLoading ? "Loading..." : "Cancel Subscription"}
+                  Upgrade Plan
                 </Button>
-              )}
-              
-              {data.subscription.plan.toLowerCase() !== "elite" && (
-                <Link href="/#pricing" className="w-full">
-                  <Button
-                    className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
-                    variant="outline"
-                  >
-                    Upgrade Plan
-                  </Button>
-                </Link>
-              )}
+              </Link>
               
               <Link href="/contact" className="w-full">
                 <Button
@@ -424,6 +416,16 @@ export default function AdminPage() {
                   Support
                 </Button>
               </Link>
+              
+              {data.subscription.plan.toLowerCase() !== "free" && (
+                <Button
+                  className="w-full bg-[#2E0032] text-[#00FF87] hover:bg-[#2E0032]/90 font-semibold"
+                  onClick={handleManageBilling}
+                  disabled={billingLoading}
+                >
+                  {billingLoading ? "Cancelling..." : "Cancel Subscription"}
+                </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -451,6 +453,17 @@ export default function AdminPage() {
                     {data.subscription.status}
                   </Badge>
                 </div>
+                
+                {data.subscription.cancel_at_period_end && data.subscription.current_period_end && (
+                  <div className="rounded-lg border border-yellow-400 bg-yellow-50 p-3">
+                    <p className="text-sm font-semibold text-yellow-900">
+                      ⚠️ Subscription Cancelled
+                    </p>
+                    <p className="mt-1 text-xs text-yellow-800">
+                      Your subscription will end on {formatDate(data.subscription.current_period_end)}. You will retain access until this date, and your billing will not be renewed.
+                    </p>
+                  </div>
+                )}
                 {data.subscription.plan.toLowerCase() !== "free" && (
                   <div>
                     <p className="text-sm font-medium text-gray-600">Renewal Date</p>
