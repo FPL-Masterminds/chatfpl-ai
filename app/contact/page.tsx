@@ -39,7 +39,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-col">
       <Header />
 
       <main className="px-4 pt-16 pb-8">
