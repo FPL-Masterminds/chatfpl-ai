@@ -82,9 +82,9 @@ export default function AboutPage() {
                     <Image 
                       src="/AI_Driven Insights.png"
                       alt="AI-Driven Insights"
-                      width={32}
-                      height={32}
-                      className="h-8 w-8"
+                      width={64}
+                      height={64}
+                      className="h-16 w-16"
                     />
                   </div>
                   <CardTitle className="text-xl mb-2">AI-Driven Insights</CardTitle>
@@ -101,9 +101,9 @@ export default function AboutPage() {
                     <Image 
                       src="/Instant_Answers.png"
                       alt="Instant Answers"
-                      width={32}
-                      height={32}
-                      className="h-8 w-8"
+                      width={64}
+                      height={64}
+                      className="h-16 w-16"
                     />
                   </div>
                   <CardTitle className="text-xl mb-2">Instant Answers</CardTitle>
