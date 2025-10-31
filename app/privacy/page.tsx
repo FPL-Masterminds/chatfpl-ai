@@ -7,7 +7,22 @@ export default function PrivacyPage() {
 
       <main className="flex-1 px-4 py-24">
         <div className="container mx-auto max-w-4xl">
-          <h1 className="mb-8 text-4xl font-bold text-foreground">Privacy Policy</h1>
+          <div className="mb-12 text-center">
+            <h1 
+              className="mb-6 text-balance text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '6px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>Privacy </span>
+              <span style={{ color: '#00FFFF' }}>Policy</span>
+            </h1>
+            <p className="mx-auto max-w-3xl text-lg font-semibold" style={{ color: '#4B5563' }}>
+              How we protect and handle your data
+            </p>
+          </div>
           <div className="prose prose-invert max-w-none space-y-6 text-foreground">
             <p className="text-lg text-muted-foreground">Last updated: January 2025</p>
 
