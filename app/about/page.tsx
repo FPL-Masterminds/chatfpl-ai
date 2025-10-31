@@ -153,30 +153,22 @@ export default function AboutPage() {
           </section>
 
           {/* CTA Section */}
-          <section>
-            <div 
-              className="rounded-lg border-4 p-12 text-center"
-              style={{ 
-                backgroundColor: '#2E0032',
-                borderColor: '#00FF86'
-              }}
-            >
-              <p className="mb-6 text-xl font-semibold text-white">
-                Stop guessing and start winning. Subscribe now to unlock the Combined Hot Score and get the ultimate transfer cheat sheet.
-              </p>
-              <Link href="/signup">
-                <Button 
-                  size="lg"
-                  className="font-semibold text-lg px-8 py-6"
-                  style={{ 
-                    backgroundColor: '#00FF86',
-                    color: '#2E0032'
-                  }}
-                >
-                  Start your 5-message free trial today
-                </Button>
-              </Link>
-            </div>
+          <section className="text-center">
+            <p className="mb-6 text-lg font-semibold" style={{ color: '#4B5563' }}>
+              Stop overthinking. Start winning. Let ChatFPL AI analyse your squad, fixtures, and form in seconds, so you make the right move every time.
+            </p>
+            <Link href="/signup">
+              <Button 
+                size="lg"
+                className="font-semibold"
+                style={{ 
+                  backgroundColor: '#00FF86',
+                  color: '#2E0032'
+                }}
+              >
+                Start your 5-message free trial today
+              </Button>
+            </Link>
           </section>
         </div>
       </main>
