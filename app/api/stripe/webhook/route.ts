@@ -14,7 +14,7 @@ const relevantEvents = new Set([
 ]);
 
 export async function POST(request: Request) {
-  console.log('[Webhook] Received request'); // Production ready
+  console.log('[Webhook] Received request');
   const body = await request.text();
   const signature = request.headers.get('stripe-signature');
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -101,27 +101,27 @@ export async function POST(request: Request) {
 
           console.log(`[Webhook] Upserting subscription for UserID: ${user.id}, Plan: ${plan}`);
           await prisma.subscription.upsert({
-            where: { user_id: user.id },
+            where: { userId: user.id },
             update: {
-              stripe_subscription_id: stripeSubscriptionId,
-              stripe_customer_id: stripeCustomerId,
-              stripe_price_id: stripePriceId,
-              current_period_start: periodStartForDb,
-              current_period_end: periodEndForDb,
+              stripeSubscriptionId: stripeSubscriptionId,
+              stripeCustomerId: stripeCustomerId,
+              stripePriceId: stripePriceId,
+              currentPeriodStart: periodStartForDb,
+              currentPeriodEnd: periodEndForDb,
               plan: plan,
               status: subscription.status,
-              cancel_at_period_end: subscription.cancel_at_period_end,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
             },
             create: {
-              user_id: user.id,
-              stripe_subscription_id: stripeSubscriptionId,
-              stripe_customer_id: stripeCustomerId,
-              stripe_price_id: stripePriceId,
-              current_period_start: periodStartForDb,
-              current_period_end: periodEndForDb,
+              userId: user.id,
+              stripeSubscriptionId: stripeSubscriptionId,
+              stripeCustomerId: stripeCustomerId,
+              stripePriceId: stripePriceId,
+              currentPeriodStart: periodStartForDb,
+              currentPeriodEnd: periodEndForDb,
               plan: plan,
               status: subscription.status,
-              cancel_at_period_end: subscription.cancel_at_period_end,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
             },
           });
 
@@ -130,21 +130,21 @@ export async function POST(request: Request) {
           await prisma.usageTracking.upsert({
             where: {
               user_id_month_year: {
-                user_id: user.id,
+                userId: user.id,
                 month: now.getMonth() + 1,
                 year: now.getFullYear(),
               },
             },
             update: {
-              messages_limit: messagesLimit,
-              messages_used: 0, // Reset on new subscription
+              messagesLimit: messagesLimit,
+              messagesUsed: 0, // Reset on new subscription
             },
             create: {
-              user_id: user.id,
+              userId: user.id,
               month: now.getMonth() + 1,
               year: now.getFullYear(),
-              messages_used: 0,
-              messages_limit: messagesLimit,
+              messagesUsed: 0,
+              messagesLimit: messagesLimit,
             },
           });
 
@@ -181,13 +181,13 @@ export async function POST(request: Request) {
             : null;
           
           await prisma.subscription.updateMany({
-            where: { stripe_subscription_id: subscription.id },
+            where: { stripeSubscriptionId: subscription.id },
             data: {
               status: subscription.status,
-              stripe_price_id: subscription.items.data[0]?.price.id,
-              current_period_start: updatedPeriodStartForDb,
-              current_period_end: updatedPeriodEndForDb,
-              cancel_at_period_end: subscription.cancel_at_period_end,
+              stripePriceId: subscription.items.data[0]?.price.id,
+              currentPeriodStart: updatedPeriodStartForDb,
+              currentPeriodEnd: updatedPeriodEndForDb,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
             },
           });
           console.log(`[Webhook] DB Update completed for SubID: ${subscription.id}`);
@@ -198,10 +198,10 @@ export async function POST(request: Request) {
           const subscription = event.data.object as Stripe.Subscription;
           console.log(`[Webhook] Handling customer.subscription.deleted for SubID: ${subscription.id}`);
           await prisma.subscription.updateMany({
-            where: { stripe_subscription_id: subscription.id },
+            where: { stripeSubscriptionId: subscription.id },
             data: {
               status: subscription.status,
-              cancel_at_period_end: subscription.cancel_at_period_end,
+              cancelAtPeriodEnd: subscription.cancel_at_period_end,
             },
           });
           console.log(`[Webhook] DB Delete (status update) completed for SubID: ${subscription.id}`);
@@ -220,4 +220,3 @@ export async function POST(request: Request) {
   console.log('[Webhook] Event processed successfully or ignored. Sending 200 OK.');
   return NextResponse.json({ received: true });
 }
-
