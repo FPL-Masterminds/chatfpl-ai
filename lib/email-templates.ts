@@ -2,7 +2,7 @@
  * Reusable email template components with ChatFPL AI branding
  */
 
-const LOGO_URL = "https://chatfpl.ai/ChatFPL AI_Logo.png";
+const LOGO_URL = "https://chatfpl.ai/ChatFPL_AI_Logo.png";
 
 export function getEmailHeader() {
   return `

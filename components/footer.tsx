@@ -13,7 +13,7 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
             <Image 
-              src="/ChatFPL AI_Logo.png" 
+              src="/ChatFPL_AI_Logo.png" 
               alt="ChatFPL AI" 
               width={48} 
               height={48}

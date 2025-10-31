@@ -20,7 +20,7 @@ export function Header() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" onClick={closeMobileMenu}>
             <Image 
-              src="/ChatFPL AI_Logo.png" 
+              src="/ChatFPL_AI_Logo.png" 
               alt="ChatFPL AI" 
               width={40} 
               height={40}

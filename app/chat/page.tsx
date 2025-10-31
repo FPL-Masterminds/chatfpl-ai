@@ -494,8 +494,8 @@ export default function ChatPage() {
             </Button>
             <Link href="/">
               <Image 
-                src="/ChatFPL_Logo.png" 
-                alt="ChatFPL" 
+                src="/ChatFPL_AI_Logo.png" 
+                alt="ChatFPL AI" 
                 width={40} 
                 height={40}
                 className="h-8 w-auto md:h-10"

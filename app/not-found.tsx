@@ -9,7 +9,7 @@ export default function NotFound() {
         {/* Logo */}
         <div className="mb-8 flex justify-center">
           <Image
-            src="/ChatFPL AI_Logo.png"
+            src="/ChatFPL_AI_Logo.png"
             alt="ChatFPL AI"
             width={200}
             height={60}
