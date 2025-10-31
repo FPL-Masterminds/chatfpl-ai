@@ -45,13 +45,19 @@ export default function ContactPage() {
       <main className="flex-1 px-4 py-24">
         <div className="container mx-auto max-w-3xl">
           <div className="mb-12 text-center">
-            <h1 className="mb-4 text-4xl font-bold" style={{
-              WebkitTextStroke: '6px #2E0032',
-              paintOrder: 'stroke fill'
-            }}>
-              Get <span style={{ color: '#3B82F6' }}>In</span> <span style={{ color: '#00FF87' }}>Touch</span>
+            <h1 
+              className="mb-6 text-balance text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '6px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>Get </span>
+              <span style={{ color: '#00FFFF' }}>In </span>
+              <span style={{ color: '#00FF86' }}>Touch</span>
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="mx-auto max-w-3xl text-lg font-semibold" style={{ color: '#4B5563' }}>
               Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
             </p>
           </div>
