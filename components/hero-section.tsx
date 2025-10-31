@@ -53,7 +53,7 @@ export function HeroSection() {
           </div>
 
           {/* Right Column - Rotating Player Images with Tilt Effect (Hidden on Mobile/Tablet) */}
-          <div className="hidden lg:flex relative items-center justify-center w-full max-w-md mx-auto aspect-square">
+          <div className="hidden lg:flex relative items-center justify-center w-full max-w-md mx-auto" style={{ minHeight: "500px" }}>
             {HERO_IMAGES.map((image, index) => (
               <div
                 key={image.src}
