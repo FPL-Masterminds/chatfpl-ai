@@ -31,28 +31,9 @@ export default function AboutPage() {
           </div>
 
           {/* Introduction */}
-          <section className="mb-16">
+          <section className="mb-16 space-y-4">
             <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
               ChatFPL AI helps Fantasy Premier League players make sharper, faster, and more informed decisions. It blends <strong>real-time FPL data</strong> with <strong>advanced AI insights</strong> to deliver instant, personalized advice that keeps you one step ahead of the competition.
-            </p>
-          </section>
-
-          {/* AI Meets FPL Section */}
-          <section className="mb-16">
-            <h2 
-              className="mb-4 text-center text-4xl font-bold uppercase"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
-            >
-              <span style={{ color: 'white' }}>AI </span>
-              <span style={{ color: '#00FFFF' }}>Meets </span>
-              <span style={{ color: '#00FF86' }}>FPL</span>
-            </h2>
-            <p className="mb-8 text-center text-lg font-semibold" style={{ color: '#4B5563' }}>
-              Engineered for Insight
             </p>
             <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
               We created ChatFPL AI so every manager - casual or seasoned - can access the kind of tactical insight and data-driven analysis that was once only available to experts. We combine the power of artificial intelligence with real-time FPL data to provide instant, personalized advice that helps you climb the rankings.
