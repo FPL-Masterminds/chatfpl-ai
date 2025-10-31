@@ -74,7 +74,7 @@ export function TestimonialsSection() {
         userName: "Ryan Anderson",
         rating: 5,
         description: "Premium Subscriber",
-        reviewText: "I asked ChatFPL for a detailed player comparison between Haaland and Joao Pedro. It gave me expected goals, form trends, and fixture difficulty - exactly what I needed for my transfer decision.",
+        reviewText: "I asked ChatFPL AI for a detailed player comparison between Haaland and Joao Pedro. It gave me expected goals, form trends, and fixture difficulty - exactly what I needed for my transfer decision.",
         reviewType: "written",
         proofUrl: null,
         createdAt: new Date().toISOString()
@@ -84,7 +84,7 @@ export function TestimonialsSection() {
         userName: "Oliver Hughes",
         rating: 5,
         description: "Content Creator",
-        reviewText: "I use ChatFPL to write my FPL YouTube scripts. It analyses the data and helps me create engaging content about captain picks and differentials in minutes instead of hours.",
+        reviewText: "I use ChatFPL AI to write my FPL YouTube scripts. It analyses the data and helps me create engaging content about captain picks and differentials in minutes instead of hours.",
         reviewType: "written",
         proofUrl: null,
         createdAt: new Date().toISOString()
@@ -94,7 +94,7 @@ export function TestimonialsSection() {
         userName: "Daniel Brown",
         rating: 5,
         description: "Elite Subscriber",
-        reviewText: "Every gameweek I ask for transfer suggestions based on my team. ChatFPL considers fixtures, form, and my budget to give me 3-4 solid options with detailed reasoning.",
+        reviewText: "Every gameweek I ask for transfer suggestions based on my team. ChatFPL AI considers fixtures, form, and my budget to give me 3-4 solid options with detailed reasoning.",
         reviewType: "written",
         proofUrl: null,
         createdAt: new Date().toISOString()
@@ -120,7 +120,7 @@ export function TestimonialsSection() {
               <span style={{ color: '#00FF86' }}>say</span>
             </h2>
             <p className="mx-auto max-w-2xl text-pretty text-lg" style={{ color: '#4B5563' }}>
-              Real feedback from FPL managers using ChatFPL
+              Real feedback from FPL managers using ChatFPL AI
             </p>
           </div>
           <div className="text-center text-lg text-muted-foreground">
@@ -148,7 +148,7 @@ export function TestimonialsSection() {
             <span style={{ color: '#00FF86' }}>say</span>
           </h2>
           <p className="mx-auto max-w-2xl text-pretty text-lg" style={{ color: '#4B5563' }}>
-            Real feedback from FPL managers using ChatFPL
+            Real feedback from FPL managers using ChatFPL AI
           </p>
         </div>
 

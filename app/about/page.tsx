@@ -11,7 +11,7 @@ export default function AboutPage() {
       <main className="flex-1 px-4 py-24">
         <div className="container mx-auto max-w-4xl">
           <div className="mb-12 text-center">
-            <h1 className="mb-4 text-4xl font-bold text-foreground">About ChatFPL.ai</h1>
+            <h1 className="mb-4 text-4xl font-bold text-foreground">About ChatFPL AI.ai</h1>
             <p className="text-lg text-muted-foreground">
               Your AI-powered Fantasy Premier League assistant, built by FPL enthusiasts for FPL managers
             </p>
@@ -21,7 +21,7 @@ export default function AboutPage() {
             <section className="space-y-4">
               <h2 className="text-3xl font-semibold text-foreground">Our Mission</h2>
               <p className="leading-relaxed text-muted-foreground">
-                ChatFPL.ai was created to help Fantasy Premier League managers make smarter, data-driven decisions. We
+                ChatFPL AI.ai was created to help Fantasy Premier League managers make smarter, data-driven decisions. We
                 combine the power of artificial intelligence with real-time FPL data to provide instant, personalized
                 advice that helps you climb the rankings.
               </p>
@@ -85,14 +85,14 @@ export default function AboutPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="text-3xl font-semibold text-foreground">Why Choose ChatFPL.ai?</h2>
+              <h2 className="text-3xl font-semibold text-foreground">Why Choose ChatFPL AI.ai?</h2>
               <p className="leading-relaxed text-muted-foreground">
                 Fantasy Premier League is complex, with hundreds of players, constantly changing fixtures, and endless
-                statistics to analyze. ChatFPL.ai simplifies this by giving you a conversational interface to explore
+                statistics to analyze. ChatFPL AI.ai simplifies this by giving you a conversational interface to explore
                 data, compare players, and get strategic advice tailored to your team.
               </p>
               <p className="leading-relaxed text-muted-foreground">
-                Whether you're deciding on your captain, planning transfers, or analyzing upcoming fixtures, ChatFPL.ai
+                Whether you're deciding on your captain, planning transfers, or analyzing upcoming fixtures, ChatFPL AI.ai
                 is your 24/7 FPL assistant ready to help you make better decisions and enjoy the game more.
               </p>
             </section>

@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
       const emailContent = `
         <h2 style="color: #2E0032;">Verify Your Email</h2>
-        <p>You requested a new verification link for your ChatFPL account.</p>
+        <p>You requested a new verification link for your ChatFPL AI account.</p>
         <p>Click the button below to verify your email and start chatting:</p>
         <div style="text-align: center;">
           <a href="${verificationUrl}" class="button">Verify Email & Start Chatting</a>
@@ -70,9 +70,9 @@ export async function POST(request: Request) {
       `;
 
       await resend.emails.send({
-        from: process.env.EMAIL_FROM || "ChatFPL <noreply@chatfpl.ai>",
+        from: process.env.EMAIL_FROM || "ChatFPL AI <noreply@chatfpl.ai>",
         to: email,
-        subject: "Verify your ChatFPL email",
+        subject: "Verify your ChatFPL AI email",
         html: wrapEmailContent(emailContent),
       });
 

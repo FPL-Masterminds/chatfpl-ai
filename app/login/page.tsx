@@ -54,7 +54,7 @@ export default function LoginPage() {
         <Card className="w-full max-w-md border-border/50 bg-card/50 backdrop-blur-sm">
           <CardHeader className="space-y-2 text-center">
             <CardTitle className="text-3xl font-bold">Welcome back</CardTitle>
-            <CardDescription>Login to your ChatFPL.ai account</CardDescription>
+            <CardDescription>Login to your ChatFPL AI.ai account</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">

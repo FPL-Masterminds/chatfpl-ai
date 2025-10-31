@@ -13,8 +13,8 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
             <Image 
-              src="/ChatFPL_Logo.png" 
-              alt="ChatFPL" 
+              src="/ChatFPL AI_Logo.png" 
+              alt="ChatFPL AI" 
               width={48} 
               height={48}
               className="h-12 w-auto"
@@ -92,7 +92,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t-2 border-white/20 pt-8 text-center text-sm text-white/80">
-          <p>&copy; 2025 ChatFPL.ai. All rights reserved.</p>
+          <p>&copy; 2025 ChatFPL AI.ai. All rights reserved.</p>
         </div>
       </div>
     </footer>

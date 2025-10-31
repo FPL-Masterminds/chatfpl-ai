@@ -273,7 +273,7 @@ export default function EarnMessagesPage() {
             </div>
             <h1 className="text-4xl font-bold text-white">Earn Free Messages</h1>
             <p className="mt-2 text-lg text-[#EEEEEE]">
-              Share ChatFPL with others and earn bonus messages!
+              Share ChatFPL AI with others and earn bonus messages!
             </p>
           </div>
 
@@ -306,7 +306,7 @@ export default function EarnMessagesPage() {
                   </div>
                   <CardTitle className="text-white">Post on X</CardTitle>
                   <CardDescription className="text-[#EEEEEE]">
-                    Share ChatFPL on X (Twitter) and earn 5 free messages
+                    Share ChatFPL AI on X (Twitter) and earn 5 free messages
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -329,7 +329,7 @@ export default function EarnMessagesPage() {
                   </div>
                   <CardTitle className="text-white">Post on Reddit</CardTitle>
                   <CardDescription className="text-[#EEEEEE]">
-                    Share ChatFPL on Reddit and earn 5 free messages
+                    Share ChatFPL AI on Reddit and earn 5 free messages
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -354,7 +354,7 @@ export default function EarnMessagesPage() {
                   </div>
                   <CardTitle className="text-white">Post on Facebook</CardTitle>
                   <CardDescription className="text-[#EEEEEE]">
-                    Share ChatFPL on Facebook and earn 5 free messages
+                    Share ChatFPL AI on Facebook and earn 5 free messages
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -579,7 +579,7 @@ export default function EarnMessagesPage() {
                         </label>
                         <textarea
                           id="written-review"
-                          placeholder="Share your experience with ChatFPL..."
+                          placeholder="Share your experience with ChatFPL AI..."
                           value={writtenReview}
                           onChange={(e) => setWrittenReview(e.target.value)}
                           maxLength={280}
@@ -651,7 +651,7 @@ export default function EarnMessagesPage() {
                           disabled={submitting}
                         />
                         <label htmlFor="x-consent" className="text-sm text-[#EEEEEE]">
-                          I consent to ChatFPL using my X post content and profile photo on the homepage testimonials (10 messages reward)
+                          I consent to ChatFPL AI using my X post content and profile photo on the homepage testimonials (10 messages reward)
                         </label>
                       </div>
                     </div>

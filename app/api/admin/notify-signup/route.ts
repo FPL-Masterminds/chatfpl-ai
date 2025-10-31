@@ -62,13 +62,13 @@ export async function POST(request: Request) {
       </div>
 
       <p style="color: #999; font-size: 12px; margin-top: 30px;">
-        This is an automated notification from ChatFPL.ai.
+        This is an automated notification from ChatFPL AI.ai.
       </p>
     `;
 
     await resend.emails.send({
-      from: process.env.EMAIL_FROM || "ChatFPL <noreply@chatfpl.ai>",
-      to: "ChatFPLai@gmail.com",
+      from: process.env.EMAIL_FROM || "ChatFPL AI <noreply@chatfpl.ai>",
+      to: "ChatFPL AIai@gmail.com",
       subject: subject,
       html: wrapEmailContent(content),
     });

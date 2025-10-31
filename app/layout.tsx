@@ -9,7 +9,7 @@ import { Providers } from "./providers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ChatFPL.ai - AI-Powered Fantasy Premier League Assistant",
+  title: "ChatFPL AI.ai - AI-Powered Fantasy Premier League Assistant",
   description:
     "Get instant AI-powered Fantasy Premier League advice. Chat with live FPL data and make smarter decisions.",
   generator: "v0.app",

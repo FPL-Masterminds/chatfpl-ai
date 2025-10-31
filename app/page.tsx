@@ -186,7 +186,7 @@ export default function HomePage() {
                   <span className="text-5xl font-bold text-foreground">£0</span>
                   <span className="text-lg text-muted-foreground">/month</span>
                 </div>
-                <CardDescription className="mt-4 text-base">Perfect for trying out ChatFPL</CardDescription>
+                <CardDescription className="mt-4 text-base">Perfect for trying out ChatFPL AI</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <ul className="space-y-3">
@@ -329,7 +329,7 @@ export default function HomePage() {
               <span style={{ color: '#00FF86' }}>questions</span>
             </h2>
             <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
-              Everything you need to know about ChatFPL
+              Everything you need to know about ChatFPL AI
             </p>
           </div>
 
@@ -337,10 +337,10 @@ export default function HomePage() {
             <Accordion type="single" collapsible className="space-y-4">
               <AccordionItem value="item-1" className="rounded-lg border border-border bg-white px-6 shadow-sm">
                 <AccordionTrigger className="text-left text-foreground hover:no-underline">
-                  What data does ChatFPL use?
+                  What data does ChatFPL AI use?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
-                  ChatFPL connects directly to the official Fantasy Premier League API for real-time player stats,
+                  ChatFPL AI connects directly to the official Fantasy Premier League API for real-time player stats,
                   fixtures, and performance data. We also enhance our AI with FPL rules, strategy guides, and expert
                   insights.
                 </AccordionContent>
@@ -351,7 +351,7 @@ export default function HomePage() {
                   Can I try it for free?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
-                  Yes! Our Free plan gives you 5 messages per day to try out ChatFPL. No credit card required. Upgrade
+                  Yes! Our Free plan gives you 5 messages per day to try out ChatFPL AI. No credit card required. Upgrade
                   anytime to get more messages and advanced features.
                 </AccordionContent>
               </AccordionItem>
@@ -362,7 +362,7 @@ export default function HomePage() {
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
                   Our AI is trained on official FPL data and expert strategy guides. While we strive for accuracy, FPL
-                  is unpredictable by nature. We recommend using ChatFPL as one tool in your decision-making process.
+                  is unpredictable by nature. We recommend using ChatFPL AI as one tool in your decision-making process.
                 </AccordionContent>
               </AccordionItem>
 

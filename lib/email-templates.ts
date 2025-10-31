@@ -1,13 +1,13 @@
 /**
- * Reusable email template components with ChatFPL branding
+ * Reusable email template components with ChatFPL AI branding
  */
 
-const LOGO_URL = "https://chatfpl.ai/ChatFPL_Logo.png";
+const LOGO_URL = "https://chatfpl.ai/ChatFPL AI_Logo.png";
 
 export function getEmailHeader() {
   return `
     <div style="background: #FFFFFF; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
-      <img src="${LOGO_URL}" alt="ChatFPL" style="height: 50px; margin-bottom: 15px;" />
+      <img src="${LOGO_URL}" alt="ChatFPL AI" style="height: 50px; margin-bottom: 15px;" />
     </div>
   `;
 }
@@ -15,7 +15,7 @@ export function getEmailHeader() {
 export function getEmailFooter() {
   return `
     <div style="text-align: center; padding: 20px; color: #666; font-size: 12px; margin-top: 30px; border-top: 1px solid #e0e0e0;">
-      <p>&copy; 2025 ChatFPL.ai - AI-Powered Fantasy Premier League Assistant</p>
+      <p>&copy; 2025 ChatFPL AI.ai - AI-Powered Fantasy Premier League Assistant</p>
       <p style="margin-top: 10px;">
         <a href="https://chatfpl.ai" style="color: #00FF86; text-decoration: none;">Visit Website</a> | 
         <a href="https://chatfpl.ai/terms" style="color: #00FF86; text-decoration: none;">Terms</a> | 

@@ -45,8 +45,8 @@ function VerifyEmailContent() {
       <Card className="w-full max-w-md p-8 text-center">
         <div className="mb-6 flex justify-center">
           <Image 
-            src="/ChatFPL_Logo.png" 
-            alt="ChatFPL" 
+            src="/ChatFPL AI_Logo.png" 
+            alt="ChatFPL AI" 
             width={200} 
             height={100}
             className="h-auto w-auto max-w-[200px]"

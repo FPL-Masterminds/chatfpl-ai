@@ -9,8 +9,8 @@ export default function NotFound() {
         {/* Logo */}
         <div className="mb-8 flex justify-center">
           <Image
-            src="/ChatFPL_Logo.png"
-            alt="ChatFPL"
+            src="/ChatFPL AI_Logo.png"
+            alt="ChatFPL AI"
             width={200}
             height={60}
             priority
@@ -34,7 +34,7 @@ export default function NotFound() {
         {/* Helpful Links */}
         <div className="mt-8 flex justify-center gap-6 text-sm">
           <Link href="/chat" className="text-muted-foreground hover:text-accent transition-colors">
-            ChatFPL
+            ChatFPL AI
           </Link>
           <Link href="/#pricing" className="text-muted-foreground hover:text-accent transition-colors">
             Pricing

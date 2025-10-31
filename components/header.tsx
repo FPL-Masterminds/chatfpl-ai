@@ -20,8 +20,8 @@ export function Header() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" onClick={closeMobileMenu}>
             <Image 
-              src="/ChatFPL_Logo.png" 
-              alt="ChatFPL" 
+              src="/ChatFPL AI_Logo.png" 
+              alt="ChatFPL AI" 
               width={40} 
               height={40}
               className="h-8 w-auto md:h-10"
@@ -40,7 +40,7 @@ export function Header() {
                   <Link href="/admin">Admin Dashboard</Link>
                 </Button>
                 <Button size="sm" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-                  <Link href="/chat">ChatFPL</Link>
+                  <Link href="/chat">ChatFPL AI</Link>
                 </Button>
                 <Button 
                   size="sm"
@@ -103,7 +103,7 @@ export function Header() {
                   onClick={closeMobileMenu}
                   className="text-base font-semibold text-accent hover:text-accent/80 transition-colors"
                 >
-                  ChatFPL
+                  ChatFPL AI
                 </Link>
                 <Link
                   href="/admin"

@@ -395,7 +395,7 @@ export default function AdminPage() {
             <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               <Link href="/chat" className="w-full">
                 <Button className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold">
-                  ChatFPL
+                  ChatFPL AI
                 </Button>
               </Link>
               

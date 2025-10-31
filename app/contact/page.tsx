@@ -158,7 +158,7 @@ export default function ContactPage() {
                     rel="noopener noreferrer"
                     className="text-accent hover:underline"
                   >
-                    @ChatFPL
+                    @ChatFPL AI
                   </a>
                 </CardContent>
               </Card>

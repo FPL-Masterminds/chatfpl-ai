@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     const emailContent = `
       <h2 style="color: #2E0032;">Reset Your Password</h2>
       <p>Hi${user.name ? ` ${user.name}` : ""},</p>
-      <p>We received a request to reset your ChatFPL password. Click the button below to choose a new password:</p>
+      <p>We received a request to reset your ChatFPL AI password. Click the button below to choose a new password:</p>
       <div style="text-align: center;">
         <a href="${resetUrl}" class="button">Reset Password</a>
       </div>
@@ -71,13 +71,13 @@ export async function POST(request: Request) {
       <p style="word-break: break-all; color: #666; font-size: 14px;">${resetUrl}</p>
       <p><strong>⏰ This link will expire in 1 hour.</strong></p>
       <p style="color: #999; font-size: 14px;">If you didn't request a password reset, you can safely ignore this email. Your password won't be changed.</p>
-      <p style="margin-top: 30px;">Thanks,<br><strong>The ChatFPL Team</strong></p>
+      <p style="margin-top: 30px;">Thanks,<br><strong>The ChatFPL AI Team</strong></p>
     `;
 
     const emailResponse = await resend.emails.send({
       from: process.env.EMAIL_FROM!,
       to: email,
-      subject: "Reset Your ChatFPL Password",
+      subject: "Reset Your ChatFPL AI Password",
       html: wrapEmailContent(emailContent),
     });
 
