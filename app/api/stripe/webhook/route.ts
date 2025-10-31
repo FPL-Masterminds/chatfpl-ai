@@ -5,11 +5,6 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
-  typescript: true,
-});
-
 const relevantEvents = new Set([
   'checkout.session.completed',
   'customer.subscription.updated',
@@ -18,9 +13,23 @@ const relevantEvents = new Set([
 
 export async function POST(request: Request) {
   console.log('[Webhook] Received request');
+  
+  // Initialize Stripe INSIDE the function (at runtime, not build time)
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!stripeSecretKey) {
+    console.error('[Webhook] Error: STRIPE_SECRET_KEY not configured');
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+  }
+
+  const stripe = new Stripe(stripeSecretKey, {
+    apiVersion: '2024-11-20.acacia',
+    typescript: true,
+  });
+
   const body = await request.text();
   const signature = request.headers.get('stripe-signature');
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!signature || !webhookSecret) {
     console.error('[Webhook] Error: Missing signature or secret');
