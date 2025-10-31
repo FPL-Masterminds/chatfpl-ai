@@ -42,9 +42,9 @@ export default function ContactPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
 
-      <main className="flex-1 px-4 py-24">
+      <main className="flex-1 px-4 pt-20 pb-12">
         <div className="container mx-auto max-w-3xl">
-          <div className="mb-12 text-center">
+          <div className="mb-10 text-center">
             <h1 
               className="mb-6 text-balance text-4xl font-bold uppercase"
               style={{ 
@@ -62,7 +62,7 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm mb-8">
             <CardContent className="pt-6">
               {status === "success" && (
                 <div className="mb-4 rounded-md bg-accent/10 p-3 text-sm text-accent">
