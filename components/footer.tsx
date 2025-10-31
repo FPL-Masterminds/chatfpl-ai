@@ -106,8 +106,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t-2 border-white/20 pt-8 text-center text-sm text-white/80">
-          <p>&copy; 2025 ChatFPL AI.ai. All rights reserved.</p>
+        <div className="mt-12 border-t-2 border-white/20 pt-8">
+          <p className="mb-4 text-center text-xs text-white/60 leading-relaxed">
+            ChatFPL AI provides live FPL statistics, insights, and intelligent analysis to help inform your decisions. While success cannot be guaranteed, our platform equips you with the data-driven insights needed to compete at the highest level in your Fantasy Premier League leagues.
+          </p>
+          <p className="text-center text-sm text-white/80">&copy; 2025 ChatFPL AI.ai. All rights reserved.</p>
         </div>
       </div>
     </footer>
