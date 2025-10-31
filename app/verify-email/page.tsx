@@ -44,15 +44,13 @@ function VerifyEmailContent() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 to-cyan-50 px-4">
       <Card className="w-full max-w-md p-8 text-center">
         <div className="mb-6 flex justify-center">
-          <div className="rounded-full bg-accent/10 p-4">
-            <Image 
-              src="/logo.png" 
-              alt="ChatFPL" 
-              width={80} 
-              height={80}
-              className="h-20 w-20"
-            />
-          </div>
+          <Image 
+            src="/ChatFPL_Logo.png" 
+            alt="ChatFPL" 
+            width={120} 
+            height={120}
+            className="h-30 w-30"
+          />
         </div>
 
         <h1 className="mb-4 text-2xl font-bold text-foreground">Check Your Email</h1>
