@@ -10,10 +10,10 @@ export default function PlaybookPage() {
           {/* Hero Section */}
           <div className="mb-16 text-center">
             <h1 
-              className="mb-6 text-balance text-5xl font-bold uppercase"
+              className="mb-6 text-balance text-4xl font-bold uppercase"
               style={{ 
                 fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '7px #2E0032',
+                WebkitTextStroke: '6px #2E0032',
                 paintOrder: 'stroke fill'
               }}
             >
