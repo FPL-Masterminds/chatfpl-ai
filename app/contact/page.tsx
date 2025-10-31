@@ -42,7 +42,7 @@ export default function ContactPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
 
-      <main className="flex-1 px-4 pt-20 pb-6">
+      <main className="px-4 pt-16 pb-8">
         <div className="container mx-auto max-w-3xl">
           <div className="mb-6 text-center">
             <h1 
