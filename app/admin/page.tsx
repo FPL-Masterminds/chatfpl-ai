@@ -382,27 +382,40 @@ export default function AdminPage() {
             <CardHeader>
               <CardTitle className="text-xl text-gray-900">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-3 md:grid-cols-4">
+            <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
               <Link href="/chat" className="w-full">
                 <Button className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold">
                   Go to Chat
                 </Button>
               </Link>
-              {data.subscription.plan.toLowerCase() === "free" && (
+              
+              {data.subscription.plan.toLowerCase() === "free" ? (
                 <Link href="/earn-messages" className="w-full">
                   <Button className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-gray-900 hover:opacity-90 font-semibold">
                     Earn Messages
                   </Button>
                 </Link>
-              )}
-              <Link href="/#pricing" className="w-full">
+              ) : (
                 <Button
-                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
-                  variant="outline"
+                  className="w-full bg-[#2E0032] text-[#00FF87] hover:bg-[#2E0032]/90 font-semibold"
+                  onClick={handleManageBilling}
+                  disabled={billingLoading}
                 >
-                  Upgrade Plan
+                  {billingLoading ? "Loading..." : "Cancel Subscription"}
                 </Button>
-              </Link>
+              )}
+              
+              {data.subscription.plan.toLowerCase() !== "elite" && (
+                <Link href="/#pricing" className="w-full">
+                  <Button
+                    className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
+                    variant="outline"
+                  >
+                    Upgrade Plan
+                  </Button>
+                </Link>
+              )}
+              
               <Link href="/contact" className="w-full">
                 <Button
                   className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
@@ -452,23 +465,6 @@ export default function AdminPage() {
                     {messagesRemaining.toLocaleString()}
                   </p>
                 </div>
-                {data.subscription.plan.toLowerCase() === "free" ? (
-                  <Button
-                    className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
-                    onClick={() => router.push("/#pricing")}
-                  >
-                    Upgrade to Premium
-                  </Button>
-                ) : (
-                  <Button
-                    className="w-full border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-semibold"
-                    variant="outline"
-                    onClick={handleManageBilling}
-                    disabled={billingLoading}
-                  >
-                    {billingLoading ? "Loading..." : "Cancel Subscription"}
-                  </Button>
-                )}
               </CardContent>
             </Card>
 
