@@ -212,14 +212,27 @@ export async function POST(request: Request) {
         console.log('Fixture runs text length:', fixtureRunsText.length);
         console.log('=== END DEBUG ===');
 
+        // Format deadline to UK format (DD-MM-YYYY HH:mm in UK time)
+        const formatDeadline = (isoString: string) => {
+          const date = new Date(isoString);
+          // Convert to UK time
+          const ukDate = new Date(date.toLocaleString('en-GB', { timeZone: 'Europe/London' }));
+          const day = String(ukDate.getDate()).padStart(2, '0');
+          const month = String(ukDate.getMonth() + 1).padStart(2, '0');
+          const year = ukDate.getFullYear();
+          const hours = String(ukDate.getHours()).padStart(2, '0');
+          const minutes = String(ukDate.getMinutes()).padStart(2, '0');
+          return `${day}-${month}-${year} ${hours}:${minutes}`;
+        };
+
         // Build context string with filtered players
         fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
 CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.id})
-- Deadline: ${currentGameweek?.deadline_time}
+- Deadline: ${currentGameweek?.deadline_time ? formatDeadline(currentGameweek.deadline_time) : 'Unknown'}
 - Finished: ${currentGameweek?.finished ? "Yes" : "No"}
 
-${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time}` : ""}
+${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : 'Unknown'}` : ""}
 
 TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
 ${fixtureRunsText}
