@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Instagram } from "lucide-react"
+import { Instagram, Youtube } from "lucide-react"
 
 export function Footer() {
   return (
@@ -26,19 +26,65 @@ export function Footer() {
             <h3 className="mb-4 text-sm font-semibold text-white">Product</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/#features" className="text-sm text-white/80 transition-colors hover:text-accent">
-                  Features
-                </Link>
-              </li>
-              <li>
-                <Link href="/#pricing" className="text-sm text-white/80 transition-colors hover:text-accent">
-                  Pricing
+                <Link href="/" className="text-sm text-white/80 transition-colors hover:text-accent">
+                  Home
                 </Link>
               </li>
               <li>
                 <Link href="/about" className="text-sm text-white/80 transition-colors hover:text-accent">
                   About
                 </Link>
+              </li>
+              <li>
+                <Link href="/playbook" className="text-sm text-white/80 transition-colors hover:text-accent">
+                  The Playbook
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-sm text-white/80 transition-colors hover:text-accent">
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-sm font-semibold text-white">Social</h3>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-white/80 transition-colors hover:text-accent"
+                >
+                  <Instagram className="h-4 w-4" />
+                  Instagram
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://x.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-white/80 transition-colors hover:text-accent"
+                >
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  X (Twitter)
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-white/80 transition-colors hover:text-accent"
+                >
+                  <Youtube className="h-4 w-4" />
+                  YouTube
+                </a>
               </li>
             </ul>
           </div>
@@ -47,45 +93,14 @@ export function Footer() {
             <h3 className="mb-4 text-sm font-semibold text-white">Legal</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/terms" className="text-sm text-white/80 transition-colors hover:text-accent">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
                 <Link href="/privacy" className="text-sm text-white/80 transition-colors hover:text-accent">
                   Privacy Policy
                 </Link>
               </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="mb-4 text-sm font-semibold text-white">Connect</h3>
-            <ul className="space-y-3">
               <li>
-                <Link href="/contact" className="text-sm text-white/80 transition-colors hover:text-accent">
-                  Contact
+                <Link href="/terms" className="text-sm text-white/80 transition-colors hover:text-accent">
+                  Terms of Service
                 </Link>
-              </li>
-              <li className="flex gap-4 pt-2">
-                <a
-                  href="https://x.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/80 transition-colors hover:text-accent"
-                >
-                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                  </svg>
-                </a>
-                <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white/80 transition-colors hover:text-accent"
-                >
-                  <Instagram className="h-5 w-5" />
-                </a>
               </li>
             </ul>
           </div>
