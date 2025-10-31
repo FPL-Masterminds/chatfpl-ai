@@ -80,7 +80,7 @@ export default function AboutPage() {
                 <CardHeader className="text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#2E0032' }}>
                     <Image 
-                      src="/AI-Driven_Insights.png"
+                      src="/AI-Driven Insights.png"
                       alt="AI-Driven Insights"
                       width={32}
                       height={32}
