@@ -46,11 +46,11 @@ function VerifyEmailContent() {
         <div className="mb-6 flex justify-center">
           <div className="rounded-full bg-accent/10 p-4">
             <Image 
-              src="/ChatFPL_Logo.png" 
+              src="/logo.png" 
               alt="ChatFPL" 
-              width={48} 
-              height={48}
-              className="h-12 w-12"
+              width={80} 
+              height={80}
+              className="h-20 w-20"
             />
           </div>
         </div>
