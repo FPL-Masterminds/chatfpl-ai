@@ -34,7 +34,7 @@ export function HeroSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
       <div className="container relative mx-auto max-w-7xl px-4 py-16 md:py-20">
-        <div className="grid gap-8 md:grid-cols-2 md:items-center">
+        <div className="grid gap-8 md:grid-cols-2 items-center">
           {/* Left Column - Hero Content */}
           <div className="space-y-6 text-center md:text-left">
             <h1 className="text-balance font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: '60px' }}>
