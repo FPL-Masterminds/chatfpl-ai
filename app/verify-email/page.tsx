@@ -47,9 +47,10 @@ function VerifyEmailContent() {
           <Image 
             src="/ChatFPL_Logo.png" 
             alt="ChatFPL" 
-            width={120} 
-            height={120}
-            className="h-30 w-30"
+            width={200} 
+            height={100}
+            className="h-auto w-auto max-w-[200px]"
+            priority
           />
         </div>
 
