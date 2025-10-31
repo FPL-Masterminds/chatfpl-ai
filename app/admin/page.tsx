@@ -269,10 +269,10 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-screen flex-col bg-white">
         <Header />
         <main className="flex flex-1 items-center justify-center pt-16">
-          <p className="text-lg text-muted-foreground">Loading your account...</p>
+          <p className="text-lg text-gray-600">Loading your account...</p>
         </main>
       </div>
     )
@@ -280,16 +280,16 @@ export default function AdminPage() {
 
   if (error || !data) {
     return (
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-screen flex-col bg-white">
         <Header />
         <main className="flex flex-1 items-center justify-center pt-16">
-          <Card className="w-full max-w-md">
+          <Card className="w-full max-w-md border-red-600 shadow-lg">
             <CardHeader>
-              <CardTitle className="text-destructive">Error</CardTitle>
+              <CardTitle className="text-red-600">Error</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">{error || "Failed to load account data"}</p>
-              <Button className="mt-4 w-full" onClick={() => router.push("/login")}>
+              <p className="text-gray-700">{error || "Failed to load account data"}</p>
+              <Button className="mt-4 w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold" onClick={() => router.push("/login")}>
                 Back to Login
               </Button>
             </CardContent>
@@ -303,36 +303,27 @@ export default function AdminPage() {
   const usagePercentage = calculateUsagePercentage()
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#1E1E1E]">
+    <div className="flex min-h-screen flex-col bg-white">
       <Header />
 
       <main className="flex-1 px-4 pt-24 pb-12">
         <div className="mx-auto max-w-6xl space-y-8">
           {/* Header Section */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-white">Account Dashboard</h1>
-              <p className="mt-2 text-lg text-[#EEEEEE]">
-                Manage your ChatFPL.ai subscription, usage, and settings
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-[#1E1E1E]"
-            >
-              Logout
-            </Button>
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900">Account Dashboard</h1>
+            <p className="mt-2 text-lg text-gray-600">
+              Manage your ChatFPL.ai subscription, usage, and settings
+            </p>
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex gap-2 border-b border-[#2A2A2A]">
+          <div className="flex gap-2 border-b border-gray-200">
             <button
               onClick={() => setActiveTab("account")}
               className={`px-6 py-3 text-sm font-semibold transition-all ${
                 activeTab === "account"
                   ? "border-b-2 border-[#00FF87] text-[#00FF87]"
-                  : "text-[#EEEEEE] hover:text-[#00FF87]"
+                  : "text-gray-600 hover:text-[#00FF87]"
               }`}
             >
               My Account
@@ -344,7 +335,7 @@ export default function AdminPage() {
                   className={`relative px-6 py-3 text-sm font-semibold transition-all ${
                     activeTab === "rewards"
                       ? "border-b-2 border-[#00FF87] text-[#00FF87]"
-                      : "text-[#EEEEEE] hover:text-[#00FF87]"
+                      : "text-gray-600 hover:text-[#00FF87]"
                   }`}
                 >
                   Reward Management
@@ -359,7 +350,7 @@ export default function AdminPage() {
                   className={`px-6 py-3 text-sm font-semibold transition-all ${
                     activeTab === "admin"
                       ? "border-b-2 border-[#00FF87] text-[#00FF87]"
-                      : "text-[#EEEEEE] hover:text-[#00FF87]"
+                      : "text-gray-600 hover:text-[#00FF87]"
                   }`}
                 >
                   Administration
@@ -372,12 +363,12 @@ export default function AdminPage() {
           {activeTab === "account" && (
             <>
               {/* User Summary */}
-              <Card className="border-[#2A2A2A] bg-[#2A2A2A]/50 backdrop-blur-sm">
+              <Card className="border-gray-200 bg-gradient-to-br from-gray-50 to-white shadow-sm">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-2xl text-white">{data.user.name}</CardTitle>
-                  <CardDescription className="text-[#EEEEEE]">{data.user.email}</CardDescription>
+                  <CardTitle className="text-2xl text-gray-900">{data.user.name}</CardTitle>
+                  <CardDescription className="text-gray-600">{data.user.email}</CardDescription>
                 </div>
                 <Badge className={`${getPlanBadgeColor(data.subscription.plan)} border px-4 py-2 text-lg font-semibold`}>
                   {data.subscription.plan}
@@ -385,7 +376,7 @@ export default function AdminPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-[#EEEEEE]">
+              <p className="text-sm text-gray-600">
                 Member since {formatDate(data.user.created_at)}
               </p>
             </CardContent>
@@ -394,17 +385,17 @@ export default function AdminPage() {
           {/* Grid Layout for Main Content */}
           <div className="grid gap-8 md:grid-cols-2">
             {/* Subscription Details */}
-            <Card className="border-[#2A2A2A] bg-[#2A2A2A]/50 backdrop-blur-sm">
+            <Card className="border-gray-200 bg-white shadow-sm">
               <CardHeader>
-                <CardTitle className="text-xl text-white">Subscription Status</CardTitle>
+                <CardTitle className="text-xl text-gray-900">Subscription Status</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm font-medium text-[#EEEEEE]">Current Plan</p>
+                  <p className="text-sm font-medium text-gray-600">Current Plan</p>
                   <p className="text-2xl font-bold text-[#00FF87]">{data.subscription.plan}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#EEEEEE]">Status</p>
+                  <p className="text-sm font-medium text-gray-600">Status</p>
                   <Badge
                     className={
                       data.subscription.status === "active"
@@ -416,27 +407,27 @@ export default function AdminPage() {
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#EEEEEE]">Renewal Date</p>
-                  <p className="text-lg text-white">
+                  <p className="text-sm font-medium text-gray-600">Renewal Date</p>
+                  <p className="text-lg text-gray-900">
                     {formatDate(data.subscription.current_period_end)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#EEEEEE]">Messages Remaining</p>
+                  <p className="text-sm font-medium text-gray-600">Messages Remaining</p>
                   <p className="text-3xl font-bold text-[#00FF87]">
                     {messagesRemaining.toLocaleString()}
                   </p>
                 </div>
                 {data.subscription.plan.toLowerCase() === "free" ? (
                   <Button
-                    className="w-full bg-[#00FF87] text-[#1E1E1E] hover:bg-[#00FF87]/90"
+                    className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                     onClick={() => router.push("/#pricing")}
                   >
                     Upgrade to Premium
                   </Button>
                 ) : (
                   <Button
-                    className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-[#1E1E1E]"
+                    className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
                     variant="outline"
                     onClick={handleManageBilling}
                     disabled={billingLoading}
@@ -448,38 +439,38 @@ export default function AdminPage() {
             </Card>
 
             {/* Usage Overview */}
-            <Card className="border-[#2A2A2A] bg-[#2A2A2A]/50 backdrop-blur-sm">
+            <Card className="border-gray-200 bg-white shadow-sm">
               <CardHeader>
-                <CardTitle className="text-xl text-white">Usage Overview</CardTitle>
+                <CardTitle className="text-xl text-gray-900">Usage Overview</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="text-sm font-medium text-[#EEEEEE]">
+                    <p className="text-sm font-medium text-gray-600">
                       {data.subscription.plan.toLowerCase() === "free" ? "Trial Messages" : "Monthly Messages"}
                     </p>
-                    <p className="text-sm text-[#EEEEEE]">
+                    <p className="text-sm text-gray-600">
                       {data.usage.messages_used} / {data.usage.messages_limit.toLocaleString()}
                     </p>
                   </div>
                   <Progress 
                     value={usagePercentage} 
-                    className="h-3 bg-[#1E1E1E]"
+                    className="h-3 bg-gray-100"
                   />
                 </div>
-                <div className="rounded-lg border border-[#00FF87]/20 bg-[#2E0032]/20 p-4">
-                  <p className="text-center text-lg text-white">
+                <div className="rounded-lg border border-[#00FF87]/30 bg-[#00FF87]/5 p-4">
+                  <p className="text-center text-lg text-gray-900">
                     You've used <span className="font-bold text-[#00FF87]">{data.usage.messages_used}</span> of{" "}
                     <span className="font-bold text-[#00FF87]">{data.usage.messages_limit.toLocaleString()}</span>{" "}
                     {data.subscription.plan.toLowerCase() === "free" ? "trial messages" : "messages this month"}
                   </p>
                 </div>
                 {data.subscription.plan.toLowerCase() === "free" && data.usage.messages_limit > 5 && (
-                  <div className="rounded-lg border border-yellow-600/50 bg-yellow-900/20 p-3">
-                    <p className="text-center text-xs text-yellow-200">
+                  <div className="rounded-lg border border-yellow-400 bg-yellow-50 p-3">
+                    <p className="text-center text-xs text-yellow-900">
                       ⚠️ <span className="font-semibold">Bonus messages expire on {formatDate(data.subscription.current_period_end)}</span>
                     </p>
-                    <p className="mt-1 text-center text-xs text-yellow-300/80">
+                    <p className="mt-1 text-center text-xs text-yellow-800">
                       Use them or lose them! Upgrade to Premium to keep your messages.
                     </p>
                   </div>
@@ -488,50 +479,43 @@ export default function AdminPage() {
             </Card>
 
             {/* Account Settings */}
-            <Card className="border-[#2A2A2A] bg-[#2A2A2A]/50 backdrop-blur-sm">
+            <Card className="border-gray-200 bg-white shadow-sm">
               <CardHeader>
-                <CardTitle className="text-xl text-white">Account Settings</CardTitle>
+                <CardTitle className="text-xl text-gray-900">Account Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button
-                  className="w-full justify-start border-[#2A2A2A] text-white hover:border-[#00FF87]"
+                  className="w-full justify-start border-gray-300 text-gray-600 hover:border-[#00FF87] hover:text-[#00FF87]"
                   variant="outline"
                   disabled
                 >
                   Change Password
                 </Button>
                 <Button
-                  className="w-full justify-start border-[#2A2A2A] text-white hover:border-[#00FF87]"
+                  className="w-full justify-start border-gray-300 text-gray-600 hover:border-[#00FF87] hover:text-[#00FF87]"
                   variant="outline"
                   disabled
                 >
                   Change Email
                 </Button>
-                <Button
-                  className="w-full justify-start border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-                  variant="outline"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
               </CardContent>
             </Card>
 
             {/* Payment Settings */}
-            <Card className="border-[#2A2A2A] bg-[#2A2A2A]/50 backdrop-blur-sm">
+            <Card className="border-gray-200 bg-white shadow-sm">
               <CardHeader>
-                <CardTitle className="text-xl text-white">Payment Settings</CardTitle>
+                <CardTitle className="text-xl text-gray-900">Payment Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button
-                  className="w-full justify-start border-[#2A2A2A] text-white hover:border-[#00FF87]"
+                  className="w-full justify-start border-gray-300 text-gray-600 hover:border-[#00FF87] hover:text-[#00FF87]"
                   variant="outline"
                   disabled
                 >
                   Change Payment Method
                 </Button>
                 <Button
-                  className="w-full justify-start border-[#2A2A2A] text-white hover:border-[#00FF87]"
+                  className="w-full justify-start border-gray-300 text-gray-600 hover:border-[#00FF87] hover:text-[#00FF87]"
                   variant="outline"
                   disabled
                 >
@@ -542,26 +526,26 @@ export default function AdminPage() {
           </div>
 
           {/* Navigation Shortcuts */}
-          <Card className="border-[#00FF87]/30 bg-gradient-to-br from-[#2E0032]/50 to-[#2A2A2A]/50 backdrop-blur-sm">
+          <Card className="border-[#00FF87]/30 bg-gradient-to-br from-[#00FF87]/5 to-white shadow-sm">
             <CardHeader>
-              <CardTitle className="text-xl text-white">Quick Actions</CardTitle>
+              <CardTitle className="text-xl text-gray-900">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-3 md:grid-cols-4">
               <Link href="/chat" className="w-full">
-                <Button className="w-full bg-[#00FF87] text-[#1E1E1E] hover:bg-[#00FF87]/90">
+                <Button className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold">
                   Go to Chat
                 </Button>
               </Link>
               {data.subscription.plan.toLowerCase() === "free" && (
                 <Link href="/earn-messages" className="w-full">
-                  <Button className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#2E0032] hover:opacity-90">
+                  <Button className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-gray-900 hover:opacity-90 font-semibold">
                     Earn Messages
                   </Button>
                 </Link>
               )}
               <Link href="/#pricing" className="w-full">
                 <Button
-                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-[#1E1E1E]"
+                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
                   variant="outline"
                 >
                   Upgrade Plan
@@ -569,7 +553,7 @@ export default function AdminPage() {
               </Link>
               <Link href="/contact" className="w-full">
                 <Button
-                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-[#1E1E1E]"
+                  className="w-full border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold"
                   variant="outline"
                 >
                   Support
@@ -584,17 +568,17 @@ export default function AdminPage() {
           {activeTab === "rewards" && data.user.role === "admin" && (
             <>
               {/* Pending Reward Claims */}
-              <Card className="border-[#00FF87] bg-gradient-to-br from-purple-900/50 to-[#2E0032]/50 backdrop-blur-sm">
+              <Card className="border-[#00FF87] bg-gradient-to-br from-purple-50 to-white shadow-lg">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-xl text-[#00FF87]">🎁 Pending Reward Claims</CardTitle>
-                      <CardDescription className="text-[#EEEEEE]">
+                      <CardDescription className="text-gray-600">
                         Verify user social shares & referrals
                       </CardDescription>
                     </div>
                     {pendingClaims.length > 0 && (
-                      <Badge className="bg-[#00FF87] text-[#2E0032]">
+                      <Badge className="bg-[#00FF87] text-gray-900 font-semibold">
                         {pendingClaims.length} pending
                       </Badge>
                     )}
@@ -602,12 +586,12 @@ export default function AdminPage() {
                 </CardHeader>
                 <CardContent>
                   {claimsLoading ? (
-                    <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-8 text-center">
-                      <p className="text-lg text-[#EEEEEE]">Loading claims...</p>
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
+                      <p className="text-lg text-gray-600">Loading claims...</p>
                     </div>
                   ) : pendingClaims.length === 0 ? (
-                    <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-8 text-center">
-                      <p className="text-lg text-[#EEEEEE]">No pending claims</p>
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
+                      <p className="text-lg text-gray-900">No pending claims</p>
                       <p className="mt-2 text-sm text-gray-500">
                         Claims will appear here when users submit them
                       </p>
@@ -617,13 +601,13 @@ export default function AdminPage() {
                       {pendingClaims.map((claim) => (
                         <div
                           key={claim.id}
-                          className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4"
+                          className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
                         >
                           <div className="mb-3 flex items-start justify-between">
                             <div>
-                              <p className="font-semibold text-white">{claim.user_name || claim.user_email}</p>
-                              <p className="text-sm text-gray-400">{claim.user_email}</p>
-                              <p className="mt-1 text-sm text-[#00FF87]">
+                              <p className="font-semibold text-gray-900">{claim.user_name || claim.user_email}</p>
+                              <p className="text-sm text-gray-600">{claim.user_email}</p>
+                              <p className="mt-1 text-sm text-[#00FF87] font-semibold">
                                 {claim.action_type.charAt(0).toUpperCase() + claim.action_type.slice(1)} - {claim.reward_messages} messages
                               </p>
                             </div>
@@ -634,33 +618,33 @@ export default function AdminPage() {
 
                           {/* Review Preview for Review Type Claims */}
                           {claim.action_type === "review" && claim.metadata && (
-                            <div className="mb-3 rounded-lg border border-[#FFD700]/30 bg-[#2E0032]/30 p-4">
-                              <p className="text-xs font-semibold uppercase text-[#FFD700] mb-2">Review Preview</p>
+                            <div className="mb-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                              <p className="text-xs font-semibold uppercase text-yellow-700 mb-2">Review Preview</p>
                               
                               {/* Star Rating */}
                               <div className="mb-2 flex gap-1">
                                 {[1, 2, 3, 4, 5].map((star) => (
-                                  <span key={star} className={`text-lg ${star <= (claim.metadata?.rating || 5) ? 'text-[#FFD700]' : 'text-gray-600'}`}>
+                                  <span key={star} className={`text-lg ${star <= (claim.metadata?.rating || 5) ? 'text-[#FFD700]' : 'text-gray-400'}`}>
                                     ★
                                   </span>
                                 ))}
                               </div>
 
                               {/* Description */}
-                              <p className="text-sm font-semibold text-white mb-1">
+                              <p className="text-sm font-semibold text-gray-900 mb-1">
                                 {claim.metadata.description || "Subscriber"}
                               </p>
 
                               {/* Review Text */}
                               {claim.metadata.reviewText && (
-                                <p className="text-sm text-[#EEEEEE] italic">
+                                <p className="text-sm text-gray-700 italic">
                                   "{claim.metadata.reviewText}"
                                 </p>
                               )}
 
                               {/* Review Type Badge */}
                               <div className="mt-2 flex items-center gap-2">
-                                <Badge className={claim.metadata.reviewType === 'xpost' ? 'bg-black text-white' : 'bg-[#FFD700] text-[#2E0032]'}>
+                                <Badge className={claim.metadata.reviewType === 'xpost' ? 'bg-black text-white' : 'bg-[#FFD700] text-gray-900'}>
                                   {claim.metadata.reviewType === 'xpost' ? 'X Post' : 'Written Review'}
                                 </Badge>
                                 {claim.metadata.xConsent && (
@@ -674,12 +658,12 @@ export default function AdminPage() {
 
                           {claim.proof_url && (
                             <div className="mb-3">
-                              <p className="text-xs text-gray-400 mb-1">Proof URL:</p>
+                              <p className="text-xs text-gray-500 mb-1">Proof URL:</p>
                               <a
                                 href={claim.proof_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-[#00FF87] hover:underline break-all"
+                                className="text-sm text-[#00FF87] hover:underline break-all font-medium"
                               >
                                 {claim.proof_url}
                               </a>
@@ -748,17 +732,17 @@ export default function AdminPage() {
           {activeTab === "admin" && data.user.role === "admin" && (
             <>
               {/* Make VIP Form */}
-              <Card className="border-[#FFD700] bg-gradient-to-br from-[#2E0032]/50 to-[#1E1E1E]/50 backdrop-blur-sm">
+              <Card className="border-yellow-400 bg-gradient-to-br from-yellow-50 to-white shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-xl text-[#FFD700]">👑 Grant VIP Access</CardTitle>
-                  <CardDescription className="text-[#EEEEEE]">
+                  <CardTitle className="text-xl text-yellow-600">👑 Grant VIP Access</CardTitle>
+                  <CardDescription className="text-gray-600">
                     Give friends & family 100 free messages per month
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form className="space-y-4" onSubmit={handleMakeVIP}>
                     <div>
-                      <label htmlFor="vip-email" className="text-sm font-medium text-[#EEEEEE]">
+                      <label htmlFor="vip-email" className="text-sm font-medium text-gray-700">
                         User Email
                       </label>
                       <input
@@ -767,19 +751,19 @@ export default function AdminPage() {
                         placeholder="friend@example.com"
                         value={vipEmail}
                         onChange={(e) => setVipEmail(e.target.value)}
-                        className="mt-1 w-full rounded-md border border-[#2A2A2A] bg-[#1E1E1E] px-3 py-2 text-white placeholder:text-gray-500 focus:border-[#FFD700] focus:outline-none focus:ring-1 focus:ring-[#FFD700]"
+                        className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-[#FFD700] focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
                         required
                         disabled={vipLoading}
                       />
                     </div>
                     {vipMessage && (
-                      <div className={`rounded-lg p-3 text-sm ${vipMessage.includes("✅") ? "bg-green-900/30 text-green-400" : "bg-red-900/30 text-red-400"}`}>
+                      <div className={`rounded-lg p-3 text-sm ${vipMessage.includes("✅") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                         {vipMessage}
                       </div>
                     )}
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#2E0032] hover:opacity-90"
+                      className="w-full bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-gray-900 hover:opacity-90 font-semibold"
                       disabled={vipLoading}
                     >
                       {vipLoading ? "Processing..." : "Make VIP"}
@@ -789,34 +773,34 @@ export default function AdminPage() {
               </Card>
 
               {/* System Analytics */}
-              <Card className="border-[#00FF87] bg-gradient-to-br from-purple-900/50 to-[#2E0032]/50 backdrop-blur-sm">
+              <Card className="border-[#00FF87] bg-gradient-to-br from-green-50 to-white shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-xl text-[#00FF87]">📊 System Analytics</CardTitle>
-                  <CardDescription className="text-[#EEEEEE]">
+                  <CardDescription className="text-gray-600">
                     Real-time system metrics
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
-                    <p className="text-sm text-[#EEEEEE]">Total Users</p>
-                    <p className="text-3xl font-bold text-white">
+                  <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                    <p className="text-sm text-gray-600">Total Users</p>
+                    <p className="text-3xl font-bold text-gray-900">
                       {analyticsLoading ? "..." : analytics?.totalUsers.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
-                    <p className="text-sm text-[#EEEEEE]">Active Subscriptions</p>
-                    <p className="text-3xl font-bold text-white">
+                  <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                    <p className="text-sm text-gray-600">Active Subscriptions</p>
+                    <p className="text-3xl font-bold text-gray-900">
                       {analyticsLoading ? "..." : analytics?.activeSubscriptions.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
-                    <p className="text-sm text-[#EEEEEE]">Messages Today</p>
-                    <p className="text-3xl font-bold text-white">
+                  <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                    <p className="text-sm text-gray-600">Messages Today</p>
+                    <p className="text-3xl font-bold text-gray-900">
                       {analyticsLoading ? "..." : analytics?.messagesToday.toLocaleString() || "0"}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-[#00FF87]/30 bg-[#1E1E1E]/50 p-4">
-                    <p className="text-sm text-[#EEEEEE]">All Time Messages</p>
+                  <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                    <p className="text-sm text-gray-600">All Time Messages</p>
                     <p className="text-3xl font-bold text-[#00FF87]">
                       {analyticsLoading ? "..." : analytics?.allTimeMessages.toLocaleString() || "0"}
                     </p>
@@ -830,10 +814,10 @@ export default function AdminPage() {
 
       {/* Result Modal */}
       {resultModal.show && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
-          <Card className={`w-full max-w-md ${resultModal.success ? 'border-[#00FF87]' : 'border-red-600'} bg-[#2A2A2A]`}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <Card className={`w-full max-w-md ${resultModal.success ? 'border-[#00FF87]' : 'border-red-600'} bg-white shadow-2xl`}>
             <CardHeader>
-              <CardTitle className={resultModal.success ? 'text-[#00FF87]' : 'text-red-400'}>
+              <CardTitle className={resultModal.success ? 'text-[#00FF87]' : 'text-red-600'}>
                 {resultModal.success ? (
                   <div className="flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -852,9 +836,9 @@ export default function AdminPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-[#EEEEEE]">{resultModal.message}</p>
+              <p className="text-gray-700">{resultModal.message}</p>
               <Button
-                className="w-full bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90"
+                className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                 onClick={() => setResultModal({ show: false, success: false, message: "" })}
               >
                 OK
