@@ -1,5 +1,4 @@
 import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 
 export default function TermsPage() {
   return (
@@ -119,8 +118,6 @@ export default function TermsPage() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   )
 }
