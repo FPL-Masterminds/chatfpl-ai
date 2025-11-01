@@ -42,7 +42,7 @@ export default function ContactPage() {
     <div className="flex flex-col">
       <Header />
 
-      <main className="px-4 pt-16 pb-8">
+      <main className="flex-1 px-4 py-24">
         <div className="container mx-auto max-w-3xl">
           <div className="mb-6 text-center">
             <h1 
