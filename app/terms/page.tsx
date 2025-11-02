@@ -30,7 +30,7 @@ export default function TermsPage() {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">1. Acceptance of Terms</h2>
               <p className="leading-relaxed text-muted-foreground">
-                By accessing and using ChatFPL AI.ai, you accept and agree to be bound by the terms and provision of this
+                By accessing and using ChatFPL.ai, you accept and agree to be bound by the terms and provision of this
                 agreement. If you do not agree to these terms, please do not use our service.
               </p>
             </section>
@@ -38,7 +38,7 @@ export default function TermsPage() {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">2. Description of Service</h2>
               <p className="leading-relaxed text-muted-foreground">
-                ChatFPL AI.ai provides an AI-powered chatbot service that offers Fantasy Premier League advice, insights,
+                ChatFPL.ai provides an AI-powered chatbot service that offers Fantasy Premier League advice, insights,
                 and recommendations based on official FPL data and expert knowledge. The service is available through
                 various subscription tiers with different usage limits.
               </p>
@@ -65,9 +65,7 @@ export default function TermsPage() {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">5. Usage Limits</h2>
               <p className="leading-relaxed text-muted-foreground">
-                Each subscription tier has specific message limits per day. Free accounts are limited to 5 messages per
-                day, Pro accounts to 50 messages per day, and Elite accounts have unlimited messages. Limits reset daily
-                at midnight UTC.
+                Each subscription tier has specific message limits. Free accounts are limited to 5 messages, with rewards of up to 50 messages if sharing tasks are met. Premium accounts have an allowance of 100 messages per month, and Elite accounts have 500 messages per month. Limits reset monthly and this date is documented in a user's Admin dashboard.
               </p>
             </section>
 
@@ -83,10 +81,10 @@ export default function TermsPage() {
                 <strong>Message Expiration:</strong> Bonus messages earned through the rewards program expire on your subscription renewal date. For Free tier users, this means all bonus messages must be used within your monthly billing cycle or they will be lost. Only your base plan allowance (5 trial messages for Free tier) will carry forward to the next cycle. Paid subscriptions (Premium, Elite, VIP) are not subject to message expiration and renew monthly with their full allowance.
               </p>
               <p className="leading-relaxed text-muted-foreground">
-                We reserve the right to deny or revoke reward messages at our sole discretion, including but not limited to cases where we determine that a review or social post contains negative, defamatory, or unhelpful content about our service. Rewards are intended to encourage genuine, positive engagement with ChatFPL AI.ai.
+                We reserve the right to deny or revoke reward messages at our sole discretion, including but not limited to cases where we determine that a review or social post contains negative, defamatory, or unhelpful content about our service. Rewards are intended to encourage genuine, positive engagement with ChatFPL.ai.
               </p>
               <p className="leading-relaxed text-muted-foreground">
-                By submitting a review or consenting to the use of your social media content, you grant ChatFPL AI.ai a non-exclusive, worldwide license to display your review, post content, username, and profile photo on our website and marketing materials. All reward claims must be made in good faith, and abuse of the rewards program may result in account suspension.
+                By submitting a review or consenting to the use of your social media content, you grant ChatFPL.ai a non-exclusive, worldwide license to display your review, post content, username, and profile photo on our website and marketing materials. All reward claims must be made in good faith, and abuse of the rewards program may result in account suspension.
               </p>
             </section>
 
@@ -102,7 +100,7 @@ export default function TermsPage() {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">8. Disclaimer of Warranties</h2>
               <p className="leading-relaxed text-muted-foreground">
-                ChatFPL AI.ai is provided "as is" without warranties of any kind. We do not guarantee the accuracy,
+                ChatFPL.ai is provided "as is" without warranties of any kind. We do not guarantee the accuracy,
                 completeness, or usefulness of any information provided by the AI. Fantasy Premier League decisions are
                 ultimately your responsibility.
               </p>
@@ -111,7 +109,7 @@ export default function TermsPage() {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">9. Limitation of Liability</h2>
               <p className="leading-relaxed text-muted-foreground">
-                ChatFPL AI.ai shall not be liable for any indirect, incidental, special, consequential, or punitive damages
+                ChatFPL.ai shall not be liable for any indirect, incidental, special, consequential, or punitive damages
                 resulting from your use of or inability to use the service.
               </p>
             </section>
