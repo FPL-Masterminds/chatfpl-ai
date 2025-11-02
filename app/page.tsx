@@ -68,7 +68,7 @@ export default function HomePage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        Who should I have as captain for my team in the next Gameweek?
+                        Give me some live statistics about Mohamed Salah this season.
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Button 
