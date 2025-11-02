@@ -258,7 +258,7 @@ export default function HomePage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        Is Jack Grealish a good pick with Manchester City&apos;s upcoming fixtures?
+                        Is Jack Grealish a good pick with Everton&apos;s upcoming fixtures?
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Button 
