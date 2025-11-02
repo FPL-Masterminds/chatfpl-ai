@@ -42,12 +42,12 @@ export default function HomePage() {
             {/* Card 1 - Live Data */}
             <Card className="border-0 bg-white shadow-md">
               <div className="p-6">
-                <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center rounded-lg overflow-hidden">
+                <div className="aspect-[4/3] relative flex items-center justify-center rounded-lg overflow-hidden">
                   <Image 
                     src="/Live_Data.png"
                     alt="Live Data"
                     fill
-                    className="object-contain p-4"
+                    className="object-contain"
                   />
                 </div>
               </div>
@@ -67,12 +67,12 @@ export default function HomePage() {
             {/* Card 2 - Expert Knowledge */}
             <Card className="border-0 bg-white shadow-md">
               <div className="p-6">
-                <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center rounded-lg overflow-hidden">
+                <div className="aspect-[4/3] relative flex items-center justify-center rounded-lg overflow-hidden">
                   <Image 
                     src="/Expert_Knowledge.png"
                     alt="Expert Knowledge"
                     fill
-                    className="object-contain p-4"
+                    className="object-contain"
                   />
                 </div>
               </div>
@@ -92,12 +92,12 @@ export default function HomePage() {
             {/* Card 3 - Natural Chat */}
             <Card className="border-0 bg-white shadow-md">
               <div className="p-6">
-                <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center rounded-lg overflow-hidden">
+                <div className="aspect-[4/3] relative flex items-center justify-center rounded-lg overflow-hidden">
                   <Image 
                     src="/Natural_Chat.png"
                     alt="Natural Chat"
                     fill
-                    className="object-contain p-4"
+                    className="object-contain"
                   />
                 </div>
               </div>
