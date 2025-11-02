@@ -60,7 +60,6 @@ export default function HomePage() {
                           alt="Mohamed Salah"
                           width={40}
                           height={51}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -90,7 +89,6 @@ export default function HomePage() {
                           alt="Erling Haaland"
                           width={40}
                           height={51}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -120,7 +118,6 @@ export default function HomePage() {
                           alt="Arsenal"
                           width={40}
                           height={40}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -151,14 +148,13 @@ export default function HomePage() {
                             alt="Mohamed Salah"
                             width={40}
                             height={51}
-                            className="border border-gray-200"
                           />
                           <Image 
                             src="/player_images/cole_palmer.png"
                             alt="Cole Palmer"
                             width={40}
                             height={51}
-                            className="border border-gray-200 -ml-2"
+                            className="-ml-2"
                           />
                         </div>
                       </td>
@@ -189,7 +185,6 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -219,7 +214,6 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -249,7 +243,6 @@ export default function HomePage() {
                           alt="Jack Grealish"
                           width={40}
                           height={51}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -279,7 +272,6 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -309,7 +301,6 @@ export default function HomePage() {
                           alt="Antoine Semenyo"
                           width={40}
                           height={51}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -339,7 +330,6 @@ export default function HomePage() {
                           alt="Danny Welbeck"
                           width={40}
                           height={51}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -369,7 +359,6 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -400,14 +389,13 @@ export default function HomePage() {
                             alt="Virgil van Dijk"
                             width={40}
                             height={51}
-                            className="border border-gray-200"
                           />
                           <Image 
                             src="/player_images/gabriel.png"
                             alt="Gabriel"
                             width={40}
                             height={51}
-                            className="border border-gray-200 -ml-2"
+                            className="-ml-2"
                           />
                         </div>
                       </td>
@@ -438,7 +426,6 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -468,7 +455,6 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -498,7 +484,6 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -529,21 +514,20 @@ export default function HomePage() {
                             alt="Erling Haaland"
                             width={40}
                             height={51}
-                            className="border border-gray-200"
                           />
                           <Image 
                             src="/player_images/joao_pedro.png"
                             alt="Joao Pedro"
                             width={40}
                             height={51}
-                            className="border border-gray-200 -ml-2"
+                            className="-ml-2"
                           />
                           <Image 
                             src="/player_images/alexander_isak.png"
                             alt="Alexander Isak"
                             width={40}
                             height={51}
-                            className="border border-gray-200 -ml-2"
+                            className="-ml-2"
                           />
                         </div>
                       </td>
@@ -574,7 +558,6 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
