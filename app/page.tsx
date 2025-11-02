@@ -63,7 +63,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Captain
                         </span>
                       </td>
@@ -92,7 +92,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Price
                         </span>
                       </td>
@@ -121,7 +121,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           DEF
                         </span>
                       </td>
@@ -159,7 +159,7 @@ export default function HomePage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Compare
                         </span>
                       </td>
@@ -188,7 +188,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Fixtures
                         </span>
                       </td>
@@ -217,7 +217,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Form
                         </span>
                       </td>
@@ -246,7 +246,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Form / Fixtures
                         </span>
                       </td>
@@ -275,7 +275,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Rules
                         </span>
                       </td>
@@ -304,7 +304,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Player Research
                         </span>
                       </td>
@@ -333,7 +333,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Points
                         </span>
                       </td>
@@ -362,7 +362,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Fixtures
                         </span>
                       </td>
@@ -400,7 +400,7 @@ export default function HomePage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Compare
                         </span>
                       </td>
@@ -429,7 +429,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Expected Points
                         </span>
                       </td>
@@ -458,7 +458,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Player Research
                         </span>
                       </td>
@@ -487,7 +487,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Chip Advice
                         </span>
                       </td>
@@ -532,7 +532,7 @@ export default function HomePage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Compare
                         </span>
                       </td>
@@ -561,7 +561,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
                           Transfers
                         </span>
                       </td>
