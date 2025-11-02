@@ -29,18 +29,30 @@ export default function PrivacyPage() {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">1. Information We Collect</h2>
               <p className="leading-relaxed text-muted-foreground">
-                We collect information you provide directly to us, including your name, email address, and payment
-                information when you create an account or subscribe to our service. We also collect information about
-                your usage of the service, including your chat messages and interaction patterns.
+                When you create an account, we collect basic information including your name, email address, and payment details (processed securely through Stripe). 
+              </p>
+              <p className="leading-relaxed text-muted-foreground">
+                To deliver ChatFPL AI's core functionality, we securely store your chat conversations. This is essential for maintaining conversation context, enforcing your plan's message limits (Free, Premium, or Elite), and ensuring the service works as intended. Like all major AI platforms (ChatGPT, Claude, etc.), storing conversations is a fundamental requirement of providing an intelligent chat experience.
+              </p>
+              <p className="leading-relaxed text-muted-foreground">
+                <strong>Your conversations are private and secure.</strong> We never sell your data to third parties, and access to your messages is strictly limited to essential system operations and resolving technical issues if they arise.
               </p>
             </section>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">2. How We Use Your Information</h2>
               <p className="leading-relaxed text-muted-foreground">
-                We use the information we collect to provide, maintain, and improve our service, process your
-                transactions, send you technical notices and support messages, and respond to your comments and
-                questions. We may also use your chat data to improve our AI models and service quality.
+                We use your information solely to operate and improve ChatFPL AI. Specifically:
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
+                <li><strong>Service delivery:</strong> Your email and password allow you to log in. Your stored conversations enable the AI to provide contextually relevant FPL advice across multiple messages.</li>
+                <li><strong>Usage tracking:</strong> We monitor your message count to enforce the limits of your chosen plan (5 messages for Free, 100 for Premium, 500 for Elite).</li>
+                <li><strong>Payment processing:</strong> We use Stripe to securely handle subscriptions and billing.</li>
+                <li><strong>Technical support:</strong> If you report an issue, we may review relevant conversations to diagnose and fix problems.</li>
+                <li><strong>Service improvement:</strong> We analyse aggregated, anonymised usage patterns to understand how users interact with ChatFPL AI and make the service better.</li>
+              </ul>
+              <p className="leading-relaxed text-muted-foreground">
+                <strong>We don't manually read your conversations</strong> unless you've specifically contacted us about a technical issue. Your chat data is stored securely and accessed only when absolutely necessary to deliver or maintain the service. We will never sell, rent, or share your personal data with third parties for marketing purposes.
               </p>
             </section>
 
