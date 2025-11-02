@@ -17,6 +17,602 @@ export default function HomePage() {
 
       <HeroSection />
 
+      {/* Example Questions Section */}
+      <section className="bg-white py-24 border-b border-gray-100">
+        <div className="container mx-auto max-w-7xl px-4">
+          <div className="mb-12 text-center">
+            <h2 
+              className="mb-4 text-balance text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '7px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>Ask </span>
+              <span style={{ color: '#00FFFF' }}>ChatFPL </span>
+              <span style={{ color: '#00FF86' }}>AI</span>
+            </h2>
+            <p className="mx-auto max-w-3xl text-lg" style={{ color: '#4B5563' }}>
+              Get instant, data-driven answers to any FPL question. Here are some examples you can try right now.
+            </p>
+          </div>
+
+          {/* Questions Table */}
+          <div className="mx-auto max-w-6xl">
+            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="border-b border-gray-200 bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Player</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Category</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Question</th>
+                      <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {/* Row 1 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/Salah_Hero.png"
+                          alt="Player"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          MID
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Who should I have as captain for my team in the next Gameweek?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 2 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/Haaland_Hero.png"
+                          alt="Player"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          FWD
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Is Erling Haaland worth his price this season?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 3 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/Gabriel_Hero.png"
+                          alt="Player"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          DEF
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Which Arsenal defender should I bring in for the next 5 gameweeks?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 4 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Compare
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Should I transfer out Mohamed Salah for Cole Palmer?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 5 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/Fernandes_Hero.png"
+                          alt="Player"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          MID
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Give me three differential midfielders under £7.5m with good fixtures
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 6 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Form
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Which players are in the best form right now?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 7 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/Grealish_Hero.png"
+                          alt="Player"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          MID
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Is Jack Grealish a good pick with Manchester City's upcoming fixtures?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 8 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Rules
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        What happens if I take a points hit this week?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 9 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/Semenyo_Hero.png"
+                          alt="Player"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          FWD
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Is Antoine Semenyo a good budget forward option?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 10 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Strategy
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Should I use my wildcard this gameweek or save it?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 11 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/Welbeck_Hero.png"
+                          alt="Player"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          FWD
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        How many points has Danny Welbeck scored in his last 5 games?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 12 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Fixtures
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Which teams have the best fixture run over the next 6 gameweeks?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 13 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Compare
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Compare Virgil van Dijk with Gabriel for the next 5 games
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 14 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Xp
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Who has the highest expected points in the next gameweek?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 15 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Budget
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Best defenders under £4.5m with high clean sheet potential
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 16 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Chip
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        When is the best time to play my Bench Boost chip?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 17 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Compare
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Haaland vs Nunez vs Isak - who's the best forward pick?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+
+                    {/* Row 18 */}
+                    <tr className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Image 
+                          src="/logo.png"
+                          alt="ChatFPL AI"
+                          width={40}
+                          height={40}
+                          className="rounded-full border border-gray-200"
+                        />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                          Ownership
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        Who are the most transferred in players this week?
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          asChild
+                        >
+                          <Link href="/demo">View Answer</Link>
+                        </Button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Main CTA */}
+            <div className="mt-12 text-center">
+              <Button 
+                size="lg" 
+                className="bg-[#2E0032] text-[#00FF87] hover:bg-[#2E0032]/90 font-semibold px-8 py-6 text-lg"
+                asChild
+              >
+                <Link href="/signup">Start your 5-message free trial today</Link>
+              </Button>
+              <p className="mt-4 text-sm text-gray-600">
+                No credit card required • Instant access • Cancel anytime
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section id="features" className="bg-white py-24">
         <div className="container mx-auto max-w-7xl px-4">
