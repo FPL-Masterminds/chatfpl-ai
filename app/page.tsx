@@ -585,11 +585,7 @@ export default function HomePage() {
 
             {/* Main CTA */}
             <div className="mt-12 text-center">
-              <Button 
-                size="sm" 
-                className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 font-semibold"
-                asChild
-              >
+              <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
                 <Link href="/signup">Start your 5-message free trial today</Link>
               </Button>
               <p className="mt-4 text-sm text-gray-600">
