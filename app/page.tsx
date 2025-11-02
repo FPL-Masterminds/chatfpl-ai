@@ -586,8 +586,8 @@ export default function HomePage() {
             {/* Main CTA */}
             <div className="mt-12 text-center">
               <Button 
-                size="lg" 
-                className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 font-semibold px-8 py-6 text-base"
+                size="sm" 
+                className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 font-semibold"
                 asChild
               >
                 <Link href="/signup">Start your 5-message free trial today</Link>
