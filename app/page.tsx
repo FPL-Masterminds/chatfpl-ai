@@ -56,11 +56,11 @@ export default function HomePage() {
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
-                          src="/Salah_Hero.png"
-                          alt="Player"
+                          src="/player_images/mohamed_salah.png"
+                          alt="Mohamed Salah"
                           width={40}
-                          height={40}
-                          className="rounded-full border border-gray-200"
+                          height={51}
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -86,11 +86,11 @@ export default function HomePage() {
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
-                          src="/Haaland_Hero.png"
-                          alt="Player"
+                          src="/player_images/erling_haaland.png"
+                          alt="Erling Haaland"
                           width={40}
-                          height={40}
-                          className="rounded-full border border-gray-200"
+                          height={51}
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -116,11 +116,11 @@ export default function HomePage() {
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
-                          src="/Gabriel_Hero.png"
-                          alt="Player"
+                          src="/player_images/arsenal_emblem.png"
+                          alt="Arsenal"
                           width={40}
                           height={40}
-                          className="rounded-full border border-gray-200"
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -145,13 +145,22 @@ export default function HomePage() {
                     {/* Row 4 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Image 
-                          src="/logo.png"
-                          alt="ChatFPL AI"
-                          width={40}
-                          height={40}
-                          className="rounded-full border border-gray-200"
-                        />
+                        <div className="flex items-center">
+                          <Image 
+                            src="/player_images/mohamed_salah.png"
+                            alt="Mohamed Salah"
+                            width={40}
+                            height={51}
+                            className="border border-gray-200"
+                          />
+                          <Image 
+                            src="/player_images/cole_palmer.png"
+                            alt="Cole Palmer"
+                            width={40}
+                            height={51}
+                            className="border border-gray-200 -ml-2"
+                          />
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
@@ -176,11 +185,11 @@ export default function HomePage() {
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
-                          src="/Fernandes_Hero.png"
-                          alt="Player"
+                          src="/logo.png"
+                          alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="rounded-full border border-gray-200"
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -210,7 +219,7 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="rounded-full border border-gray-200"
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -236,11 +245,11 @@ export default function HomePage() {
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
-                          src="/Grealish_Hero.png"
-                          alt="Player"
+                          src="/player_images/jack_grealish.png"
+                          alt="Jack Grealish"
                           width={40}
-                          height={40}
-                          className="rounded-full border border-gray-200"
+                          height={51}
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -249,7 +258,7 @@ export default function HomePage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        Is Jack Grealish a good pick with Manchester City's upcoming fixtures?
+                        Is Jack Grealish a good pick with Manchester City&apos;s upcoming fixtures?
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Button 
@@ -270,7 +279,7 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="rounded-full border border-gray-200"
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -296,20 +305,20 @@ export default function HomePage() {
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
-                          src="/Semenyo_Hero.png"
-                          alt="Player"
+                          src="/player_images/antoine_semenyo.png"
+                          alt="Antoine Semenyo"
                           width={40}
-                          height={40}
-                          className="rounded-full border border-gray-200"
+                          height={51}
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          FWD
+                          MID
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        Is Antoine Semenyo a good budget forward option?
+                        Is Antoine Semenyo a good budget midfield option?
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Button 
@@ -326,41 +335,11 @@ export default function HomePage() {
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
-                          src="/logo.png"
-                          alt="ChatFPL AI"
+                          src="/player_images/danny_welbeck.png"
+                          alt="Danny Welbeck"
                           width={40}
-                          height={40}
-                          className="rounded-full border border-gray-200"
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Strategy
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        Should I use my wildcard this gameweek or save it?
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Button 
-                          size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
-                          asChild
-                        >
-                          <Link href="/demo">View Answer</Link>
-                        </Button>
-                      </td>
-                    </tr>
-
-                    {/* Row 11 */}
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Image 
-                          src="/Welbeck_Hero.png"
-                          alt="Player"
-                          width={40}
-                          height={40}
-                          className="rounded-full border border-gray-200"
+                          height={51}
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -382,7 +361,7 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 12 */}
+                    {/* Row 11 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
@@ -390,7 +369,7 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="rounded-full border border-gray-200"
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -412,16 +391,25 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 13 */}
+                    {/* Row 12 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Image 
-                          src="/logo.png"
-                          alt="ChatFPL AI"
-                          width={40}
-                          height={40}
-                          className="rounded-full border border-gray-200"
-                        />
+                        <div className="flex items-center">
+                          <Image 
+                            src="/player_images/virgil.png"
+                            alt="Virgil van Dijk"
+                            width={40}
+                            height={51}
+                            className="border border-gray-200"
+                          />
+                          <Image 
+                            src="/player_images/gabriel.png"
+                            alt="Gabriel"
+                            width={40}
+                            height={51}
+                            className="border border-gray-200 -ml-2"
+                          />
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
@@ -442,7 +430,7 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 14 */}
+                    {/* Row 13 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
@@ -450,7 +438,7 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="rounded-full border border-gray-200"
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -472,7 +460,7 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 15 */}
+                    {/* Row 14 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
@@ -480,7 +468,7 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="rounded-full border border-gray-200"
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -502,7 +490,7 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 16 */}
+                    {/* Row 15 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
@@ -510,7 +498,7 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="rounded-full border border-gray-200"
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -532,16 +520,32 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 17 */}
+                    {/* Row 16 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Image 
-                          src="/logo.png"
-                          alt="ChatFPL AI"
-                          width={40}
-                          height={40}
-                          className="rounded-full border border-gray-200"
-                        />
+                        <div className="flex items-center">
+                          <Image 
+                            src="/player_images/erling_haaland.png"
+                            alt="Erling Haaland"
+                            width={40}
+                            height={51}
+                            className="border border-gray-200"
+                          />
+                          <Image 
+                            src="/player_images/joao_pedro.png"
+                            alt="Joao Pedro"
+                            width={40}
+                            height={51}
+                            className="border border-gray-200 -ml-2"
+                          />
+                          <Image 
+                            src="/player_images/alexander_isak.png"
+                            alt="Alexander Isak"
+                            width={40}
+                            height={51}
+                            className="border border-gray-200 -ml-2"
+                          />
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
@@ -549,7 +553,7 @@ export default function HomePage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        Haaland vs Nunez vs Isak - who's the best forward pick?
+                        Haaland vs Joao Pedro vs Isak - who&apos;s the best forward pick?
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Button 
@@ -562,7 +566,7 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 18 */}
+                    {/* Row 17 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
@@ -570,7 +574,7 @@ export default function HomePage() {
                           alt="ChatFPL AI"
                           width={40}
                           height={40}
-                          className="rounded-full border border-gray-200"
+                          className="border border-gray-200"
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -579,7 +583,7 @@ export default function HomePage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        Who are the most transferred in players this week?
+                        Who are the Top 10 most transferred in players this week?
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Button 
