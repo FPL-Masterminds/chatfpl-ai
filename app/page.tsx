@@ -45,7 +45,7 @@ export default function HomePage() {
                 <table className="w-full">
                   <thead className="border-b border-gray-200 bg-gray-50">
                     <tr>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Player</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Subject</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Category</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Question</th>
                       <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Action</th>
@@ -63,8 +63,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          MID
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Captain
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -73,7 +73,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -92,8 +92,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          FWD
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Price
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -102,7 +102,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -121,7 +121,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
                           DEF
                         </span>
                       </td>
@@ -131,7 +131,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -159,7 +159,7 @@ export default function HomePage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
                           Compare
                         </span>
                       </td>
@@ -169,7 +169,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -188,8 +188,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          MID
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Fixtures
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -198,7 +198,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -217,7 +217,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
                           Form
                         </span>
                       </td>
@@ -227,7 +227,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -246,8 +246,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          MID
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Form / Fixtures
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -256,7 +256,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -275,7 +275,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
                           Rules
                         </span>
                       </td>
@@ -285,7 +285,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -304,8 +304,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          MID
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Player Research
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -314,7 +314,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -333,8 +333,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          FWD
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Points
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -343,7 +343,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -362,7 +362,7 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
                           Fixtures
                         </span>
                       </td>
@@ -372,7 +372,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -400,7 +400,7 @@ export default function HomePage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
                           Compare
                         </span>
                       </td>
@@ -410,7 +410,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -429,8 +429,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Xp
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Expected Points
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -439,7 +439,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -458,8 +458,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Budget
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Player Research
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -468,7 +468,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -487,8 +487,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Chip
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Chip Advice
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -497,7 +497,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -532,7 +532,7 @@ export default function HomePage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
                           Compare
                         </span>
                       </td>
@@ -542,7 +542,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -561,8 +561,8 @@ export default function HomePage() {
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Ownership
+                        <span className="inline-flex items-center justify-center rounded-md px-3 py-1 text-xs font-medium text-white w-32" style={{ backgroundColor: '#2E0032' }}>
+                          Transfers
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
@@ -571,7 +571,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
+                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
