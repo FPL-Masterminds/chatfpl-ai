@@ -48,7 +48,7 @@ export default function TermsPage() {
               <h2 className="text-2xl font-semibold text-foreground">3. User Accounts</h2>
               <p className="leading-relaxed text-muted-foreground">
                 You are responsible for maintaining the confidentiality of your account credentials and for all
-                activities that occur under your account. You agree to notify us immediately of any unauthorized use of
+                activities that occur under your account. You agree to notify us immediately of any unauthorised use of
                 your account.
               </p>
             </section>
@@ -84,7 +84,7 @@ export default function TermsPage() {
                 We reserve the right to deny or revoke reward messages at our sole discretion, including but not limited to cases where we determine that a review or social post contains negative, defamatory, or unhelpful content about our service. Rewards are intended to encourage genuine, positive engagement with ChatFPL.ai.
               </p>
               <p className="leading-relaxed text-muted-foreground">
-                By submitting a review or consenting to the use of your social media content, you grant ChatFPL.ai a non-exclusive, worldwide license to display your review, post content, username, and profile photo on our website and marketing materials. All reward claims must be made in good faith, and abuse of the rewards program may result in account suspension.
+                By submitting a review or consenting to the use of your social media content, you grant ChatFPL.ai a non-exclusive, worldwide licence to display your review, post content, username, and profile photo on our website and marketing materials. All reward claims must be made in good faith, and abuse of the rewards program may result in account suspension.
               </p>
             </section>
 
@@ -92,7 +92,7 @@ export default function TermsPage() {
               <h2 className="text-2xl font-semibold text-foreground">7. Acceptable Use</h2>
               <p className="leading-relaxed text-muted-foreground">
                 You agree not to use the service for any unlawful purpose or in any way that could damage, disable, or
-                impair the service. You may not attempt to gain unauthorized access to any part of the service or its
+                impair the service. You may not attempt to gain unauthorised access to any part of the service or its
                 related systems.
               </p>
             </section>
