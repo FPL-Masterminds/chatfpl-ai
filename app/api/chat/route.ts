@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
 
-    // Get user with usage tracking
+    // Get user with usage tracking and subscription
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       include: {
@@ -30,6 +30,10 @@ export async function POST(request: Request) {
           },
           take: 1,
         },
+        subscriptions: {
+          take: 1,
+          orderBy: { id: 'desc' }
+        },
       },
     });
 
@@ -39,11 +43,37 @@ export async function POST(request: Request) {
 
     // Reset bonus messages if past renewal date (Free tier only)
     const updatedUsage = await resetFreeMessagesIfExpired(user.id);
-    const usage = updatedUsage || user.usageTracking[0];
+    let usage = updatedUsage || user.usageTracking[0];
+    
+    // If no usage tracking exists for current month, create it
+    if (!usage) {
+      const subscription = user.subscriptions[0];
+      const plan = subscription?.plan.toLowerCase() || 'free';
+      
+      // Determine message limit based on plan
+      let messagesLimit = 5; // Default Free tier
+      if (plan === 'premium') messagesLimit = 100;
+      else if (plan === 'elite') messagesLimit = 500;
+      else if (plan === 'vip') messagesLimit = 999999;
+      
+      const now = new Date();
+      usage = await prisma.usageTracking.create({
+        data: {
+          user_id: user.id,
+          month: now.getMonth() + 1,
+          year: now.getFullYear(),
+          messages_used: 0,
+          messages_limit: messagesLimit,
+        },
+      });
+      
+      console.log(`Created missing usage tracking for user ${user.id}: plan=${plan}, limit=${messagesLimit}`);
+    }
+    
     const userFirstName = user.name?.split(' ')[0] || "there";
 
     // Check message limit
-    if (usage && usage.messages_used >= usage.messages_limit) {
+    if (usage.messages_used >= usage.messages_limit) {
       return NextResponse.json(
         { error: "Message limit reached. Please upgrade your plan." },
         { status: 403 }
