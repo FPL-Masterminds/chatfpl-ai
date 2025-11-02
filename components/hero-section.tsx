@@ -9,7 +9,7 @@ const HERO_IMAGES = [
   { src: "/Haaland_Hero.png", alt: "Erling Haaland" },
   { src: "/Salah_Hero.png", alt: "Mohamed Salah" },
   { src: "/Fernandes_Hero.png", alt: "Bruno Fernandes" },
-  { src: "/Pickford_Hero.png", alt: "Jordan Pickford" },
+  { src: "/Grealish_Hero.png", alt: "Jack Grealish" },
   { src: "/Gabriel_Hero.png", alt: "Gabriel" },
   { src: "/Welbeck_Hero.png", alt: "Danny Welbeck" },
   { src: "/Semenyo_Hero.png", alt: "Antoine Semenyo" },
