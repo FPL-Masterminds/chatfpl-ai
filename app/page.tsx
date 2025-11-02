@@ -40,11 +40,13 @@ export default function HomePage() {
 
           <div className="grid gap-8 md:grid-cols-3">
             {/* Card 1 - Live Data */}
-            <Card className="overflow-hidden border-0 bg-gray-100 shadow-md">
-              <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center">
-                <div className="text-gray-400 text-6xl">📊</div>
+            <Card className="border-0 bg-white shadow-md">
+              <div className="p-6">
+                <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center rounded-lg">
+                  <div className="text-gray-400 text-6xl">📊</div>
+                </div>
               </div>
-              <div className="p-6 bg-white text-center">
+              <div className="px-6 pb-6 text-center">
                 <h3 className="mb-2 text-xl font-bold text-foreground">
                   Live Data
                 </h3>
@@ -58,11 +60,13 @@ export default function HomePage() {
             </Card>
 
             {/* Card 2 - Expert Knowledge */}
-            <Card className="overflow-hidden border-0 bg-gray-100 shadow-md">
-              <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center">
-                <div className="text-gray-400 text-6xl">🧠</div>
+            <Card className="border-0 bg-white shadow-md">
+              <div className="p-6">
+                <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center rounded-lg">
+                  <div className="text-gray-400 text-6xl">🧠</div>
+                </div>
               </div>
-              <div className="p-6 bg-white text-center">
+              <div className="px-6 pb-6 text-center">
                 <h3 className="mb-2 text-xl font-bold text-foreground">
                   Expert Knowledge
                 </h3>
@@ -76,11 +80,13 @@ export default function HomePage() {
             </Card>
 
             {/* Card 3 - Natural Chat */}
-            <Card className="overflow-hidden border-0 bg-gray-100 shadow-md">
-              <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center">
-                <div className="text-gray-400 text-6xl">💬</div>
+            <Card className="border-0 bg-white shadow-md">
+              <div className="p-6">
+                <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center rounded-lg">
+                  <div className="text-gray-400 text-6xl">💬</div>
+                </div>
               </div>
-              <div className="p-6 bg-white text-center">
+              <div className="px-6 pb-6 text-center">
                 <h3 className="mb-2 text-xl font-bold text-foreground">
                   Natural Chat
                 </h3>
