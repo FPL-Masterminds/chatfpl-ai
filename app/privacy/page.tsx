@@ -52,7 +52,7 @@ export default function PrivacyPage() {
                 <li><strong>Service improvement:</strong> We analyse aggregated, anonymised usage patterns to understand how users interact with ChatFPL AI and make the service better.</li>
               </ul>
               <p className="leading-relaxed text-muted-foreground">
-                <strong>We don't manually read your conversations</strong> unless you've specifically contacted us about a technical issue. Your chat data is stored securely and accessed only when absolutely necessary to deliver or maintain the service. We will never sell, rent, or share your personal data with third parties for marketing purposes.
+                We will never sell, rent, or share your personal data with third parties for marketing purposes.
               </p>
             </section>
 
