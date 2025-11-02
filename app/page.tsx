@@ -73,7 +73,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -102,7 +102,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -131,7 +131,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -169,7 +169,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -198,7 +198,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -227,7 +227,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -256,7 +256,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -285,7 +285,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -314,7 +314,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -343,7 +343,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -372,7 +372,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -410,7 +410,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -439,7 +439,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -468,7 +468,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -497,7 +497,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -542,7 +542,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -571,7 +571,7 @@ export default function HomePage() {
                       <td className="px-6 py-4 text-center">
                         <Button 
                           size="sm" 
-                          className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 text-xs"
+                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
                           <Link href="/demo">View Answer</Link>
@@ -587,7 +587,7 @@ export default function HomePage() {
             <div className="mt-12 text-center">
               <Button 
                 size="lg" 
-                className="bg-[#2E0032] text-[#00FF87] hover:bg-[#2E0032]/90 font-semibold px-8 py-6 text-lg"
+                className="bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 font-semibold px-8 py-6 text-base"
                 asChild
               >
                 <Link href="/signup">Start your 5-message free trial today</Link>
