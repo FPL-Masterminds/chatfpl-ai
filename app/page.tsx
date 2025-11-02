@@ -39,54 +39,30 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            {/* Card 1 - Live Data feature card */}
-            <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
-              <div className="aspect-[4/3] relative">
-                <Image 
-                  src="/Live_Data.png" 
-                  alt="Live Data" 
-                  fill
-                  className="object-cover"
-                />
+            {/* Card 1 - Live Data */}
+            <Card className="overflow-hidden border-0 bg-gray-100 shadow-md">
+              <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center">
+                <div className="text-gray-400 text-6xl">📊</div>
               </div>
-              <div className="p-6 text-center">
+              <div className="p-6 bg-white text-center">
                 <h3 className="mb-2 text-xl font-bold text-foreground">
                   Live Data
                 </h3>
                 <p className="mb-3 text-sm font-semibold" style={{ color: '#4B5563' }}>
-                  Real-time FPL statistics
+                  Real-time FPL Q&A
                 </p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Connects to the official FPL API for real-time stats, fixtures, and player performance data.
                 </p>
               </div>
-              <div className="grid grid-cols-3 text-center" style={{ backgroundColor: '#00FF86', color: '#2E0032' }}>
-                <div className="py-3">
-                  <div className="text-lg font-bold">700+</div>
-                  <div className="text-xs uppercase">Players</div>
-                </div>
-                <div className="py-3 border-l border-[#2E0032]/20">
-                  <div className="text-lg font-bold">38</div>
-                  <div className="text-xs uppercase">Gameweeks</div>
-                </div>
-                <div className="py-3 border-l border-[#2E0032]/20">
-                  <div className="text-lg font-bold">Live</div>
-                  <div className="text-xs uppercase">Updates</div>
-                </div>
-              </div>
             </Card>
 
             {/* Card 2 - Expert Knowledge */}
-            <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
-              <div className="aspect-[4/3] relative">
-                <Image 
-                  src="/Expert_Knowledge.png" 
-                  alt="Expert Knowledge" 
-                  fill
-                  className="object-cover"
-                />
+            <Card className="overflow-hidden border-0 bg-gray-100 shadow-md">
+              <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center">
+                <div className="text-gray-400 text-6xl">🧠</div>
               </div>
-              <div className="p-6 text-center">
+              <div className="p-6 bg-white text-center">
                 <h3 className="mb-2 text-xl font-bold text-foreground">
                   Expert Knowledge
                 </h3>
@@ -97,33 +73,14 @@ export default function HomePage() {
                   Enhanced with FPL rules, strategy guides, and expert insights to give you the best advice.
                 </p>
               </div>
-              <div className="grid grid-cols-3 text-center text-white" style={{ backgroundColor: '#2E0032' }}>
-                <div className="py-3">
-                  <div className="text-lg font-bold">AI</div>
-                  <div className="text-xs uppercase">Powered</div>
-                </div>
-                <div className="py-3 border-l border-white/20">
-                  <div className="text-lg font-bold">24/7</div>
-                  <div className="text-xs uppercase">Available</div>
-                </div>
-                <div className="py-3 border-l border-white/20">
-                  <div className="text-lg font-bold">Smart</div>
-                  <div className="text-xs uppercase">Advice</div>
-                </div>
-              </div>
             </Card>
 
-            {/* Card 3 - Cyan */}
-            <Card className="overflow-hidden border-0 bg-white shadow-md transition-shadow hover:shadow-lg">
-              <div className="aspect-[4/3] relative">
-                <Image 
-                  src="/Natural_Chat.png" 
-                  alt="Natural Chat" 
-                  fill
-                  className="object-cover"
-                />
+            {/* Card 3 - Natural Chat */}
+            <Card className="overflow-hidden border-0 bg-gray-100 shadow-md">
+              <div className="aspect-[4/3] relative bg-gray-200 flex items-center justify-center">
+                <div className="text-gray-400 text-6xl">💬</div>
               </div>
-              <div className="p-6 text-center">
+              <div className="p-6 bg-white text-center">
                 <h3 className="mb-2 text-xl font-bold text-foreground">
                   Natural Chat
                 </h3>
@@ -133,20 +90,6 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Ask anything from "Who to captain?" to "Compare Salah vs Son" in plain English.
                 </p>
-              </div>
-              <div className="grid grid-cols-3 text-center text-foreground" style={{ backgroundColor: '#00FFFF' }}>
-                <div className="py-3">
-                  <div className="text-lg font-bold">Fast</div>
-                  <div className="text-xs uppercase">Response</div>
-                </div>
-                <div className="py-3 border-l border-black/10">
-                  <div className="text-lg font-bold">Easy</div>
-                  <div className="text-xs uppercase">To Use</div>
-                </div>
-                <div className="py-3 border-l border-black/10">
-                  <div className="text-lg font-bold">Clear</div>
-                  <div className="text-xs uppercase">Answers</div>
-                </div>
               </div>
             </Card>
           </div>
