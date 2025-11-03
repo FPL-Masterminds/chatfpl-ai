@@ -119,7 +119,7 @@ export function TestimonialsSection() {
               <span style={{ color: '#00FFFF' }}>users </span>
               <span style={{ color: '#00FF86' }}>say</span>
             </h2>
-            <p className="mx-auto max-w-2xl text-pretty text-lg" style={{ color: '#4B5563' }}>
+            <p className="mx-auto max-w-2xl text-pretty text-lg font-semibold" style={{ color: '#4B5563' }}>
               Real feedback from FPL managers using ChatFPL AI
             </p>
           </div>
@@ -147,7 +147,7 @@ export function TestimonialsSection() {
             <span style={{ color: '#00FFFF' }}>users </span>
             <span style={{ color: '#00FF86' }}>say</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-pretty text-lg" style={{ color: '#4B5563' }}>
+          <p className="mx-auto max-w-2xl text-pretty text-lg font-semibold" style={{ color: '#4B5563' }}>
             Real feedback from FPL managers using ChatFPL AI
           </p>
         </div>

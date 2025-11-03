@@ -33,7 +33,7 @@ export default function HomePage() {
               <span style={{ color: '#00FFFF' }}>FPL </span>
               <span style={{ color: '#00FF86' }}>AI</span>
             </h2>
-            <p className="mx-auto max-w-3xl text-lg" style={{ color: '#4B5563' }}>
+            <p className="mx-auto max-w-3xl text-lg font-semibold" style={{ color: '#4B5563' }}>
               Get instant, data-driven answers to any FPL question. Here are some examples you can try right now.
             </p>
           </div>
@@ -612,7 +612,7 @@ export default function HomePage() {
               <span style={{ color: '#00FFFF' }}>FPL </span>
               <span style={{ color: '#00FF86' }}>success</span>
             </h2>
-            <p className="mx-auto max-w-2xl text-pretty text-lg" style={{ color: '#4B5563' }}>
+            <p className="mx-auto max-w-2xl text-pretty text-lg font-semibold" style={{ color: '#4B5563' }}>
               Powered by real-time data and AI intelligence
             </p>
           </div>
@@ -715,7 +715,7 @@ export default function HomePage() {
               <span style={{ color: '#00FFFF' }}>transparent </span>
               <span style={{ color: '#00FF86' }}>pricing</span>
             </h2>
-            <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
+            <p className="mx-auto max-w-2xl text-pretty text-lg font-semibold" style={{ color: '#4B5563' }}>
               Choose the plan that fits your FPL ambitions
             </p>
           </div>
@@ -871,7 +871,7 @@ export default function HomePage() {
               <span style={{ color: '#00FFFF' }}>asked </span>
               <span style={{ color: '#00FF86' }}>questions</span>
             </h2>
-            <p className="mx-auto max-w-2xl text-pretty text-lg text-muted-foreground">
+            <p className="mx-auto max-w-2xl text-pretty text-lg font-semibold" style={{ color: '#4B5563' }}>
               Everything you need to know about ChatFPL AI
             </p>
           </div>
