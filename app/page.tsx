@@ -29,8 +29,8 @@ export default function HomePage() {
                 paintOrder: 'stroke fill'
               }}
             >
-              <span style={{ color: 'white' }}>Ask </span>
-              <span style={{ color: '#00FFFF' }}>ChatFPL </span>
+              <span style={{ color: 'white' }}>Ask Chat</span>
+              <span style={{ color: '#00FFFF' }}>FPL </span>
               <span style={{ color: '#00FF86' }}>AI</span>
             </h2>
             <p className="mx-auto max-w-3xl text-lg" style={{ color: '#4B5563' }}>
