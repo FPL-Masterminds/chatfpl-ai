@@ -531,7 +531,7 @@ export default function AdminPage() {
                         <span className="text-2xl">𝕏</span>
                         <p className="font-semibold text-gray-900">Share on X</p>
                       </div>
-                      <Badge className="bg-[#00FF87] text-gray-900 font-semibold">+10 msgs</Badge>
+                      <Badge className="bg-[#00FF87] text-gray-900 font-semibold">+5 msgs</Badge>
                     </div>
                     <p className="text-sm text-gray-600">Post about ChatFPL AI on X (Twitter)</p>
                   </div>
@@ -545,7 +545,7 @@ export default function AdminPage() {
                         <span className="text-2xl">📘</span>
                         <p className="font-semibold text-gray-900">Share on Facebook</p>
                       </div>
-                      <Badge className="bg-[#00FF87] text-gray-900 font-semibold">+10 msgs</Badge>
+                      <Badge className="bg-[#00FF87] text-gray-900 font-semibold">+5 msgs</Badge>
                     </div>
                     <p className="text-sm text-gray-600">Share ChatFPL AI with your friends</p>
                   </div>
@@ -559,7 +559,7 @@ export default function AdminPage() {
                         <span className="text-2xl">🔴</span>
                         <p className="font-semibold text-gray-900">Share on Reddit</p>
                       </div>
-                      <Badge className="bg-[#00FF87] text-gray-900 font-semibold">+10 msgs</Badge>
+                      <Badge className="bg-[#00FF87] text-gray-900 font-semibold">+5 msgs</Badge>
                     </div>
                     <p className="text-sm text-gray-600">Post to FPL communities</p>
                   </div>
@@ -568,12 +568,9 @@ export default function AdminPage() {
                 {/* Leave a Review */}
                 <Link href="/earn-messages" className="block">
                   <div className="group rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-[#2E0032] hover:shadow-md">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">⭐</span>
-                        <p className="font-semibold text-gray-900">Leave a Review</p>
-                      </div>
-                      <Badge className="bg-[#2E0032] text-[#00FF87] font-semibold">+20 msgs</Badge>
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className="text-2xl">⭐</span>
+                      <p className="font-semibold text-gray-900">Leave a Review</p>
                     </div>
                     <p className="text-sm text-gray-600">Write a review and get featured</p>
                   </div>
@@ -582,7 +579,7 @@ export default function AdminPage() {
 
               <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3">
                 <p className="text-center text-sm text-blue-900">
-                  💡 <span className="font-semibold">Pro Tip:</span> Complete all tasks to earn up to 50 bonus messages!
+                  💡 <span className="font-semibold">Pro Tip:</span> Complete all social sharing tasks to earn bonus messages!
                 </p>
               </div>
             </CardContent>
