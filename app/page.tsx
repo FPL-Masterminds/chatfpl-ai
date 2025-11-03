@@ -64,7 +64,7 @@ export default function HomePage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Captain
+                          Player Research
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
