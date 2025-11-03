@@ -379,7 +379,14 @@ export default function EarnMessagesPage() {
               <Card className="border-gray-200 bg-white shadow-sm">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <Star className="h-8 w-8 text-[#FFD700]" fill="#FFD700" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      className="h-8 w-8"
+                      fill="#D4AF37"
+                    >
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
                     <Badge className="bg-[#2E0032] text-[#00FF87] font-semibold">+5 or +10 messages</Badge>
                   </div>
                   <CardTitle className="text-gray-900">Submit a Review</CardTitle>
@@ -389,7 +396,7 @@ export default function EarnMessagesPage() {
                 </CardHeader>
                 <CardContent>
                   <Button
-                    className="w-full bg-[#FFD700] text-gray-900 hover:bg-[#FFD700]/90 font-semibold"
+                    className="w-full bg-[#D4AF37] text-gray-900 hover:bg-[#D4AF37]/90 font-semibold"
                     onClick={() => handleClaimReward("review")}
                     disabled={!userData?.availableRewards.review}
                   >
@@ -518,7 +525,7 @@ export default function EarnMessagesPage() {
                     <Button
                       type="button"
                       variant={reviewType === "written" ? "default" : "outline"}
-                      className={reviewType === "written" ? "flex-1 bg-[#FFD700] text-[#2E0032] hover:bg-[#FFD700]/90 font-semibold" : "flex-1 bg-white border-gray-300 text-gray-900 hover:bg-gray-50 font-semibold"}
+                      className={reviewType === "written" ? "flex-1 bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 font-semibold" : "flex-1 bg-white border-gray-300 text-gray-900 hover:bg-gray-50 font-semibold"}
                       onClick={() => setReviewType("written")}
                     >
                       Write Review (5 msgs)

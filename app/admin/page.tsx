@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -530,7 +531,13 @@ export default function AdminPage() {
                   <div className="group rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-[#00FF87] hover:shadow-md">
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl">𝕏</span>
+                        <Image 
+                          src="/X.png"
+                          alt="X (Twitter)"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8"
+                        />
                         <p className="font-semibold text-gray-900">Share on X</p>
                       </div>
                       <Badge className="bg-[#00FF87] text-gray-900 font-semibold">+5 msgs</Badge>
@@ -544,7 +551,13 @@ export default function AdminPage() {
                   <div className="group rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-[#00FF87] hover:shadow-md">
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl">📘</span>
+                        <Image 
+                          src="/Facebook.png"
+                          alt="Facebook"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8"
+                        />
                         <p className="font-semibold text-gray-900">Share on Facebook</p>
                       </div>
                       <Badge className="bg-[#00FF87] text-gray-900 font-semibold">+5 msgs</Badge>
@@ -558,7 +571,13 @@ export default function AdminPage() {
                   <div className="group rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-[#00FF87] hover:shadow-md">
                     <div className="mb-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl">🔴</span>
+                        <Image 
+                          src="/Reddit.png"
+                          alt="Reddit"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8"
+                        />
                         <p className="font-semibold text-gray-900">Share on Reddit</p>
                       </div>
                       <Badge className="bg-[#00FF87] text-gray-900 font-semibold">+5 msgs</Badge>
@@ -571,7 +590,14 @@ export default function AdminPage() {
                 <Link href="/earn-messages" className="block">
                   <div className="group rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-[#2E0032] hover:shadow-md">
                     <div className="mb-2 flex items-center gap-2">
-                      <span className="text-2xl">⭐</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        className="h-8 w-8"
+                        fill="#D4AF37"
+                      >
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
                       <p className="font-semibold text-gray-900">Leave a Review</p>
                     </div>
                     <p className="text-sm text-gray-600">Write a review and get featured</p>
