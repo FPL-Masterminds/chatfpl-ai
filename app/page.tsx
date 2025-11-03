@@ -894,8 +894,7 @@ export default function HomePage() {
                   Can I try it for free?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
-                  Yes! Our Free plan gives you 5 messages per day to try out ChatFPL AI. No credit card required. Upgrade
-                  anytime to get more messages and advanced features.
+                  Yes! Our Free plan includes 5 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages.
                 </AccordionContent>
               </AccordionItem>
 
