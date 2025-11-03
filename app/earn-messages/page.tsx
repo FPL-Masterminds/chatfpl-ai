@@ -638,7 +638,7 @@ export default function EarnMessagesPage() {
                       </div>
 
                       {/* Rating Display */}
-                      <div className="rounded-lg bg-[#1E1E1E] p-3">
+                      <div className="rounded-lg bg-gray-50 border border-gray-200 p-3">
                         <p className="text-xs text-gray-600 mb-1">Rating (auto-set for X posts)</p>
                         <div className="flex gap-1">
                           {[1, 2, 3, 4, 5].map((star) => (
@@ -648,7 +648,7 @@ export default function EarnMessagesPage() {
                       </div>
 
                       {/* Consent Checkbox */}
-                      <div className="flex items-start gap-2 rounded-lg bg-[#1E1E1E] p-3">
+                      <div className="flex items-start gap-2 rounded-lg bg-gray-50 border border-gray-200 p-3">
                         <input
                           type="checkbox"
                           id="x-consent"
