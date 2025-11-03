@@ -502,10 +502,12 @@ export default function AdminPage() {
                 {data.subscription.plan.toLowerCase() === "free" && data.usage.messages_limit > 5 && (
                   <div className="rounded-lg border border-yellow-400 bg-yellow-50 p-3">
                     <p className="text-center text-xs text-yellow-900">
-                      ⚠️ <span className="font-semibold">Bonus messages expire on {formatDate(data.subscription.current_period_end)}</span>
+                      ⚠️ <span className="font-semibold">
+                        Bonus messages expire on {data.subscription.current_period_end ? formatDate(data.subscription.current_period_end) : "30 days from first bonus"}
+                      </span>
                     </p>
                     <p className="mt-1 text-center text-xs text-yellow-800">
-                      Use them or lose them! Upgrade to Premium to keep your messages.
+                      Use them or lose them! Your 5 trial messages never reset.
                     </p>
                   </div>
                 )}

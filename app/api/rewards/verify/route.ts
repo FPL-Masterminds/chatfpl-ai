@@ -122,6 +122,30 @@ export async function POST(request: Request) {
         });
       }
 
+      // Set bonus expiration date for Free users (30 days from now)
+      // Check if user is on Free plan
+      const subscription = await prisma.subscription.findFirst({
+        where: { user_id: claim.user.id },
+        orderBy: { id: 'desc' }
+      });
+
+      if (subscription && subscription.plan.toLowerCase() === 'free') {
+        // Check if they already have a bonus expiration date set
+        if (!subscription.current_period_end) {
+          // First bonus message - set expiration to 30 days from now
+          const expirationDate = new Date();
+          expirationDate.setDate(expirationDate.getDate() + 30);
+          
+          await prisma.subscription.update({
+            where: { id: subscription.id },
+            data: {
+              current_period_start: now,
+              current_period_end: expirationDate
+            }
+          });
+        }
+      }
+
       return NextResponse.json({
         message: `Reward approved! ${claim.reward_messages} messages added to ${claim.user.name || claim.user.email}'s account.`,
         claim: {

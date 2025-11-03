@@ -702,7 +702,7 @@ export default function EarnMessagesPage() {
                 </Button>
                   <Button
                     variant="outline"
-                    className="flex-1 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                    className="flex-1 bg-[#2E0032] text-[#00FF87] hover:bg-[#2E0032]/90 font-semibold border-[#2E0032]"
                     onClick={() => {
                       setClaimingReward(null)
                       setProofUrl("")
