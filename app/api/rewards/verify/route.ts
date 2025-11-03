@@ -123,19 +123,31 @@ export async function POST(request: Request) {
       }
 
       // Set bonus expiration date for Free users (30 days from now)
-      // Check if user is on Free plan
+      // Check if user is on Free plan (Free users may not have a subscription record)
       const subscription = await prisma.subscription.findFirst({
         where: { user_id: claim.user.id },
         orderBy: { id: 'desc' }
       });
 
-      if (subscription && subscription.plan.toLowerCase() === 'free') {
-        // Check if they already have a bonus expiration date set
-        if (!subscription.current_period_end) {
-          // First bonus message - set expiration to 30 days from now
-          const expirationDate = new Date();
-          expirationDate.setDate(expirationDate.getDate() + 30);
-          
+      // If no subscription exists or subscription is Free without expiration date
+      if (!subscription || (subscription.plan.toLowerCase() === 'free' && !subscription.current_period_end)) {
+        const expirationDate = new Date();
+        expirationDate.setDate(expirationDate.getDate() + 30);
+
+        if (!subscription) {
+          // Create subscription record for Free user
+          await prisma.subscription.create({
+            data: {
+              user_id: claim.user.id,
+              plan: 'Free',
+              status: 'active',
+              current_period_start: now,
+              current_period_end: expirationDate,
+              cancel_at_period_end: false
+            }
+          });
+        } else {
+          // Update existing Free subscription with expiration date
           await prisma.subscription.update({
             where: { id: subscription.id },
             data: {
