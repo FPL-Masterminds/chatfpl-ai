@@ -7,7 +7,7 @@ import { Header } from "@/components/header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Gift, MessageCircle, Star, Users, CheckCircle, Clock, XCircle } from "lucide-react"
+import { MessageCircle, Star, Users, CheckCircle, Clock, XCircle } from "lucide-react"
 
 interface RewardStatus {
   action_type: string
@@ -269,11 +269,19 @@ export default function EarnMessagesPage() {
         <div className="mx-auto max-w-6xl space-y-8">
           {/* Header Section */}
           <div className="text-center">
-            <div className="mb-4 flex justify-center">
-              <Gift className="h-16 w-16 text-[#00FF87]" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900">Earn Free Messages</h1>
-            <p className="mt-2 text-lg text-gray-600">
+            <h1 
+              className="mb-6 text-balance text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '6px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>Earn </span>
+              <span style={{ color: '#00FFFF' }}>Free </span>
+              <span style={{ color: '#00FF86' }}>Messages</span>
+            </h1>
+            <p className="mx-auto max-w-3xl text-lg font-semibold" style={{ color: '#4B5563' }}>
               Share ChatFPL AI with others and earn bonus messages!
             </p>
           </div>
@@ -282,10 +290,10 @@ export default function EarnMessagesPage() {
           <Card className="border-[#00FF87]/30 bg-gradient-to-br from-[#00FF87]/5 to-white shadow-sm">
             <CardContent className="py-6">
               <div className="text-center">
-                <p className="text-sm text-gray-600">Total Messages Earned</p>
-                <p className="text-5xl font-bold text-[#00FF87]">{userData?.totalEarned || 0} <span className="text-2xl text-gray-400">of 50</span></p>
-                <p className="mt-2 text-xs text-gray-500">Lifetime cap ensures fair usage for all free users</p>
-                <p className="mt-3 text-xs text-yellow-600">
+                <p className="text-sm font-semibold" style={{ color: '#4B5563' }}>Total Messages Earned</p>
+                <p className="text-5xl font-bold text-[#00FF87]">{userData?.totalEarned || 0} <span className="text-2xl font-semibold" style={{ color: '#4B5563' }}>of 50</span></p>
+                <p className="mt-2 text-xs font-medium" style={{ color: '#4B5563' }}>Lifetime cap ensures fair usage for all free users</p>
+                <p className="mt-3 text-xs font-semibold" style={{ color: '#4B5563' }}>
                   ⚠️ Bonus messages expire on your renewal date - use them or lose them!
                 </p>
               </div>
