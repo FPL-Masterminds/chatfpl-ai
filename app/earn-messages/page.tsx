@@ -518,7 +518,7 @@ export default function EarnMessagesPage() {
                     <Button
                       type="button"
                       variant={reviewType === "written" ? "default" : "outline"}
-                      className={reviewType === "written" ? "flex-1 bg-[#FFD700] text-[#2E0032]" : "flex-1"}
+                      className={reviewType === "written" ? "flex-1 bg-[#FFD700] text-[#2E0032] hover:bg-[#FFD700]/90 font-semibold" : "flex-1 bg-white border-gray-300 text-gray-900 hover:bg-gray-50 font-semibold"}
                       onClick={() => setReviewType("written")}
                     >
                       Write Review (5 msgs)
@@ -526,7 +526,7 @@ export default function EarnMessagesPage() {
                     <Button
                       type="button"
                       variant={reviewType === "xpost" ? "default" : "outline"}
-                      className={reviewType === "xpost" ? "flex-1 bg-[#00FF87] text-[#2E0032]" : "flex-1"}
+                      className={reviewType === "xpost" ? "flex-1 bg-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/90 font-semibold" : "flex-1 bg-white border-gray-300 text-gray-900 hover:bg-gray-50 font-semibold"}
                       onClick={() => setReviewType("xpost")}
                     >
                       Use X Post (10 msgs)
