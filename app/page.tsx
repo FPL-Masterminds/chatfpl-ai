@@ -973,7 +973,7 @@ export default function HomePage() {
                   Does ChatFPL AI guarantee I'll climb the rankings?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
-                  While ChatFPL AI provides data-driven insights and analysis to support better decisions, FPL involves unpredictability that no tool can eliminate. We give you the information edge—form trends, expected stats, fixture analysis—but ultimately, player performance and your strategic decisions determine your rank.
+                  While ChatFPL AI provides data-driven insights and analysis to support better decisions, FPL involves unpredictability that no tool can eliminate. We give you the information edge - form trends, expected stats, fixture analysis - but ultimately, player performance and your strategic decisions determine your rank.
                 </AccordionContent>
               </AccordionItem>
 
