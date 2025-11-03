@@ -64,6 +64,11 @@ export default function EarnMessagesPage() {
 
       if (response.status === 403) {
         const data = await response.json()
+        // Redirect paying users to admin dashboard
+        if (data.error.includes("paying member")) {
+          router.push("/admin")
+          return
+        }
         setError(data.error)
         setLoading(false)
         return

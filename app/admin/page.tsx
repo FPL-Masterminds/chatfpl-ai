@@ -516,7 +516,8 @@ export default function AdminPage() {
             </Card>
           </div>
 
-          {/* Earn Bonus Messages Section */}
+          {/* Earn Bonus Messages Section - Only for Free tier users */}
+          {data.subscription.plan.toLowerCase() === "free" && (
           <Card className="border-[#00FF87]/30 bg-gradient-to-br from-[#00FF87]/5 to-white shadow-sm">
             <CardHeader>
               <CardTitle className="text-xl text-gray-900">🎁 Earn Bonus Messages</CardTitle>
@@ -604,6 +605,7 @@ export default function AdminPage() {
               </div>
             </CardContent>
           </Card>
+          )}
             </>
           )}
 

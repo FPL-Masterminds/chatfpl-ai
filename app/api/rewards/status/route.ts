@@ -39,7 +39,7 @@ export async function GET() {
     
     if (userPlan !== "free") {
       return NextResponse.json(
-        { error: "Rewards are only available for Free tier users. Upgrade to Premium for unlimited access!" },
+        { error: "Rewards are only available for Free tier users. As a paying member, you already have access to your plan's message allocation!" },
         { status: 403 }
       );
     }
