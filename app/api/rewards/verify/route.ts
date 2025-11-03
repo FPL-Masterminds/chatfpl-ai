@@ -48,14 +48,7 @@ export async function POST(request: Request) {
     const claim = await prisma.socialAction.findUnique({
       where: { id: claim_id },
       include: {
-        user: {
-          include: {
-            usageTracking: {
-              take: 1,
-              orderBy: { id: 'desc' }
-            }
-          }
-        }
+        user: true
       }
     });
 
@@ -84,15 +77,47 @@ export async function POST(request: Request) {
         }
       });
 
-      // Add messages to user's balance
-      const usage = claim.user.usageTracking[0];
+      // Add messages to user's CURRENT MONTH usage tracking
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1;
+      const currentYear = now.getFullYear();
+      
+      // Find or create usage tracking for current month
+      const usage = await prisma.usageTracking.findUnique({
+        where: {
+          user_id_month_year: {
+            user_id: claim.user.id,
+            month: currentMonth,
+            year: currentYear
+          }
+        }
+      });
+
       if (usage) {
+        // Update existing usage tracking
         await prisma.usageTracking.update({
-          where: { id: usage.id },
+          where: {
+            user_id_month_year: {
+              user_id: claim.user.id,
+              month: currentMonth,
+              year: currentYear
+            }
+          },
           data: {
             messages_limit: {
               increment: claim.reward_messages
             }
+          }
+        });
+      } else {
+        // Create new usage tracking for current month with bonus messages
+        await prisma.usageTracking.create({
+          data: {
+            user_id: claim.user.id,
+            month: currentMonth,
+            year: currentYear,
+            messages_used: 0,
+            messages_limit: 5 + claim.reward_messages // Base 5 + bonus
           }
         });
       }
@@ -181,7 +206,8 @@ export async function GET() {
       action_type: claim.action_type,
       reward_messages: claim.reward_messages,
       proof_url: claim.proof_url,
-      created_at: claim.created_at.toISOString()
+      created_at: claim.created_at.toISOString(),
+      metadata: claim.metadata as any
     }));
 
     return NextResponse.json({
