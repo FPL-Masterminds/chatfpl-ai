@@ -360,7 +360,7 @@ export default function ChatPage() {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <div className="text-center">
-          <Sparkles className="mx-auto h-8 w-8 animate-spin text-accent" />
+          <Sparkles className="mx-auto h-8 w-8 animate-spin" style={{ color: '#2E0032' }} />
           <p className="mt-4 text-sm text-muted-foreground">Loading your chat history...</p>
         </div>
       </div>
@@ -505,7 +505,7 @@ export default function ChatPage() {
 
           <div className="flex items-center gap-3">
           <div className="hidden items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-sm md:flex">
-            <Sparkles className="h-4 w-4 text-accent" />
+            <Sparkles className="h-4 w-4" style={{ color: '#2E0032' }} />
             <span className="text-foreground">
               {messagesLimit === 999999
                 ? "Unlimited messages"
@@ -559,7 +559,7 @@ export default function ChatPage() {
               {message.role === "assistant" && (
                 <Avatar className="h-8 w-8 border border-accent/30 bg-accent/10">
                   <AvatarFallback className="bg-transparent">
-                    <Sparkles className="h-4 w-4 text-accent" />
+                    <Sparkles className="h-4 w-4" style={{ color: '#2E0032' }} />
                   </AvatarFallback>
                 </Avatar>
               )}
@@ -602,7 +602,7 @@ export default function ChatPage() {
             <div className="flex gap-4">
               <Avatar className="h-8 w-8 border border-accent/30 bg-accent/10">
                 <AvatarFallback className="bg-transparent">
-                  <Sparkles className="h-4 w-4 text-accent" />
+                  <Sparkles className="h-4 w-4" style={{ color: '#2E0032' }} />
                 </AvatarFallback>
               </Avatar>
               <Card className="border-border/50 bg-card/50 p-4 backdrop-blur-sm">
