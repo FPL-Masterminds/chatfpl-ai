@@ -35,7 +35,9 @@ export async function GET() {
 
     // Check if user is on Free tier
     const subscription = user.subscriptions[0];
-    if (subscription?.plan?.toLowerCase() !== "free") {
+    const userPlan = subscription?.plan?.toLowerCase() || "free";
+    
+    if (userPlan !== "free") {
       return NextResponse.json(
         { error: "Rewards are only available for Free tier users. Upgrade to Premium for unlimited access!" },
         { status: 403 }
