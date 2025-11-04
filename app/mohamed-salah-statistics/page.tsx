@@ -329,12 +329,12 @@ export default function DemoPage() {
           </Card>
 
           {/* Captaincy Hint */}
-          <Card className="mx-auto mt-6 max-w-3xl border-[#2E0032] bg-gradient-to-br from-[#2E0032]/5 to-white shadow-sm">
+          <Card className="mx-auto mt-6 max-w-3xl border-gray-200 bg-white shadow-sm">
             <CardHeader>
               <CardTitle className="text-gray-900">Captaincy Insight</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700">
+              <p className="text-gray-600">
                 Salah remains a premium asset with strong underlying metrics despite some selling pressure. 
                 If you need a captain choice and already own him, you should still consider him for fixtures 
                 after the City test.

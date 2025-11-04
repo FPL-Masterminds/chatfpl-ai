@@ -105,7 +105,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/erling-haaland-price-worth-it">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
