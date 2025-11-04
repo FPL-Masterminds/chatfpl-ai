@@ -134,7 +134,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/arsenal-defender-next-5-gameweeks">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -172,7 +172,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/salah-vs-cole-palmer-transfer">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -201,7 +201,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/differential-midfielders-under-7-5m">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -230,7 +230,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/best-form-players">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -259,7 +259,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/jack-grealish-everton-fixtures">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -288,7 +288,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/points-hit-explained">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -317,7 +317,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/antoine-semenyo-budget-midfielder">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -346,7 +346,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/danny-welbeck-last-5-games">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -375,7 +375,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/best-fixture-run-6-gameweeks">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -413,7 +413,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/van-dijk-vs-gabriel-comparison">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -442,7 +442,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/highest-expected-points-next-gameweek">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -471,7 +471,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/best-defenders-under-4-5m">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -500,7 +500,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/bench-boost-chip-timing">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -545,7 +545,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/haaland-pedro-isak-comparison">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
@@ -574,7 +574,7 @@ export default function HomePage() {
                           className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
                           asChild
                         >
-                          <Link href="/mohamed-salah-statistics">View Answer</Link>
+                          <Link href="/top-10-most-transferred-in-players">View Answer</Link>
                         </Button>
                       </td>
                     </tr>
