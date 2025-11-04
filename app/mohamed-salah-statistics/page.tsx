@@ -3,7 +3,7 @@ import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, TrendingUp, Database, Zap, ArrowRight } from "lucide-react"
+import { TrendingUp, Database, Zap, ArrowRight } from "lucide-react"
 
 export const metadata = {
   title: "Give me some live statistics about Mohamed Salah this season | ChatFPL AI Demo",
@@ -126,7 +126,9 @@ export default function DemoPage() {
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
-                    <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                    <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Natural conversation</p>
@@ -135,7 +137,9 @@ export default function DemoPage() {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
-                    <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                    <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Real-time context</p>
@@ -144,7 +148,9 @@ export default function DemoPage() {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
-                    <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                    <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">Instant comprehension</p>
@@ -406,7 +412,9 @@ export default function DemoPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="flex items-start gap-3">
                 <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
-                  <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
                 <p className="text-gray-700">
                   <span className="font-semibold">Saves hours of research</span> - no more switching between 
@@ -415,7 +423,9 @@ export default function DemoPage() {
               </div>
               <div className="flex items-start gap-3">
                 <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
-                  <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
                 <p className="text-gray-700">
                   <span className="font-semibold">Always current</span> - data updates continuously, 
@@ -424,7 +434,9 @@ export default function DemoPage() {
               </div>
               <div className="flex items-start gap-3">
                 <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
-                  <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
                 <p className="text-gray-700">
                   <span className="font-semibold">Comprehensive coverage</span> - every relevant stat, 
@@ -433,7 +445,9 @@ export default function DemoPage() {
               </div>
               <div className="flex items-start gap-3">
                 <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
-                  <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </div>
                 <p className="text-gray-700">
                   <span className="font-semibold">Actionable insights</span> - not just data, 
