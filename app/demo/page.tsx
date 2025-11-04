@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,23 +13,24 @@ export const metadata = {
 export default function DemoPage() {
   return (
     <div className="flex min-h-screen flex-col">
+      <Header />
+
       {/* Hero Section */}
-      <section className="border-b bg-gradient-to-b from-white to-gray-50 px-4 py-16">
-        <div className="container mx-auto max-w-5xl">
+      <section className="relative overflow-hidden border-b px-4 pt-24 pb-16">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url(/gradient_hero_bg.png)" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
+        <div className="container relative mx-auto max-w-5xl">
           <div className="text-center">
             <h1 
-              className="mb-6 text-4xl font-bold uppercase md:text-5xl"
-              style={{
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill',
-              }}
+              className="mb-6 text-balance font-bold leading-[1.1] tracking-tighter text-white"
+              style={{ fontSize: '60px' }}
             >
-              <span style={{ color: 'white' }}>Give me some live statistics about </span>
-              <span style={{ color: '#00FFFF' }}>Mohamed Salah </span>
-              <span style={{ color: '#00FF86' }}>this season</span>
+              Give me some live statistics about Mohamed Salah this season
             </h1>
-            <p className="mx-auto max-w-3xl text-lg font-semibold" style={{ color: '#4B5563' }}>
+            <p className="mx-auto max-w-3xl text-lg font-semibold text-white">
               Watch how ChatFPL AI transforms a simple question into a complete, data-rich analysis in seconds
             </p>
           </div>
@@ -39,8 +41,20 @@ export default function DemoPage() {
       <section className="border-b bg-white px-4 py-16">
         <div className="container mx-auto max-w-5xl">
           <div className="mb-8 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-gray-900">See ChatFPL AI in Action</h2>
-            <p className="text-lg text-gray-600">
+            <h2 
+              className="mb-4 text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '6px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>See Chat</span>
+              <span style={{ color: '#00FFFF' }}>FPL </span>
+              <span style={{ color: '#00FF86' }}>AI </span>
+              <span style={{ color: 'white' }}>in Action</span>
+            </h2>
+            <p className="text-lg font-semibold" style={{ color: '#4B5563' }}>
               This video demonstrates the comprehensive answer ChatFPL AI provides for a single question
             </p>
           </div>
@@ -83,8 +97,18 @@ export default function DemoPage() {
       <section className="border-b bg-gray-50 px-4 py-16">
         <div className="container mx-auto max-w-5xl">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-gray-900">The Question</h2>
-            <p className="text-lg text-gray-600">
+            <h2 
+              className="mb-4 text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '6px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>The </span>
+              <span style={{ color: '#00FFFF' }}>Question</span>
+            </h2>
+            <p className="text-lg font-semibold" style={{ color: '#4B5563' }}>
               A simple, natural language query that any FPL manager might ask
             </p>
           </div>
@@ -101,21 +125,27 @@ export default function DemoPage() {
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF87]" />
+                  <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
+                    <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                  </div>
                   <div>
                     <p className="font-semibold text-gray-900">Natural conversation</p>
                     <p className="text-sm text-gray-600">Ask questions the way you'd talk to a friend or coach</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF87]" />
+                  <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
+                    <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                  </div>
                   <div>
                     <p className="font-semibold text-gray-900">Real-time context</p>
                     <p className="text-sm text-gray-600">ChatFPL AI understands you want current season data</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF87]" />
+                  <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
+                    <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                  </div>
                   <div>
                     <p className="font-semibold text-gray-900">Instant comprehension</p>
                     <p className="text-sm text-gray-600">No need to specify stats - the AI knows what's relevant</p>
@@ -131,8 +161,18 @@ export default function DemoPage() {
       <section className="border-b bg-white px-4 py-16">
         <div className="container mx-auto max-w-5xl">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-gray-900">The Answer</h2>
-            <p className="text-lg text-gray-600">
+            <h2 
+              className="mb-4 text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '6px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>The </span>
+              <span style={{ color: '#00FFFF' }}>Answer</span>
+            </h2>
+            <p className="text-lg font-semibold" style={{ color: '#4B5563' }}>
               A comprehensive, structured breakdown covering every aspect an FPL manager needs
             </p>
           </div>
@@ -241,7 +281,7 @@ export default function DemoPage() {
               <CardContent className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">vs Manchester City (A)</span>
-                  <Badge variant="destructive" className="bg-red-500">Difficulty 4</Badge>
+                  <Badge className="bg-[#2E0032] text-white">Difficulty 4</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">vs Nottingham Forest (H)</span>
@@ -272,7 +312,7 @@ export default function DemoPage() {
                 </div>
                 <div className="h-12 w-px bg-gray-300"></div>
                 <div>
-                  <p className="text-3xl font-bold text-red-500">40,700</p>
+                  <p className="text-3xl font-bold text-[#2E0032]">40,700</p>
                   <p className="text-sm text-gray-600">Transfers Out</p>
                 </div>
               </div>
@@ -302,8 +342,20 @@ export default function DemoPage() {
       <section className="border-b bg-gray-50 px-4 py-16">
         <div className="container mx-auto max-w-5xl">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-gray-900">How ChatFPL AI Delivers This Answer</h2>
-            <p className="text-lg text-gray-600">
+            <h2 
+              className="mb-4 text-4xl font-bold uppercase"
+              style={{ 
+                fontFamily: "'Futura Maxi CG', sans-serif",
+                WebkitTextStroke: '6px #2E0032',
+                paintOrder: 'stroke fill'
+              }}
+            >
+              <span style={{ color: 'white' }}>How Chat</span>
+              <span style={{ color: '#00FFFF' }}>FPL </span>
+              <span style={{ color: '#00FF86' }}>AI </span>
+              <span style={{ color: 'white' }}>Delivers This Answer</span>
+            </h2>
+            <p className="text-lg font-semibold" style={{ color: '#4B5563' }}>
               Behind the scenes, powerful technology works in milliseconds
             </p>
           </div>
@@ -353,28 +405,36 @@ export default function DemoPage() {
             <h3 className="mb-4 text-2xl font-bold text-gray-900">Why This Matters for FPL Managers</h3>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF87]" />
+                <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
+                  <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                </div>
                 <p className="text-gray-700">
                   <span className="font-semibold">Saves hours of research</span> - no more switching between 
                   multiple tabs and spreadsheets
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF87]" />
+                <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
+                  <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                </div>
                 <p className="text-gray-700">
                   <span className="font-semibold">Always current</span> - data updates continuously, 
                   you never work with outdated information
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF87]" />
+                <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
+                  <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                </div>
                 <p className="text-gray-700">
                   <span className="font-semibold">Comprehensive coverage</span> - every relevant stat, 
                   fixture, and trend in one answer
                 </p>
               </div>
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-1 h-5 w-5 flex-shrink-0 text-[#00FF87]" />
+                <div className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#00FF87]">
+                  <CheckCircle2 className="h-4 w-4 text-white" fill="white" />
+                </div>
                 <p className="text-gray-700">
                   <span className="font-semibold">Actionable insights</span> - not just data, 
                   but what it means for your team decisions
@@ -386,24 +446,31 @@ export default function DemoPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-br from-[#2E0032] via-[#2E0032] to-[#1a001d] px-4 py-16 text-white">
+      <section className="bg-white px-4 py-16">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            Ready to Ask Your Own Questions?
+          <h2 
+            className="mb-4 text-4xl font-bold uppercase md:text-5xl"
+            style={{ 
+              fontFamily: "'Futura Maxi CG', sans-serif",
+              WebkitTextStroke: '6px #2E0032',
+              paintOrder: 'stroke fill'
+            }}
+          >
+            <span style={{ color: 'white' }}>Ready to Ask Your </span>
+            <span style={{ color: '#00FFFF' }}>Own </span>
+            <span style={{ color: '#00FF86' }}>Questions</span>
+            <span style={{ color: 'white' }}>?</span>
           </h2>
-          <p className="mb-8 text-lg text-gray-300">
+          <p className="mb-8 text-lg font-semibold" style={{ color: '#4B5563' }}>
             Get instant, data-driven FPL insights for any player, fixture, or strategy question. 
             Start with 5 free messages - no credit card required.
           </p>
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button size="lg" asChild className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90">
-              <Link href="/signup">Start Your Free Trial</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="border-white text-white hover:bg-white/10">
-              <Link href="/">Back to Homepage</Link>
+          <div className="flex flex-col items-center justify-center">
+            <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+              <Link href="/signup">Start your 5-message free trial today</Link>
             </Button>
           </div>
-          <p className="mt-6 text-sm text-gray-400">
+          <p className="mt-6 text-sm" style={{ color: '#4B5563' }}>
             Join thousands of FPL managers using ChatFPL AI to gain a competitive edge
           </p>
         </div>
