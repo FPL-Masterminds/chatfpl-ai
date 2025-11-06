@@ -53,7 +53,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/chatfpl_ai"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-white/80 transition-colors hover:text-accent"
@@ -64,7 +64,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://x.com"
+                  href="https://x.com/ChatFPL_AI"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-white/80 transition-colors hover:text-accent"
@@ -77,7 +77,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://youtube.com"
+                  href="https://www.youtube.com/@ChatFPL_AI"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-white/80 transition-colors hover:text-accent"
