@@ -67,27 +67,14 @@ export default function DemoPage() {
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[#00FF87]">
-                    <svg className="h-10 w-10 text-gray-900" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </div>
-                  <p className="text-sm font-semibold text-gray-600">YouTube Video Embed</p>
-                  <p className="text-xs text-gray-500">Paste your YouTube embed code here</p>
-                </div>
-              </div>
-              {/* 
-                PASTE YOUR YOUTUBE EMBED CODE HERE
-                Example:
-                <iframe 
-                  className="absolute inset-0 h-full w-full"
-                  src="https://www.youtube.com/embed/YOUR_VIDEO_ID" 
-                  title="ChatFPL AI Demo - Mohamed Salah Statistics"
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen
-                ></iframe>
-              */}
+              <iframe 
+                className="absolute inset-0 h-full w-full rounded-lg"
+                src="https://www.youtube.com/embed/h9Y6FrOClAE" 
+                title="ChatFPL AI Demo - Mohamed Salah Statistics"
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowFullScreen
+              ></iframe>
             </div>
           </div>
         </div>
