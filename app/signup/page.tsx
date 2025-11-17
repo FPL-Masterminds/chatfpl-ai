@@ -182,19 +182,12 @@ function SignupForm() {
               <div className="flex items-start gap-3">
                 <Checkbox
                   id="terms"
-                  className="mt-0.5 h-5 w-5 shrink-0 border-2 border-gray-300 data-[state=checked]:border-[#00FF87] data-[state=checked]:bg-[#00FF87]"
+                  className="mt-1 h-5 w-5 shrink-0 border-2 border-gray-300 data-[state=checked]:border-[#00FF87] data-[state=checked]:bg-[#00FF87]"
                   checked={agreedToTerms}
                   onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
                 />
-                <Label htmlFor="terms" className="text-sm leading-relaxed text-gray-700 cursor-pointer">
-                  I agree to the{" "}
-                  <Link href="/terms" className="font-semibold text-[#00FF87] hover:underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="/privacy" className="font-semibold text-[#00FF87] hover:underline">
-                    Privacy Policy
-                  </Link>
+                <Label htmlFor="terms" className="flex-1 text-sm leading-normal text-gray-700 cursor-pointer">
+                  I agree to the <Link href="/terms" className="font-semibold text-[#00FF87] hover:underline">Terms of Service</Link> and <Link href="/privacy" className="font-semibold text-[#00FF87] hover:underline">Privacy Policy</Link>
                 </Label>
               </div>
               <Button
