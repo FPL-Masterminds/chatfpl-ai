@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Header } from "@/components/header"
 import { Eye, EyeOff } from "lucide-react"
 import { Suspense } from "react"
 
@@ -91,11 +91,20 @@ function SignupForm() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
-
-      <main className="flex flex-1 items-center justify-center px-4 py-24">
+      <main className="flex flex-1 items-center justify-center px-4 py-12">
         <Card className="w-full max-w-md border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader className="space-y-2 text-center">
+          <div className="flex justify-center pt-8 pb-4">
+            <Link href="/">
+              <Image 
+                src="/ChatFPL_AI_Logo.png" 
+                alt="ChatFPL AI" 
+                width={120} 
+                height={120}
+                className="h-20 w-auto cursor-pointer"
+              />
+            </Link>
+          </div>
+          <CardHeader className="space-y-2 text-center pt-0">
             <CardTitle className="text-3xl font-bold">Create an account</CardTitle>
             <CardDescription>Start your free trial with 5 messages</CardDescription>
           </CardHeader>
@@ -223,8 +232,7 @@ export default function SignupPage() {
   return (
     <Suspense fallback={
       <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex flex-1 items-center justify-center px-4 py-24">
+        <main className="flex flex-1 items-center justify-center px-4 py-12">
           <p className="text-lg text-muted-foreground">Loading...</p>
         </main>
       </div>
