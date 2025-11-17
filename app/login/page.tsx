@@ -50,14 +50,14 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col">
       <main className="flex flex-1 items-center justify-center px-4 py-12">
         <Card className="w-full max-w-md border-border/50 bg-card/50 backdrop-blur-sm">
-          <div className="flex justify-center pt-8 pb-4">
+          <div className="flex justify-center pt-6 pb-4">
             <Link href="/">
               <Image 
                 src="/ChatFPL_AI_Logo.png" 
                 alt="ChatFPL AI" 
-                width={120} 
-                height={120}
-                className="h-20 w-auto cursor-pointer"
+                width={40} 
+                height={40}
+                className="h-10 w-auto cursor-pointer md:h-12"
               />
             </Link>
           </div>

@@ -93,14 +93,14 @@ function SignupForm() {
     <div className="flex min-h-screen flex-col">
       <main className="flex flex-1 items-center justify-center px-4 py-12">
         <Card className="w-full max-w-md border-border/50 bg-card/50 backdrop-blur-sm">
-          <div className="flex justify-center pt-8 pb-4">
+          <div className="flex justify-center pt-6 pb-4">
             <Link href="/">
               <Image 
                 src="/ChatFPL_AI_Logo.png" 
                 alt="ChatFPL AI" 
-                width={120} 
-                height={120}
-                className="h-20 w-auto cursor-pointer"
+                width={40} 
+                height={40}
+                className="h-10 w-auto cursor-pointer md:h-12"
               />
             </Link>
           </div>
@@ -179,20 +179,20 @@ function SignupForm() {
                   </button>
                 </div>
               </div>
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-3">
                 <Checkbox
                   id="terms"
-                  className="mt-1"
+                  className="mt-0.5 h-5 w-5 shrink-0 border-2 border-gray-300 data-[state=checked]:border-[#00FF87] data-[state=checked]:bg-[#00FF87]"
                   checked={agreedToTerms}
                   onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
                 />
-                <Label htmlFor="terms" className="text-sm leading-relaxed text-muted-foreground">
+                <Label htmlFor="terms" className="text-sm leading-relaxed text-gray-700 cursor-pointer">
                   I agree to the{" "}
-                  <Link href="/terms" className="text-accent hover:underline">
+                  <Link href="/terms" className="font-semibold text-[#00FF87] hover:underline">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link href="/privacy" className="text-accent hover:underline">
+                  <Link href="/privacy" className="font-semibold text-[#00FF87] hover:underline">
                     Privacy Policy
                   </Link>
                 </Label>
