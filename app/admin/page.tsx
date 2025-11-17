@@ -283,7 +283,10 @@ export default function AdminPage() {
       <div className="flex min-h-screen flex-col bg-white">
         <Header />
         <main className="flex flex-1 items-center justify-center pt-16">
-          <p className="text-lg text-gray-600">Loading your account...</p>
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-[#00FF87]"></div>
+            <p className="text-sm text-gray-600">Loading your account...</p>
+          </div>
         </main>
       </div>
     )

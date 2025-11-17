@@ -233,7 +233,7 @@ export default function SignupPage() {
     <Suspense fallback={
       <div className="flex min-h-screen flex-col">
         <main className="flex flex-1 items-center justify-center px-4 py-12">
-          <p className="text-lg text-muted-foreground">Loading...</p>
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-[#00FF87]"></div>
         </main>
       </div>
     }>
