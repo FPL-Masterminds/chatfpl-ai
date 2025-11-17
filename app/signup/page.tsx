@@ -186,9 +186,16 @@ function SignupForm() {
                   checked={agreedToTerms}
                   onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
                 />
-                <Label htmlFor="terms" className="flex-1 text-sm leading-normal text-gray-700 cursor-pointer">
-                  I agree to the <Link href="/terms" className="font-semibold text-[#00FF87] hover:underline">Terms of Service</Link> and <Link href="/privacy" className="font-semibold text-[#00FF87] hover:underline">Privacy Policy</Link>
-                </Label>
+                <label htmlFor="terms" className="flex-1 text-sm text-gray-700 cursor-pointer">
+                  I agree to the{" "}
+                  <Link href="/terms" className="font-semibold text-[#00FF87] hover:underline inline">
+                    Terms of Service
+                  </Link>
+                  {" "}and{" "}
+                  <Link href="/privacy" className="font-semibold text-[#00FF87] hover:underline inline">
+                    Privacy Policy
+                  </Link>
+                </label>
               </div>
               <Button
                 type="submit"
