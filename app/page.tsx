@@ -114,131 +114,6 @@ export default function HomePage() {
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
-                          src="/player_images/arsenal_emblem.png"
-                          alt="Arsenal"
-                          width={40}
-                          height={40}
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Player Research
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        Which Arsenal defender should I bring in for the next 5 gameweeks?
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Button 
-                          size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
-                          asChild
-                        >
-                          <Link href="/arsenal-defender-next-5-gameweeks">View Answer</Link>
-                        </Button>
-                      </td>
-                    </tr>
-
-                    {/* Row 4 */}
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <Image 
-                            src="/player_images/mohamed_salah.png"
-                            alt="Mohamed Salah"
-                            width={40}
-                            height={51}
-                          />
-                          <Image 
-                            src="/player_images/cole_palmer.png"
-                            alt="Cole Palmer"
-                            width={40}
-                            height={51}
-                            className="-ml-2"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Compare
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        Should I transfer out Mohamed Salah for Cole Palmer?
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Button 
-                          size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
-                          asChild
-                        >
-                          <Link href="/salah-vs-cole-palmer-transfer">View Answer</Link>
-                        </Button>
-                      </td>
-                    </tr>
-
-                    {/* Row 5 */}
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Image 
-                          src="/logo.png"
-                          alt="ChatFPL AI"
-                          width={40}
-                          height={40}
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Fixtures
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        Give me three differential midfielders under £7.5m with good fixtures
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Button 
-                          size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
-                          asChild
-                        >
-                          <Link href="/differential-midfielders-under-7-5m">View Answer</Link>
-                        </Button>
-                      </td>
-                    </tr>
-
-                    {/* Row 6 */}
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Image 
-                          src="/logo.png"
-                          alt="ChatFPL AI"
-                          width={40}
-                          height={40}
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Form
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        Which players are in the best form right now?
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Button 
-                          size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
-                          asChild
-                        >
-                          <Link href="/best-form-players">View Answer</Link>
-                        </Button>
-                      </td>
-                    </tr>
-
-                    {/* Row 7 */}
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Image 
                           src="/player_images/jack_grealish.png"
                           alt="Jack Grealish"
                           width={40}
@@ -264,36 +139,7 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 8 */}
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Image 
-                          src="/logo.png"
-                          alt="ChatFPL AI"
-                          width={40}
-                          height={40}
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Rules
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        What happens if I take a points hit this week?
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Button 
-                          size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
-                          asChild
-                        >
-                          <Link href="/points-hit-explained">View Answer</Link>
-                        </Button>
-                      </td>
-                    </tr>
-
-                    {/* Row 9 */}
+                    {/* Row 4 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
@@ -380,45 +226,7 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 12 */}
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <Image 
-                            src="/player_images/virgil.png"
-                            alt="Virgil van Dijk"
-                            width={40}
-                            height={51}
-                          />
-                          <Image 
-                            src="/player_images/gabriel.png"
-                            alt="Gabriel"
-                            width={40}
-                            height={51}
-                            className="-ml-2"
-                          />
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Compare
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        Compare Virgil van Dijk with Gabriel for the next 5 games
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Button 
-                          size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
-                          asChild
-                        >
-                          <Link href="/van-dijk-vs-gabriel-comparison">View Answer</Link>
-                        </Button>
-                      </td>
-                    </tr>
-
-                    {/* Row 13 */}
+                    {/* Row 7 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
@@ -476,36 +284,7 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 15 */}
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Image 
-                          src="/logo.png"
-                          alt="ChatFPL AI"
-                          width={40}
-                          height={40}
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-md border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                          Chip Advice
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        When is the best time to play my Bench Boost chip?
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <Button 
-                          size="sm" 
-                          className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold"
-                          asChild
-                        >
-                          <Link href="/bench-boost-chip-timing">View Answer</Link>
-                        </Button>
-                      </td>
-                    </tr>
-
-                    {/* Row 16 */}
+                    {/* Row 9 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -550,7 +329,7 @@ export default function HomePage() {
                       </td>
                     </tr>
 
-                    {/* Row 17 */}
+                    {/* Row 10 */}
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <Image 
