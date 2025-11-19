@@ -325,7 +325,7 @@ export default function AntoineSemenyoPage() {
                 </div>
                 <p className="text-sm text-gray-600">
                   <strong>Form 6.7</strong> - Higher creativity than Semenyo. Saves you <strong>£1.0m</strong>. 
-                  <span className="text-orange-600">Note: Also flagged doubtful with groin injury</span>.
+                  Attacking midfielder with good fixture run ahead.
                 </p>
               </div>
             </CardContent>
