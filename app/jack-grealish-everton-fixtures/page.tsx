@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, Database, Zap, ArrowRight } from "lucide-react"
 
-// Jack Grealish fixture analysis demo page
+// Jack Grealish fixture analysis demo page - full video and stats
 export const metadata = {
   title: "Is Jack Grealish a good pick with Everton's upcoming fixtures? | ChatFPL AI",
   description: "Analyze if Jack Grealish is worth picking for your FPL team based on Everton's upcoming fixtures. ChatFPL AI evaluates his form, price, and fixture difficulty with live data.",
