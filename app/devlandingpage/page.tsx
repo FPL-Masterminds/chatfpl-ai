@@ -59,17 +59,17 @@ export default function DevLandingPage() {
               </p>
               
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                <button 
-                  className="px-8 py-4 rounded-full bg-[#00ff85] text-[#1a0e24] font-bold text-lg transition-all duration-300 hover:scale-105"
+                <Link 
+                  href="/signup"
+                  className="px-8 py-4 rounded-full bg-[#00ff85] text-[#1a0e24] font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,133,0.5)]"
                   style={{
                     boxShadow: '0 0 20px rgba(0,255,133,0.3)'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 0 30px rgba(0,255,133,0.5)'}
-                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 0 20px rgba(0,255,133,0.3)'}
                 >
-                  <Link href="/signup">Start Free Trial</Link>
-                </button>
-                <button 
+                  Start Free Trial
+                </Link>
+                <Link
+                  href="#features"
                   className="px-8 py-4 rounded-full text-white font-semibold transition-all duration-300 hover:bg-white/10"
                   style={{
                     background: 'rgba(255, 255, 255, 0.05)',
@@ -77,8 +77,8 @@ export default function DevLandingPage() {
                     border: '1px solid rgba(255, 255, 255, 0.1)'
                   }}
                 >
-                  <Link href="#features">View Features</Link>
-                </button>
+                  View Features
+                </Link>
               </div>
               
               <p className="text-sm text-gray-500">
