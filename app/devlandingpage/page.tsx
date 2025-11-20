@@ -55,7 +55,7 @@ export default function DevLandingPage() {
                     WebkitTextFillColor: 'transparent'
                   }}
                 >
-                  FPL Assistant
+                  Fantasy Premier League<br />AI Assistant
                 </span>
               </h1>
               <p className="text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
