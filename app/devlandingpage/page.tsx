@@ -28,12 +28,17 @@ export default function DevLandingPage() {
       <DevHeader />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden">
+      <section 
+        className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #37003c 0%, #05f0ff 100%)'
+        }}
+      >
         {/* Animated Background Effects */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
           <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#37003c]/40 blur-[120px] animate-pulse"></div>
           <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#00ff85]/20 blur-[120px]"></div>
-          <div className="absolute top-[20%] right-[20%] w-[300px] h-[300px] rounded-full bg-blue-600/20 blur-[100px]"></div>
+          <div className="absolute top-[20%] right-[20%] w-[300px] h-[300px] rounded-full bg-[#05f0ff]/20 blur-[100px]"></div>
         </div>
 
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
