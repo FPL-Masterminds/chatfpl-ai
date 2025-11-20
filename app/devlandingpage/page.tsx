@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Header } from "@/components/header"
+import { DevHeader } from "@/components/dev-header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -25,7 +25,7 @@ export const metadata = {
 export default function DevLandingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#0A0118]">
-      <Header />
+      <DevHeader />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-gray-800 px-4 py-20 lg:py-32">
