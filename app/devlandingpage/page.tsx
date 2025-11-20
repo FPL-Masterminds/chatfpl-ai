@@ -28,117 +28,188 @@ export default function DevLandingPage() {
       <DevHeader />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-b border-gray-800 px-4 py-20 lg:py-32">
-        <div className="container mx-auto max-w-7xl">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+      <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden">
+        {/* Animated Background Effects */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#37003c]/40 blur-[120px] animate-pulse"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#00ff85]/20 blur-[120px]"></div>
+          <div className="absolute top-[20%] right-[20%] w-[300px] h-[300px] rounded-full bg-blue-600/20 blur-[100px]"></div>
+        </div>
+
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Column - Headline & CTA */}
-            <div className="flex flex-col justify-center">
-              <h1 className="mb-6 text-5xl font-bold leading-tight text-white lg:text-6xl">
-                Chat with your{" "}
-                <span className="text-[#00FFFF]">FPL</span>{" "}
-                <span className="text-[#00FF87]">Assistant</span>
+            <div className="text-center lg:text-left space-y-8">
+              <h1 className="text-5xl lg:text-7xl font-bold leading-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                Chat with your<br />
+                <span 
+                  className="text-transparent bg-clip-text"
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, #00ff85, #02efff, #a855f7)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  FPL Assistant
+                </span>
               </h1>
-              <p className="mb-8 text-lg text-gray-300 lg:text-xl">
+              <p className="text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                 Ask live FPL questions. Get instant AI answers powered by real stats 
                 and natural conversation. Dominate your mini-league with data-driven insights.
               </p>
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <Button 
-                  size="lg" 
-                  asChild 
-                  className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 text-lg px-8"
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                <button 
+                  className="px-8 py-4 rounded-full bg-[#00ff85] text-[#1a0e24] font-bold text-lg transition-all duration-300 hover:scale-105"
+                  style={{
+                    boxShadow: '0 0 20px rgba(0,255,133,0.3)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 0 30px rgba(0,255,133,0.5)'}
+                  onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 0 20px rgba(0,255,133,0.3)'}
                 >
                   <Link href="/signup">Start Free Trial</Link>
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  asChild
-                  className="border-gray-600 text-white hover:bg-gray-800 text-lg px-8"
+                </button>
+                <button 
+                  className="px-8 py-4 rounded-full text-white font-semibold transition-all duration-300 hover:bg-white/10"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}
                 >
                   <Link href="#features">View Features</Link>
-                </Button>
+                </button>
               </div>
-              <p className="mt-4 text-sm text-gray-400">
+              
+              <p className="text-sm text-gray-500">
                 No credit card required • Instant access
               </p>
             </div>
 
-            {/* Right Column - Chat Mockup */}
+            {/* Right Column - Glass Chat Interface */}
             <div className="relative">
-              {/* Live Stats Badge */}
-              <div className="absolute right-4 top-4 z-10 animate-bounce">
-                <Badge className="bg-[#00FF87] text-gray-900 border-0 px-3 py-1 font-semibold">
-                  <Zap className="mr-1 h-4 w-4" />
-                  Live Stats
-                </Badge>
+              {/* Floating Badge */}
+              <div 
+                className="absolute -top-5 -right-5 px-4 py-2 rounded-lg text-sm font-bold text-[#00ff85] animate-bounce z-10"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(0,255,133,0.3)',
+                  boxShadow: '0 0 15px rgba(0,255,133,0.2)'
+                }}
+              >
+                Live Stats ⚡
               </div>
 
               {/* Chat Window */}
-              <Card className="border-gray-700 bg-[#1A1329] shadow-2xl">
-                <CardHeader className="border-b border-gray-700 pb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="h-3 w-3 rounded-full bg-red-500"></div>
-                    <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                    <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                    <span className="ml-4 text-sm text-gray-400">AI Analysis Mode</span>
+              <div 
+                className="relative rounded-2xl shadow-2xl overflow-hidden transition-transform duration-500 hover:rotate-1"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}
+              >
+                {/* Header */}
+                <div 
+                  className="bg-white/5 border-b p-4 flex items-center justify-between"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
                   </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-6">
-                  {/* User Question */}
-                  <div className="flex items-start justify-end gap-3">
-                    <div className="rounded-2xl rounded-tr-sm bg-[#00FF87] px-4 py-3 max-w-xs">
-                      <p className="text-sm text-gray-900 font-medium">
-                        How many bonus points has Jack Grealish won?
-                      </p>
+                  <div className="text-xs text-gray-400 font-mono">AI Analysis Mode</div>
+                </div>
+
+                {/* Chat Body */}
+                <div className="p-6 h-[400px] flex flex-col gap-4 bg-black/20">
+                  {/* User Message */}
+                  <div className="flex justify-end">
+                    <div 
+                      className="p-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-lg text-[#1a0e24] font-semibold"
+                      style={{
+                        backgroundImage: 'linear-gradient(to bottom right, #00ff85, #10b981)'
+                      }}
+                    >
+                      How many bonus points has Jack Grealish won?
                     </div>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-700">
-                      <Users className="h-4 w-4 text-white" />
+                    <div 
+                      className="ml-3 w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center"
+                      style={{ border: '1px solid rgba(255, 255, 255, 0.1)' }}
+                    >
+                      <Users className="w-5 h-5 text-gray-300" />
                     </div>
                   </div>
 
-                  {/* AI Response with Player Card */}
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2E0032]">
-                      <Sparkles className="h-4 w-4 text-[#00FF87]" />
+                  {/* AI Message */}
+                  <div className="flex justify-start mt-4">
+                    <div 
+                      className="mr-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
+                      style={{
+                        backgroundImage: 'linear-gradient(to bottom right, #9333ea, #6366f1)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                      }}
+                    >
+                      <Sparkles className="w-5 h-5 text-white" />
                     </div>
-                    <div className="flex-1 space-y-3">
-                      <Card className="border-gray-600 bg-[#0A0118]">
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="relative h-16 w-16 overflow-hidden rounded-lg">
-                              <Image
-                                src="/placeholder.jpg"
-                                alt="Jack Grealish"
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-white">Jack Grealish</h4>
-                              <p className="text-sm text-gray-400">MID</p>
-                            </div>
+                    <div 
+                      className="p-4 rounded-2xl rounded-tl-none max-w-[80%] text-gray-100 shadow-lg"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.05)'
+                      }}
+                    >
+                      <div className="flex flex-col gap-3">
+                        {/* Player Card */}
+                        <div className="relative w-full h-32 rounded-lg overflow-hidden mb-2">
+                          <Image
+                            src="/placeholder.jpg"
+                            alt="Player Stats"
+                            fill
+                            className="object-cover opacity-80"
+                          />
+                          <div 
+                            className="absolute inset-0 flex items-end p-3"
+                            style={{
+                              backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)'
+                            }}
+                          >
+                            <span className="font-bold text-white">Jack Grealish | MID</span>
                           </div>
-                          <p className="text-sm text-gray-300">
-                            Jack Grealish has an expected points (xP) of 5.4 for the 
-                            next gameweek against Fulham. His creativity stats are in 
-                            the top 5% of midfielders over the last 3 matches.
-                          </p>
-                        </CardContent>
-                      </Card>
+                        </div>
+                        <p className="leading-relaxed text-sm">
+                          Jack Grealish has an expected points (xP) of 5.4 for the next gameweek against Fulham. His creativity stats are in the top 5% of midfielders over the last 3 matches.
+                          <span className="animate-pulse inline-block w-1.5 h-4 bg-[#00ff85] ml-1 align-middle"></span>
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              {/* Input Box */}
-              <div className="mt-4">
-                <div className="flex items-center gap-2 rounded-lg border border-gray-700 bg-[#1A1329] px-4 py-3">
-                  <MessageSquare className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm text-gray-500">Ask about transfers, stats, or fixtures...</span>
-                  <Button size="sm" className="ml-auto bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90">
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                {/* Input Area */}
+                <div 
+                  className="p-4 border-t bg-white/5"
+                  style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
+                >
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Ask about transfers, stats, or fixtures..."
+                      className="w-full bg-black/30 rounded-xl py-3 px-4 pr-12 text-sm text-gray-200 focus:outline-none transition-colors"
+                      style={{ 
+                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                      }}
+                      disabled
+                    />
+                    <button 
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 bg-[#00ff85] rounded-lg text-[#1a0e24] transition-colors hover:bg-white"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
