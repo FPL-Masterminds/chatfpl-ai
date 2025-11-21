@@ -166,12 +166,13 @@ export default function DevLandingPage() {
                     >
                       <div className="flex flex-col gap-3">
                         {/* Player Card */}
-                        <div className="relative w-full h-32 rounded-lg overflow-hidden mb-2">
+                        <div className="relative w-full h-32 rounded-lg overflow-hidden mb-2 bg-black">
                           <Image
                             src="/club_backgrounds/bg_Everton.png"
                             alt="Player Stats"
                             fill
-                            className="object-cover opacity-80"
+                            className="object-cover object-center opacity-80"
+                            style={{ objectFit: 'cover' }}
                           />
                           <div 
                             className="absolute inset-0 flex items-end p-3"
