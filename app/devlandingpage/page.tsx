@@ -217,7 +217,7 @@ export default function DevLandingPage() {
 
                 {/* Input Area */}
                 <div 
-                  className="p-4 border-t bg-white/5"
+                  className="mt-6 p-4 border-t bg-white/5"
                   style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
                 >
                   <div className="relative">
