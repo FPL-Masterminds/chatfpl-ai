@@ -398,8 +398,9 @@ export default function DevLandingPage() {
                 paintOrder: 'stroke fill'
               }}
             >
-              <span style={{ color: 'white' }}>Everything You Need For </span>
-              <span style={{ color: '#00FF87' }}>FPL Success</span>
+              <span style={{ color: '#FFFFFF' }}>Everything You Need For </span>
+              <span style={{ color: '#00FFFF' }}>FPL </span>
+              <span style={{ color: '#00FF86' }}>Success</span>
             </h2>
             <p className="text-lg text-gray-300">
               Powered by real-time data and AI intelligence
