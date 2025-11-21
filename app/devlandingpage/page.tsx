@@ -458,24 +458,21 @@ export default function DevLandingPage() {
             <Card className="border-gray-700 bg-[#1A1329]">
               <CardContent className="p-6 text-center">
                 <div className="mb-6 flex justify-center">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-[#00FFFF]">
+                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
                     <Image
-                      src="/player_images/circular/blue_blue_bg.png"
+                      src="/player_images/circular/mateta_circular.png"
                       alt="Natural Chat"
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <MessageSquare className="h-8 w-8 text-[#00FFFF]" style={{ filter: 'drop-shadow(0 0 8px rgba(0, 255, 255, 0.6))' }} />
-                    </div>
                   </div>
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Natural Chat</h3>
                 <p className="mb-4 text-sm text-[#00FF87] font-semibold">
-                  Should I take a hit for a double gameweek?
+                  Is Jean-Philippe Mateta worth the transfer?
                 </p>
                 <p className="text-sm text-gray-400">
-                  Ask anything from 'Who to captain' to 'Compare Salah vs Son' in plain English.
+                  Ask anything from 'Recommend the top 3 performing strikers' to 'Compare van Dijk vs Gabriel' in plain English.
                 </p>
               </CardContent>
             </Card>
