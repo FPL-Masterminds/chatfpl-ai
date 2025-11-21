@@ -506,7 +506,7 @@ export default function DevLandingPage() {
             <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-offset-2 ring-offset-[#1A1329] ring-[#00FF86]">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-[#00FF86]">
                     <Image
                       src="/player_images/circular/green_testimonial.png"
                       alt="James Mitchell"
@@ -535,7 +535,7 @@ export default function DevLandingPage() {
             <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-offset-2 ring-offset-[#1A1329] ring-[#00FFFF]">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-[#00FFFF]">
                     <Image
                       src="/player_images/circular/blue_testimonial.png"
                       alt="Sarah Davies"
@@ -564,7 +564,7 @@ export default function DevLandingPage() {
             <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-offset-2 ring-offset-[#1A1329] ring-[#A855F7]">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-[#A855F7]">
                     <Image
                       src="/player_images/circular/purple_testimonial.png"
                       alt="Marcus Ellis"
