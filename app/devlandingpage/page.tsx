@@ -180,7 +180,7 @@ export default function DevLandingPage() {
                               backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)'
                             }}
                           >
-                            <span className="font-bold text-white">Jack Grealish | MID</span>
+                            <span className="font-bold text-white" style={{ fontFamily: "'Futura Maxi CG', sans-serif" }}>Jack Grealish | MID</span>
                           </div>
                         </div>
                         <p className="leading-relaxed text-sm">
