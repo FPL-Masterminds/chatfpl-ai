@@ -126,7 +126,7 @@ export default function DevLandingPage() {
                 </div>
 
                 {/* Chat Body */}
-                <div className="p-6 h-[440px] sm:h-[400px] mb-6 sm:mb-0 flex flex-col gap-4 bg-black/20">
+                <div className="p-6 h-[440px] sm:h-[400px] mb-6 sm:mb-0 flex flex-col gap-4" style={{ background: '#1E1525' }}>
                   {/* User Message */}
                   <div className="flex justify-end">
                     <div 
