@@ -503,7 +503,7 @@ export default function DevLandingPage() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {/* Testimonial 1 */}
-            <Card className="border-gray-700 bg-[#1A1329]">
+            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-4">
                   <div className="relative h-16 w-16 overflow-hidden rounded-full">
@@ -532,7 +532,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Testimonial 2 */}
-            <Card className="border-gray-700 bg-[#1A1329]">
+            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-4">
                   <div className="relative h-16 w-16 overflow-hidden rounded-full">
@@ -561,7 +561,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Testimonial 3 */}
-            <Card className="border-gray-700 bg-[#1A1329]">
+            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-4">
                   <div className="relative h-16 w-16 overflow-hidden rounded-full">
