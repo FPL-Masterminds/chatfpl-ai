@@ -506,15 +506,13 @@ export default function DevLandingPage() {
             <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1A1329]" style={{ background: 'linear-gradient(135deg, #00FF87, #00FFFF)' }}>
-                    <div className="absolute inset-[2px] rounded-full overflow-hidden">
-                      <Image
-                        src="/player_images/circular/green_testimonial.png"
-                        alt="James Mitchell"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-offset-2 ring-offset-[#1A1329] ring-[#00FF86]">
+                    <Image
+                      src="/player_images/circular/green_testimonial.png"
+                      alt="James Mitchell"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <div className="mt-3 flex gap-1">
                     {[...Array(5)].map((_, i) => (
@@ -537,15 +535,13 @@ export default function DevLandingPage() {
             <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1A1329]" style={{ background: 'linear-gradient(135deg, #00FF87, #00FFFF)' }}>
-                    <div className="absolute inset-[2px] rounded-full overflow-hidden">
-                      <Image
-                        src="/player_images/circular/blue_testimonial.png"
-                        alt="Sarah Davies"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-offset-2 ring-offset-[#1A1329] ring-[#00FFFF]">
+                    <Image
+                      src="/player_images/circular/blue_testimonial.png"
+                      alt="Sarah Davies"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <div className="mt-3 flex gap-1">
                     {[...Array(5)].map((_, i) => (
@@ -568,15 +564,13 @@ export default function DevLandingPage() {
             <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1A1329]" style={{ background: 'linear-gradient(135deg, #00FF87, #00FFFF)' }}>
-                    <div className="absolute inset-[2px] rounded-full overflow-hidden">
-                      <Image
-                        src="/player_images/circular/purple_testimonial.png"
-                        alt="Marcus Ellis"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-offset-2 ring-offset-[#1A1329] ring-[#A855F7]">
+                    <Image
+                      src="/player_images/circular/purple_testimonial.png"
+                      alt="Marcus Ellis"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <div className="mt-3 flex gap-1">
                     {[...Array(5)].map((_, i) => (
