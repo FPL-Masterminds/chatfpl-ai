@@ -409,7 +409,7 @@ export default function DevLandingPage() {
 
           <div className="grid gap-8 md:grid-cols-3">
             {/* Feature 1 */}
-            <Card className="border-gray-700 bg-[#1A1329]">
+            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-6 flex justify-center">
                   <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
@@ -432,7 +432,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Feature 2 */}
-            <Card className="border-gray-700 bg-[#1A1329]">
+            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-6 flex justify-center">
                   <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
@@ -455,7 +455,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Feature 3 */}
-            <Card className="border-gray-700 bg-[#1A1329]">
+            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-6 flex justify-center">
                   <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
