@@ -34,9 +34,9 @@ export function DevHeader() {
                 <span className="text-sm font-medium text-white">
                   Welcome {session?.user?.name?.split(" ")[0] || "User"}
                 </span>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
-                  <Link href="/admin">Dashboard</Link>
-                </button>
+                <Link href="/admin" className="block px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
+                  Dashboard
+                </Link>
                 <button 
                   onClick={() => signOut({ callbackUrl: "/login" })}
                   className="px-5 py-2 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1A0E24] text-sm font-bold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] transition-all duration-300 hover:-translate-y-0.5"
