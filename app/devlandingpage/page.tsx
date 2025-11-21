@@ -412,15 +412,15 @@ export default function DevLandingPage() {
             <Card className="border-gray-700 bg-[#1A1329]">
               <CardContent className="p-6 text-center">
                 <div className="mb-6 flex justify-center">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-[#00FF87]">
+                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
                     <Image
-                      src="/placeholder.jpg"
+                      src="/player_images/circular/green_blue_bg.png"
                       alt="Live Data"
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#00FF87]/20">
-                      <Zap className="h-8 w-8 text-[#00FF87]" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Zap className="h-8 w-8 text-white" style={{ filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))' }} />
                     </div>
                   </div>
                 </div>
