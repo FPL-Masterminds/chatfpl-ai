@@ -492,8 +492,8 @@ export default function DevLandingPage() {
                 paintOrder: 'stroke fill'
               }}
             >
-              <span style={{ color: 'white' }}>What </span>
-              <span style={{ color: '#00FFFF' }}>Users Say</span>
+              <span style={{ color: 'white' }}>What Users </span>
+              <span style={{ color: '#00FF86' }}>Say</span>
             </h2>
             <p className="text-lg text-gray-300">
               Real feedback from FPL managers using ChatFPL AI
