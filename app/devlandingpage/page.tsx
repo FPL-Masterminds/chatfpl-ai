@@ -24,12 +24,12 @@ export const metadata = {
 
 export default function DevLandingPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-[#0f0518]">
+    <div className="flex min-h-screen flex-col bg-[#1A0E24]">
       <DevHeader />
 
       {/* Hero Section */}
       <section 
-        className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden bg-[#0f0518]"
+        className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden bg-[#1A0E24]"
       >
         {/* Animated Background Effects */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
