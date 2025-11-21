@@ -287,7 +287,7 @@ export default function DevLandingPage() {
                     "Give me some live statistics about Mohamed Salah this season."
                   </h3>
                 </div>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-[#00FF87] hover:text-[#1A0E24] transition-all duration-300">
+                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
                   View Answer →
                 </button>
               </div>
@@ -314,7 +314,7 @@ export default function DevLandingPage() {
                     "Is Erling Haaland worth his price this season given current form?"
                   </h3>
                 </div>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-[#00FF87] hover:text-[#1A0E24] transition-all duration-300">
+                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
                   View Answer →
                 </button>
               </div>
@@ -341,7 +341,7 @@ export default function DevLandingPage() {
                     "Is Jack Grealish a good pick with Everton's upcoming fixtures?"
                   </h3>
                 </div>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-[#00FF87] hover:text-[#1A0E24] transition-all duration-300">
+                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
                   View Answer →
                 </button>
               </div>
@@ -368,7 +368,7 @@ export default function DevLandingPage() {
                     "Is Antoine Semenyo a good budget midfield option?"
                   </h3>
                 </div>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-[#00FF87] hover:text-[#1A0E24] transition-all duration-300">
+                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
                   View Answer →
                 </button>
               </div>

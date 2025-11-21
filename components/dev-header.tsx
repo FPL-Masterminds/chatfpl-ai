@@ -34,7 +34,7 @@ export function DevHeader() {
                 <span className="text-sm font-medium text-white">
                   Welcome {session?.user?.name?.split(" ")[0] || "User"}
                 </span>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-[#00FF87] hover:text-[#1A0E24] transition-all duration-300">
+                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
                   <Link href="/admin">Dashboard</Link>
                 </button>
                 <button 
