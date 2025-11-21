@@ -423,7 +423,7 @@ export default function DevLandingPage() {
                 </div>
                 <h3 className="mb-3 text-xl font-bold text-white">Live Data</h3>
                 <p className="mb-4 text-sm text-[#00FF87] font-semibold">
-                  Give me some live data on Erling Haaland
+                  Give me some live data on Bukaya Saka
                 </p>
                 <p className="text-sm text-gray-400">
                   Connects to the official FPL API for real-time stats, fixtures, and player performance data.
