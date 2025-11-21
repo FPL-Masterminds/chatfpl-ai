@@ -295,8 +295,14 @@ export default function DevLandingPage() {
             {/* Question Card 2 - Erling Haaland */}
             <Link href="/erling-haaland-price-worth-it" className="group block">
               <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-500/10 shrink-0">
-                  <Zap className="h-6 w-6 text-yellow-500" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
+                  <Image 
+                    src="/player_images/circular/erling_haaland_circular.png"
+                    alt="Erling Haaland"
+                    width={48}
+                    height={48}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
