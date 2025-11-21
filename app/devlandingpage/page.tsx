@@ -126,7 +126,7 @@ export default function DevLandingPage() {
                 </div>
 
                 {/* Chat Body */}
-                <div className="p-6 h-[440px] sm:h-[400px] flex flex-col gap-4 bg-black/20">
+                <div className="p-6 pb-12 sm:pb-6 h-[440px] sm:h-[400px] flex flex-col gap-4 bg-black/20">
                   {/* User Message */}
                   <div className="flex justify-end">
                     <div 
@@ -217,7 +217,7 @@ export default function DevLandingPage() {
 
                 {/* Input Area */}
                 <div 
-                  className="mt-6 p-4 border-t bg-white/5"
+                  className="p-4 border-t bg-white/5"
                   style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
                 >
                   <div className="relative">
