@@ -603,9 +603,9 @@ export default function DevLandingPage() {
                 paintOrder: 'stroke fill'
               }}
             >
-              <span style={{ color: 'white' }}>Simple </span>
-              <span style={{ color: '#00FF87' }}>Transparent </span>
-              <span style={{ color: '#A855F7' }}>Pricing</span>
+              <span style={{ color: '#FFFFFF' }}>Simple </span>
+              <span style={{ color: '#00FFFF' }}>Transparent </span>
+              <span style={{ color: '#00FF86' }}>Pricing</span>
             </h2>
             <p className="text-lg text-gray-300">
               Choose the plan that fits your FPL ambitions
@@ -747,8 +747,9 @@ export default function DevLandingPage() {
                 paintOrder: 'stroke fill'
               }}
             >
-              <span style={{ color: 'white' }}>Frequently </span>
-              <span style={{ color: '#00FFFF' }}>Asked Questions</span>
+              <span style={{ color: '#FFFFFF' }}>Frequently </span>
+              <span style={{ color: '#00FFFF' }}>Asked </span>
+              <span style={{ color: '#00FF86' }}>Questions</span>
             </h2>
             <p className="text-lg text-gray-300">
               Everything you need to know about ChatFPL AI
