@@ -319,7 +319,7 @@ export default function DevLandingPage() {
                     <span className="text-xs text-gray-600">• Fixtures</span>
                   </div>
                   <h3 className="text-base font-normal text-white group-hover:text-[#00FF87] transition-colors">
-                    "Which teams have the best fixture run over the next 6 gameweeks?"
+                    "Is Jack Grealish a good pick with Everton's upcoming fixtures?"
                   </h3>
                 </div>
                 <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-[#00FF87] hover:text-[#1A0E24] transition-all duration-300">
