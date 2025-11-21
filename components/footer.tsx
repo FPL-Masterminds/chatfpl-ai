@@ -23,22 +23,22 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link href="/" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  Home
+                  🏠 Home
                 </Link>
               </li>
               <li>
                 <Link href="/about" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  About
+                  ℹ️ About
                 </Link>
               </li>
               <li>
                 <Link href="/playbook" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  The Playbook
+                  📖 The Playbook
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  Contact Us
+                  📧 Contact Us
                 </Link>
               </li>
             </ul>
@@ -90,12 +90,12 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link href="/privacy" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  Privacy Policy
+                  🔒 Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  Terms of Service
+                  📄 Terms of Service
                 </Link>
               </li>
             </ul>
