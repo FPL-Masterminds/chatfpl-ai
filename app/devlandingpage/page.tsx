@@ -426,7 +426,7 @@ export default function DevLandingPage() {
                   Give me some live data on Bukaya Saka
                 </p>
                 <p className="text-sm text-gray-400">
-                  Connects to the official FPL API for real-time stats, fixtures, and player performance data.
+                  Connects to the official FPL API for real-time stats, fixtures, player performance data, and live gameweek updates.
                 </p>
               </CardContent>
             </Card>
@@ -449,7 +449,7 @@ export default function DevLandingPage() {
                   Should I captain Micky van de Ven?
                 </p>
                 <p className="text-sm text-gray-400">
-                  Smart captain advice using live data, fixtures, and form to maximise your points.
+                  Smart captain advice using live data, upcoming fixtures, recent form, and ownership trends to maximise your points.
                 </p>
               </CardContent>
             </Card>
