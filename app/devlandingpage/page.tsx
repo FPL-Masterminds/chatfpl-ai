@@ -24,14 +24,14 @@ export const metadata = {
 
 export default function DevLandingPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-[#0A0118]">
+    <div className="flex min-h-screen flex-col" style={{ backgroundColor: '#0f0518' }}>
       <DevHeader />
 
       {/* Hero Section */}
       <section 
         className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #37003c 0%, #05f0ff 100%)'
+          backgroundColor: '#0f0518'
         }}
       >
         {/* Animated Background Effects */}
