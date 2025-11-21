@@ -42,8 +42,8 @@ export default function DevLandingPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Column - Headline & CTA */}
             <div className="text-center lg:text-left space-y-8">
-              <h1 className="text-5xl lg:text-7xl font-bold leading-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                Chat with your<br />
+              <h1 className="text-balance font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: '60px' }}>
+                Chat with your{" "}
                 <span 
                   className="text-transparent bg-clip-text"
                   style={{
@@ -52,7 +52,7 @@ export default function DevLandingPage() {
                     WebkitTextFillColor: 'transparent'
                   }}
                 >
-                  Fantasy Premier League<br />AI Assistant
+                  Fantasy Premier League AI Assistant
                 </span>
               </h1>
               <p className="text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
