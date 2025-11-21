@@ -504,25 +504,27 @@ export default function DevLandingPage() {
           <div className="grid gap-6 md:grid-cols-3">
             {/* Testimonial 1 */}
             <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center gap-4">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full">
-                    <Image
-                      src="/placeholder.jpg"
-                      alt="Ryan Anderson"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="mb-1 flex gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                      ))}
+              <CardContent className="p-6 text-center">
+                <div className="mb-4 flex flex-col items-center">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1A1329]" style={{ background: 'linear-gradient(135deg, #00FF87, #00FFFF)' }}>
+                    <div className="absolute inset-[2px] rounded-full overflow-hidden">
+                      <Image
+                        src="/placeholder.jpg"
+                        alt="James Mitchell"
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                   </div>
+                  <div className="mt-3 flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="h-5 w-5" viewBox="0 0 24 24" fill="#D4AF37">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    ))}
+                  </div>
                 </div>
-                <h4 className="mb-1 font-semibold text-white">Ryan Anderson</h4>
+                <h4 className="mb-1 font-semibold text-white">James Mitchell</h4>
                 <Badge className="mb-3 bg-[#00FF87] text-gray-900 text-xs">PREMIUM SUBSCRIBER</Badge>
                 <p className="text-sm italic text-gray-300">
                   "I asked ChatFPL AI for a detailed player comparison between Haaland and Joao Pedro. 
@@ -533,25 +535,27 @@ export default function DevLandingPage() {
 
             {/* Testimonial 2 */}
             <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center gap-4">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full">
-                    <Image
-                      src="/placeholder.jpg"
-                      alt="Oliver Hughes"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="mb-1 flex gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                      ))}
+              <CardContent className="p-6 text-center">
+                <div className="mb-4 flex flex-col items-center">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1A1329]" style={{ background: 'linear-gradient(135deg, #00FF87, #00FFFF)' }}>
+                    <div className="absolute inset-[2px] rounded-full overflow-hidden">
+                      <Image
+                        src="/placeholder.jpg"
+                        alt="Sarah Thompson"
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                   </div>
+                  <div className="mt-3 flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="h-5 w-5" viewBox="0 0 24 24" fill="#D4AF37">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    ))}
+                  </div>
                 </div>
-                <h4 className="mb-1 font-semibold text-white">Oliver Hughes</h4>
+                <h4 className="mb-1 font-semibold text-white">Sarah Thompson</h4>
                 <Badge className="mb-3 bg-[#00FFFF] text-gray-900 text-xs">CONTENT CREATOR</Badge>
                 <p className="text-sm italic text-gray-300">
                   "I use ChatFPL AI to write my FPL YouTube scripts. It analyses the data and helps me 
@@ -562,25 +566,27 @@ export default function DevLandingPage() {
 
             {/* Testimonial 3 */}
             <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center gap-4">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-full">
-                    <Image
-                      src="/placeholder.jpg"
-                      alt="Daniel Brown"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="mb-1 flex gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                      ))}
+              <CardContent className="p-6 text-center">
+                <div className="mb-4 flex flex-col items-center">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1A1329]" style={{ background: 'linear-gradient(135deg, #00FF87, #00FFFF)' }}>
+                    <div className="absolute inset-[2px] rounded-full overflow-hidden">
+                      <Image
+                        src="/placeholder.jpg"
+                        alt="Marcus Chen"
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                   </div>
+                  <div className="mt-3 flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <svg key={i} className="h-5 w-5" viewBox="0 0 24 24" fill="#D4AF37">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    ))}
+                  </div>
                 </div>
-                <h4 className="mb-1 font-semibold text-white">Daniel Brown</h4>
+                <h4 className="mb-1 font-semibold text-white">Marcus Chen</h4>
                 <Badge className="mb-3 bg-[#A855F7] text-white text-xs">ELITE SUBSCRIBER</Badge>
                 <p className="text-sm italic text-gray-300">
                   "Every gameweek I ask for transfer suggestions based on my team. ChatFPL AI considers 
