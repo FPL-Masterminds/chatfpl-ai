@@ -446,7 +446,7 @@ export default function DevLandingPage() {
                       className="object-cover"
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Target className="h-8 w-8 text-white" style={{ filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))' }} />
+                      <Target className="h-8 w-8 text-[#A855F7]" style={{ filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.6))' }} />
                     </div>
                   </div>
                 </div>
@@ -472,7 +472,7 @@ export default function DevLandingPage() {
                       className="object-cover"
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <MessageSquare className="h-8 w-8 text-white" style={{ filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))' }} />
+                      <MessageSquare className="h-8 w-8 text-[#00FFFF]" style={{ filter: 'drop-shadow(0 0 8px rgba(0, 255, 255, 0.6))' }} />
                     </div>
                   </div>
                 </div>
