@@ -788,7 +788,7 @@ export default function DevLandingPage() {
           </div>
 
           <Accordion type="single" collapsible className="space-y-4">
-            <AccordionItem value="item-1" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-1" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 🤖 What is ChatFPL AI?
               </AccordionTrigger>
@@ -797,7 +797,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-2" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-2" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 🆓 Can I try it for free?
               </AccordionTrigger>
@@ -806,7 +806,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-3" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-3" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 🎁 How do I earn extra messages on the Free plan?
               </AccordionTrigger>
@@ -815,7 +815,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-4" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-4" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ❓ What type of FPL questions can I ask?
               </AccordionTrigger>
@@ -824,7 +824,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-5" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-5" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 🔄 How often is the FPL data updated?
               </AccordionTrigger>
@@ -833,7 +833,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-6" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-6" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 📅 Do unused messages roll over to the next month?
               </AccordionTrigger>
@@ -842,7 +842,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-7" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-7" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ⚠️ What happens if I run out of messages?
               </AccordionTrigger>
@@ -851,7 +851,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-8" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-8" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 💎 What's the difference between Premium and Elite?
               </AccordionTrigger>
@@ -860,7 +860,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-9" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-9" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ❌ Can I cancel my subscription at any time?
               </AccordionTrigger>
@@ -869,7 +869,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-10" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-10" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ⚽ Can I use ChatFPL AI during gameweeks?
               </AccordionTrigger>
@@ -878,7 +878,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-11" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-11" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 📈 Does ChatFPL AI guarantee I'll climb the rankings?
               </AccordionTrigger>
@@ -887,7 +887,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-12" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-12" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 💬 Can I ask follow-up questions?
               </AccordionTrigger>
@@ -896,7 +896,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-13" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-13" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors !border-b">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ✏️ Is there a limit to how long my questions can be?
               </AccordionTrigger>
