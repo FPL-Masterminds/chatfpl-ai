@@ -13,7 +13,7 @@ export function Footer() {
               alt="ChatFPL AI" 
               width={48} 
               height={48}
-              className="h-12 w-auto"
+              className="h-10 w-auto md:h-12"
             />
             <p className="text-sm text-gray-300">AI-powered Fantasy Premier League assistant for smarter decisions.</p>
           </div>
