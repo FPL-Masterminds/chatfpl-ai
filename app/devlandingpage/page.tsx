@@ -541,7 +541,7 @@ export default function DevLandingPage() {
                     <div className="absolute inset-[2px] rounded-full overflow-hidden">
                       <Image
                         src="/placeholder.jpg"
-                        alt="Sarah Thompson"
+                        alt="Sarah Davies"
                         fill
                         className="object-cover"
                       />
@@ -555,7 +555,7 @@ export default function DevLandingPage() {
                     ))}
                   </div>
                 </div>
-                <h4 className="mb-1 font-semibold text-white">Sarah Thompson</h4>
+                <h4 className="mb-1 font-semibold text-white">Sarah Davies</h4>
                 <Badge className="mb-3 bg-[#00FFFF] text-gray-900 text-xs">CONTENT CREATOR</Badge>
                 <p className="text-sm italic text-gray-300">
                   "I use ChatFPL AI to write my FPL YouTube scripts. It analyses the data and helps me 
@@ -572,7 +572,7 @@ export default function DevLandingPage() {
                     <div className="absolute inset-[2px] rounded-full overflow-hidden">
                       <Image
                         src="/placeholder.jpg"
-                        alt="Marcus Chen"
+                        alt="Marcus Ellis"
                         fill
                         className="object-cover"
                       />
@@ -586,7 +586,7 @@ export default function DevLandingPage() {
                     ))}
                   </div>
                 </div>
-                <h4 className="mb-1 font-semibold text-white">Marcus Chen</h4>
+                <h4 className="mb-1 font-semibold text-white">Marcus Ellis</h4>
                 <Badge className="mb-3 bg-[#A855F7] text-white text-xs">ELITE SUBSCRIBER</Badge>
                 <p className="text-sm italic text-gray-300">
                   "Every gameweek I ask for transfer suggestions based on my team. ChatFPL AI considers 
