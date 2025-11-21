@@ -63,29 +63,29 @@ export default function DevLandingPage() {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Link 
                   href="/signup"
-                  className="px-8 py-4 rounded-full bg-[#00ff85] text-[#1a0e24] font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,133,0.5)]"
+                  className="px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1a0e24] font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,133,0.5)]"
                   style={{
                     boxShadow: '0 0 20px rgba(0,255,133,0.3)'
                   }}
                 >
-                  Start Free Trial
-                </Link>
-                <Link
-                  href="#features"
-                  className="px-8 py-4 rounded-full text-white font-semibold transition-all duration-300 hover:bg-white/10"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
-                  }}
-                >
-                  View Features
+                  Start your 5-message free trial today
                 </Link>
               </div>
               
-              <p className="text-sm text-gray-500">
-                No credit card required • Instant access
-              </p>
+              <div className="flex items-center justify-center lg:justify-start gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <svg className="h-4 w-4 text-[#00FF87]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-gray-400">No credit card required</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="h-4 w-4 text-[#00FF87]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-gray-400">Instant access</span>
+                </div>
+              </div>
             </div>
 
             {/* Right Column - Glass Chat Interface */}
@@ -376,9 +376,12 @@ export default function DevLandingPage() {
           </div>
 
           <div className="mt-12 text-center">
-            <Button size="lg" asChild className="bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90">
-              <Link href="/signup">Start your 5-message free trial today</Link>
-            </Button>
+            <Link 
+              href="/signup"
+              className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1a0e24] font-bold text-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
+            >
+              Start your 5-message free trial today
+            </Link>
           </div>
         </div>
       </section>
@@ -687,9 +690,12 @@ export default function DevLandingPage() {
                     <span className="text-sm text-gray-300">Strategy Engine</span>
                   </div>
                 </div>
-                <Button className="w-full bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90" asChild>
-                  <Link href="/signup">Subscribe</Link>
-                </Button>
+                <Link 
+                  href="/signup"
+                  className="block w-full px-6 py-3 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1a0e24] font-bold text-center transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
+                >
+                  Subscribe
+                </Link>
               </CardContent>
             </Card>
 
