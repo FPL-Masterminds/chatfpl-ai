@@ -509,7 +509,7 @@ export default function DevLandingPage() {
                   <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1A1329]" style={{ background: 'linear-gradient(135deg, #00FF87, #00FFFF)' }}>
                     <div className="absolute inset-[2px] rounded-full overflow-hidden">
                       <Image
-                        src="/placeholder.jpg"
+                        src="/green_testimonial.png"
                         alt="James Mitchell"
                         fill
                         className="object-cover"
@@ -540,7 +540,7 @@ export default function DevLandingPage() {
                   <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1A1329]" style={{ background: 'linear-gradient(135deg, #00FF87, #00FFFF)' }}>
                     <div className="absolute inset-[2px] rounded-full overflow-hidden">
                       <Image
-                        src="/placeholder.jpg"
+                        src="/blue_testimonial.png"
                         alt="Sarah Davies"
                         fill
                         className="object-cover"
@@ -571,7 +571,7 @@ export default function DevLandingPage() {
                   <div className="relative h-16 w-16 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1A1329]" style={{ background: 'linear-gradient(135deg, #00FF87, #00FFFF)' }}>
                     <div className="absolute inset-[2px] rounded-full overflow-hidden">
                       <Image
-                        src="/placeholder.jpg"
+                        src="/purple_testimonial.png"
                         alt="Marcus Ellis"
                         fill
                         className="object-cover"
