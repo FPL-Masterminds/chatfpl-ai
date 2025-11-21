@@ -264,122 +264,106 @@ export default function DevLandingPage() {
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Question Card 1 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#00FF87]/10">
-                    <TrendingUp className="h-5 w-5 text-[#00FF87]" />
-                  </div>
-                  <div>
-                    <Badge variant="outline" className="border-gray-600 text-gray-300 text-xs">
-                      STATS
-                    </Badge>
-                    <p className="text-xs text-gray-500 mt-1">Player Research</p>
-                  </div>
+          <div className="flex flex-col gap-4 max-w-4xl mx-auto">
+            {/* Question Card 1 - Mohamed Salah */}
+            <Link href="/mohamed-salah-statistics" className="group block">
+              <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#00FF87]/10 shrink-0">
+                  <TrendingUp className="h-6 w-6 text-[#00FF87]" />
                 </div>
-                <h3 className="mb-4 text-lg font-semibold text-white">
-                  "Give me some live statistics about Mohamed Salah this season."
-                </h3>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold text-gray-400 uppercase">STATS</span>
+                    <span className="text-xs text-gray-600">• Player Research</span>
+                  </div>
+                  <h3 className="text-base font-normal text-white group-hover:text-[#00FF87] transition-colors">
+                    "Give me some live statistics about Mohamed Salah this season."
+                  </h3>
+                </div>
                 <Button 
-                  asChild 
-                  variant="outline" 
-                  className="w-full border-gray-600 text-[#00FF87] hover:bg-gray-800 hover:text-[#00FF87]"
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 text-[#00FF87] hover:bg-[#00FF87]/10"
                 >
-                  <Link href="/mohamed-salah-statistics">
-                    View Answer <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  View Answer →
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </Link>
 
-            {/* Question Card 2 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-500/10">
-                    <Zap className="h-5 w-5 text-yellow-500" />
-                  </div>
-                  <div>
-                    <Badge variant="outline" className="border-gray-600 text-gray-300 text-xs">
-                      PRICE
-                    </Badge>
-                    <p className="text-xs text-gray-500 mt-1">Price Analysis</p>
-                  </div>
+            {/* Question Card 2 - Erling Haaland */}
+            <Link href="/erling-haaland-price-worth-it" className="group block">
+              <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-500/10 shrink-0">
+                  <Zap className="h-6 w-6 text-yellow-500" />
                 </div>
-                <h3 className="mb-4 text-lg font-semibold text-white">
-                  "Is Erling Haaland worth his price this season given current form?"
-                </h3>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold text-gray-400 uppercase">PRICE</span>
+                    <span className="text-xs text-gray-600">• Price Analysis</span>
+                  </div>
+                  <h3 className="text-base font-normal text-white group-hover:text-[#00FF87] transition-colors">
+                    "Is Erling Haaland worth his price this season given current form?"
+                  </h3>
+                </div>
                 <Button 
-                  asChild 
-                  variant="outline" 
-                  className="w-full border-gray-600 text-[#00FF87] hover:bg-gray-800 hover:text-[#00FF87]"
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 text-[#00FF87] hover:bg-[#00FF87]/10"
                 >
-                  <Link href="/erling-haaland-price-worth-it">
-                    View Answer <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  View Answer →
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </Link>
 
-            {/* Question Card 3 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-                    <Target className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <Badge variant="outline" className="border-gray-600 text-gray-300 text-xs">
-                      STRATEGY
-                    </Badge>
-                    <p className="text-xs text-gray-500 mt-1">Fixtures</p>
-                  </div>
+            {/* Question Card 3 - Jack Grealish */}
+            <Link href="/jack-grealish-everton-fixtures" className="group block">
+              <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 shrink-0">
+                  <Target className="h-6 w-6 text-blue-500" />
                 </div>
-                <h3 className="mb-4 text-lg font-semibold text-white">
-                  "Which teams have the best fixture run over the next 6 gameweeks?"
-                </h3>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold text-gray-400 uppercase">STRATEGY</span>
+                    <span className="text-xs text-gray-600">• Fixtures</span>
+                  </div>
+                  <h3 className="text-base font-normal text-white group-hover:text-[#00FF87] transition-colors">
+                    "Which teams have the best fixture run over the next 6 gameweeks?"
+                  </h3>
+                </div>
                 <Button 
-                  asChild 
-                  variant="outline" 
-                  className="w-full border-gray-600 text-[#00FF87] hover:bg-gray-800 hover:text-[#00FF87]"
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 text-[#00FF87] hover:bg-[#00FF87]/10"
                 >
-                  <Link href="/best-fixtures-next-6-gameweeks">
-                    View Answer <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  View Answer →
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </Link>
 
-            {/* Question Card 4 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-                    <ArrowRight className="h-5 w-5 text-purple-500" />
-                  </div>
-                  <div>
-                    <Badge variant="outline" className="border-gray-600 text-gray-300 text-xs">
-                      TRANSFERS
-                    </Badge>
-                    <p className="text-xs text-gray-500 mt-1">Transfer Advice</p>
-                  </div>
+            {/* Question Card 4 - Antoine Semenyo */}
+            <Link href="/antoine-semenyo-budget-midfielder" className="group block">
+              <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/10 shrink-0">
+                  <ArrowRight className="h-6 w-6 text-purple-500" />
                 </div>
-                <h3 className="mb-4 text-lg font-semibold text-white">
-                  "Should I transfer out Mohamed Salah for Cole Palmer?"
-                </h3>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold text-gray-400 uppercase">TRANSFERS</span>
+                    <span className="text-xs text-gray-600">• Transfer Advice</span>
+                  </div>
+                  <h3 className="text-base font-normal text-white group-hover:text-[#00FF87] transition-colors">
+                    "Is Antoine Semenyo a good budget midfield option?"
+                  </h3>
+                </div>
                 <Button 
-                  asChild 
-                  variant="outline" 
-                  className="w-full border-gray-600 text-[#00FF87] hover:bg-gray-800 hover:text-[#00FF87]"
+                  variant="ghost"
+                  size="sm"
+                  className="shrink-0 text-[#00FF87] hover:bg-[#00FF87]/10"
                 >
-                  <Link href="/salah-vs-cole-palmer-transfer">
-                    View Answer <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  View Answer →
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </Link>
           </div>
 
           <div className="mt-12 text-center">
