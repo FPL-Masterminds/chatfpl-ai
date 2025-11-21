@@ -492,7 +492,8 @@ export default function DevLandingPage() {
                 paintOrder: 'stroke fill'
               }}
             >
-              <span style={{ color: 'white' }}>What Users </span>
+              <span style={{ color: '#FFFFFF' }}>What </span>
+              <span style={{ color: '#00FFFF' }}>Users </span>
               <span style={{ color: '#00FF86' }}>Say</span>
             </h2>
             <p className="text-lg text-gray-300">
