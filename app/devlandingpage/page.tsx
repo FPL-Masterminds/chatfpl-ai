@@ -177,14 +177,14 @@ export default function DevLandingPage() {
                           />
                           
                           {/* Player Image Layer - Positioned Right */}
-                          <div className="absolute inset-0 flex items-end justify-end" style={{ zIndex: 2, paddingRight: '8px' }}>
+                          <div className="absolute inset-0 flex items-end justify-end" style={{ zIndex: 2 }}>
                             <div className="relative h-full w-20 sm:w-28">
                               <Image
                                 src="/player_images/jack_grealish.png"
                                 alt="Jack Grealish"
                                 fill
                                 className="object-contain object-bottom"
-                                style={{ objectFit: 'contain', objectPosition: 'bottom right', maxHeight: '90%' }}
+                                style={{ objectFit: 'contain', objectPosition: 'bottom right' }}
                               />
                             </div>
                           </div>
