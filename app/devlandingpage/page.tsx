@@ -790,7 +790,7 @@ export default function DevLandingPage() {
           <Accordion type="single" collapsible className="space-y-4">
             <AccordionItem value="item-1" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                What is ChatFPL AI?
+                🤖 What is ChatFPL AI?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 ChatFPL AI is your intelligent Fantasy Premier League assistant powered by artificial intelligence and real-time FPL data. Simply ask any question about players, transfers, captains, fixtures, or strategy, and receive instant, data-driven answers to help you make smarter FPL decisions and climb the rankings.
@@ -799,7 +799,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-2" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                Can I try it for free?
+                🆓 Can I try it for free?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 Yes! Our Free plan includes 5 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages.
@@ -808,7 +808,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-3" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                How do I earn extra messages on the Free plan?
+                🎁 How do I earn extra messages on the Free plan?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 Free users can earn bonus messages by completing simple tasks like sharing ChatFPL AI on social media (X, Facebook, Reddit) or leaving a review. Each task rewards you with additional messages, up to a lifetime cap of 50 bonus messages. Visit your dashboard to see available rewards.
@@ -817,7 +817,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-4" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                What type of FPL questions can I ask?
+                ❓ What type of FPL questions can I ask?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 You can ask anything FPL-related: player statistics, captain picks, transfer advice, fixture analysis, differential suggestions, chip strategy, rule clarifications, price predictions, ownership trends, and much more. ChatFPL AI provides instant, data-driven answers backed by real-time Premier League data.
@@ -826,7 +826,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-5" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                How often is the FPL data updated?
+                🔄 How often is the FPL data updated?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 ChatFPL AI uses live Fantasy Premier League data that updates continuously. Player prices update daily at 1:30 AM UK time, match statistics update within hours of the final whistle, and injury news is refreshed as official team announcements are made. You're always getting the most current information available.
@@ -835,7 +835,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-6" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                Do unused messages roll over to the next month?
+                📅 Do unused messages roll over to the next month?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 No, unused messages do not carry over. Premium users receive 100 messages each month, and Elite users receive 500 messages per month. Your message allowance resets on your renewal date, so make sure to use your messages before they expire.
@@ -844,7 +844,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-7" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                What happens if I run out of messages?
+                ⚠️ What happens if I run out of messages?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 If you've used all your messages for the current period, you can upgrade to a higher plan for more messages, or wait until your next renewal date when your allowance resets. Free users can also earn bonus messages by completing social sharing tasks.
@@ -853,7 +853,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-8" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                What's the difference between Premium and Elite?
+                💎 What's the difference between Premium and Elite?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 Premium gives you 100 messages per month for £19.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £49.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities.
@@ -862,7 +862,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-9" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                Can I cancel my subscription at any time?
+                ❌ Can I cancel my subscription at any time?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 Yes! You can cancel your Premium or Elite subscription at any time from your account dashboard. Your access will continue until the end of your current billing period, and you won't be charged again. No cancellation fees or penalties.
@@ -871,7 +871,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-10" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                Can I use ChatFPL AI during gameweeks?
+                ⚽ Can I use ChatFPL AI during gameweeks?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 Yes! ChatFPL AI is available 24/7, including during live gameweeks. You can get last-minute captain advice before the deadline, check injury updates, analyse fixture swings, or plan your transfers for the following week. The AI is always ready when you need it.
@@ -880,7 +880,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-11" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                Does ChatFPL AI guarantee I'll climb the rankings?
+                📈 Does ChatFPL AI guarantee I'll climb the rankings?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 While ChatFPL AI provides data-driven insights and analysis to support better decisions, FPL involves unpredictability that no tool can eliminate. We give you the information edge - form trends, expected stats, fixture analysis - but ultimately, player performance and your strategic decisions determine your rank.
@@ -889,7 +889,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-12" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                Can I ask follow-up questions?
+                💬 Can I ask follow-up questions?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 Yes! Each conversation with ChatFPL AI is contextual, meaning you can ask follow-up questions that build on previous answers. For example, after asking about Mohamed Salah's stats, you can immediately ask "Should I captain him?" or "Compare him with Son Heung-min." Each follow-up costs one message.
@@ -898,7 +898,7 @@ export default function DevLandingPage() {
 
             <AccordionItem value="item-13" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                Is there a limit to how long my questions can be?
+                ✏️ Is there a limit to how long my questions can be?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
                 While there's no strict character limit, we recommend keeping questions clear and concise for the best results. Instead of asking multiple questions in one message, break them into separate queries. For example, ask "Who should I captain?" first, then follow up with "What about transfers?" This helps the AI provide more focused, accurate responses.
