@@ -107,7 +107,7 @@ export default function DevLandingPage() {
               <div 
                 className="relative rounded-2xl shadow-2xl overflow-hidden transition-transform duration-500 hover:rotate-1"
                 style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
+                  background: 'rgba(0, 0, 0, 0.3)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.1)'
                 }}
@@ -126,7 +126,7 @@ export default function DevLandingPage() {
                 </div>
 
                 {/* Chat Body */}
-                <div className="p-6 pb-12 sm:pb-6 h-[440px] sm:h-[400px] flex flex-col gap-4 bg-black/20">
+                <div className="p-6 h-[440px] sm:h-[400px] mb-6 sm:mb-0 flex flex-col gap-4 bg-black/20">
                   {/* User Message */}
                   <div className="flex justify-end">
                     <div 
