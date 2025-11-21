@@ -440,13 +440,13 @@ export default function DevLandingPage() {
                 <div className="mb-6 flex justify-center">
                   <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-[#A855F7]">
                     <Image
-                      src="/placeholder.jpg"
+                      src="/player_images/circular/purple_blue_bg.png"
                       alt="Expert Knowledge"
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#A855F7]/20">
-                      <Target className="h-8 w-8 text-[#A855F7]" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Target className="h-8 w-8 text-white" style={{ filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))' }} />
                     </div>
                   </div>
                 </div>
