@@ -466,13 +466,13 @@ export default function DevLandingPage() {
                 <div className="mb-6 flex justify-center">
                   <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-[#00FFFF]">
                     <Image
-                      src="/placeholder.jpg"
+                      src="/player_images/circular/blue_blue_bg.png"
                       alt="Natural Chat"
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#00FFFF]/20">
-                      <MessageSquare className="h-8 w-8 text-[#00FFFF]" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <MessageSquare className="h-8 w-8 text-white" style={{ filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))' }} />
                     </div>
                   </div>
                 </div>
