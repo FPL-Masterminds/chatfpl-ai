@@ -92,7 +92,7 @@ export default function DevLandingPage() {
             <div className="relative">
               {/* Floating Badge */}
               <div 
-                className="absolute -top-5 -right-5 px-4 py-2 rounded-lg text-sm font-bold text-[#00ff85] animate-bounce z-10"
+                className="absolute -top-5 right-0 sm:-right-5 px-4 py-2 rounded-lg text-sm font-bold text-[#00ff85] animate-bounce z-10"
                 style={{
                   background: 'rgba(255, 255, 255, 0.05)',
                   backdropFilter: 'blur(10px)',
@@ -177,14 +177,14 @@ export default function DevLandingPage() {
                           />
                           
                           {/* Player Image Layer - Positioned Right */}
-                          <div className="absolute inset-0 flex items-end justify-end" style={{ zIndex: 2 }}>
-                            <div className="relative h-full w-24 sm:w-32">
+                          <div className="absolute inset-0 flex items-end justify-end" style={{ zIndex: 2, paddingRight: '8px' }}>
+                            <div className="relative h-full w-20 sm:w-28">
                               <Image
                                 src="/player_images/jack_grealish.png"
                                 alt="Jack Grealish"
                                 fill
                                 className="object-contain object-bottom"
-                                style={{ objectFit: 'contain', objectPosition: 'bottom right' }}
+                                style={{ objectFit: 'contain', objectPosition: 'bottom right', maxHeight: '90%' }}
                               />
                             </div>
                           </div>
