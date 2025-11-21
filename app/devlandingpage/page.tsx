@@ -126,7 +126,7 @@ export default function DevLandingPage() {
                 </div>
 
                 {/* Chat Body */}
-                <div className="p-6 h-[420px] flex flex-col gap-4 bg-black/20">
+                <div className="p-6 h-[440px] sm:h-[400px] flex flex-col gap-4 bg-black/20">
                   {/* User Message */}
                   <div className="flex justify-end">
                     <div 
@@ -178,7 +178,7 @@ export default function DevLandingPage() {
                           
                           {/* Player Image Layer - Positioned Right */}
                           <div className="absolute inset-0 flex items-end justify-end" style={{ zIndex: 2 }}>
-                            <div className="relative h-full w-16 sm:w-28">
+                            <div className="relative h-full w-20 sm:w-28">
                               <Image
                                 src="/player_images/jack_grealish.png"
                                 alt="Jack Grealish"
