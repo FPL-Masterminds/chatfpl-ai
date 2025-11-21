@@ -168,7 +168,7 @@ export default function DevLandingPage() {
                         {/* Player Card */}
                         <div className="relative w-full h-32 rounded-lg overflow-hidden mb-2">
                           <Image
-                            src="/placeholder.jpg"
+                            src="/club_backgrounds/bg_Everton.png"
                             alt="Player Stats"
                             fill
                             className="object-cover opacity-80"
