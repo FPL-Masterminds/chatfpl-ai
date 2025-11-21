@@ -255,8 +255,9 @@ export default function DevLandingPage() {
                 paintOrder: 'stroke fill'
               }}
             >
-              <span style={{ color: 'white' }}>Ask </span>
-              <span style={{ color: '#A855F7' }}>ChatFPL AI</span>
+              <span style={{ color: '#FFFFFF' }}>Ask Chat</span>
+              <span style={{ color: '#00FFFF' }}>FPL </span>
+              <span style={{ color: '#00FF86' }}>AI</span>
             </h2>
             <p className="text-lg text-gray-300">
               Get instant, data-driven answers to any FPL question. Here are some examples of what 
@@ -349,8 +350,14 @@ export default function DevLandingPage() {
             {/* Question Card 4 - Antoine Semenyo */}
             <Link href="/antoine-semenyo-budget-midfielder" className="group block">
               <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/10 shrink-0">
-                  <ArrowRight className="h-6 w-6 text-purple-500" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
+                  <Image 
+                    src="/player_images/circular/antoine_semenyo_circular.png"
+                    alt="Antoine Semenyo"
+                    width={48}
+                    height={48}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
