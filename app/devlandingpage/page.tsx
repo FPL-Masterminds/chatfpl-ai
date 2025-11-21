@@ -322,8 +322,14 @@ export default function DevLandingPage() {
             {/* Question Card 3 - Jack Grealish */}
             <Link href="/jack-grealish-everton-fixtures" className="group block">
               <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 shrink-0">
-                  <Target className="h-6 w-6 text-blue-500" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
+                  <Image 
+                    src="/player_images/circular/jack_grealish_circular.png"
+                    alt="Jack Grealish"
+                    width={48}
+                    height={48}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
