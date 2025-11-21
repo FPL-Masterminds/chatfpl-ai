@@ -167,19 +167,39 @@ export default function DevLandingPage() {
                       <div className="flex flex-col gap-3">
                         {/* Player Card */}
                         <div className="relative w-full h-32 rounded-lg overflow-hidden mb-2 bg-black">
+                          {/* Background Layer */}
                           <Image
                             src="/club_backgrounds/bg_Everton.png"
                             alt="Player Stats"
                             fill
                             className="object-cover object-center opacity-80"
-                            style={{ objectFit: 'cover' }}
+                            style={{ objectFit: 'cover', zIndex: 1 }}
                           />
+                          
+                          {/* Player Image Layer - Positioned Right */}
+                          <div className="absolute inset-0 flex items-end justify-end" style={{ zIndex: 2 }}>
+                            <div className="relative h-full w-24 sm:w-32">
+                              <Image
+                                src="/player_images/jack_grealish.png"
+                                alt="Jack Grealish"
+                                fill
+                                className="object-contain object-bottom"
+                                style={{ objectFit: 'contain', objectPosition: 'bottom right' }}
+                              />
+                            </div>
+                          </div>
+                          
+                          {/* Gradient Overlay Layer */}
                           <div 
-                            className="absolute inset-0 flex items-end p-3"
+                            className="absolute inset-0"
                             style={{
-                              backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)'
+                              backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+                              zIndex: 3
                             }}
-                          >
+                          />
+                          
+                          {/* Text Layer - Positioned Left */}
+                          <div className="absolute inset-0 flex items-end p-3" style={{ zIndex: 4 }}>
                             <span className="text-white">
                               <span className="font-bold" style={{ fontFamily: "'Futura Maxi CG', sans-serif" }}>Jack Grealish</span>
                               <span style={{ fontFamily: "'Myriad Pro', sans-serif" }}> | MID</span>
