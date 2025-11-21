@@ -615,7 +615,7 @@ export default function DevLandingPage() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {/* Free Trial */}
-            <Card className="border-gray-700 bg-[#1A1329]">
+            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#A855F7]">
               <CardHeader>
                 <CardTitle className="text-2xl text-white">Free Trial</CardTitle>
                 <div className="mt-4">
@@ -629,21 +629,36 @@ export default function DevLandingPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
+                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#A855F7]">
+                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <span className="text-sm text-gray-300">5 free messages</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
+                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#A855F7]">
+                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <span className="text-sm text-gray-300">Live FPL data access</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
+                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#A855F7]">
+                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <span className="text-sm text-gray-300">Limited support</span>
                   </div>
                 </div>
-                <Button className="w-full bg-gray-700 text-white hover:bg-gray-600" asChild>
-                  <Link href="/signup">Get Started</Link>
-                </Button>
+                <Link 
+                  href="/signup"
+                  className="block w-full px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold text-center hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  Get Started
+                </Link>
               </CardContent>
             </Card>
 
@@ -667,20 +682,28 @@ export default function DevLandingPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
+                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FF86]">
+                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <span className="text-sm text-gray-300">100 messages per month</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
+                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FF86]">
+                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <span className="text-sm text-gray-300">Live FPL data access</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
+                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FF86]">
+                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <span className="text-sm text-gray-300">Priority support</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
-                    <span className="text-sm text-gray-300">Strategy Engine</span>
                   </div>
                 </div>
                 <Link 
@@ -693,7 +716,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Elite */}
-            <Card className="border-gray-700 bg-[#1A1329]">
+            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FFFF]">
               <CardHeader>
                 <CardTitle className="text-2xl text-white">Elite</CardTitle>
                 <div className="mt-4">
@@ -707,29 +730,36 @@ export default function DevLandingPage() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
+                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FFFF]">
+                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <span className="text-sm text-gray-300">500 messages per month</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
+                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FFFF]">
+                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <span className="text-sm text-gray-300">Live FPL data access</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
+                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FFFF]">
+                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
                     <span className="text-sm text-gray-300">Priority support</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
-                    <span className="text-sm text-gray-300">Early access to new features</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-[#00FF87]" />
-                    <span className="text-sm text-gray-300">Team Analysis Report</span>
-                  </div>
                 </div>
-                <Button className="w-full bg-gray-700 text-white hover:bg-gray-600" asChild>
-                  <Link href="/signup">Subscribe</Link>
-                </Button>
+                <Link 
+                  href="/signup"
+                  className="block w-full px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold text-center hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300"
+                >
+                  Subscribe
+                </Link>
               </CardContent>
             </Card>
           </div>
