@@ -22,9 +22,10 @@ export async function POST(request: Request) {
     }
 
     // Look up price ID based on plan (server-side only, never exposed)
-    const priceId = plan === "Elite" 
+    const rawPriceId = plan === "Elite" 
       ? process.env.STRIPE_PRICE_ID_ELITE 
       : process.env.STRIPE_PRICE_ID_PREMIUM;
+    const priceId = rawPriceId?.trim();
       
     if (!priceId) {
       return NextResponse.json({ error: "Price configuration error" }, { status: 500 });

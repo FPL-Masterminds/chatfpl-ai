@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     apiVersion: '2024-11-20.acacia',
     typescript: true,
   });
+  const elitePriceId = process.env.STRIPE_PRICE_ID_ELITE?.trim();
 
   const body = await request.text();
   const signature = request.headers.get('stripe-signature');
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
 
           // Determine plan based on price ID
           let plan = 'Premium';
-          if (stripePriceId === process.env.STRIPE_PRICE_ID_ELITE) {
+          if (elitePriceId && stripePriceId === elitePriceId) {
             plan = 'Elite';
           }
 
@@ -196,7 +197,7 @@ export async function POST(request: Request) {
           
           // Determine plan based on price ID
           let updatedPlan = 'Premium';
-          if (updatedPriceId === process.env.STRIPE_PRICE_ID_ELITE) {
+          if (elitePriceId && updatedPriceId === elitePriceId) {
             updatedPlan = 'Elite';
           }
           
