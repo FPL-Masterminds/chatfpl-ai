@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { DevHeader } from "@/components/dev-header"
+import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -29,16 +30,18 @@ export default function DevLandingPage() {
 
       {/* Hero Section */}
       <section 
-        className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden bg-black"
+        className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-black pt-32 pb-20"
       >
-        {/* Animated Background Effects */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#37003c]/40 blur-[120px] animate-pulse"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#00ff85]/20 blur-[120px]"></div>
-          <div className="absolute top-[20%] right-[20%] w-[300px] h-[300px] rounded-full bg-[#05f0ff]/20 blur-[100px]"></div>
+        {/* Looping Mux HLS background */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <DevHeroVideoBg />
         </div>
+        <div
+          className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/70 via-black/50 to-black/80"
+          aria-hidden
+        />
 
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Column - Headline & CTA */}
             <div className="text-center lg:text-left space-y-8">
