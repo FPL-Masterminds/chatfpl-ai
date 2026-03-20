@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resetFreeMessagesIfExpired } from "@/lib/reset-free-messages";
+import {
+  fixAssistantMarkdownPlayerPhotos,
+  fplPhotoUrlFromElement,
+  type FplPhotoRow,
+} from "@/lib/fpl-player-photo";
 
 export const runtime = "nodejs";
 
@@ -82,6 +87,7 @@ export async function POST(request: Request) {
 
     // Fetch live FPL data
     let fplContext = "";
+    let photoRowsForFix: FplPhotoRow[] = [];
     try {
       // Fetch both bootstrap data and fixtures
       const [fplResponse, fixturesResponse] = await Promise.all([
@@ -92,6 +98,14 @@ export async function POST(request: Request) {
       if (fplResponse.ok && fixturesResponse.ok) {
         const fplData = await fplResponse.json();
         const fixturesData = await fixturesResponse.json();
+
+        // Full player list for post-processing model output (correct headshot URLs + alt matching)
+        photoRowsForFix = (fplData.elements || []).map((p: any) => ({
+          web_name: p.web_name,
+          first_name: p.first_name,
+          second_name: p.second_name,
+          photoUrl: fplPhotoUrlFromElement(p.photo, p.code),
+        }));
         
         // Extract key data
         const currentGameweek = fplData.events?.find((e: any) => e.is_current) || fplData.events?.[0];
@@ -101,11 +115,11 @@ export async function POST(request: Request) {
         const allPlayers = fplData.elements?.map((p: any) => {
           const team = fplData.teams?.find((t: any) => t.id === p.team);
           const position = fplData.element_types?.find((pt: any) => pt.id === p.element_type);
-          const photoCode = p.photo?.replace('.jpg', '').replace('.png', '') || p.code;
-          const photoUrl = `https://resources.premierleague.com/premierleague25/photos/players/110x140/${photoCode}.png`;
+          const photoUrl = fplPhotoUrlFromElement(p.photo, p.code);
+          const clubLabel = team ? `${team.name} (${team.short_name})` : "";
           const injuryNews = p.news ? `[${p.news}]` : '';
           return {
-            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${team?.short_name}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
+            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
             rawData: p,
             team: team?.short_name,
             position: position?.singular_name_short
@@ -268,7 +282,7 @@ TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
-Format: WebName|FullName|Team|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|Status|Fitness%|[InjuryNews]|PhotoURL
+Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|Status|Fitness%|[InjuryNews]|PhotoURL
 ${filteredPlayers.map(p => p.formatted).join("\n")}
 
 TEAMS:
@@ -295,7 +309,13 @@ FIELD EXPLANATIONS:
 
 FIXTURE DIFFICULTY: 1=Easy, 2=Favorable, 3=Medium, 4=Tough, 5=Very Difficult. H=Home, A=Away.
 
-You now have access to FPL expected points predictions, ownership trends (transfers in/out this GW and total season), actual performance stats (goals, assists, minutes, clean sheets), bonus/ICT data, injury updates, and disciplinary records. Use this live data to answer the user's question accurately. Check team fixtures and transfer trends before recommending players. All data is current as of today.`;
+You now have access to FPL expected points predictions, ownership trends (transfers in/out this GW and total season), actual performance stats (goals, assists, minutes, clean sheets), bonus/ICT data, injury updates, and disciplinary records. Use this live data to answer the user's question accurately. Check team fixtures and transfer trends before recommending players. All data is current as of today.
+
+DATA INTEGRITY (MANDATORY):
+- Use ONLY club names, prices, stats, and PhotoURL values from the pipe-delimited rows above. Do not substitute clubs or numbers from memory or older seasons.
+- PhotoURL is always the final field after the last pipe (|) on each player row. Copy that URL exactly into markdown images — never guess or reconstruct image links.
+- For markdown images use the player's real full name in the alt text (e.g. ![Jacob Ramsey](PhotoURL)) so the name matches the row you used for stats.
+- If a player does not appear in the filtered rows, say they are not in the current excerpt and ask to narrow the question — do not invent stats or photos.`;
       }
     } catch (fplError) {
       console.error("FPL API fetch error:", fplError);
@@ -322,9 +342,9 @@ You now have access to FPL expected points predictions, ownership trends (transf
 - Keep each paragraph short (2-3 sentences max)
 - Add extra spacing between different players or topics for readability
 - Make comparisons easy to read with clear formatting and spacing
-- IMPORTANT: When mentioning a player, ALWAYS include their photo using this exact format: ![PlayerName](PhotoURL)
-- The PhotoURL is provided in the player data above
-- Example: "![Salah](https://resources.premierleague.com/premierleague25/photos/players/110x140/118748.png) Mohamed Salah is in great form..."
+- IMPORTANT: When mentioning a player, ALWAYS include their photo using: ![Full Name Exactly As In Data](PhotoURL)
+- PhotoURL MUST be copied character-for-character from the end of that player's row in LIVE FPL DATA (final field after the last |). Never invent, shorten, or alter the URL.
+- Example shape: "![Mohamed Salah](PASTE_EXACT_PhotoURL_FROM_ROW) Mohamed Salah is in great form..."
 
 PERSONALITY RULES:
 - You are ChatFPL AI, a friendly FPL assistant
@@ -443,17 +463,20 @@ PERSONALITY RULES:
       },
     });
 
+    // Fix any hallucinated player photo URLs in the model response
+    const fixedAnswer = fixAssistantMarkdownPlayerPhotos(difyData.answer, photoRowsForFix);
+
     // Save AI response
     await prisma.message.create({
       data: {
         conversation_id: conversation.id,
         role: "assistant",
-        content: difyData.answer,
+        content: fixedAnswer,
       },
     });
 
     return NextResponse.json({
-      answer: difyData.answer,
+      answer: fixedAnswer,
       conversation_id: difyData.conversation_id || conversation.id,
       messages_used: usage.messages_used + 1,
       messages_limit: usage.messages_limit,
