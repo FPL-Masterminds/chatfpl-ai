@@ -32,11 +32,11 @@ export async function POST(request: Request) {
     } else if (plan === "Premium") {
       subject = "💰 New Premium Subscriber!";
       emoji = "💰";
-      message = "A new user has subscribed to the Premium plan (£19.99/month, 100 messages).";
+      message = "A new user has subscribed to the Premium plan (£7.99/month, 100 messages).";
     } else if (plan === "Elite") {
       subject = "🏆 New Elite Subscriber!";
       emoji = "🏆";
-      message = "A new user has subscribed to the Elite plan (£49.99/month, 500 messages).";
+      message = "A new user has subscribed to the Elite plan (£14.99/month, 500 messages).";
     } else {
       subject = "👤 New User Signup";
       emoji = "👤";
@@ -52,13 +52,13 @@ export async function POST(request: Request) {
         <p style="margin: 8px 0;"><strong>Name:</strong> ${userName || "Not provided"}</p>
         <p style="margin: 8px 0;"><strong>Email:</strong> ${userEmail}</p>
         <p style="margin: 8px 0;"><strong>Plan:</strong> ${plan}</p>
-        ${plan !== "Free" ? '<p style="margin: 8px 0;"><strong>💵 Revenue Impact:</strong> +£' + (plan === "Premium" ? "19.99" : "49.99") + '/month</p>' : ''}
+        ${plan !== "Free" ? '<p style="margin: 8px 0;"><strong>💵 Revenue Impact:</strong> +£' + (plan === "Premium" ? "7.99" : "14.99") + '/month</p>' : ''}
       </div>
 
       ${plan !== "Free" ? `
       <div style="background: linear-gradient(135deg, #00FF86 0%, #00FFFF 100%); padding: 15px; border-radius: 8px; text-align: center;">
         <p style="margin: 0; color: #2E0032; font-size: 18px; font-weight: bold;">
-          💰 New Revenue: £${plan === "Premium" ? "19.99" : "49.99"}/month
+          💰 New Revenue: £${plan === "Premium" ? "7.99" : "14.99"}/month
         </p>
       </div>
       ` : ''}

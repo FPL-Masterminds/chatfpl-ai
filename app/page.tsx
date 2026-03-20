@@ -554,7 +554,7 @@ export default function HomePage() {
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold text-foreground">Premium Subscription</CardTitle>
                 <div className="mt-6">
-                  <span className="text-5xl font-bold text-foreground">£19.99</span>
+                  <span className="text-5xl font-bold text-foreground">£7.99</span>
                   <span className="text-lg text-muted-foreground">/month</span>
                 </div>
                 <CardDescription className="mt-4 text-base">For serious FPL managers</CardDescription>
@@ -595,7 +595,7 @@ export default function HomePage() {
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold text-foreground">Elite Subscription</CardTitle>
                 <div className="mt-6">
-                  <span className="text-5xl font-bold text-foreground">£49.99</span>
+                  <span className="text-5xl font-bold text-foreground">£14.99</span>
                   <span className="text-lg text-muted-foreground">/month</span>
                 </div>
                 <CardDescription className="mt-4 text-base">For elite FPL competitors</CardDescription>
@@ -725,7 +725,7 @@ export default function HomePage() {
                   What's the difference between Premium and Elite?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
-                  Premium gives you 100 messages per month for £19.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £49.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities.
+                  Premium gives you 100 messages per month for £7.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £14.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities.
                 </AccordionContent>
               </AccordionItem>
 

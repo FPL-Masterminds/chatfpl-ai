@@ -672,7 +672,7 @@ export default function DevLandingPage() {
               <CardHeader>
                 <CardTitle className="text-2xl text-white">Premium</CardTitle>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-white">£19.99</span>
+                  <span className="text-4xl font-bold text-white">£7.99</span>
                   <span className="text-gray-400">/month</span>
                 </div>
                 <CardDescription className="mt-2 text-gray-400">
@@ -720,7 +720,7 @@ export default function DevLandingPage() {
               <CardHeader>
                 <CardTitle className="text-2xl text-white">Elite</CardTitle>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-white">£49.99</span>
+                  <span className="text-4xl font-bold text-white">£14.99</span>
                   <span className="text-gray-400">/month</span>
                 </div>
                 <CardDescription className="mt-2 text-gray-400">
@@ -856,7 +856,7 @@ export default function DevLandingPage() {
                 💎 What's the difference between Premium and Elite?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
-                Premium gives you 100 messages per month for £19.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £49.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities.
+                Premium gives you 100 messages per month for £7.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £14.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities.
               </AccordionContent>
             </AccordionItem>
 
