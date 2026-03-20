@@ -95,7 +95,10 @@ export async function GET(request: Request) {
         },
       }),
       prisma.message.findMany({
-        where: { timestamp: { gte: rangeStart } },
+        where: {
+          timestamp: { gte: rangeStart },
+          role: "user",
+        },
         select: {
           timestamp: true,
           conversation: {
