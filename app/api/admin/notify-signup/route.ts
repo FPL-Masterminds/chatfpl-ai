@@ -8,8 +8,17 @@ import { wrapEmailContent } from "@/lib/email-templates";
 export async function POST(request: Request) {
   try {
     const { userName, userEmail, plan } = await request.json();
+    const adminEmail =
+      process.env.ADMIN_NOTIFICATION_EMAIL ||
+      process.env.ADMIN_EMAIL ||
+      "chatfplai@gmail.com";
+    const resendApiKey = process.env.RESEND_API_KEY || process.env.RESEND_APT_KEY;
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    if (!resendApiKey) {
+      return NextResponse.json({ success: false, error: "Missing Resend API key" }, { status: 500 });
+    }
+
+    const resend = new Resend(resendApiKey);
 
     // Different subject/content based on plan
     let subject = "";
@@ -68,7 +77,7 @@ export async function POST(request: Request) {
 
     await resend.emails.send({
       from: process.env.EMAIL_FROM || "ChatFPL AI <noreply@chatfpl.ai>",
-      to: "ChatFPL AIai@gmail.com",
+      to: adminEmail,
       subject: subject,
       html: wrapEmailContent(content),
     });
