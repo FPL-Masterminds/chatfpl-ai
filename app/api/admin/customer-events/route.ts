@@ -10,7 +10,14 @@ type CustomerEvent = {
   timestamp: string;
 };
 
-export async function GET() {
+type DailyStat = {
+  date: string;
+  messages: number;
+  signups: number;
+  paid: number;
+};
+
+export async function GET(request: Request) {
   try {
     const session = await auth();
 
@@ -27,10 +34,20 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 403 });
     }
 
-    const [recentUsers, paidSubscriptions] = await Promise.all([
+    const { searchParams } = new URL(request.url);
+    const daysParam = Number(searchParams.get("days") || "14");
+    const eventType = searchParams.get("type") || "all";
+    const days = [7, 14, 30].includes(daysParam) ? daysParam : 14;
+
+    const rangeStart = new Date();
+    rangeStart.setHours(0, 0, 0, 0);
+    rangeStart.setDate(rangeStart.getDate() - (days - 1));
+
+    const [recentUsers, paidSubscriptions, recentMessages] = await Promise.all([
       prisma.user.findMany({
+        where: { created_at: { gte: rangeStart } },
         orderBy: { created_at: "desc" },
-        take: 20,
+        take: 100,
         select: {
           id: true,
           name: true,
@@ -41,10 +58,10 @@ export async function GET() {
       prisma.subscription.findMany({
         where: {
           plan: { in: ["Premium", "Elite", "VIP"] },
-          current_period_start: { not: null },
+          current_period_start: { gte: rangeStart },
         },
         orderBy: { current_period_start: "desc" },
-        take: 20,
+        take: 100,
         select: {
           id: true,
           user: {
@@ -57,6 +74,10 @@ export async function GET() {
           status: true,
           current_period_start: true,
         },
+      }),
+      prisma.message.findMany({
+        where: { timestamp: { gte: rangeStart } },
+        select: { timestamp: true },
       }),
     ]);
 
@@ -79,10 +100,44 @@ export async function GET() {
       }));
 
     const events = [...signupEvents, ...subscriptionEvents]
+      .filter((event) => {
+        if (eventType === "signup") return event.type === "signup";
+        if (eventType === "subscription") return event.type === "subscription";
+        return true;
+      })
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, 30);
 
-    return NextResponse.json({ events }, { status: 200 });
+    const dailyMap = new Map<string, DailyStat>();
+    for (let i = 0; i < days; i++) {
+      const d = new Date(rangeStart);
+      d.setDate(rangeStart.getDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      dailyMap.set(key, { date: key, messages: 0, signups: 0, paid: 0 });
+    }
+
+    for (const user of recentUsers) {
+      const key = user.created_at.toISOString().slice(0, 10);
+      const bucket = dailyMap.get(key);
+      if (bucket) bucket.signups += 1;
+    }
+
+    for (const sub of paidSubscriptions) {
+      if (!sub.current_period_start) continue;
+      const key = sub.current_period_start.toISOString().slice(0, 10);
+      const bucket = dailyMap.get(key);
+      if (bucket) bucket.paid += 1;
+    }
+
+    for (const msg of recentMessages) {
+      const key = msg.timestamp.toISOString().slice(0, 10);
+      const bucket = dailyMap.get(key);
+      if (bucket) bucket.messages += 1;
+    }
+
+    const dailyStats = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+
+    return NextResponse.json({ events, dailyStats }, { status: 200 });
   } catch (error) {
     console.error("Customer events fetch error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

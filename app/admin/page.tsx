@@ -65,6 +65,13 @@ interface CustomerEvent {
   timestamp: string
 }
 
+interface DailyStat {
+  date: string
+  messages: number
+  signups: number
+  paid: number
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const [data, setData] = useState<AccountData | null>(null)
@@ -79,7 +86,10 @@ export default function AdminPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [customerEvents, setCustomerEvents] = useState<CustomerEvent[]>([])
+  const [dailyStats, setDailyStats] = useState<DailyStat[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
+  const [eventsDays, setEventsDays] = useState<7 | 14 | 30>(14)
+  const [eventsType, setEventsType] = useState<"all" | "signup" | "subscription">("all")
   const [resultModal, setResultModal] = useState<{ show: boolean; success: boolean; message: string }>({ 
     show: false, 
     success: false, 
@@ -97,9 +107,15 @@ export default function AdminPage() {
     if (data?.user.role === "admin") {
       fetchPendingClaims()
       fetchAnalytics()
-      fetchCustomerEvents()
+      fetchCustomerEvents(eventsDays, eventsType)
     }
   }, [data?.user.role])
+
+  useEffect(() => {
+    if (data?.user.role === "admin") {
+      fetchCustomerEvents(eventsDays, eventsType)
+    }
+  }, [eventsDays, eventsType])
 
   const fetchAccountData = async () => {
     try {
@@ -188,14 +204,15 @@ export default function AdminPage() {
     }
   }
 
-  const fetchCustomerEvents = async () => {
+  const fetchCustomerEvents = async (days: 7 | 14 | 30, type: "all" | "signup" | "subscription") => {
     try {
       setEventsLoading(true)
-      const response = await fetch("/api/admin/customer-events")
+      const response = await fetch(`/api/admin/customer-events?days=${days}&type=${type}`)
 
       if (response.ok) {
         const payload = await response.json()
         setCustomerEvents(payload.events || [])
+        setDailyStats(payload.dailyStats || [])
       }
     } catch (error) {
       console.error("Failed to fetch customer events:", error)
@@ -896,7 +913,7 @@ export default function AdminPage() {
                     <Button
                       variant="outline"
                       className="border-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/10"
-                      onClick={fetchCustomerEvents}
+                      onClick={() => fetchCustomerEvents(eventsDays, eventsType)}
                       disabled={eventsLoading}
                     >
                       {eventsLoading ? "Refreshing..." : "Refresh"}
@@ -904,6 +921,62 @@ export default function AdminPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
+                  <div className="mb-4 grid gap-3 md:grid-cols-3">
+                    <div>
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Time range</p>
+                      <select
+                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+                        value={eventsDays}
+                        onChange={(e) => setEventsDays(Number(e.target.value) as 7 | 14 | 30)}
+                      >
+                        <option value={7}>Last 7 days</option>
+                        <option value={14}>Last 14 days</option>
+                        <option value={30}>Last 30 days</option>
+                      </select>
+                    </div>
+                    <div>
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Event type</p>
+                      <select
+                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+                        value={eventsType}
+                        onChange={(e) => setEventsType(e.target.value as "all" | "signup" | "subscription")}
+                      >
+                        <option value="all">All events</option>
+                        <option value="signup">Signups only</option>
+                        <option value="subscription">Paid activity only</option>
+                      </select>
+                    </div>
+                    <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
+                      <p className="text-xs uppercase tracking-wide text-gray-500">Range totals</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {dailyStats.reduce((acc, d) => acc + d.messages, 0)} msgs | {dailyStats.reduce((acc, d) => acc + d.signups, 0)} signups | {dailyStats.reduce((acc, d) => acc + d.paid, 0)} paid
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mb-5 rounded-lg border border-gray-200">
+                    <div className="grid grid-cols-4 border-b bg-gray-100 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
+                      <span>Date</span>
+                      <span className="text-center">Messages</span>
+                      <span className="text-center">Signups</span>
+                      <span className="text-center">Paid</span>
+                    </div>
+                    <div className="max-h-56 overflow-y-auto">
+                      {dailyStats.length === 0 ? (
+                        <p className="px-3 py-3 text-sm text-gray-600">No daily activity for this filter.</p>
+                      ) : (
+                        dailyStats.map((stat) => (
+                          <div key={stat.date} className="grid grid-cols-4 border-b px-3 py-2 text-sm last:border-b-0">
+                            <span className="text-gray-700">{new Date(stat.date).toLocaleDateString("en-GB")}</span>
+                            <span className="text-center font-semibold text-[#2E0032]">{stat.messages}</span>
+                            <span className="text-center">{stat.signups}</span>
+                            <span className="text-center">{stat.paid}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
                   {eventsLoading ? (
                     <p className="text-sm text-gray-600">Loading events...</p>
                   ) : customerEvents.length === 0 ? (
