@@ -17,6 +17,13 @@ type DailyStat = {
   paid: number;
 };
 
+type TopUser = {
+  userId: string;
+  name: string;
+  email: string;
+  messages: number;
+};
+
 export async function GET(request: Request) {
   try {
     const session = await auth();
@@ -35,13 +42,25 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const daysParam = Number(searchParams.get("days") || "14");
+    const range = searchParams.get("range") || "14d";
+    const daysFromRange: Record<string, number> = {
+      today: 1,
+      "7d": 7,
+      "14d": 14,
+      "30d": 30,
+      "60d": 60,
+      "120d": 120,
+      "365d": 365,
+    };
+    const parsedRangeDays = daysFromRange[range] || Number(searchParams.get("days") || "14");
+    const daysParam = parsedRangeDays;
     const eventType = searchParams.get("type") || "all";
-    const days = [7, 14, 30].includes(daysParam) ? daysParam : 14;
+    const days = [7, 14, 30, 60, 120, 365].includes(daysParam) ? daysParam : 14;
+    const effectiveDays = range === "today" ? 1 : days;
 
     const rangeStart = new Date();
     rangeStart.setHours(0, 0, 0, 0);
-    rangeStart.setDate(rangeStart.getDate() - (days - 1));
+    rangeStart.setDate(rangeStart.getDate() - (effectiveDays - 1));
 
     const [recentUsers, paidSubscriptions, recentMessages] = await Promise.all([
       prisma.user.findMany({
@@ -77,7 +96,20 @@ export async function GET(request: Request) {
       }),
       prisma.message.findMany({
         where: { timestamp: { gte: rangeStart } },
-        select: { timestamp: true },
+        select: {
+          timestamp: true,
+          conversation: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
       }),
     ]);
 
@@ -109,7 +141,7 @@ export async function GET(request: Request) {
       .slice(0, 30);
 
     const dailyMap = new Map<string, DailyStat>();
-    for (let i = 0; i < days; i++) {
+    for (let i = 0; i < effectiveDays; i++) {
       const d = new Date(rangeStart);
       d.setDate(rangeStart.getDate() + i);
       const key = d.toISOString().slice(0, 10);
@@ -135,9 +167,30 @@ export async function GET(request: Request) {
       if (bucket) bucket.messages += 1;
     }
 
-    const dailyStats = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+    const dailyStats = Array.from(dailyMap.values()).sort((a, b) => b.date.localeCompare(a.date));
+    const userMessageMap = new Map<string, TopUser>();
 
-    return NextResponse.json({ events, dailyStats }, { status: 200 });
+    for (const msg of recentMessages) {
+      const user = msg.conversation.user;
+      if (!user) continue;
+      const existing = userMessageMap.get(user.id);
+      if (existing) {
+        existing.messages += 1;
+      } else {
+        userMessageMap.set(user.id, {
+          userId: user.id,
+          name: user.name || "Unnamed user",
+          email: user.email,
+          messages: 1,
+        });
+      }
+    }
+
+    const topUsers = Array.from(userMessageMap.values())
+      .sort((a, b) => b.messages - a.messages)
+      .slice(0, 10);
+
+    return NextResponse.json({ events, dailyStats, topUsers, range: range === "today" ? "today" : `${effectiveDays}d` }, { status: 200 });
   } catch (error) {
     console.error("Customer events fetch error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

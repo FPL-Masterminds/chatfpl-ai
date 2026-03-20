@@ -72,6 +72,13 @@ interface DailyStat {
   paid: number
 }
 
+interface TopUser {
+  userId: string
+  name: string
+  email: string
+  messages: number
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const [data, setData] = useState<AccountData | null>(null)
@@ -87,8 +94,9 @@ export default function AdminPage() {
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [customerEvents, setCustomerEvents] = useState<CustomerEvent[]>([])
   const [dailyStats, setDailyStats] = useState<DailyStat[]>([])
+  const [topUsers, setTopUsers] = useState<TopUser[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
-  const [eventsDays, setEventsDays] = useState<7 | 14 | 30>(14)
+  const [eventsRange, setEventsRange] = useState<"today" | "7d" | "14d" | "30d" | "60d" | "120d" | "365d">("14d")
   const [eventsType, setEventsType] = useState<"all" | "signup" | "subscription">("all")
   const [resultModal, setResultModal] = useState<{ show: boolean; success: boolean; message: string }>({ 
     show: false, 
@@ -107,15 +115,15 @@ export default function AdminPage() {
     if (data?.user.role === "admin") {
       fetchPendingClaims()
       fetchAnalytics()
-      fetchCustomerEvents(eventsDays, eventsType)
+      fetchCustomerEvents(eventsRange, eventsType)
     }
   }, [data?.user.role])
 
   useEffect(() => {
     if (data?.user.role === "admin") {
-      fetchCustomerEvents(eventsDays, eventsType)
+      fetchCustomerEvents(eventsRange, eventsType)
     }
-  }, [eventsDays, eventsType])
+  }, [eventsRange, eventsType])
 
   const fetchAccountData = async () => {
     try {
@@ -204,21 +212,40 @@ export default function AdminPage() {
     }
   }
 
-  const fetchCustomerEvents = async (days: 7 | 14 | 30, type: "all" | "signup" | "subscription") => {
+  const fetchCustomerEvents = async (
+    range: "today" | "7d" | "14d" | "30d" | "60d" | "120d" | "365d",
+    type: "all" | "signup" | "subscription"
+  ) => {
     try {
       setEventsLoading(true)
-      const response = await fetch(`/api/admin/customer-events?days=${days}&type=${type}`)
+      const response = await fetch(`/api/admin/customer-events?range=${range}&type=${type}`)
 
       if (response.ok) {
         const payload = await response.json()
         setCustomerEvents(payload.events || [])
         setDailyStats(payload.dailyStats || [])
+        setTopUsers(payload.topUsers || [])
       }
     } catch (error) {
       console.error("Failed to fetch customer events:", error)
     } finally {
       setEventsLoading(false)
     }
+  }
+
+  const downloadCSV = (filename: string, rows: string[][]) => {
+    const csvContent = rows
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n")
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.setAttribute("download", filename)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   }
 
   const handleManageBilling = async () => {
@@ -913,7 +940,7 @@ export default function AdminPage() {
                     <Button
                       variant="outline"
                       className="border-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/10"
-                      onClick={() => fetchCustomerEvents(eventsDays, eventsType)}
+                      onClick={() => fetchCustomerEvents(eventsRange, eventsType)}
                       disabled={eventsLoading}
                     >
                       {eventsLoading ? "Refreshing..." : "Refresh"}
@@ -921,36 +948,115 @@ export default function AdminPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
+                  <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <p className="mr-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Range:</p>
+                    {[
+                      { id: "today", label: "Today" },
+                      { id: "7d", label: "7 days" },
+                      { id: "14d", label: "14 days" },
+                      { id: "30d", label: "30 days" },
+                      { id: "60d", label: "60 days" },
+                      { id: "120d", label: "120 days" },
+                      { id: "365d", label: "365 days" },
+                    ].map((chip) => (
+                      <button
+                        key={chip.id}
+                        className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                          eventsRange === chip.id
+                            ? "bg-[#2E0032] text-[#00FF87]"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                        onClick={() =>
+                          setEventsRange(chip.id as "today" | "7d" | "14d" | "30d" | "60d" | "120d" | "365d")
+                        }
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <p className="mr-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Event type:</p>
+                    {[
+                      { id: "all", label: "All events" },
+                      { id: "signup", label: "Signups" },
+                      { id: "subscription", label: "Paid" },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                          eventsType === tab.id
+                            ? "bg-[#00FF87] text-[#2E0032]"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                        onClick={() => setEventsType(tab.id as "all" | "signup" | "subscription")}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
                   <div className="mb-4 grid gap-3 md:grid-cols-3">
                     <div>
-                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Time range</p>
-                      <select
-                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
-                        value={eventsDays}
-                        onChange={(e) => setEventsDays(Number(e.target.value) as 7 | 14 | 30)}
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Export</p>
+                      <Button
+                        variant="outline"
+                        className="w-full border-gray-300 text-gray-700"
+                        onClick={() =>
+                          downloadCSV("customer-events.csv", [
+                            ["Event Type", "Title", "Detail", "Timestamp"],
+                            ...customerEvents.map((e) => [e.type, e.title, e.detail, e.timestamp]),
+                          ])
+                        }
+                        disabled={customerEvents.length === 0}
                       >
-                        <option value={7}>Last 7 days</option>
-                        <option value={14}>Last 14 days</option>
-                        <option value={30}>Last 30 days</option>
-                      </select>
+                        Export Events CSV
+                      </Button>
                     </div>
                     <div>
-                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Event type</p>
-                      <select
-                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
-                        value={eventsType}
-                        onChange={(e) => setEventsType(e.target.value as "all" | "signup" | "subscription")}
+                      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">Export</p>
+                      <Button
+                        variant="outline"
+                        className="w-full border-gray-300 text-gray-700"
+                        onClick={() =>
+                          downloadCSV("daily-stats.csv", [
+                            ["Date", "Messages", "Signups", "Paid"],
+                            ...dailyStats.map((d) => [d.date, String(d.messages), String(d.signups), String(d.paid)]),
+                          ])
+                        }
+                        disabled={dailyStats.length === 0}
                       >
-                        <option value="all">All events</option>
-                        <option value="signup">Signups only</option>
-                        <option value="subscription">Paid activity only</option>
-                      </select>
+                        Export Daily Stats CSV
+                      </Button>
                     </div>
                     <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
                       <p className="text-xs uppercase tracking-wide text-gray-500">Range totals</p>
                       <p className="text-sm font-semibold text-gray-900">
                         {dailyStats.reduce((acc, d) => acc + d.messages, 0)} msgs | {dailyStats.reduce((acc, d) => acc + d.signups, 0)} signups | {dailyStats.reduce((acc, d) => acc + d.paid, 0)} paid
                       </p>
+                    </div>
+                  </div>
+
+                  <div className="mb-5 rounded-lg border border-gray-200">
+                    <div className="grid grid-cols-3 border-b bg-gray-100 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
+                      <span>User</span>
+                      <span className="text-center">Messages</span>
+                      <span className="text-right">Type</span>
+                    </div>
+                    <div className="max-h-52 overflow-y-auto">
+                      {topUsers.length === 0 ? (
+                        <p className="px-3 py-3 text-sm text-gray-600">No message activity yet in this range.</p>
+                      ) : (
+                        topUsers.map((u, index) => (
+                          <div key={u.userId} className="grid grid-cols-3 border-b px-3 py-2 text-sm last:border-b-0">
+                            <span className="text-gray-700">
+                              {index + 1}. {u.name} <span className="text-xs text-gray-500">({u.email})</span>
+                            </span>
+                            <span className="text-center font-semibold text-[#2E0032]">{u.messages}</span>
+                            <span className="text-right text-xs text-gray-500">Top user</span>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
