@@ -98,7 +98,7 @@ export async function POST(request: Request) {
             month: now.getMonth() + 1,
             year: now.getFullYear(),
             messages_used: 0,
-            messages_limit: 5,
+            messages_limit: 20,
           },
         },
       },
@@ -116,11 +116,11 @@ export async function POST(request: Request) {
 
       const emailContent = `
         <h2 style="color: #2E0032;">Welcome to ChatFPL AI, ${name}! 🎉</h2>
-        <p>Thanks for signing up. Please verify your email address to start using your <strong>5 free messages</strong>.</p>
+        <p>Thanks for signing up. Please verify your email address to start using your <strong>20 free messages</strong>.</p>
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 0; font-size: 14px; color: #666;">✅ <strong>Your Free Trial Includes:</strong></p>
           <ul style="margin: 10px 0; padding-left: 20px; color: #666;">
-            <li>5 AI-powered FPL messages</li>
+            <li>20 AI-powered FPL messages</li>
             <li>Live data access</li>
             <li>Earn more messages by sharing</li>
           </ul>

@@ -68,7 +68,7 @@ export default function DevLandingPage() {
                     boxShadow: '0 0 20px rgba(0,255,133,0.3)'
                   }}
                 >
-                  Start your 5-message free trial today
+                  Start your 20-message free trial today
                 </Link>
               </div>
               
@@ -380,7 +380,7 @@ export default function DevLandingPage() {
               href="/signup"
               className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1a0e24] font-bold text-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
             >
-              Start your 5-message free trial today
+              Start your 20-message free trial today
             </Link>
           </div>
         </div>
@@ -634,7 +634,7 @@ export default function DevLandingPage() {
                         <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </div>
-                    <span className="text-sm text-gray-300">5 free messages</span>
+                    <span className="text-sm text-gray-300">20 free messages</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#A855F7]">
@@ -802,7 +802,7 @@ export default function DevLandingPage() {
                 🆓 Can I try it for free?
               </AccordionTrigger>
               <AccordionContent className="text-gray-300">
-                Yes! Our Free plan includes 5 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages.
+                Yes! Our Free plan includes 20 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages.
               </AccordionContent>
             </AccordionItem>
 

@@ -117,7 +117,7 @@ export async function POST(request: Request) {
             month: currentMonth,
             year: currentYear,
             messages_used: 0,
-            messages_limit: 5 + claim.reward_messages // Base 5 + bonus
+            messages_limit: 20 + claim.reward_messages // Base 20 + bonus
           }
         });
       }

@@ -106,7 +106,7 @@ function SignupForm() {
           </div>
           <CardHeader className="space-y-2 text-center pt-0">
             <CardTitle className="text-3xl font-bold">Create an account</CardTitle>
-            <CardDescription>Start your free trial with 5 messages</CardDescription>
+            <CardDescription>Start your free trial with 20 messages</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">

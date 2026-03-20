@@ -154,7 +154,7 @@ export default function AboutPage() {
                   color: '#2E0032'
                 }}
               >
-                Start your 5-message free trial today
+                Start your 20-message free trial today
               </Button>
             </Link>
           </section>

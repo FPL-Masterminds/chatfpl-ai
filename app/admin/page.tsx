@@ -582,7 +582,7 @@ export default function AdminPage() {
                       </span>
                     </p>
                     <p className="mt-1 text-center text-xs text-yellow-800">
-                      Use them or lose them! Your 5 trial messages never reset.
+                      Use them or lose them! Your 20 trial messages never reset.
                     </p>
                   </div>
                 )}

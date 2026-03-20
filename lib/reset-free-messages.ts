@@ -59,18 +59,18 @@ export async function resetFreeMessagesIfExpired(userId: string) {
     });
 
     // Reset bonus messages ONLY - keep messages_used as is
-    // User gets 5 messages lifetime, not per month
+    // User gets 20 messages lifetime, not per month
     const updatedUsage = await prisma.usageTracking.update({
       where: { id: usage.id },
       data: {
-        messages_limit: 5, // Strip bonus messages, back to 5 lifetime base
+        messages_limit: 20, // Strip bonus messages, back to 20 lifetime base
         // DON'T reset messages_used - they've already consumed those messages
         month: now.getMonth() + 1,
         year: now.getFullYear()
       }
     });
 
-    console.log(`Reset complete for user ${userId}: messages_limit set to 5, messages_used kept at ${usage.messages_used}`);
+    console.log(`Reset complete for user ${userId}: messages_limit set to 20, messages_used kept at ${usage.messages_used}`);
 
     return updatedUsage;
 

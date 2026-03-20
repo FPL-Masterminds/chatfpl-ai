@@ -365,7 +365,7 @@ export default function HomePage() {
             {/* Main CTA */}
             <div className="mt-12 text-center">
               <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-                <Link href="/signup">Start your 5-message free trial today</Link>
+                <Link href="/signup">Start your 20-message free trial today</Link>
               </Button>
               <p className="mt-4 text-sm text-gray-600">
                 No credit card required • Instant access • Cancel anytime
@@ -516,7 +516,7 @@ export default function HomePage() {
                     <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#00FF86' }}>
                       <Check className="h-4 w-4" style={{ color: '#2E0032' }} strokeWidth={3} />
                     </div>
-                    <span className="text-sm text-foreground">5 free messages</span>
+                    <span className="text-sm text-foreground">20 free messages</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <div className="flex h-6 w-6 items-center justify-center rounded-full shrink-0" style={{ backgroundColor: '#00FF86' }}>
@@ -671,7 +671,7 @@ export default function HomePage() {
                   Can I try it for free?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">
-                  Yes! Our Free plan includes 5 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages.
+                  Yes! Our Free plan includes 20 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages.
                 </AccordionContent>
               </AccordionItem>
 

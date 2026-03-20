@@ -55,7 +55,7 @@ export async function GET() {
       },
       usage: {
         messages_used: usage?.messages_used || 0,
-        messages_limit: usage?.messages_limit || 5,
+        messages_limit: usage?.messages_limit || 20,
       },
     }, { status: 200 });
   } catch (error) {

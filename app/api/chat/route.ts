@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       const plan = subscription?.plan.toLowerCase() || 'free';
       
       // Determine message limit based on plan
-      let messagesLimit = 5; // Default Free tier
+      let messagesLimit = 20; // Default Free tier
       if (plan === 'premium') messagesLimit = 100;
       else if (plan === 'elite') messagesLimit = 500;
       else if (plan === 'vip') messagesLimit = 999999;

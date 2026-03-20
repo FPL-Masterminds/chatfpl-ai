@@ -464,11 +464,11 @@ export default function JackGrealishFixturesPage() {
           </h2>
           <p className="mb-8 text-lg font-semibold" style={{ color: '#4B5563' }}>
             Get instant, data-driven FPL insights for any player, fixture, or strategy question. 
-            Start with 5 free messages - no credit card required.
+            Start with 20 free messages - no credit card required.
           </p>
           <div className="flex flex-col items-center justify-center">
             <Button size="lg" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-              <Link href="/signup">Start your 5-message free trial today</Link>
+              <Link href="/signup">Start your 20-message free trial today</Link>
             </Button>
           </div>
           <p className="mt-6 text-sm" style={{ color: '#4B5563' }}>

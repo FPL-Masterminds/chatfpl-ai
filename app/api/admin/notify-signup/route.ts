@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     if (plan === "Free") {
       subject = "🆓 New Free User Signup";
       emoji = "🆓";
-      message = "A new user has signed up for the Free trial (5 messages).";
+      message = "A new user has signed up for the Free trial (20 messages).";
     } else if (plan === "Premium") {
       subject = "💰 New Premium Subscriber!";
       emoji = "💰";

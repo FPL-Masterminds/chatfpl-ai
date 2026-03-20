@@ -46,7 +46,7 @@ export default function PrivacyPage() {
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li><strong>Service delivery:</strong> Your email and password allow you to log in. Your stored conversations enable the AI to provide contextually relevant FPL advice across multiple messages.</li>
-                <li><strong>Usage tracking:</strong> We monitor your message count to enforce the limits of your chosen plan (5 messages for Free, 100 for Premium, 500 for Elite).</li>
+                <li><strong>Usage tracking:</strong> We monitor your message count to enforce the limits of your chosen plan (20 messages for Free, 100 for Premium, 500 for Elite).</li>
                 <li><strong>Payment processing:</strong> We use Stripe to securely handle subscriptions and billing.</li>
                 <li><strong>Technical support:</strong> If you report an issue, we may review relevant conversations to diagnose and fix problems.</li>
                 <li><strong>Service improvement:</strong> We analyse aggregated, anonymised usage patterns to understand how users interact with ChatFPL AI and make the service better.</li>
