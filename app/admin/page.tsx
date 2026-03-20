@@ -57,6 +57,14 @@ interface Analytics {
   allTimeMessages: number
 }
 
+interface CustomerEvent {
+  id: string
+  type: "signup" | "subscription"
+  title: string
+  detail: string
+  timestamp: string
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const [data, setData] = useState<AccountData | null>(null)
@@ -70,6 +78,8 @@ export default function AdminPage() {
   const [claimsLoading, setClaimsLoading] = useState(false)
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [customerEvents, setCustomerEvents] = useState<CustomerEvent[]>([])
+  const [eventsLoading, setEventsLoading] = useState(false)
   const [resultModal, setResultModal] = useState<{ show: boolean; success: boolean; message: string }>({ 
     show: false, 
     success: false, 
@@ -87,6 +97,7 @@ export default function AdminPage() {
     if (data?.user.role === "admin") {
       fetchPendingClaims()
       fetchAnalytics()
+      fetchCustomerEvents()
     }
   }, [data?.user.role])
 
@@ -174,6 +185,22 @@ export default function AdminPage() {
       console.error("Failed to fetch analytics:", error)
     } finally {
       setAnalyticsLoading(false)
+    }
+  }
+
+  const fetchCustomerEvents = async () => {
+    try {
+      setEventsLoading(true)
+      const response = await fetch("/api/admin/customer-events")
+
+      if (response.ok) {
+        const payload = await response.json()
+        setCustomerEvents(payload.events || [])
+      }
+    } catch (error) {
+      console.error("Failed to fetch customer events:", error)
+    } finally {
+      setEventsLoading(false)
     }
   }
 
@@ -853,6 +880,54 @@ export default function AdminPage() {
                       {analyticsLoading ? "..." : analytics?.allTimeMessages.toLocaleString() || "0"}
                     </p>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Customer Events */}
+              <Card className="border-[#2E0032]/20 bg-white shadow-lg">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl text-[#2E0032]">⚡ Customer Events</CardTitle>
+                      <CardDescription className="text-gray-600">
+                        Live feed of recent signups and paid subscription activity
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="border-[#00FF87] text-[#2E0032] hover:bg-[#00FF87]/10"
+                      onClick={fetchCustomerEvents}
+                      disabled={eventsLoading}
+                    >
+                      {eventsLoading ? "Refreshing..." : "Refresh"}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {eventsLoading ? (
+                    <p className="text-sm text-gray-600">Loading events...</p>
+                  ) : customerEvents.length === 0 ? (
+                    <p className="text-sm text-gray-600">No recent customer events found.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {customerEvents.map((event) => (
+                        <div key={event.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2">
+                              <Badge className={event.type === "signup" ? "bg-blue-600 text-white" : "bg-[#00FF87] text-[#2E0032]"}>
+                                {event.type === "signup" ? "Signup" : "Paid"}
+                              </Badge>
+                              <p className="text-sm font-semibold text-gray-900">{event.title}</p>
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {new Date(event.timestamp).toLocaleString("en-GB")}
+                            </p>
+                          </div>
+                          <p className="mt-1 text-sm text-gray-700">{event.detail}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </>
