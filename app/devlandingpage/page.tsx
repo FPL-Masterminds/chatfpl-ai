@@ -39,6 +39,33 @@ export default function DevLandingPage() {
 
         <div className="relative z-10 container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="space-y-8">
+
+            {/* Announcement pill */}
+            <div className="flex justify-center">
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:brightness-110"
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(0,255,133,0.35)',
+                  backdropFilter: 'blur(8px)',
+                }}
+              >
+                <span
+                  className="rounded-full px-2.5 py-0.5 text-xs font-bold text-[#08020E]"
+                  style={{
+                    background: 'linear-gradient(to right, #00FF87, #00FFFF)',
+                  }}
+                >
+                  New
+                </span>
+                <span className="text-gray-200">Get 20 free messages — no card needed</span>
+                <svg className="h-3.5 w-3.5 text-[#00FF87]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+
             <h1 className="font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: 'clamp(36px, 6vw, 68px)' }}>
               Chat with your{" "}
               <span
@@ -59,13 +86,22 @@ export default function DevLandingPage() {
             </p>
 
             <div className="flex flex-col items-center gap-5">
-              <Link
-                href="/signup"
-                className="px-10 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#08020E] font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,133,0.5)]"
-                style={{ boxShadow: '0 0 20px rgba(0,255,133,0.3)' }}
+              {/* CTA button with gradient border ring */}
+              <div
+                className="rounded-full p-[1.5px]"
+                style={{ background: 'linear-gradient(to right, #00FF87, #00FFFF)' }}
               >
-                Start your 20-message free trial today
-              </Link>
+                <Link
+                  href="/signup"
+                  className="block rounded-full px-10 py-4 font-bold text-lg text-[#08020E] transition-all duration-300 hover:scale-105"
+                  style={{
+                    background: 'linear-gradient(to right, #00FF87, #00FFFF)',
+                    boxShadow: '0 0 24px rgba(0,255,133,0.4)',
+                  }}
+                >
+                  Start Chatting for Free
+                </Link>
+              </div>
 
               <div className="flex items-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
