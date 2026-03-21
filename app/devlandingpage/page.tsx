@@ -38,7 +38,7 @@ export default function DevLandingPage() {
         />
 
         <div className="relative z-10 container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="space-y-8">
+          <div className="space-y-8 -mt-8 sm:mt-0">
 
             {/* Announcement pill */}
             <div className="flex justify-center">
@@ -46,7 +46,7 @@ export default function DevLandingPage() {
                 href="/signup"
                 className="inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:brightness-110"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
+                  background: 'rgba(8,2,14,0.5)',
                   border: '1px solid rgba(0,255,133,0.35)',
                   backdropFilter: 'blur(8px)',
                 }}
