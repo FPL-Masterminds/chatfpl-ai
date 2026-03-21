@@ -8,12 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { 
   TrendingUp, 
-  Sparkles, 
-  ArrowRight, 
-  MessageSquare,
   Zap,
   Target,
-  Users,
   Check,
   Star
 } from "lucide-react"
@@ -41,41 +37,37 @@ export default function DevLandingPage() {
           aria-hidden
         />
 
-        <div className="relative z-10 container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Column - Headline & CTA */}
-            <div className="text-center lg:text-left space-y-8">
-              <h1 className="text-balance font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: '60px' }}>
-                Chat with your{" "}
-                <span 
-                  className="text-transparent bg-clip-text"
-                  style={{
-                    backgroundImage: 'linear-gradient(to right, #00ff85, #02efff, #a855f7)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
-                  }}
-                >
-                  Fantasy Premier League AI Assistant
-                </span>
-              </h1>
-              <p className="text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                Ask live FPL questions. Get instant AI answers powered by real stats 
-                and natural conversation. Dominate your mini-league with data-driven insights.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                <Link 
-                  href="/signup"
-                  className="px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1a0e24] font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,133,0.5)]"
-                  style={{
-                    boxShadow: '0 0 20px rgba(0,255,133,0.3)'
-                  }}
-                >
-                  Start your 20-message free trial today
-                </Link>
-              </div>
-              
-              <div className="flex items-center justify-center lg:justify-start gap-4 text-sm">
+        <div className="relative z-10 container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <div className="space-y-8">
+            <h1 className="font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: 'clamp(36px, 6vw, 68px)' }}>
+              Chat with your{" "}
+              <span
+                className="text-transparent bg-clip-text"
+                style={{
+                  backgroundImage: 'linear-gradient(to right, #00ff85, #02efff, #a855f7)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
+                Fantasy Premier League AI Assistant
+              </span>
+            </h1>
+
+            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              Ask live FPL questions. Get instant AI answers powered by real stats
+              and natural conversation. Dominate your mini-league with data-driven insights.
+            </p>
+
+            <div className="flex flex-col items-center gap-5">
+              <Link
+                href="/signup"
+                className="px-10 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#08020E] font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,133,0.5)]"
+                style={{ boxShadow: '0 0 20px rgba(0,255,133,0.3)' }}
+              >
+                Start your 20-message free trial today
+              </Link>
+
+              <div className="flex items-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <svg className="h-4 w-4 text-[#00FF87]" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -87,158 +79,6 @@ export default function DevLandingPage() {
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <span className="text-gray-400">Instant access</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column - Glass Chat Interface */}
-            <div className="relative">
-              {/* Floating Badge */}
-              <div 
-                className="absolute -top-5 right-0 sm:-right-5 px-4 py-2 rounded-lg text-sm font-bold text-[#00ff85] animate-bounce z-10"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(0,255,133,0.3)',
-                  boxShadow: '0 0 15px rgba(0,255,133,0.2)'
-                }}
-              >
-                Live Stats ⚡
-              </div>
-
-              {/* Chat Window */}
-              <div 
-                className="relative rounded-2xl shadow-2xl overflow-hidden transition-transform duration-500 hover:rotate-1"
-                style={{
-                  background: '#1E1525',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
-                }}
-              >
-                {/* Header */}
-                <div 
-                  className="bg-white/5 border-b p-4 flex items-center justify-between"
-                  style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  </div>
-                  <div className="text-xs text-gray-400 font-mono">AI Analysis Mode</div>
-                </div>
-
-                {/* Chat Body */}
-                <div className="p-6 h-[440px] sm:h-[400px] mb-6 sm:mb-0 flex flex-col gap-4" style={{ background: '#1E1525' }}>
-                  {/* User Message */}
-                  <div className="flex justify-end">
-                    <div 
-                      className="p-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-lg text-[#1a0e24] font-semibold"
-                      style={{
-                        backgroundImage: 'linear-gradient(to bottom right, #00ff85, #10b981)'
-                      }}
-                    >
-                      How many bonus points has Jack Grealish won?
-                    </div>
-                    <div 
-                      className="ml-3 w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center"
-                      style={{ border: '1px solid rgba(255, 255, 255, 0.1)' }}
-                    >
-                      <Users className="w-5 h-5 text-gray-300" />
-                    </div>
-                  </div>
-
-                  {/* AI Message */}
-                  <div className="flex justify-start mt-4">
-                    <div 
-                      className="mr-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
-                      style={{
-                        backgroundImage: 'linear-gradient(to bottom right, #9333ea, #6366f1)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}
-                    >
-                      <Sparkles className="w-5 h-5 text-white" />
-                    </div>
-                    <div 
-                      className="p-4 rounded-2xl rounded-tl-none max-w-[80%] text-gray-100 shadow-lg"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255, 255, 255, 0.05)'
-                      }}
-                    >
-                      <div className="flex flex-col gap-3">
-                        {/* Player Card */}
-                        <div className="relative w-full h-32 rounded-lg overflow-hidden mb-2 bg-black">
-                          {/* Background Layer */}
-                          <Image
-                            src="/club_backgrounds/bg_Everton.png"
-                            alt="Player Stats"
-                            fill
-                            className="object-cover object-center opacity-80"
-                            style={{ objectFit: 'cover', zIndex: 1 }}
-                          />
-                          
-                          {/* Player Image Layer - Positioned Right */}
-                          <div className="absolute inset-0 flex items-end justify-end" style={{ zIndex: 2 }}>
-                            <div className="relative h-full w-20 sm:w-28">
-                              <Image
-                                src="/player_images/jack_grealish.png"
-                                alt="Jack Grealish"
-                                fill
-                                className="object-contain object-bottom"
-                                style={{ objectFit: 'contain', objectPosition: 'bottom right' }}
-                              />
-                            </div>
-                          </div>
-                          
-                          {/* Gradient Overlay Layer */}
-                          <div 
-                            className="absolute inset-0"
-                            style={{
-                              backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-                              zIndex: 3
-                            }}
-                          />
-                          
-                          {/* Text Layer - Positioned Left */}
-                          <div className="absolute inset-0 flex items-end p-3" style={{ zIndex: 4 }}>
-                            <span className="text-white">
-                              <span className="font-bold" style={{ fontFamily: "'Futura Maxi CG', sans-serif" }}>Jack Grealish</span>
-                              <span style={{ fontFamily: "'Myriad Pro', sans-serif" }}> | MID</span>
-                            </span>
-                          </div>
-                        </div>
-                        <p className="leading-relaxed text-sm pb-2">
-                          Jack Grealish has an expected points (xP) of 5.4 for the next gameweek against Fulham. His creativity stats are in the top 5% of midfielders over the last 3 matches.
-                          <span className="animate-pulse inline-block w-1.5 h-4 bg-[#00ff85] ml-1 align-middle"></span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Input Area */}
-                <div 
-                  className="p-4 border-t bg-white/5"
-                  style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}
-                >
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Ask about transfers, stats, or fixtures..."
-                      className="w-full bg-black/30 rounded-xl py-3 px-4 pr-12 text-sm text-gray-200 focus:outline-none transition-colors"
-                      style={{ 
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}
-                      disabled
-                    />
-                    <button 
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 bg-[#00ff85] rounded-lg text-[#1a0e24] transition-colors hover:bg-white"
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
