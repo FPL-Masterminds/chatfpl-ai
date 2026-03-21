@@ -46,7 +46,7 @@ export default function DevLandingPage() {
                 href="/signup"
                 className="inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:brightness-110"
                 style={{
-                  background: 'rgba(8,2,14,0.25)',
+                  background: 'rgba(255,255,255,0.08)',
                   border: '1px solid rgba(0,255,133,0.35)',
                   backdropFilter: 'blur(8px)',
                 }}
