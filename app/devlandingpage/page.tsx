@@ -38,7 +38,7 @@ export default function DevLandingPage() {
         />
 
         <div className="relative z-10 container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="space-y-8 -mt-8 sm:mt-0">
+          <div className="space-y-8 -mt-20 sm:mt-0">
 
             {/* Announcement pill */}
             <div className="flex justify-center">
