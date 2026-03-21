@@ -3,8 +3,7 @@
 import { useEffect, useRef } from "react"
 import Hls from "hls.js"
 
-/** Mux HLS asset — hero background on dev landing */
-export const DEV_LANDING_HERO_VIDEO_SRC =
+const SRC =
   "https://stream.mux.com/9njY8qDfS02Uvbll018C8CK39p5EksK7mn02DDC1zYvppI.m3u8"
 
 export function DevHeroVideoBg() {
@@ -14,49 +13,33 @@ export function DevHeroVideoBg() {
     const video = videoRef.current
     if (!video) return
 
-    let hls: Hls | null = null
-
-    const tryPlay = () => {
-      void video.play().catch(() => {
-        /* autoplay may be blocked until gesture; muted usually allows it */
-      })
-    }
-
     if (Hls.isSupported()) {
-      hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: false,
-      })
-      hls.loadSource(DEV_LANDING_HERO_VIDEO_SRC)
+      // Chrome / Firefox / Android — hls.js takes over, remove the src attr
+      video.removeAttribute("src")
+      const hls = new Hls({ enableWorker: true, lowLatencyMode: false })
+      hls.loadSource(SRC)
       hls.attachMedia(video)
-      hls.on(Hls.Events.MANIFEST_PARSED, tryPlay)
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = DEV_LANDING_HERO_VIDEO_SRC
-      video.addEventListener("loadedmetadata", tryPlay, { once: true })
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        void video.play().catch(() => {})
+      })
+      return () => hls.destroy()
     }
 
-    return () => {
-      if (hls) {
-        hls.destroy()
-      }
-    }
-  }, [])
-
-  // Some HLS stacks ignore `loop`; restart playback when the asset ends
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-    const onEnded = () => {
-      video.currentTime = 0
-      void video.play().catch(() => {})
-    }
-    video.addEventListener("ended", onEnded)
-    return () => video.removeEventListener("ended", onEnded)
+    // iOS Safari — src is already set as an HTML attribute so the browser
+    // handles HLS natively and respects muted+playsInline autoplay rules.
+    // Just nudge play() to be safe.
+    void video.play().catch(() => {})
   }, [])
 
   return (
+    /*
+     * src is set here as a React prop (= HTML attribute) so iOS Safari picks
+     * it up immediately on mount and can autoplay without waiting for JS.
+     * hls.js browsers strip it via removeAttribute() and take full control.
+     */
     <video
       ref={videoRef}
+      src={SRC}
       className="pointer-events-none absolute inset-0 h-full w-full object-cover"
       muted
       playsInline
