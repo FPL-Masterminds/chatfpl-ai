@@ -25,12 +25,12 @@ export const metadata = {
 
 export default function DevLandingPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-black">
+    <div className="flex min-h-screen flex-col bg-[#08020E]">
       <DevHeader />
 
       {/* Hero Section */}
       <section 
-        className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-black pt-32 pb-20"
+        className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-[#08020E] pt-32 pb-20"
       >
         {/* Looping Mux HLS background */}
         <div className="absolute inset-0 z-0 overflow-hidden">
