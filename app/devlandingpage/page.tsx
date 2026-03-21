@@ -38,7 +38,7 @@ export default function DevLandingPage() {
         />
 
         <div className="relative z-10 container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="space-y-8 -mt-20 sm:mt-0">
+          <div className="space-y-8 -mt-40 sm:mt-0">
 
             {/* Announcement pill */}
             <div className="flex justify-center">
@@ -46,7 +46,7 @@ export default function DevLandingPage() {
                 href="/signup"
                 className="inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:brightness-110"
                 style={{
-                  background: 'rgba(8,2,14,0.5)',
+                  background: 'rgba(8,2,14,0.25)',
                   border: '1px solid rgba(0,255,133,0.35)',
                   backdropFilter: 'blur(8px)',
                 }}
@@ -59,7 +59,7 @@ export default function DevLandingPage() {
                 >
                   New
                 </span>
-                <span className="text-gray-200">Get 20 free messages — no card needed</span>
+                <span className="text-gray-200">Get 20 free messages - no card needed</span>
                 <svg className="h-3.5 w-3.5 text-[#00FF87]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
