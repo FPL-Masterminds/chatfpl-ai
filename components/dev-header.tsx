@@ -15,7 +15,7 @@ export function DevHeader() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#08020E]">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black">
         <div className="container mx-auto flex h-20 items-center justify-between px-4">
           <Link href="/" onClick={closeMobileMenu}>
             <Image 
@@ -77,7 +77,7 @@ export function DevHeader() {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed top-20 right-0 z-40 h-[calc(100vh-5rem)] w-64 bg-[#08020E]/95 backdrop-blur-lg border-l border-white/10 shadow-lg transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-20 right-0 z-40 h-[calc(100vh-5rem)] w-64 bg-black/95 backdrop-blur-lg border-l border-white/10 shadow-lg transition-transform duration-300 ease-in-out md:hidden ${
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
