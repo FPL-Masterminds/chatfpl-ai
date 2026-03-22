@@ -188,7 +188,13 @@ export default function DevChatPage() {
   )
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden">
+    <div className="min-h-screen bg-black text-white overflow-hidden devchat-root">
+      <style>{`
+        .devchat-root ::-webkit-scrollbar { width: 4px; height: 4px; }
+        .devchat-root ::-webkit-scrollbar-track { background: transparent; }
+        .devchat-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
+        .devchat-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
+      `}</style>
       {/* Ambient gradients */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,200,0.16),transparent_28%),radial-gradient(circle_at_top_right,rgba(0,180,255,0.14),transparent_28%),radial-gradient(circle_at_bottom,rgba(122,92,255,0.12),transparent_30%)]" />
       {/* Subtle grid */}
@@ -199,16 +205,9 @@ export default function DevChatPage() {
         {/* ─── Left Sidebar ─── */}
         <aside className="w-[280px] shrink-0 border-r border-white/10 bg-white/[0.04] backdrop-blur-2xl p-5 hidden lg:flex lg:flex-col">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-8">
-            <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={44} height={44} className="h-10 w-auto" />
-            <div>
-              <div className="text-xl font-black tracking-tight leading-none">
-                <span className="text-white">CHAT</span>
-                <span className="text-cyan-400">FPL</span>
-                <span className="text-emerald-400"> AI</span>
-              </div>
-              <p className="text-[11px] text-white/45 mt-0.5">Fantasy Premier League copilot</p>
-            </div>
+          <div className="mb-8">
+            <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={140} height={40} className="h-9 w-auto" />
+            <p className="text-[11px] text-white/40 mt-2">Fantasy Premier League copilot</p>
           </div>
 
           {/* New Chat */}
