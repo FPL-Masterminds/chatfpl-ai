@@ -4,23 +4,17 @@ import { useState, useEffect, useRef } from "react"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Send, Sparkles, User, Menu, LogOut, MessageSquarePlus, Trash2, MessageSquare, X } from "lucide-react"
+import { Send } from "lucide-react"
 import Link from "next/link"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
+
+const SUGGESTED_PROMPTS = [
+  "Best captain this gameweek?",
+  "Compare Isak vs Watkins",
+  "Give me 3 low-owned midfielders",
+  "Who has the best fixtures in the next 4?",
+]
 
 type Message = {
   id: string
@@ -44,59 +38,27 @@ export default function DevChatPage() {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(true)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; conversationId: string } | null>(null)
-  const [renamingId, setRenamingId] = useState<string | null>(null)
-  const [renameValue, setRenameValue] = useState("")
-  const [userFirstName, setUserFirstName] = useState<string>("there")
+  const [userFirstName, setUserFirstName] = useState("there")
+  const [userInitials, setUserInitials] = useState("JM")
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [messagesUsed, setMessagesUsed] = useState(0)
-  const [messagesLimit, setMessagesLimit] = useState(5)
-  const [userPlan, setUserPlan] = useState<string>("Free")
+  const [messagesLimit, setMessagesLimit] = useState(20)
+  const [userPlan, setUserPlan] = useState("Free")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const welcomeMessages = [
-    "Hi {firstName}! ChatFPL AI here. What FPL questions can I help you with today?",
-    "Welcome back, {firstName}! I'm ChatFPL AI - ask me anything about Fantasy Premier League.",
-    "Hey {firstName}! ChatFPL AI ready to help. Player stats, transfers, captains - just ask!",
-    "{firstName}, let's talk FPL! I'm ChatFPL AI, your AI assistant for all things Fantasy Premier League.",
-    "Hello {firstName}! ChatFPL AI here with live FPL data. What would you like to know?",
-    "Hi there, {firstName}! I'm ChatFPL AI - here to help with your FPL decisions. Fire away!",
-    "{firstName}! ChatFPL AI at your service. Need transfer advice, captain picks, or player analysis?",
-    "Welcome, {firstName}! ChatFPL AI here. Let's dive into some FPL strategy together.",
-    "Hey {firstName}! I'm ChatFPL AI - powered by live FPL data. What's on your mind?",
-    "Hi {firstName}! ChatFPL AI ready to assist. Ask me about players, fixtures, or strategy!",
-  ]
-
-  const getRandomWelcomeMessage = (firstName: string) => {
-    const randomIndex = Math.floor(Math.random() * welcomeMessages.length)
-    return welcomeMessages[randomIndex].replace(/{firstName}/g, firstName)
-  }
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
-
   useEffect(() => {
-    scrollToBottom()
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Email gate — check on mount before loading anything else
+  // Email gate — silent redirect for anyone else
   useEffect(() => {
     const checkAccess = async () => {
       try {
         const res = await fetch("/api/account")
-        if (!res.ok) {
-          router.replace("/login")
-          return
-        }
+        if (!res.ok) { router.replace("/login"); return }
         const data = await res.json()
-        const email = data.user?.email || ""
-        if (email !== ALLOWED_EMAIL) {
-          router.replace("/login")
-          return
-        }
+        if ((data.user?.email || "") !== ALLOWED_EMAIL) { router.replace("/login"); return }
         setAuthorized(true)
       } catch {
         router.replace("/login")
@@ -105,159 +67,83 @@ export default function DevChatPage() {
     checkAccess()
   }, [router])
 
-  // Load conversations — only runs once authorized
+  // Load all data once authorised
   useEffect(() => {
     if (!authorized) return
-
-    const loadData = async () => {
+    const load = async () => {
       try {
-        let firstName = "there"
-        const accountResponse = await fetch("/api/account")
-        if (accountResponse.ok) {
-          const accountData = await accountResponse.json()
-          firstName = accountData.user?.name?.split(" ")[0] || "there"
+        const accountRes = await fetch("/api/account")
+        if (accountRes.ok) {
+          const d = await accountRes.json()
+          const name: string = d.user?.name || ""
+          const firstName = name.split(" ")[0] || "there"
+          const initials = name.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase() || "JM"
           setUserFirstName(firstName)
-          setMessagesUsed(accountData.usage?.messages_used ?? 0)
-          setMessagesLimit(accountData.usage?.messages_limit ?? 20)
-          setUserPlan(accountData.subscription?.plan || "Free")
+          setUserInitials(initials)
+          setMessagesUsed(d.usage?.messages_used ?? 0)
+          setMessagesLimit(d.usage?.messages_limit ?? 20)
+          setUserPlan(d.subscription?.plan || "Free")
         }
 
-        const convsResponse = await fetch("/api/chat/conversations")
-        if (convsResponse.ok) {
-          const convsData = await convsResponse.json()
-          setConversations(convsData.conversations || [])
+        const convsRes = await fetch("/api/chat/conversations")
+        if (convsRes.ok) {
+          const d = await convsRes.json()
+          setConversations(d.conversations || [])
         }
 
-        const historyResponse = await fetch("/api/chat/history")
-        if (historyResponse.ok) {
-          const data = await historyResponse.json()
-          if (data.messages && data.messages.length > 0) {
-            setMessages(data.messages.map((msg: any) => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp),
-            })))
-            setConversationId(data.conversationId)
+        const historyRes = await fetch("/api/chat/history")
+        if (historyRes.ok) {
+          const d = await historyRes.json()
+          if (d.messages?.length > 0) {
+            setMessages(d.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })))
+            setConversationId(d.conversationId)
           } else {
             setMessages([{
               id: "welcome",
               role: "assistant",
-              content: getRandomWelcomeMessage(firstName),
+              content: `Hi ${userFirstName}! I'm your ChatFPL AI analyst. Ask me about captains, transfers, differentials, fixtures - anything FPL.`,
               timestamp: new Date(),
             }])
           }
         }
-      } catch (error) {
-        console.error("Failed to load chat data:", error)
-        setMessages([{
-          id: "welcome",
-          role: "assistant",
-          content: getRandomWelcomeMessage(userFirstName),
-          timestamp: new Date(),
-        }])
+      } catch (e) {
+        console.error(e)
       } finally {
         setIsLoadingHistory(false)
       }
     }
-
-    loadData()
+    load()
   }, [authorized])
 
   const startNewChat = async () => {
     setMessages([{
       id: "welcome",
       role: "assistant",
-      content: getRandomWelcomeMessage(userFirstName),
+      content: `Hi ${userFirstName}! What FPL question can I help you with today?`,
       timestamp: new Date(),
     }])
     setConversationId(null)
     setInput("")
-    setIsSidebarOpen(false)
-    const response = await fetch("/api/chat/conversations")
-    if (response.ok) {
-      const data = await response.json()
-      setConversations(data.conversations || [])
-    }
+    const res = await fetch("/api/chat/conversations")
+    if (res.ok) { const d = await res.json(); setConversations(d.conversations || []) }
   }
 
-  const loadConversation = async (convId: string) => {
-    try {
-      const conv = conversations.find((c) => c.id === convId)
-      if (conv && conv.messages) {
-        setMessages(conv.messages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp),
-        })))
-        setConversationId(convId)
-        setIsSidebarOpen(false)
-      }
-    } catch (error) {
-      console.error("Failed to load conversation:", error)
+  const loadConversation = (convId: string) => {
+    const conv = conversations.find(c => c.id === convId)
+    if (conv?.messages) {
+      setMessages(conv.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })))
+      setConversationId(convId)
     }
   }
-
-  const deleteConversation = async (convId: string) => {
-    try {
-      const response = await fetch("/api/chat/conversations", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId: convId }),
-      })
-      if (response.ok) {
-        setConversations((prev) => prev.filter((c) => c.id !== convId))
-        if (convId === conversationId) startNewChat()
-      }
-      setContextMenu(null)
-    } catch (error) {
-      console.error("Failed to delete conversation:", error)
-    }
-  }
-
-  const renameConversation = async (convId: string, newTitle: string) => {
-    try {
-      const response = await fetch("/api/chat/conversations", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId: convId, title: newTitle }),
-      })
-      if (response.ok) {
-        setConversations((prev) =>
-          prev.map((c) => (c.id === convId ? { ...c, title: newTitle } : c))
-        )
-      }
-      setRenamingId(null)
-      setRenameValue("")
-    } catch (error) {
-      console.error("Failed to rename conversation:", error)
-    }
-  }
-
-  const handleContextMenu = (e: React.MouseEvent, convId: string) => {
-    e.preventDefault()
-    setContextMenu({ x: e.clientX, y: e.clientY, conversationId: convId })
-  }
-
-  useEffect(() => {
-    const handleClickOutside = () => setContextMenu(null)
-    if (contextMenu) {
-      document.addEventListener("click", handleClickOutside)
-      return () => document.removeEventListener("click", handleClickOutside)
-    }
-  }, [contextMenu])
 
   const renderMessageContent = (content: string) => {
     const parts = content.split(/!\[([^\]]*)\]\(([^)]+)\)/)
     const elements: (string | React.ReactElement)[] = []
     for (let i = 0; i < parts.length; i++) {
-      if (i % 3 === 0 && parts[i]) {
-        elements.push(parts[i])
-      } else if (i % 3 === 1) {
-        const alt = parts[i]
-        const url = parts[i + 1]
-        if (url) {
-          elements.push(
-            <img key={`img-${i}`} src={url} alt={alt} className="inline-block h-12 w-auto rounded mx-1" />
-          )
-        }
+      if (i % 3 === 0 && parts[i]) elements.push(parts[i])
+      else if (i % 3 === 1) {
+        const alt = parts[i]; const url = parts[i + 1]
+        if (url) elements.push(<img key={`img-${i}`} src={url} alt={alt} className="inline-block h-12 w-auto rounded mx-1" />)
         i++
       }
     }
@@ -266,294 +152,281 @@ export default function DevChatPage() {
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
-      timestamp: new Date(),
-    }
-
-    setMessages((prev) => [...prev, userMessage])
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: input, timestamp: new Date() }
+    setMessages(prev => [...prev, userMsg])
     setInput("")
     setIsLoading(true)
-
     try {
-      const response = await fetch("/api/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input, conversationId }),
       })
-
-      const data = await response.json()
-
-      if (!response.ok) throw new Error(data.error || "Failed to get response")
-
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: data.answer,
-        timestamp: new Date(),
-      }
-
-      setMessages((prev) => [...prev, aiMessage])
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed")
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: data.answer, timestamp: new Date() }])
       setConversationId(data.conversation_id)
       setMessagesUsed(data.messages_used)
       setMessagesLimit(data.messages_limit)
-    } catch (error: any) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: "assistant",
-          content: error.message || "Sorry, something went wrong. Please try again.",
-          timestamp: new Date(),
-        },
-      ])
+    } catch (e: any) {
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: e.message || "Something went wrong.", timestamp: new Date() }])
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Show nothing while checking email — no flash
   if (!authorized) return null
 
-  if (isLoadingHistory) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <div className="text-center">
-          <Sparkles className="mx-auto h-8 w-8 animate-spin text-accent" />
-          <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
-        </div>
+  if (isLoadingHistory) return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black">
+      <div className="flex gap-1">
+        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
+        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
+        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-400" />
       </div>
-    )
-  }
+    </div>
+  )
 
   return (
-    <div className="fixed inset-0 flex bg-background">
-      {/* Sidebar */}
-      <div className={`${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} fixed inset-y-0 left-0 z-50 w-full md:w-1/4 border-r border-border bg-card transition-transform duration-300`}>
-        <div className="flex h-14 items-center justify-between border-b border-border px-4">
-          <h2 className="font-semibold text-foreground">Chat History</h2>
-          <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="p-2">
-          <Button onClick={startNewChat} className="w-full justify-start gap-2" variant="outline">
-            <MessageSquarePlus className="h-4 w-4" />
-            New Chat
-          </Button>
-        </div>
-        <ScrollArea className="h-[calc(100vh-120px)]">
-          <div className="space-y-1 p-2">
-            {conversations.length === 0 ? (
-              <p className="px-3 py-2 text-sm text-muted-foreground">No conversations yet</p>
-            ) : (
-              conversations.map((conv) => (
-                <div
-                  key={conv.id}
-                  className={`relative rounded-lg hover:bg-accent/10 ${conv.id === conversationId ? "bg-accent/20" : ""}`}
-                  onContextMenu={(e) => handleContextMenu(e, conv.id)}
-                  style={{ overflow: "visible" }}
-                >
-                  {renamingId === conv.id ? (
-                    <div className="p-3">
-                      <Input
-                        value={renameValue}
-                        onChange={(e) => setRenameValue(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") renameConversation(conv.id, renameValue)
-                          else if (e.key === "Escape") { setRenamingId(null); setRenameValue("") }
-                        }}
-                        onBlur={() => {
-                          if (renameValue.trim()) renameConversation(conv.id, renameValue)
-                          else { setRenamingId(null); setRenameValue("") }
-                        }}
-                        autoFocus
-                        className="text-sm"
-                      />
-                    </div>
-                  ) : (
-                    <div className="cursor-pointer p-3" onClick={() => loadConversation(conv.id)}>
-                      <p className="text-sm font-medium text-foreground" style={{ wordBreak: "break-word", whiteSpace: "normal", overflowWrap: "anywhere" }}>
-                        {(() => {
-                          const text = conv.title || conv.messages[0]?.content || "New Chat"
-                          return text.length > 47 ? text.substring(0, 47) + "..." : text
-                        })()}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(conv.updated_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
+    <div className="min-h-screen bg-black text-white overflow-hidden">
+      {/* Ambient gradients */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,200,0.16),transparent_28%),radial-gradient(circle_at_top_right,rgba(0,180,255,0.14),transparent_28%),radial-gradient(circle_at_bottom,rgba(122,92,255,0.12),transparent_30%)]" />
+      {/* Subtle grid */}
+      <div className="pointer-events-none absolute inset-0 opacity-[0.045] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] bg-[size:48px_48px]" />
+
+      <div className="relative flex h-screen">
+
+        {/* ─── Left Sidebar ─── */}
+        <aside className="w-[280px] shrink-0 border-r border-white/10 bg-white/[0.04] backdrop-blur-2xl p-5 hidden lg:flex lg:flex-col">
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-8">
+            <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={44} height={44} className="h-10 w-auto" />
+            <div>
+              <div className="text-xl font-black tracking-tight leading-none">
+                <span className="text-white">CHAT</span>
+                <span className="text-cyan-400">FPL</span>
+                <span className="text-emerald-400"> AI</span>
+              </div>
+              <p className="text-[11px] text-white/45 mt-0.5">Fantasy Premier League copilot</p>
+            </div>
           </div>
-        </ScrollArea>
-      </div>
 
-      {isSidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)} />
-      )}
-
-      {/* Context Menu */}
-      {contextMenu && (
-        <div className="fixed z-50 min-w-[160px] rounded-md border border-border bg-card shadow-lg" style={{ top: contextMenu.y, left: contextMenu.x }}>
+          {/* New Chat */}
           <button
-            className="w-full px-4 py-2 text-left text-sm hover:bg-accent/10"
-            onClick={() => {
-              const conv = conversations.find((c) => c.id === contextMenu.conversationId)
-              if (conv) { setRenamingId(conv.id); setRenameValue(conv.title || conv.messages[0]?.content.substring(0, 50) || "") }
-              setContextMenu(null)
-            }}
+            onClick={startNewChat}
+            className="w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-semibold px-4 py-3 mb-6 shadow-[0_0_30px_rgba(0,255,200,0.2)] hover:brightness-110 transition-all text-sm"
           >
-            Rename
+            + New Chat
           </button>
-          <button
-            className="w-full px-4 py-2 text-left text-sm text-destructive hover:bg-accent/10"
-            onClick={() => deleteConversation(contextMenu.conversationId)}
-          >
-            Delete
-          </button>
-        </div>
-      )}
 
-      {/* Main Content */}
-      <div className="flex flex-1 flex-col">
-        {/* Header */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/40 bg-card/50 px-4">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(true)}>
-              <MessageSquare className="h-5 w-5" />
-            </Button>
-            <Link href="/">
-              <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={40} height={40} className="h-8 w-auto md:h-10" />
+          {/* Conversation history */}
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-white/35 mb-3 px-1">Recent chats</p>
+            <div className="space-y-1.5">
+              {conversations.length === 0 ? (
+                <p className="text-sm text-white/35 px-2 py-2">No conversations yet</p>
+              ) : (
+                conversations.slice(0, 10).map((conv) => (
+                  <div
+                    key={conv.id}
+                    onClick={() => loadConversation(conv.id)}
+                    className={`rounded-xl p-3 border cursor-pointer transition-all ${
+                      conv.id === conversationId
+                        ? "border-emerald-400/30 bg-emerald-400/10 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
+                        : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10"
+                    }`}
+                  >
+                    <div className="text-sm font-medium text-white truncate">
+                      {conv.title || conv.messages[0]?.content?.substring(0, 42) || "New Chat"}
+                    </div>
+                    <div className="text-[11px] text-white/40 mt-1">
+                      {new Date(conv.updated_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Plan card */}
+          <div className="mt-5 rounded-[24px] border border-cyan-400/20 bg-gradient-to-br from-cyan-400/8 via-white/[0.02] to-emerald-400/8 p-4">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">{userPlan}</div>
+            <div className="text-base font-semibold text-white">
+              {messagesLimit === 999999 ? "Unlimited messages" : `${messagesUsed} / ${messagesLimit} messages`}
+            </div>
+            <p className="text-xs text-white/55 mt-1.5 leading-5">Live FPL data, smarter recommendations.</p>
+            <Link href="/admin">
+              <button className="mt-3 w-full rounded-xl bg-white text-black font-semibold py-2 text-sm hover:bg-gray-100 transition-all">
+                Manage Plan
+              </button>
             </Link>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Dev badge — only visible to you */}
-            <span className="hidden rounded-full border border-yellow-500/50 bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-400 md:block">
-              DEV BUILD
-            </span>
-            <div className="hidden items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-sm md:flex">
-              <Sparkles className="h-4 w-4 text-accent" />
-              <span className="text-foreground">
-                {messagesLimit === 999999 ? "Unlimited messages" : `${messagesUsed}/${messagesLimit} messages used`}
-              </span>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={startNewChat}>
-                  <MessageSquarePlus className="mr-2 h-4 w-4" />
-                  New Chat
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/admin">Account Settings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
+        </aside>
 
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto px-4">
-          <div className="mx-auto max-w-3xl space-y-6 py-8">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                {message.role === "assistant" && (
-                  <Avatar className="h-8 w-8 border border-accent/30 bg-accent/10">
-                    <AvatarFallback className="bg-transparent">
-                      <Sparkles className="h-4 w-4 text-accent" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                <Card className={`max-w-[80%] border-border/50 p-4 ${message.role === "user" ? "bg-accent/10 text-foreground" : "bg-card/50 text-foreground backdrop-blur-sm"}`}>
-                  <div className="text-sm leading-relaxed space-y-2">
-                    {message.content.split("\n\n").map((paragraph, i) => (
-                      <p key={i} className="whitespace-pre-wrap">
-                        {paragraph.split("\n").map((line, j) => (
-                          <span key={j}>
-                            {renderMessageContent(line)}
-                            {j < paragraph.split("\n").length - 1 && <br />}
-                          </span>
+        {/* ─── Main ─── */}
+        <main className="flex-1 flex min-w-0 min-h-0">
+          <section className="flex-1 min-w-0 px-4 md:px-5 py-4 flex flex-col gap-3">
+
+            {/* Top bar */}
+            <div className="rounded-[26px] border border-white/10 bg-white/[0.04] backdrop-blur-2xl px-5 py-3.5 flex items-center justify-between shadow-[0_8px_40px_rgba(0,0,0,0.3)] shrink-0">
+              <div>
+                <h1 className="text-lg md:text-xl font-semibold tracking-tight text-white">Chat with your FPL AI analyst</h1>
+                <p className="text-xs text-white/45 mt-0.5">Live data · Real-time reasoning · Smarter decisions</p>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="hidden md:flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/8 px-3.5 py-1.5 text-xs text-emerald-300">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  API live
+                </div>
+                <span className="rounded-full border border-yellow-500/40 bg-yellow-500/8 px-2.5 py-1 text-[10px] font-bold text-yellow-400 tracking-wide">DEV</span>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  title="Sign out"
+                  className="h-9 w-9 rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-400 text-black font-bold flex items-center justify-center text-xs hover:brightness-110 transition-all"
+                >
+                  {userInitials}
+                </button>
+              </div>
+            </div>
+
+            {/* Chat window */}
+            <div className="flex-1 min-h-0 rounded-[28px] border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
+                {messages.map((message) => (
+                  message.role === "user" ? (
+                    <div key={message.id} className="max-w-[760px] rounded-[24px] border border-cyan-400/15 bg-cyan-400/[0.07] p-4 md:p-5">
+                      <div className="text-[10px] uppercase tracking-[0.22em] text-cyan-300/70 mb-2">You</div>
+                      <p className="text-sm md:text-base leading-7 text-white/90">{message.content}</p>
+                    </div>
+                  ) : (
+                    <div key={message.id} className="max-w-[880px] rounded-[28px] border border-white/8 bg-black/30 p-4 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-400 to-blue-500 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>
+                        <div>
+                          <div className="text-sm font-semibold text-white">ChatFPL Analyst</div>
+                          <div className="text-[11px] text-white/40">{message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
+                        </div>
+                      </div>
+                      <div className="text-sm leading-7 text-white/85 space-y-2">
+                        {message.content.split("\n\n").map((para, i) => (
+                          <p key={i} className="whitespace-pre-wrap">
+                            {para.split("\n").map((line, j) => (
+                              <span key={j}>
+                                {renderMessageContent(line)}
+                                {j < para.split("\n").length - 1 && <br />}
+                              </span>
+                            ))}
+                          </p>
                         ))}
-                      </p>
-                    ))}
+                      </div>
+                    </div>
+                  )
+                ))}
+
+                {isLoading && (
+                  <div className="max-w-[880px] rounded-[28px] border border-white/8 bg-black/30 p-5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-400 to-blue-500 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>
+                      <div className="flex gap-1.5">
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
+                        <div className="h-2 w-2 animate-bounce rounded-full bg-blue-400" />
+                      </div>
+                    </div>
                   </div>
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </p>
-                </Card>
-                {message.role === "user" && (
-                  <Avatar className="h-8 w-8 border border-border bg-muted">
-                    <AvatarFallback className="bg-transparent">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                    </AvatarFallback>
-                  </Avatar>
                 )}
+                <div ref={messagesEndRef} />
               </div>
-            ))}
 
-            {isLoading && (
-              <div className="flex gap-4">
-                <Avatar className="h-8 w-8 border border-accent/30 bg-accent/10">
-                  <AvatarFallback className="bg-transparent">
-                    <Sparkles className="h-4 w-4 text-accent" />
-                  </AvatarFallback>
-                </Avatar>
-                <Card className="border-border/50 bg-card/50 p-4 backdrop-blur-sm">
-                  <div className="flex gap-1">
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-accent [animation-delay:-0.3s]" />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-accent [animation-delay:-0.15s]" />
-                    <div className="h-2 w-2 animate-bounce rounded-full bg-accent" />
-                  </div>
-                </Card>
+              {/* Suggested prompts + input */}
+              <div className="shrink-0 border-t border-white/[0.07] bg-black/20 p-4">
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {SUGGESTED_PROMPTS.map((prompt) => (
+                    <button
+                      key={prompt}
+                      onClick={() => setInput(prompt)}
+                      className="rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-xs text-white/60 hover:text-white hover:bg-white/[0.07] hover:border-white/20 transition-all"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-3 flex items-end gap-3">
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+                    placeholder="Ask about captaincy, transfers, wildcards, fixtures..."
+                    className="flex-1 bg-transparent text-white placeholder:text-white/35 resize-none outline-none text-sm leading-6 max-h-[140px] min-h-[36px] pt-1"
+                    rows={1}
+                    disabled={isLoading}
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={!input.trim() || isLoading}
+                    className="h-10 px-5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-semibold text-sm shadow-[0_0_24px_rgba(0,255,200,0.2)] hover:brightness-110 transition-all disabled:opacity-35 disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    <span>Send</span>
+                  </button>
+                </div>
               </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </div>
-
-        {/* Input Area */}
-        <div className="shrink-0 border-t border-border/40 bg-card/50 p-3">
-          <div className="mx-auto max-w-3xl">
-            <div className="flex gap-2">
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault()
-                    handleSend()
-                  }
-                }}
-                placeholder="Ask about FPL players, transfers, captains..."
-                className="flex-1 bg-background min-h-[44px] max-h-[200px] resize-none"
-                disabled={isLoading}
-                rows={1}
-              />
-              <Button onClick={handleSend} disabled={!input.trim() || isLoading} className="bg-accent text-accent-foreground hover:bg-accent/90">
-                <Send className="h-4 w-4" />
-              </Button>
             </div>
-            <p className="mt-1 text-center text-xs text-muted-foreground">
-              ChatFPL AI Dev Build — changes here don't affect live users
-            </p>
-          </div>
-        </div>
+          </section>
+
+          {/* ─── Right Sidebar ─── */}
+          <aside className="w-[320px] xl:w-[340px] shrink-0 p-4 hidden xl:flex xl:flex-col gap-3">
+            <div className="rounded-[28px] border border-white/10 bg-gradient-to-b from-emerald-400/8 via-cyan-400/4 to-blue-500/8 backdrop-blur-2xl p-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)] flex flex-col gap-4">
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-white/40">Live</div>
+                  <h2 className="text-xl font-semibold mt-1 text-white">Gameweek Edge</h2>
+                </div>
+                <div className="rounded-full border border-white/10 px-3 py-1 text-[11px] text-white/55">Insights</div>
+              </div>
+
+              <div className="space-y-2.5">
+                {[
+                  { label: "Form", value: "+14%", desc: "Expected returns trend is up over the last 3 matches." },
+                  { label: "Fixture Run", value: "A+", desc: "Strong next 4 with two high-upside home fixtures." },
+                  { label: "Differential", value: "2.7%", desc: "Low ownership option with real upside this week." },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-[20px] border border-white/8 bg-black/25 p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-white/50">{item.label}</div>
+                      <div className="text-base font-semibold text-emerald-300">{item.value}</div>
+                    </div>
+                    <p className="text-xs text-white/60 mt-1.5 leading-5">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-[20px] border border-white/8 bg-black/25 p-4">
+                <div className="text-xs text-white/50 mb-2.5">Trending — click to ask</div>
+                <div className="flex flex-wrap gap-2">
+                  {["Wildcard", "Salah captain", "Bench boost", "Cheap mids", "Fixture swing"].map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => setInput(tag)}
+                      className="rounded-full bg-white/[0.05] border border-white/8 px-3 py-1.5 text-xs text-white/75 hover:bg-white/[0.1] hover:text-white transition-all"
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[20px] border border-cyan-400/15 bg-cyan-400/[0.06] p-4">
+                <div className="text-xs text-cyan-300 mb-1.5">Dev build — admin only</div>
+                <p className="text-white/75 leading-6 text-xs">Only you can see this page. Build and experiment freely — live users are completely unaffected.</p>
+              </div>
+            </div>
+          </aside>
+        </main>
       </div>
     </div>
   )
