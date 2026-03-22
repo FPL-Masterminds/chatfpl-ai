@@ -375,12 +375,12 @@ export default function DevChatPage() {
               <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
                 {messages.map((message) => (
                   message.role === "user" ? (
-                    <div key={message.id} className="max-w-[760px] rounded-[24px] border border-cyan-400/15 bg-cyan-400/[0.07] p-4 md:p-5">
+                    <div key={message.id} className="w-full rounded-[24px] border border-cyan-400/15 bg-cyan-400/[0.07] p-4 md:p-5">
                       <div className="text-[10px] uppercase tracking-[0.22em] text-cyan-300/70 mb-2">You</div>
                       <p className="text-sm md:text-base leading-7 text-white/90">{message.content}</p>
                     </div>
                   ) : (
-                    <div key={message.id} className="max-w-[880px] rounded-[28px] border border-white/8 bg-black/30 p-4 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
+                    <div key={message.id} className="w-full rounded-[28px] border border-white/8 bg-black/30 p-4 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
                       <div className="flex items-center gap-3 mb-4">
                         <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-400 to-blue-500 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>
                         <div>
@@ -405,7 +405,7 @@ export default function DevChatPage() {
                 ))}
 
                 {isLoading && (
-                  <div className="max-w-[880px] rounded-[28px] border border-white/8 bg-black/30 p-5">
+                  <div className="w-full rounded-[28px] border border-white/8 bg-black/30 p-5">
                     <div className="flex items-center gap-3">
                       <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-400 to-blue-500 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>
                       <div className="flex gap-1.5">
