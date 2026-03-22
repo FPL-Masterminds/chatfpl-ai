@@ -31,6 +31,33 @@ type Conversation = {
   messages: Message[]
 }
 
+type InsightPlayer = { name: string; team: string; teamCode: number; value: string }
+type StatPanel = { id: string; title: string; accent: string; players: InsightPlayer[] }
+type InjuryItem = { name: string; news: string; teamCode: number; team: string }
+type Insights = { gameweek: string; deadline: string | null; stats: StatPanel[]; injuries: InjuryItem[] }
+type Countdown = { days: string; hours: string; minutes: string; seconds: string }
+
+const ACCENT: Record<string, { value: string; border: string; bg: string; dot: string }> = {
+  emerald: { value: "text-emerald-300", border: "border-emerald-400/20", bg: "bg-emerald-400/8", dot: "bg-emerald-400" },
+  red:     { value: "text-red-400",     border: "border-red-400/20",     bg: "bg-red-400/8",     dot: "bg-red-400"     },
+  cyan:    { value: "text-cyan-300",    border: "border-cyan-400/20",    bg: "bg-cyan-400/8",    dot: "bg-cyan-400"    },
+  yellow:  { value: "text-yellow-300",  border: "border-yellow-400/20",  bg: "bg-yellow-400/8",  dot: "bg-yellow-400"  },
+  purple:  { value: "text-purple-300",  border: "border-purple-400/20",  bg: "bg-purple-400/8",  dot: "bg-purple-400"  },
+}
+
+function TeamBadge({ code, name }: { code: number; name: string }) {
+  const [ok, setOk] = useState(true)
+  if (!code || !ok) return null
+  return (
+    <img
+      src={`https://resources.premierleague.com/premierleague/badges/70/t${code}.png`}
+      alt={name}
+      className="h-5 w-5 object-contain shrink-0"
+      onError={() => setOk(false)}
+    />
+  )
+}
+
 export default function DevChatPage() {
   const router = useRouter()
   const [authorized, setAuthorized] = useState(false)
@@ -46,6 +73,12 @@ export default function DevChatPage() {
   const [messagesLimit, setMessagesLimit] = useState(20)
   const [userPlan, setUserPlan] = useState("Free")
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Insights state
+  const [insights, setInsights] = useState<Insights | null>(null)
+  const [countdown, setCountdown] = useState<Countdown>({ days: "--", hours: "--", minutes: "--", seconds: "--" })
+  const [newsIndex, setNewsIndex] = useState(0)
+  const [newsFading, setNewsFading] = useState(false)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -72,11 +105,12 @@ export default function DevChatPage() {
     if (!authorized) return
     const load = async () => {
       try {
+        let firstName = "there"
         const accountRes = await fetch("/api/account")
         if (accountRes.ok) {
           const d = await accountRes.json()
           const name: string = d.user?.name || ""
-          const firstName = name.split(" ")[0] || "there"
+          firstName = name.split(" ")[0] || "there"
           const initials = name.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase() || "JM"
           setUserFirstName(firstName)
           setUserInitials(initials)
@@ -101,7 +135,7 @@ export default function DevChatPage() {
             setMessages([{
               id: "welcome",
               role: "assistant",
-              content: `Hi ${userFirstName}! I'm your ChatFPL AI analyst. Ask me about captains, transfers, differentials, fixtures - anything FPL.`,
+              content: `Hi ${firstName}! I'm your ChatFPL AI analyst. Ask me about captains, transfers, differentials, fixtures - anything FPL.`,
               timestamp: new Date(),
             }])
           }
@@ -114,6 +148,47 @@ export default function DevChatPage() {
     }
     load()
   }, [authorized])
+
+  // Fetch FPL insights
+  useEffect(() => {
+    if (!authorized) return
+    fetch("/api/fpl-insights")
+      .then((r) => r.json())
+      .then((d) => { if (!d.error) setInsights(d) })
+      .catch(console.error)
+  }, [authorized])
+
+  // Live countdown
+  useEffect(() => {
+    if (!insights?.deadline) return
+    const deadline = new Date(insights.deadline)
+    const tick = () => {
+      const diff = deadline.getTime() - Date.now()
+      if (diff <= 0) { setCountdown({ days: "00", hours: "00", minutes: "00", seconds: "00" }); return }
+      setCountdown({
+        days:    String(Math.floor(diff / 86_400_000)).padStart(2, "0"),
+        hours:   String(Math.floor((diff % 86_400_000) / 3_600_000)).padStart(2, "0"),
+        minutes: String(Math.floor((diff % 3_600_000) / 60_000)).padStart(2, "0"),
+        seconds: String(Math.floor((diff % 60_000) / 1000)).padStart(2, "0"),
+      })
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [insights?.deadline])
+
+  // News ticker — fade out, swap, fade in every 7 s
+  useEffect(() => {
+    if (!insights?.injuries?.length) return
+    const id = setInterval(() => {
+      setNewsFading(true)
+      setTimeout(() => {
+        setNewsIndex((i) => (i + 1) % insights.injuries.length)
+        setNewsFading(false)
+      }, 400)
+    }, 7000)
+    return () => clearInterval(id)
+  }, [insights?.injuries])
 
   const startNewChat = async () => {
     setMessages([{
@@ -187,6 +262,9 @@ export default function DevChatPage() {
     </div>
   )
 
+  const currentInjury = insights?.injuries?.[newsIndex]
+  const accentFallback = ACCENT.emerald
+
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden devchat-root">
       <style>{`
@@ -194,6 +272,8 @@ export default function DevChatPage() {
         .devchat-root ::-webkit-scrollbar-track { background: transparent; }
         .devchat-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
         .devchat-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
+        .news-fade { transition: opacity 0.4s ease; }
+        .news-fade.fading { opacity: 0; }
       `}</style>
       {/* Ambient gradients */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,200,0.16),transparent_28%),radial-gradient(circle_at_top_right,rgba(0,180,255,0.14),transparent_28%),radial-gradient(circle_at_bottom,rgba(122,92,255,0.12),transparent_30%)]" />
@@ -376,54 +456,130 @@ export default function DevChatPage() {
             </div>
           </section>
 
-          {/* ─── Right Sidebar ─── */}
-          <aside className="w-[320px] xl:w-[340px] shrink-0 p-4 hidden xl:flex xl:flex-col gap-3">
-            <div className="rounded-[28px] border border-white/10 bg-gradient-to-b from-emerald-400/8 via-cyan-400/4 to-blue-500/8 backdrop-blur-2xl p-5 shadow-[0_20px_60px_rgba(0,0,0,0.3)] flex flex-col gap-4">
+          {/* ─── Right Sidebar — Gameweek Edge ─── */}
+          <aside className="w-[320px] xl:w-[340px] shrink-0 p-4 hidden xl:flex xl:flex-col gap-3 overflow-y-auto">
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[10px] uppercase tracking-[0.22em] text-white/40">Live</div>
-                  <h2 className="text-xl font-semibold mt-1 text-white">Gameweek Edge</h2>
-                </div>
-                <div className="rounded-full border border-white/10 px-3 py-1 text-[11px] text-white/55">Insights</div>
+            {/* Header */}
+            <div className="flex items-center justify-between px-1 shrink-0">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.22em] text-white/40">Live FPL</div>
+                <h2 className="text-lg font-semibold mt-0.5 text-white">Gameweek Edge</h2>
               </div>
+              <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/8 px-3 py-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] text-emerald-300">Live</span>
+              </div>
+            </div>
 
-              <div className="space-y-2.5">
-                {[
-                  { label: "Form", value: "+14%", desc: "Expected returns trend is up over the last 3 matches." },
-                  { label: "Fixture Run", value: "A+", desc: "Strong next 4 with two high-upside home fixtures." },
-                  { label: "Differential", value: "2.7%", desc: "Low ownership option with real upside this week." },
-                ].map((item) => (
-                  <div key={item.label} className="rounded-[20px] border border-white/8 bg-black/25 p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs text-white/50">{item.label}</div>
-                      <div className="text-base font-semibold text-emerald-300">{item.value}</div>
-                    </div>
-                    <p className="text-xs text-white/60 mt-1.5 leading-5">{item.desc}</p>
+            {/* ── 1. Countdown — always visible ── */}
+            <div className="rounded-[22px] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-4 shrink-0">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-white/40 mb-3">
+                {insights?.gameweek || "Next Gameweek"} deadline
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {(["days", "hours", "minutes", "seconds"] as const).map((unit) => (
+                  <div key={unit} className="flex flex-col items-center rounded-2xl border border-white/8 bg-black/30 py-2.5 px-1">
+                    <span className="text-xl font-bold text-white tabular-nums leading-none">{countdown[unit]}</span>
+                    <span className="text-[9px] uppercase tracking-widest text-white/35 mt-1">{unit}</span>
                   </div>
                 ))}
               </div>
+            </div>
 
-              <div className="rounded-[20px] border border-white/8 bg-black/25 p-4">
-                <div className="text-xs text-white/50 mb-2.5">Trending — click to ask</div>
-                <div className="flex flex-wrap gap-2">
-                  {["Wildcard", "Salah captain", "Bench boost", "Cheap mids", "Fixture swing"].map((tag) => (
-                    <button
-                      key={tag}
-                      onClick={() => setInput(tag)}
-                      className="rounded-full bg-white/[0.05] border border-white/8 px-3 py-1.5 text-xs text-white/75 hover:bg-white/[0.1] hover:text-white transition-all"
-                    >
-                      {tag}
-                    </button>
+            {/* ── 2. Injury / Availability ticker ── */}
+            {insights?.injuries && insights.injuries.length > 0 && (
+              <div className="rounded-[22px] border border-red-400/20 bg-red-400/[0.05] p-4 shrink-0">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="h-2 w-2 rounded-full bg-red-400 animate-pulse shrink-0" />
+                  <span className="text-[10px] uppercase tracking-[0.22em] text-red-400/80">
+                    Injury &amp; Availability
+                  </span>
+                </div>
+                <div className={`news-fade${newsFading ? " fading" : ""}`}>
+                  {currentInjury && (
+                    <>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <TeamBadge code={currentInjury.teamCode} name={currentInjury.team} />
+                        <span className="text-sm font-semibold text-white">{currentInjury.name}</span>
+                        <span className="ml-auto text-[10px] text-white/35 shrink-0">{currentInjury.team}</span>
+                      </div>
+                      <p className="text-xs text-white/65 leading-5">{currentInjury.news}</p>
+                    </>
+                  )}
+                </div>
+                <div className="mt-3 flex gap-1">
+                  {insights.injuries.slice(0, Math.min(8, insights.injuries.length)).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-0.5 flex-1 rounded-full transition-all duration-500 ${i === newsIndex ? "bg-red-400" : "bg-white/15"}`}
+                    />
                   ))}
                 </div>
               </div>
+            )}
 
-              <div className="rounded-[20px] border border-cyan-400/15 bg-cyan-400/[0.06] p-4">
-                <div className="text-xs text-cyan-300 mb-1.5">Dev build — admin only</div>
-                <p className="text-white/75 leading-6 text-xs">Only you can see this page. Build and experiment freely — live users are completely unaffected.</p>
+            {/* ── 3. Three random stat panels ── */}
+            {insights?.stats ? (
+              insights.stats.map((panel) => {
+                const ac = ACCENT[panel.accent] ?? accentFallback
+                return (
+                  <div
+                    key={panel.id}
+                    className={`rounded-[22px] border ${ac.border} ${ac.bg} p-4 shrink-0`}
+                  >
+                    <div className={`text-[10px] uppercase tracking-[0.22em] mb-3 ${ac.value}`}>
+                      {panel.title}
+                    </div>
+                    <div className="space-y-2">
+                      {panel.players.map((p, i) => (
+                        <div key={i} className="flex items-center gap-2.5 rounded-xl border border-white/6 bg-black/20 px-3 py-2.5">
+                          <span className="text-[10px] text-white/30 w-3 shrink-0">{i + 1}</span>
+                          <TeamBadge code={p.teamCode} name={p.team} />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium text-white truncate">{p.name}</div>
+                            <div className="text-[10px] text-white/40">{p.team}</div>
+                          </div>
+                          <div className={`text-sm font-bold shrink-0 ${ac.value}`}>{p.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })
+            ) : (
+              // Loading skeleton
+              [0, 1, 2].map((i) => (
+                <div key={i} className="rounded-[22px] border border-white/8 bg-white/[0.03] p-4 shrink-0 animate-pulse">
+                  <div className="h-2 w-24 rounded-full bg-white/10 mb-4" />
+                  {[0, 1, 2].map((j) => (
+                    <div key={j} className="h-10 rounded-xl bg-white/5 mb-2" />
+                  ))}
+                </div>
+              ))
+            )}
+
+            {/* ── 4. Trending tags ── */}
+            <div className="rounded-[22px] border border-white/8 bg-black/25 p-4 shrink-0">
+              <div className="text-xs text-white/40 mb-2.5">Trending - click to ask</div>
+              <div className="flex flex-wrap gap-2">
+                {["Wildcard", "Salah captain", "Bench boost", "Cheap mids", "Fixture swing"].map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setInput(tag)}
+                    className="rounded-full bg-white/[0.05] border border-white/8 px-3 py-1.5 text-xs text-white/75 hover:bg-white/[0.1] hover:text-white transition-all"
+                  >
+                    {tag}
+                  </button>
+                ))}
               </div>
             </div>
+
+            {/* ── 5. Dev note ── */}
+            <div className="rounded-[22px] border border-cyan-400/15 bg-cyan-400/[0.06] p-4 shrink-0">
+              <div className="text-xs text-cyan-300 mb-1">Dev build - admin only</div>
+              <p className="text-white/60 leading-5 text-xs">Only you can see this page. Build freely - live users are unaffected.</p>
+            </div>
+
           </aside>
         </main>
       </div>
