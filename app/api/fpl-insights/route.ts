@@ -23,20 +23,6 @@ const STAT_DEFS = [
     value: (p: any) => `+£${(p.cost_change_event / 10).toFixed(1)}m`,
   },
   {
-    id: "price-falls",
-    title: "Biggest Price Falls",
-    accent: "red",
-    sort: (a: any, b: any) => a.cost_change_event - b.cost_change_event,
-    value: (p: any) => `-£${Math.abs(p.cost_change_event / 10).toFixed(1)}m`,
-  },
-  {
-    id: "form",
-    title: "Best Form Players",
-    accent: "cyan",
-    sort: (a: any, b: any) => parseFloat(b.form) - parseFloat(a.form),
-    value: (p: any) => Number(p.form).toFixed(1),
-  },
-  {
     id: "points",
     title: "Top Points Scorers",
     accent: "cyan",
