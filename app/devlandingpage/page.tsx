@@ -147,7 +147,7 @@ export default function DevLandingPage() {
           <div className="flex flex-col gap-4 max-w-4xl mx-auto">
             {/* Question Card 1 - Mohamed Salah */}
             <Link href="/mohamed-salah-statistics" className="group block">
-              <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
+              <div className="border border-gray-700 rounded-lg bg-[#08020E] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
                   <Image 
                     src="/player_images/circular/mohamed_salah_circular.png"
@@ -174,7 +174,7 @@ export default function DevLandingPage() {
 
             {/* Question Card 2 - Erling Haaland */}
             <Link href="/erling-haaland-price-worth-it" className="group block">
-              <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
+              <div className="border border-gray-700 rounded-lg bg-[#08020E] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
                   <Image 
                     src="/player_images/circular/erling_haaland_circular.png"
@@ -201,7 +201,7 @@ export default function DevLandingPage() {
 
             {/* Question Card 3 - Jack Grealish */}
             <Link href="/jack-grealish-everton-fixtures" className="group block">
-              <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
+              <div className="border border-gray-700 rounded-lg bg-[#08020E] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
                   <Image 
                     src="/player_images/circular/jack_grealish_circular.png"
@@ -228,7 +228,7 @@ export default function DevLandingPage() {
 
             {/* Question Card 4 - Antoine Semenyo */}
             <Link href="/antoine-semenyo-budget-midfielder" className="group block">
-              <div className="border border-gray-700 rounded-lg bg-[#1A1329] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
+              <div className="border border-gray-700 rounded-lg bg-[#08020E] p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
                   <Image 
                     src="/player_images/circular/antoine_semenyo_circular.png"
@@ -288,7 +288,7 @@ export default function DevLandingPage() {
 
           <div className="grid gap-8 md:grid-cols-3">
             {/* Feature 1 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
+            <Card className="border-gray-700 bg-[#08020E] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-6 flex justify-center">
                   <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
@@ -311,7 +311,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Feature 2 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
+            <Card className="border-gray-700 bg-[#08020E] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-6 flex justify-center">
                   <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
@@ -334,7 +334,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Feature 3 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
+            <Card className="border-gray-700 bg-[#08020E] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-6 flex justify-center">
                   <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
@@ -382,7 +382,7 @@ export default function DevLandingPage() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {/* Testimonial 1 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
+            <Card className="border-gray-700 bg-[#08020E] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
                   <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-[#00FF86]">
@@ -411,7 +411,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Testimonial 2 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
+            <Card className="border-gray-700 bg-[#08020E] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
                   <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-[#00FFFF]">
@@ -440,7 +440,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Testimonial 3 */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FF87]">
+            <Card className="border-gray-700 bg-[#08020E] transition-all hover:border-[#00FF87]">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
                   <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-[#A855F7]">
@@ -494,7 +494,7 @@ export default function DevLandingPage() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {/* Free Trial */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#A855F7]">
+            <Card className="border-gray-700 bg-[#08020E] transition-all hover:border-[#A855F7]">
               <CardHeader>
                 <CardTitle className="text-2xl text-white">Free Trial</CardTitle>
                 <div className="mt-4">
@@ -542,7 +542,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Premium - Most Popular */}
-            <Card className="relative border-[#00FF87] bg-[#1A1329] shadow-xl shadow-[#00FF87]/20">
+            <Card className="relative border-[#00FF87] bg-[#08020E] shadow-xl shadow-[#00FF87]/20">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <Badge className="bg-[#00FF87] text-gray-900 font-bold px-4 py-1">
                   MOST POPULAR
@@ -595,7 +595,7 @@ export default function DevLandingPage() {
             </Card>
 
             {/* Elite */}
-            <Card className="border-gray-700 bg-[#1A1329] transition-all hover:border-[#00FFFF]">
+            <Card className="border-gray-700 bg-[#08020E] transition-all hover:border-[#00FFFF]">
               <CardHeader>
                 <CardTitle className="text-2xl text-white">Elite</CardTitle>
                 <div className="mt-4">
@@ -667,7 +667,7 @@ export default function DevLandingPage() {
           </div>
 
           <Accordion type="single" collapsible className="space-y-4">
-            <AccordionItem value="item-1" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-1" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 🤖 What is ChatFPL AI?
               </AccordionTrigger>
@@ -676,7 +676,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-2" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-2" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 🆓 Can I try it for free?
               </AccordionTrigger>
@@ -685,7 +685,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-3" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-3" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 🎁 How do I earn extra messages on the Free plan?
               </AccordionTrigger>
@@ -694,7 +694,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-4" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-4" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ❓ What type of FPL questions can I ask?
               </AccordionTrigger>
@@ -703,7 +703,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-5" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-5" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 🔄 How often is the FPL data updated?
               </AccordionTrigger>
@@ -712,7 +712,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-6" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-6" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 📅 Do unused messages roll over to the next month?
               </AccordionTrigger>
@@ -721,7 +721,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-7" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-7" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ⚠️ What happens if I run out of messages?
               </AccordionTrigger>
@@ -730,7 +730,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-8" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-8" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 💎 What's the difference between Premium and Elite?
               </AccordionTrigger>
@@ -739,7 +739,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-9" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-9" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ❌ Can I cancel my subscription at any time?
               </AccordionTrigger>
@@ -748,7 +748,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-10" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-10" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ⚽ Can I use ChatFPL AI during gameweeks?
               </AccordionTrigger>
@@ -757,7 +757,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-11" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-11" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 📈 Does ChatFPL AI guarantee I'll climb the rankings?
               </AccordionTrigger>
@@ -766,7 +766,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-12" className="rounded-lg !border !border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors">
+            <AccordionItem value="item-12" className="rounded-lg !border !border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 💬 Can I ask follow-up questions?
               </AccordionTrigger>
@@ -775,7 +775,7 @@ export default function DevLandingPage() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="item-13" className="rounded-lg border border-gray-700 bg-[#1A1329] px-6 shadow-sm hover:bg-white/5 transition-colors !border-b">
+            <AccordionItem value="item-13" className="rounded-lg border border-gray-700 bg-[#08020E] px-6 shadow-sm hover:bg-white/5 transition-colors !border-b">
               <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
                 ✏️ Is there a limit to how long my questions can be?
               </AccordionTrigger>
