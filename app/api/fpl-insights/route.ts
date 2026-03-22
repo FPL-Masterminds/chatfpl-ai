@@ -73,8 +73,8 @@ export async function GET() {
       data.events?.find((e: any) => e.is_next) ||
       data.events?.find((e: any) => e.is_current)
 
-    // Pick 3 random stat panels
-    const shuffled = [...STAT_DEFS].sort(() => Math.random() - 0.5).slice(0, 3)
+    // Pick 2 random stat panels
+    const shuffled = [...STAT_DEFS].sort(() => Math.random() - 0.5).slice(0, 2)
 
     const stats = shuffled.map((def) => ({
       id: def.id,

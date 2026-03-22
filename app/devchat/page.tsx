@@ -548,7 +548,7 @@ export default function DevChatPage() {
               })
             ) : (
               // Loading skeleton
-              [0, 1, 2].map((i) => (
+              [0, 1].map((i) => (
                 <div key={i} className="rounded-[22px] border border-white/8 bg-white/[0.03] p-4 shrink-0 animate-pulse">
                   <div className="h-2 w-24 rounded-full bg-white/10 mb-4" />
                   {[0, 1, 2].map((j) => (
@@ -558,27 +558,6 @@ export default function DevChatPage() {
               ))
             )}
 
-            {/* ── 4. Trending tags ── */}
-            <div className="rounded-[22px] border border-white/8 bg-black/25 p-4 shrink-0">
-              <div className="text-xs text-white/40 mb-2.5">Trending - click to ask</div>
-              <div className="flex flex-wrap gap-2">
-                {["Wildcard", "Salah captain", "Bench boost", "Cheap mids", "Fixture swing"].map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => setInput(tag)}
-                    className="rounded-full bg-white/[0.05] border border-white/8 px-3 py-1.5 text-xs text-white/75 hover:bg-white/[0.1] hover:text-white transition-all"
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ── 5. Dev note ── */}
-            <div className="rounded-[22px] border border-cyan-400/15 bg-cyan-400/[0.06] p-4 shrink-0">
-              <div className="text-xs text-cyan-300 mb-1">Dev build - admin only</div>
-              <p className="text-white/60 leading-5 text-xs">Only you can see this page. Build freely - live users are unaffected.</p>
-            </div>
 
           </aside>
         </main>
