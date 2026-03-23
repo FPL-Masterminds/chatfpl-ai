@@ -198,10 +198,10 @@ export function ChatShowcase() {
           </p>
         </div>
 
-        {/* Full-width mock chat window */}
+        {/* Full-width mock chat window — fixed height so it never resizes */}
         <div
           className="rounded-[24px] border border-white/10 bg-gradient-to-b from-[#0d0d0d] to-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden flex mb-5"
-          style={{ minHeight: 480 }}
+          style={{ height: 500 }}
         >
           {/* Slim left sidebar */}
           <div className="hidden md:flex w-[190px] shrink-0 flex-col border-r border-white/[0.06] bg-white/[0.01] p-3 gap-1">
@@ -211,10 +211,10 @@ export function ChatShowcase() {
             {["GW29 Captain advice", "Who to transfer in?", "Best budget picks", "Fixture analysis"].map((t, i) => (
               <div
                 key={i}
-                className={`rounded-lg px-2.5 py-2 text-[11px] truncate cursor-default transition-all duration-500 ${
+                className={`rounded-lg px-2.5 py-2 text-[11px] truncate cursor-default transition-colors duration-300 border ${
                   i === activeTab
-                    ? "bg-white/[0.08] text-white/80 border border-white/[0.08]"
-                    : "text-white/25 hover:text-white/45"
+                    ? "bg-white/[0.08] text-white/80 border-white/[0.08]"
+                    : "text-white/25 border-transparent"
                 }`}
               >
                 {t}
@@ -223,11 +223,14 @@ export function ChatShowcase() {
           </div>
 
           {/* Main chat pane */}
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
             {/* Top bar */}
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06] bg-white/[0.02] shrink-0">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[8px] font-black text-black">AI</div>
+                <div
+                  className="h-6 w-6 rounded-full flex items-center justify-center text-[8px] font-black text-black"
+                  style={{ background: "linear-gradient(135deg, #00FFFF, #00FF87)" }}
+                >AI</div>
                 <span className="text-[13px] font-semibold text-white/60">ChatFPL</span>
               </div>
               <div className="flex items-center gap-1.5">
@@ -236,9 +239,9 @@ export function ChatShowcase() {
               </div>
             </div>
 
-            {/* Messages */}
+            {/* Messages — fixed scroll area */}
             <div
-              className="flex-1 p-5 space-y-4 overflow-hidden"
+              className="flex-1 overflow-hidden p-5 space-y-4"
               style={{
                 opacity: visible ? 1 : 0,
                 transform: visible ? "translateY(0)" : "translateY(8px)",
@@ -246,18 +249,24 @@ export function ChatShowcase() {
               }}
             >
               {/* User message */}
-              <div className="flex items-end justify-end gap-2">
-                <div className="max-w-[78%] rounded-2xl rounded-br-sm bg-white/[0.07] border border-white/[0.08] px-4 py-2.5">
+              <div className="flex items-end justify-end gap-2.5">
+                <div className="max-w-[75%] rounded-2xl rounded-br-sm bg-white/[0.07] border border-white/[0.08] px-4 py-2.5">
                   <p className="text-sm text-white/85 leading-relaxed">{tab.question}</p>
                 </div>
-                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0">
-                  JM
+                <div
+                  className="h-7 w-7 rounded-full flex items-center justify-center text-[9px] font-black text-black shrink-0"
+                  style={{ background: "linear-gradient(135deg, #00FFFF, #00FF87)" }}
+                >
+                  AB
                 </div>
               </div>
 
-              {/* AI message */}
+              {/* AI message — single bubble containing all content */}
               <div className="flex items-start gap-2.5">
-                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0 mt-0.5">
+                <div
+                  className="h-7 w-7 rounded-full flex items-center justify-center text-[9px] font-black text-black shrink-0 mt-0.5"
+                  style={{ background: "linear-gradient(135deg, #00FFFF, #00FF87)" }}
+                >
                   AI
                 </div>
                 <div className="flex-1 min-w-0">
@@ -265,13 +274,14 @@ export function ChatShowcase() {
                     <span className="text-[11px] font-semibold text-white/50">ChatFPL</span>
                     <span className="text-[10px] text-white/20">just now</span>
                   </div>
-                  <div className="space-y-2.5">
+                  {/* Single response bubble */}
+                  <div className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.06] px-4 py-3 space-y-3">
                     {tab.messages.map((msg, mi) => {
                       if (msg.type === "text") {
                         return (
-                          <div key={mi} className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.06] px-4 py-3">
-                            <p className="text-sm text-white/80 leading-relaxed">{renderMarkdown(msg.content!)}</p>
-                          </div>
+                          <p key={mi} className="text-sm text-white/80 leading-relaxed">
+                            {renderMarkdown(msg.content!)}
+                          </p>
                         )
                       }
                       if (msg.type === "players" && msg.players) {
@@ -298,7 +308,7 @@ export function ChatShowcase() {
                       }
                       if (msg.type === "bullets" && msg.items) {
                         return (
-                          <div key={mi} className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.06] px-4 py-3 space-y-2">
+                          <div key={mi} className="space-y-1.5">
                             {msg.items.map((item, ii) => (
                               <div key={ii} className="flex items-start gap-2">
                                 <span className="text-[#00FF87]/70 mt-0.5 text-xs font-bold shrink-0">›</span>
@@ -319,7 +329,10 @@ export function ChatShowcase() {
             <div className="shrink-0 border-t border-white/[0.06] p-3.5 bg-black/20">
               <div className="rounded-[16px] border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
                 <span className="text-sm text-white/20 flex-1 select-none">Ask your FPL question...</span>
-                <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-[#00FF87] to-[#00FFFF] flex items-center justify-center shrink-0">
+                <div
+                  className="h-7 w-7 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: "linear-gradient(135deg, #00FF87, #00FFFF)" }}
+                >
                   <svg className="h-3.5 w-3.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
