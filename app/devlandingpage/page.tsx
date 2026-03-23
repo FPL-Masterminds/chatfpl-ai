@@ -37,11 +37,21 @@ export default function DevLandingPage() {
           aria-hidden
         />
 
+        <style>{`
+          @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0);    }
+          }
+          .hero-fadein {
+            animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+          }
+        `}</style>
+
         <div className="relative z-10 container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
           <div className="space-y-8 -mt-40 sm:mt-0">
 
             {/* Announcement pill */}
-            <div className="flex justify-center">
+            <div className="flex justify-center hero-fadein" style={{ animationDelay: '0.1s' }}>
               <Link
                 href="/signup"
                 className="inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:brightness-110"
@@ -66,7 +76,7 @@ export default function DevLandingPage() {
               </Link>
             </div>
 
-            <h1 className="font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: 'clamp(36px, 6vw, 68px)' }}>
+            <h1 className="hero-fadein font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: 'clamp(36px, 6vw, 68px)', animationDelay: '0.25s' }}>
               Chat with your{" "}
               <span
                 className="text-transparent bg-clip-text"
@@ -80,12 +90,12 @@ export default function DevLandingPage() {
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            <p className="hero-fadein text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed" style={{ animationDelay: '0.4s' }}>
               Ask live FPL questions. Get instant AI answers powered by real stats
               and natural conversation. Dominate your mini-league with data-driven insights.
             </p>
 
-            <div className="flex flex-col items-center gap-5">
+            <div className="hero-fadein flex flex-col items-center gap-5" style={{ animationDelay: '0.55s' }}>
               {/* CTA button with gradient border ring */}
               <div
                 className="rounded-full p-[1.5px]"
