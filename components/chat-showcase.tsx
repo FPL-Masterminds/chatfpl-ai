@@ -63,8 +63,6 @@ const TAB_DEFS = [
 const PROMPTS = [
   "Give me a differential captain option under 10% owned",
   "Should I use my wildcard now?",
-  "Which players have the most clean sheet potential?",
-  "Who are the best differential picks this GW?",
 ]
 
 const INTERVAL_MS = 6000
@@ -223,17 +221,18 @@ export function ChatShowcase() {
 
             {/* Top bar — mirrors devchat */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-white/[0.015] shrink-0 gap-3">
-              {/* Hamburger — visible only when sidebar is hidden (mobile) */}
-              <button className="md:hidden h-7 w-7 flex flex-col items-center justify-center gap-[5px] shrink-0 opacity-60">
-                <span className="block w-5 h-px bg-white rounded-full" />
-                <span className="block w-5 h-px bg-white rounded-full" />
-                <span className="block w-5 h-px bg-white rounded-full" />
-              </button>
-              {/* Title + subtitle */}
-              <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-semibold text-white leading-tight truncate">Chat with your FPL AI analyst</div>
-                <div className="text-[10px] text-white/40 mt-0.5 hidden sm:block">Live data · Real-time reasoning · Smarter decisions</div>
+
+              {/* Mobile left: logo only */}
+              <div className="md:hidden flex-1 min-w-0">
+                <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={110} height={28} className="h-6 w-auto" />
               </div>
+
+              {/* Desktop left: title + subtitle */}
+              <div className="hidden md:block flex-1 min-w-0">
+                <div className="text-[13px] font-semibold text-white leading-tight truncate">Chat with your FPL AI analyst</div>
+                <div className="text-[10px] text-white/40 mt-0.5">Live data · Real-time reasoning · Smarter decisions</div>
+              </div>
+
               {/* Right-side actions */}
               <div className="flex items-center gap-1.5 shrink-0">
                 {/* API live */}
@@ -242,7 +241,7 @@ export function ChatShowcase() {
                   <span className="text-[10px] text-emerald-300">API live</span>
                 </div>
                 {/* Bar chart icon */}
-                <button className="h-7 w-7 rounded-lg border border-white/[0.08] bg-white/[0.04] flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+                <button className="h-7 w-7 rounded-lg border border-white/[0.08] bg-white/[0.04] flex items-center justify-center opacity-60">
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                     <rect x="0" y="5" width="3" height="8" rx="0.5" fill="white"/>
                     <rect x="5" y="2" width="3" height="11" rx="0.5" fill="white"/>
@@ -250,10 +249,16 @@ export function ChatShowcase() {
                   </svg>
                 </button>
                 {/* Plus / new chat icon */}
-                <button className="h-7 w-7 rounded-lg border border-white/[0.08] bg-white/[0.04] flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+                <button className="h-7 w-7 rounded-lg border border-white/[0.08] bg-white/[0.04] flex items-center justify-center opacity-60">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M6 1v10M1 6h10" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
+                </button>
+                {/* Hamburger — mobile only */}
+                <button className="md:hidden h-7 w-7 rounded-lg border border-white/[0.08] bg-white/[0.04] flex flex-col items-center justify-center gap-[4px] opacity-60">
+                  <span className="block w-4 h-px bg-white rounded-full" />
+                  <span className="block w-4 h-px bg-white rounded-full" />
+                  <span className="block w-4 h-px bg-white rounded-full" />
                 </button>
               </div>
             </div>
