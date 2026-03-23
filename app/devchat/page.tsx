@@ -515,7 +515,7 @@ export default function DevChatPage() {
 
               {/* Suggested prompts + input */}
               <div className="shrink-0 border-t border-white/[0.07] bg-black/20 p-4">
-                <div className="flex flex-wrap gap-2 mb-3">
+                <div className="hidden md:flex flex-wrap gap-2 mb-3">
                   {suggestedPrompts.map((prompt) => (
                     <button
                       key={prompt}
