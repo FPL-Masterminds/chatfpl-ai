@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import type { ShowcasePlayer, ShowcasePlayers } from "@/app/api/showcase-players/route"
+import type { ShowcasePlayer, ShowcasePlayers, EdgePlayer } from "@/app/api/showcase-players/route"
 
 // Team badge helper (badges don't change between seasons)
 const fplBadge = (teamCode: number) =>
@@ -366,20 +366,16 @@ export function ChatShowcase() {
             <div className="rounded-[16px] border border-purple-400/20 bg-purple-400/[0.04] p-3 shrink-0">
               <div className="text-[9px] uppercase tracking-[0.18em] text-purple-300/80 mb-2">Most Selected</div>
               <div className="space-y-1.5">
-                {[
-                  { rank:1, name:"Haaland",    team:"MCI", code:43, val:"55.0%" },
-                  { rank:2, name:"Semenyo",    team:"BOU", code:91, val:"53.6%" },
-                  { rank:3, name:"João Pedro", team:"CHE", code:8,  val:"50.5%" },
-                ].map(p => (
-                  <div key={p.rank} className="flex items-center gap-2 rounded-xl border border-white/[0.05] bg-black/20 px-2 py-1.5">
-                    <span className="text-[9px] text-white/25 w-3">{p.rank}</span>
+                {(players?.mostSelected ?? [] as EdgePlayer[]).map((p, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-xl border border-white/[0.05] bg-black/20 px-2 py-1.5">
+                    <span className="text-[9px] text-white/25 w-3">{i + 1}</span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={fplBadge(p.code)} alt={p.team} className="h-4 w-4 object-contain shrink-0" />
+                    <img src={fplBadge(p.teamCode)} alt={p.team} className="h-4 w-4 object-contain shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="text-[11px] font-medium text-white truncate">{p.name}</div>
                       <div className="text-[9px] text-white/35">{p.team}</div>
                     </div>
-                    <span className="text-[11px] font-bold text-purple-300 shrink-0">{p.val}</span>
+                    <span className="text-[11px] font-bold text-purple-300 shrink-0">{p.value}</span>
                   </div>
                 ))}
               </div>
@@ -389,20 +385,16 @@ export function ChatShowcase() {
             <div className="rounded-[16px] border border-amber-400/20 bg-amber-400/[0.04] p-3 shrink-0">
               <div className="text-[9px] uppercase tracking-[0.18em] text-amber-300/80 mb-2">Most Bonus Points</div>
               <div className="space-y-1.5">
-                {[
-                  { rank:1, name:"B.Fernandes", team:"MUN", code:1,  val:"36 bonus" },
-                  { rank:2, name:"Haaland",     team:"MCI", code:43, val:"35 bonus" },
-                  { rank:3, name:"João Pedro",  team:"CHE", code:8,  val:"28 bonus" },
-                ].map(p => (
-                  <div key={p.rank} className="flex items-center gap-2 rounded-xl border border-white/[0.05] bg-black/20 px-2 py-1.5">
-                    <span className="text-[9px] text-white/25 w-3">{p.rank}</span>
+                {(players?.mostBonus ?? [] as EdgePlayer[]).map((p, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-xl border border-white/[0.05] bg-black/20 px-2 py-1.5">
+                    <span className="text-[9px] text-white/25 w-3">{i + 1}</span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={fplBadge(p.code)} alt={p.team} className="h-4 w-4 object-contain shrink-0" />
+                    <img src={fplBadge(p.teamCode)} alt={p.team} className="h-4 w-4 object-contain shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="text-[11px] font-medium text-white truncate">{p.name}</div>
                       <div className="text-[9px] text-white/35">{p.team}</div>
                     </div>
-                    <span className="text-[11px] font-bold text-amber-300 shrink-0">{p.val}</span>
+                    <span className="text-[11px] font-bold text-amber-300 shrink-0">{p.value}</span>
                   </div>
                 ))}
               </div>
