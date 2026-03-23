@@ -193,10 +193,14 @@ export function ChatShowcase() {
             </button>
             <p className="text-[9px] uppercase tracking-[0.22em] text-white/30 mb-1.5 px-1">Recent chats</p>
             {[
-              "Who are the top three scori...",
-              "Give me three midfield differ...",
-              "Give me statistics on Moham...",
-            ].map((t, i) => (
+              ["Who are the top three scori...",    "23 Mar"],
+              ["Give me three midfield differ...",  "20 Mar"],
+              ["Give me statistics on Moham...",    "20 Mar"],
+              ["Best captain for GW32?",            "18 Mar"],
+              ["Which defenders have the bes...",   "17 Mar"],
+              ["Is Salah still worth his pri...",   "15 Mar"],
+              ["Show me the top price risers",      "14 Mar"],
+            ].map(([t, d], i) => (
               <div
                 key={i}
                 className={`rounded-xl px-3 py-2 border cursor-default transition-colors duration-300 ${
@@ -206,7 +210,7 @@ export function ChatShowcase() {
                 }`}
               >
                 <div className="text-[11px] text-white/75 leading-tight truncate">{t}</div>
-                <div className="text-[10px] text-white/30 mt-0.5">{["23 Mar","20 Mar","20 Mar"][i]}</div>
+                <div className="text-[10px] text-white/30 mt-0.5">{d}</div>
               </div>
             ))}
           </div>
@@ -215,15 +219,39 @@ export function ChatShowcase() {
           <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
             {/* Top bar — mirrors devchat */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-white/[0.015] shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="h-7 w-7 rounded-full flex items-center justify-center text-[9px] font-black text-black shrink-0"
-                  style={{ background: "linear-gradient(135deg,#00FFFF,#00FF87)" }}>AI</div>
-                <span className="text-[13px] font-semibold text-white">ChatFPL</span>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-white/[0.015] shrink-0 gap-3">
+              {/* Hamburger — visible only when sidebar is hidden (mobile) */}
+              <button className="md:hidden h-7 w-7 flex flex-col items-center justify-center gap-[5px] shrink-0 opacity-60">
+                <span className="block w-5 h-px bg-white rounded-full" />
+                <span className="block w-5 h-px bg-white rounded-full" />
+                <span className="block w-5 h-px bg-white rounded-full" />
+              </button>
+              {/* Title + subtitle */}
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] font-semibold text-white leading-tight truncate">Chat with your FPL AI analyst</div>
+                <div className="text-[10px] text-white/40 mt-0.5 hidden sm:block">Live data · Real-time reasoning · Smarter decisions</div>
               </div>
-              <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-2.5 py-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] text-emerald-300">API live</span>
+              {/* Right-side actions */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {/* API live */}
+                <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-2.5 py-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] text-emerald-300">API live</span>
+                </div>
+                {/* Bar chart icon */}
+                <button className="h-7 w-7 rounded-lg border border-white/[0.08] bg-white/[0.04] flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <rect x="0" y="5" width="3" height="8" rx="0.5" fill="white"/>
+                    <rect x="5" y="2" width="3" height="11" rx="0.5" fill="white"/>
+                    <rect x="10" y="0" width="3" height="13" rx="0.5" fill="white"/>
+                  </svg>
+                </button>
+                {/* Plus / new chat icon */}
+                <button className="h-7 w-7 rounded-lg border border-white/[0.08] bg-white/[0.04] flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 1v10M1 6h10" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </button>
               </div>
             </div>
 
