@@ -84,7 +84,9 @@ export default function AdminPage() {
   const [data, setData] = useState<AccountData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [activeTab, setActiveTab] = useState<"account" | "rewards" | "admin">("account")
+  const [activeTab, setActiveTab] = useState<"account" | "rewards" | "admin" | "archive">("account")
+  const [archivedConversations, setArchivedConversations] = useState<any[]>([])
+  const [archiveLoading, setArchiveLoading] = useState(false)
   const [vipEmail, setVipEmail] = useState("")
   const [vipLoading, setVipLoading] = useState(false)
   const [vipMessage, setVipMessage] = useState("")
@@ -178,6 +180,39 @@ export default function AdminPage() {
     } finally {
       setVipLoading(false)
     }
+  }
+
+  const fetchArchivedConversations = async () => {
+    try {
+      setArchiveLoading(true)
+      const res = await fetch("/api/chat/conversations?archived=true")
+      if (res.ok) {
+        const d = await res.json()
+        setArchivedConversations(d.conversations || [])
+      }
+    } catch (err) {
+      console.error("Failed to fetch archived conversations:", err)
+    } finally {
+      setArchiveLoading(false)
+    }
+  }
+
+  const handleUnarchive = async (convId: string) => {
+    await fetch("/api/chat/conversations", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId: convId, archived: false }),
+    })
+    setArchivedConversations((prev) => prev.filter((c) => c.id !== convId))
+  }
+
+  const handleDeleteArchived = async (convId: string) => {
+    await fetch("/api/chat/conversations", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId: convId }),
+    })
+    setArchivedConversations((prev) => prev.filter((c) => c.id !== convId))
   }
 
   const fetchPendingClaims = async () => {
@@ -412,6 +447,16 @@ export default function AdminPage() {
               }`}
             >
               My Account
+            </button>
+            <button
+              onClick={() => { setActiveTab("archive"); fetchArchivedConversations() }}
+              className={`px-6 py-3 text-sm font-semibold transition-all ${
+                activeTab === "archive"
+                  ? "border-b-2 border-[#00FF87] text-[#00FF87]"
+                  : "text-gray-600 hover:text-[#00FF87]"
+              }`}
+            >
+              Archive
             </button>
             {data.user.role === "admin" && (
               <>
@@ -681,6 +726,66 @@ export default function AdminPage() {
           </Card>
           )}
             </>
+          )}
+
+          {/* Archive Tab */}
+          {activeTab === "archive" && (
+            <Card className="border-gray-200 bg-white shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-xl text-gray-900">Archived Conversations</CardTitle>
+                <CardDescription className="text-gray-600">
+                  Conversations you've archived from the chat. Unarchive to restore them to your sidebar.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {archiveLoading ? (
+                  <div className="py-12 text-center">
+                    <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-[#00FF87]" />
+                    <p className="mt-3 text-sm text-gray-500">Loading archive...</p>
+                  </div>
+                ) : archivedConversations.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-gray-200 py-14 text-center">
+                    <svg className="mx-auto h-10 w-10 text-gray-300 mb-3" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                    <p className="text-gray-500 font-medium">No archived conversations</p>
+                    <p className="text-sm text-gray-400 mt-1">Right-click any conversation in the chat to archive it.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {archivedConversations.map((conv) => {
+                      const preview = conv.title || conv.messages?.[0]?.content?.substring(0, 80) || "Untitled conversation"
+                      const date = new Date(conv.updated_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+                      const msgCount = conv.messages?.length || 0
+                      return (
+                        <div key={conv.id} className="flex items-start justify-between gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-gray-900 truncate">{preview}</p>
+                            <p className="text-xs text-gray-500 mt-1">{date} · {msgCount} message{msgCount !== 1 ? "s" : ""}</p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-[#00FF87] text-[#00FF87] hover:bg-[#00FF87] hover:text-gray-900 font-semibold text-xs px-3"
+                              onClick={() => handleUnarchive(conv.id)}
+                            >
+                              Unarchive
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-200 text-red-500 hover:bg-red-600 hover:text-white font-semibold text-xs px-3"
+                              onClick={() => handleDeleteArchived(conv.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           )}
 
           {/* Rewards Management Tab */}

@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// Get all user conversations
+// GET all conversations — ?archived=true returns archived, default returns active
 export async function GET(request: Request) {
   try {
     const session = await auth();
-
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -14,24 +13,20 @@ export async function GET(request: Request) {
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
-
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get all user conversations ordered by most recent
+    const { searchParams } = new URL(request.url);
+    const showArchived = searchParams.get("archived") === "true";
+
     const conversations = await prisma.conversation.findMany({
-      where: { user_id: user.id },
-      orderBy: { updated_at: 'desc' },
-      include: {
-        messages: {
-          orderBy: { timestamp: 'asc' }
-        }
-      }
+      where: { user_id: user.id, archived: showArchived },
+      orderBy: { updated_at: "desc" },
+      include: { messages: { orderBy: { timestamp: "asc" } } },
     });
 
     return NextResponse.json({ conversations });
-
   } catch (error) {
     console.error("Error fetching conversations:", error);
     return NextResponse.json(
@@ -41,49 +36,61 @@ export async function GET(request: Request) {
   }
 }
 
-// Update/rename a conversation
+// PATCH — rename ({ conversationId, title }) or archive/unarchive ({ conversationId, archived })
 export async function PATCH(request: Request) {
   try {
     const session = await auth();
-
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { conversationId, title } = await request.json();
+    const body = await request.json();
+    const { conversationId, title, archived } = body;
 
-    if (!conversationId || !title) {
-      return NextResponse.json({ error: "Conversation ID and title required" }, { status: 400 });
+    if (!conversationId) {
+      return NextResponse.json(
+        { error: "Conversation ID required" },
+        { status: 400 }
+      );
     }
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
-
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Verify conversation belongs to user
     const conversation = await prisma.conversation.findFirst({
-      where: {
-        id: conversationId,
-        user_id: user.id
-      }
+      where: { id: conversationId, user_id: user.id },
     });
-
     if (!conversation) {
-      return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Conversation not found" },
+        { status: 404 }
+      );
     }
 
-    // Update conversation title
-    await prisma.conversation.update({
-      where: { id: conversationId },
-      data: { title: title.substring(0, 200) } // Limit to 200 chars
-    });
+    if (typeof archived === "boolean") {
+      await prisma.conversation.update({
+        where: { id: conversationId },
+        data: { archived },
+      });
+      return NextResponse.json({ success: true });
+    }
 
-    return NextResponse.json({ success: true });
+    if (title) {
+      await prisma.conversation.update({
+        where: { id: conversationId },
+        data: { title: title.substring(0, 200) },
+      });
+      return NextResponse.json({ success: true });
+    }
 
+    return NextResponse.json(
+      { error: "Provide title or archived" },
+      { status: 400 }
+    );
   } catch (error) {
     console.error("Error updating conversation:", error);
     return NextResponse.json(
@@ -93,48 +100,41 @@ export async function PATCH(request: Request) {
   }
 }
 
-// Delete a conversation
+// DELETE a conversation
 export async function DELETE(request: Request) {
   try {
     const session = await auth();
-
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { conversationId } = await request.json();
-
     if (!conversationId) {
-      return NextResponse.json({ error: "Conversation ID required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Conversation ID required" },
+        { status: 400 }
+      );
     }
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
-
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Verify conversation belongs to user
     const conversation = await prisma.conversation.findFirst({
-      where: {
-        id: conversationId,
-        user_id: user.id
-      }
+      where: { id: conversationId, user_id: user.id },
     });
-
     if (!conversation) {
-      return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Conversation not found" },
+        { status: 404 }
+      );
     }
 
-    // Delete conversation (messages will cascade delete)
-    await prisma.conversation.delete({
-      where: { id: conversationId }
-    });
-
+    await prisma.conversation.delete({ where: { id: conversationId } });
     return NextResponse.json({ success: true });
-
   } catch (error) {
     console.error("Error deleting conversation:", error);
     return NextResponse.json(
@@ -143,4 +143,3 @@ export async function DELETE(request: Request) {
     );
   }
 }
-

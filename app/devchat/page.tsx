@@ -41,10 +41,13 @@ type Message = {
 type Conversation = {
   id: string
   title: string | null
+  archived: boolean
   created_at: string
   updated_at: string
   messages: Message[]
 }
+
+type ContextMenu = { visible: true; x: number; y: number; conversationId: string } | { visible: false }
 
 type InsightPlayer = { name: string; team: string; teamCode: number; value: string }
 type StatPanel = { id: string; title: string; accent: string; players: InsightPlayer[] }
@@ -89,6 +92,9 @@ export default function DevChatPage() {
   const [messagesLimit, setMessagesLimit] = useState(20)
   const [userPlan, setUserPlan] = useState("Free")
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [contextMenu, setContextMenu] = useState<ContextMenu>({ visible: false })
+  const [renamingId, setRenamingId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState("")
 
   // Insights state
   const [insights, setInsights] = useState<Insights | null>(null)
@@ -266,6 +272,31 @@ export default function DevChatPage() {
     }
   }
 
+  const handleArchive = async (convId: string) => {
+    setContextMenu({ visible: false })
+    await fetch("/api/chat/conversations", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId: convId, archived: true }),
+    })
+    setConversations((prev) => prev.filter((c) => c.id !== convId))
+    if (conversationId === convId) {
+      setConversationId(null)
+      setMessages([{ id: "welcome", role: "assistant", content: `Hi ${userFirstName}! What FPL question can I help you with today?`, timestamp: new Date() }])
+    }
+  }
+
+  const handleRenameSubmit = async (convId: string) => {
+    if (!renameValue.trim()) { setRenamingId(null); return }
+    await fetch("/api/chat/conversations", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId: convId, title: renameValue.trim() }),
+    })
+    setConversations((prev) => prev.map((c) => c.id === convId ? { ...c, title: renameValue.trim() } : c))
+    setRenamingId(null)
+  }
+
   if (!authorized) return null
 
   if (isLoadingHistory) return (
@@ -314,7 +345,7 @@ export default function DevChatPage() {
           </button>
 
           {/* Conversation history */}
-          <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="flex-1 overflow-y-auto min-h-0" onClick={() => setContextMenu({ visible: false })}>
             <p className="text-[10px] uppercase tracking-[0.22em] text-white/35 mb-3 px-1">Recent chats</p>
             <div className="space-y-1.5">
               {conversations.length === 0 ? (
@@ -323,16 +354,35 @@ export default function DevChatPage() {
                 conversations.map((conv) => (
                   <div
                     key={conv.id}
-                    onClick={() => loadConversation(conv.id)}
-                    className={`rounded-xl p-3 border cursor-pointer transition-all ${
+                    onClick={() => { if (renamingId !== conv.id) loadConversation(conv.id) }}
+                    onContextMenu={(e) => {
+                      e.preventDefault()
+                      setContextMenu({ visible: true, x: e.clientX, y: e.clientY, conversationId: conv.id })
+                    }}
+                    className={`rounded-xl p-3 border cursor-pointer transition-all select-none ${
                       conv.id === conversationId
                         ? "border-emerald-400/30 bg-emerald-400/10 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
                         : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10"
                     }`}
                   >
-                    <div className="text-sm font-medium text-white truncate">
-                      {conv.title || conv.messages[0]?.content?.substring(0, 42) || "New Chat"}
-                    </div>
+                    {renamingId === conv.id ? (
+                      <input
+                        autoFocus
+                        value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleRenameSubmit(conv.id)
+                          if (e.key === "Escape") setRenamingId(null)
+                        }}
+                        onBlur={() => handleRenameSubmit(conv.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full bg-white/10 text-white text-sm rounded px-2 py-0.5 outline-none border border-emerald-400/40"
+                      />
+                    ) : (
+                      <div className="text-sm font-medium text-white truncate">
+                        {conv.title || conv.messages[0]?.content?.substring(0, 42) || "New Chat"}
+                      </div>
+                    )}
                     <div className="text-[11px] text-white/40 mt-1">
                       {new Date(conv.updated_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                     </div>
@@ -577,6 +627,37 @@ export default function DevChatPage() {
           </aside>
         </main>
       </div>
+
+      {/* Right-click context menu */}
+      {contextMenu.visible && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setContextMenu({ visible: false })} />
+          <div
+            className="fixed z-50 min-w-[160px] rounded-2xl border border-white/10 bg-[#0d0d0d]/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] p-1.5 overflow-hidden"
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+          >
+            <button
+              onClick={() => {
+                const conv = conversations.find(c => c.id === contextMenu.conversationId)
+                setRenameValue(conv?.title || conv?.messages[0]?.content?.substring(0, 50) || "")
+                setRenamingId(contextMenu.conversationId)
+                setContextMenu({ visible: false })
+              }}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-white/80 hover:bg-white/[0.07] hover:text-white transition-all"
+            >
+              <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              Rename
+            </button>
+            <button
+              onClick={() => handleArchive(contextMenu.conversationId)}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-amber-300/80 hover:bg-amber-400/[0.08] hover:text-amber-300 transition-all"
+            >
+              <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+              Archive
+            </button>
+          </div>
+        </>
+      )}
     </div>
   )
 }
