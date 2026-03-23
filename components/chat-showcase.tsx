@@ -133,7 +133,7 @@ const TABS: Tab[] = [
   },
 ]
 
-const INTERVAL_MS = 4000
+const INTERVAL_MS = 6000
 
 function renderMarkdown(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g)
@@ -152,13 +152,11 @@ function renderMarkdown(text: string) {
 export function ChatShowcase() {
   const [activeTab, setActiveTab] = useState(0)
   const [visible, setVisible] = useState(true)
-  const [progressKey, setProgressKey] = useState(0)
 
   const goToTab = useCallback((idx: number) => {
     setVisible(false)
     setTimeout(() => {
       setActiveTab(idx)
-      setProgressKey((k) => k + 1)
       setVisible(true)
     }, 200)
   }, [])
@@ -166,15 +164,11 @@ export function ChatShowcase() {
   // Auto-rotate
   useEffect(() => {
     const id = setInterval(() => {
-      setActiveTab((prev) => {
-        const next = (prev + 1) % TABS.length
-        setVisible(false)
-        setTimeout(() => {
-          setProgressKey((k) => k + 1)
-          setVisible(true)
-        }, 200)
-        return next
-      })
+      setVisible(false)
+      setTimeout(() => {
+        setActiveTab((prev) => (prev + 1) % TABS.length)
+        setVisible(true)
+      }, 200)
     }, INTERVAL_MS)
     return () => clearInterval(id)
   }, [])
@@ -337,7 +331,16 @@ export function ChatShowcase() {
 
         {/* ── DesignRocket-style pill tab bar ── */}
         <div className="flex justify-center mb-4">
-          <div className="inline-flex items-center gap-1 rounded-full bg-white/[0.05] border border-white/[0.07] p-1.5">
+          <div
+            className="inline-flex items-center gap-1 rounded-full p-1.5"
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              boxShadow: "0 0 0 1px rgba(255,255,255,0.04) inset, 0 2px 20px rgba(0,0,0,0.4)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+            }}
+          >
             {TABS.map((t, i) => {
               const active = i === activeTab
               return (
@@ -349,8 +352,9 @@ export function ChatShowcase() {
                     active
                       ? {
                           background:
-                            "linear-gradient(#0d0d0d, #0d0d0d) padding-box, linear-gradient(to right, #00FFFF, #00FF87) border-box",
+                            "linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)) padding-box, linear-gradient(to right, #00FFFF, #00FF87) border-box",
                           border: "1.5px solid transparent",
+                          boxShadow: "0 0 12px rgba(0,255,200,0.12)",
                         }
                       : { border: "1.5px solid transparent" }
                   }
@@ -367,23 +371,7 @@ export function ChatShowcase() {
                       {t.label}
                     </span>
                   ) : (
-                    <span className="text-white/40 hover:text-white/65 transition-colors">{t.label}</span>
-                  )}
-
-                  {/* Progress bar under active tab */}
-                  {active && (
-                    <span
-                      key={progressKey}
-                      className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full overflow-hidden"
-                    >
-                      <span
-                        className="block h-full rounded-full"
-                        style={{
-                          background: "linear-gradient(to right, #00FFFF, #00FF87)",
-                          animation: `tabProgress ${INTERVAL_MS}ms linear forwards`,
-                        }}
-                      />
-                    </span>
+                    <span className="text-white/38 hover:text-white/60 transition-colors">{t.label}</span>
                   )}
                 </button>
               )
@@ -414,12 +402,6 @@ export function ChatShowcase() {
         </div>
       </div>
 
-      <style>{`
-        @keyframes tabProgress {
-          from { width: 0%; }
-          to   { width: 100%; }
-        }
-      `}</style>
     </section>
   )
 }
