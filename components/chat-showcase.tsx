@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -13,20 +13,20 @@ type MessagePart = {
 
 type Tab = {
   id: string
-  icon: string
   label: string
   sublabel: string
   question: string
+  description: string
   messages: MessagePart[]
 }
 
 const TABS: Tab[] = [
   {
     id: "captain",
-    icon: "⚽",
     label: "Captain Picks",
     sublabel: "Who to armband this GW",
     question: "Who should I captain for Gameweek 29?",
+    description: "Instant captaincy advice using live form, fixtures and ownership data.",
     messages: [
       {
         type: "text",
@@ -44,16 +44,16 @@ const TABS: Tab[] = [
       {
         type: "text",
         content:
-          "Salah faces a home fixture vs Ipswich (xG 2.6). With 8 goal involvements in his last 6, he's a near-certain armband choice.",
+          "Salah faces a home fixture vs Ipswich. With 8 goal involvements in his last 6, he's the near-certain armband choice.",
       },
     ],
   },
   {
     id: "transfers",
-    icon: "🔄",
     label: "Transfer Advice",
     sublabel: "Best in, best out decisions",
     question: "I own Mateta — should I sell him this week?",
+    description: "Make smarter transfer decisions with fixture-aware, data-driven recommendations.",
     messages: [
       {
         type: "text",
@@ -66,7 +66,7 @@ const TABS: Tab[] = [
           "GW29 vs Arsenal (H) — xGA 0.6",
           "GW30 vs Man City (A) — xGA 0.4",
           "GW31 vs Chelsea (H) — xGA 0.7",
-          "Blanks GW32 (no fixture)",
+          "Blanks GW32 — no fixture",
         ],
       },
       {
@@ -78,15 +78,15 @@ const TABS: Tab[] = [
   },
   {
     id: "fixtures",
-    icon: "📊",
     label: "Fixture Analysis",
     sublabel: "Who has the best run ahead",
     question: "Which teams have the easiest next 5 fixtures?",
+    description: "Know exactly who to target and who to avoid with fixture difficulty rankings.",
     messages: [
       {
         type: "text",
         content:
-          "Ranking Premier League teams by fixture difficulty for GW29–33 (FDR score, lower = easier):",
+          "Ranking Premier League teams by fixture difficulty for GW29–33 (lower FDR = easier):",
       },
       {
         type: "bullets",
@@ -100,16 +100,16 @@ const TABS: Tab[] = [
       {
         type: "text",
         content:
-          "Triple-up on Liverpool assets? Salah + Trent + Robertson gives you coverage across a golden run.",
+          "Triple-up on Liverpool assets? Salah + Trent + Robertson covers a golden run of fixtures.",
       },
     ],
   },
   {
     id: "price",
-    icon: "💰",
     label: "Price Watch",
-    sublabel: "Risers, fallers & value picks",
+    sublabel: "Risers, fallers & differentials",
     question: "Give me the best value differentials under £6m",
+    description: "Spot price risers early and find the differentials your mini-league rivals are missing.",
     messages: [
       {
         type: "text",
@@ -127,11 +127,13 @@ const TABS: Tab[] = [
       {
         type: "text",
         content:
-          "Semenyo is owned by just **4.1%** and has 3 goals in 4. Great differential with upside.",
+          "Semenyo is owned by just **4.1%** and has 3 goals in his last 4. Great differential with serious upside.",
       },
     ],
   },
 ]
+
+const INTERVAL_MS = 4000
 
 function renderMarkdown(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g)
@@ -150,26 +152,41 @@ function renderMarkdown(text: string) {
 export function ChatShowcase() {
   const [activeTab, setActiveTab] = useState(0)
   const [visible, setVisible] = useState(true)
-  const [animating, setAnimating] = useState(false)
+  const [progressKey, setProgressKey] = useState(0)
 
-  function switchTab(idx: number) {
-    if (idx === activeTab || animating) return
-    setAnimating(true)
+  const goToTab = useCallback((idx: number) => {
     setVisible(false)
     setTimeout(() => {
       setActiveTab(idx)
+      setProgressKey((k) => k + 1)
       setVisible(true)
-      setAnimating(false)
-    }, 220)
-  }
+    }, 200)
+  }, [])
+
+  // Auto-rotate
+  useEffect(() => {
+    const id = setInterval(() => {
+      setActiveTab((prev) => {
+        const next = (prev + 1) % TABS.length
+        setVisible(false)
+        setTimeout(() => {
+          setProgressKey((k) => k + 1)
+          setVisible(true)
+        }, 200)
+        return next
+      })
+    }, INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [])
 
   const tab = TABS[activeTab]
 
   return (
     <section className="border-b border-white/[0.07] px-4 py-24 bg-black">
-      <div className="container mx-auto max-w-6xl">
+      <div className="container mx-auto max-w-5xl">
+
         {/* Section header */}
-        <div className="mb-14 text-center">
+        <div className="mb-12 text-center">
           <h2
             className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
             style={{
@@ -187,204 +204,221 @@ export function ChatShowcase() {
           </p>
         </div>
 
-        {/* Main split layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-4 lg:gap-8 items-start">
-          {/* Left: tab buttons */}
-          <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-1 lg:pb-0 scrollbar-none">
-            {TABS.map((t, i) => {
-              const active = i === activeTab
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => switchTab(i)}
-                  className={`group relative flex-shrink-0 w-[220px] lg:w-full text-left rounded-2xl border px-4 py-4 transition-all duration-300 ${
-                    active
-                      ? "border-[#00FF87]/40 bg-[#00FF87]/[0.07] shadow-[0_0_30px_rgba(0,255,135,0.08)]"
-                      : "border-white/[0.07] bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
-                  }`}
-                >
-                  {/* Active indicator bar */}
-                  {active && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-0.5 rounded-full bg-gradient-to-b from-[#00FF87] to-[#00FFFF]" />
-                  )}
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{t.icon}</span>
-                    <div>
-                      <div
-                        className={`text-sm font-semibold transition-colors ${
-                          active ? "text-white" : "text-white/60 group-hover:text-white/80"
-                        }`}
-                      >
-                        {t.label}
-                      </div>
-                      <div className="text-[11px] text-white/35 mt-0.5">{t.sublabel}</div>
-                    </div>
-                  </div>
-                </button>
-              )
-            })}
+        {/* Full-width mock chat window */}
+        <div
+          className="rounded-[24px] border border-white/10 bg-gradient-to-b from-[#0d0d0d] to-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden flex mb-5"
+          style={{ minHeight: 480 }}
+        >
+          {/* Slim left sidebar */}
+          <div className="hidden md:flex w-[190px] shrink-0 flex-col border-r border-white/[0.06] bg-white/[0.01] p-3 gap-1">
+            <div className="mb-3 px-1">
+              <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={100} height={28} className="h-6 w-auto" />
+            </div>
+            {["GW29 Captain advice", "Who to transfer in?", "Best budget picks", "Fixture analysis"].map((t, i) => (
+              <div
+                key={i}
+                className={`rounded-lg px-2.5 py-2 text-[11px] truncate cursor-default transition-all duration-500 ${
+                  i === activeTab
+                    ? "bg-white/[0.08] text-white/80 border border-white/[0.08]"
+                    : "text-white/25 hover:text-white/45"
+                }`}
+              >
+                {t}
+              </div>
+            ))}
           </div>
 
-          {/* Right: mock chat window — two-pane layout like the real app */}
-          <div
-            className="rounded-[24px] border border-white/10 bg-gradient-to-b from-[#0d0d0d] to-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.6)] overflow-hidden flex"
-            style={{ minHeight: 460 }}
-          >
-            {/* Slim left sidebar (desktop only) */}
-            <div className="hidden lg:flex w-[180px] shrink-0 flex-col border-r border-white/[0.06] bg-white/[0.01] p-3 gap-1">
-              <div className="mb-2 px-1">
-                <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={100} height={28} className="h-6 w-auto" />
+          {/* Main chat pane */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* Top bar */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06] bg-white/[0.02] shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[8px] font-black text-black">AI</div>
+                <span className="text-[13px] font-semibold text-white/60">ChatFPL</span>
               </div>
-              {["GW29 Captain advice", "Who to transfer in?", "Best budget picks", "Fixture analysis"].map((t, i) => (
-                <div
-                  key={i}
-                  className={`rounded-lg px-2.5 py-2 text-[11px] truncate cursor-default transition-colors ${
-                    i === activeTab
-                      ? "bg-white/[0.08] text-white/80 border border-white/[0.08]"
-                      : "text-white/30 hover:text-white/50"
-                  }`}
-                >
-                  {t}
-                </div>
-              ))}
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#00FF87] animate-pulse" />
+                <span className="text-[11px] text-[#00FF87]/60">Live FPL data</span>
+              </div>
             </div>
 
-            {/* Main chat pane */}
-            <div className="flex-1 flex flex-col min-w-0">
-              {/* Top bar */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-white/[0.02] shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[8px] font-black text-black">AI</div>
-                  <span className="text-[12px] font-semibold text-white/60">ChatFPL</span>
+            {/* Messages */}
+            <div
+              className="flex-1 p-5 space-y-4 overflow-hidden"
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(8px)",
+                transition: "opacity 0.2s ease, transform 0.2s ease",
+              }}
+            >
+              {/* User message */}
+              <div className="flex items-end justify-end gap-2">
+                <div className="max-w-[78%] rounded-2xl rounded-br-sm bg-white/[0.07] border border-white/[0.08] px-4 py-2.5">
+                  <p className="text-sm text-white/85 leading-relaxed">{tab.question}</p>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#00FF87] animate-pulse" />
-                  <span className="text-[10px] text-[#00FF87]/60">Live FPL data</span>
-                </div>
-              </div>
-
-              {/* Messages area */}
-              <div
-                className="flex-1 overflow-hidden p-4 space-y-4"
-                style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? "translateY(0)" : "translateY(8px)",
-                  transition: "opacity 0.22s ease, transform 0.22s ease",
-                }}
-              >
-                {/* User message */}
-                <div className="flex items-end justify-end gap-2">
-                  <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-white/[0.07] border border-white/[0.08] px-3.5 py-2.5">
-                    <p className="text-sm text-white/85 leading-relaxed">{tab.question}</p>
-                  </div>
-                  <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0">
-                    JM
-                  </div>
-                </div>
-
-                {/* AI message */}
-                <div className="flex items-start gap-2">
-                  <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0 mt-0.5">
-                    AI
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    {/* Sender label */}
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[11px] font-semibold text-white/50">ChatFPL</span>
-                      <span className="text-[10px] text-white/20">just now</span>
-                    </div>
-                    <div className="space-y-2.5">
-                      {tab.messages.map((msg, mi) => {
-                        if (msg.type === "text") {
-                          return (
-                            <div
-                              key={mi}
-                              className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.06] px-4 py-3"
-                            >
-                              <p className="text-sm text-white/80 leading-relaxed">
-                                {renderMarkdown(msg.content!)}
-                              </p>
-                            </div>
-                          )
-                        }
-                        if (msg.type === "players" && msg.players) {
-                          return (
-                            <div key={mi} className="space-y-1.5">
-                              {msg.players.map((p, pi) => (
-                                <div
-                                  key={pi}
-                                  className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.04] px-3 py-2"
-                                >
-                                  {/* Rank badge */}
-                                  <span className="text-[10px] font-bold text-white/25 w-4 shrink-0">#{pi + 1}</span>
-                                  <div className="h-8 w-8 rounded-full overflow-hidden border border-white/20 shrink-0">
-                                    <Image src={p.img} alt={p.name} width={32} height={32} className="h-full w-full object-cover" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-semibold text-white leading-tight truncate">{p.name}</div>
-                                    <div className="text-[11px] text-white/35">{p.club}</div>
-                                  </div>
-                                  <div className="text-right shrink-0">
-                                    <div className="text-xs font-bold text-[#00FF87]">{p.pts}</div>
-                                    <div className="text-[11px] text-white/35">{p.price}</div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )
-                        }
-                        if (msg.type === "bullets" && msg.items) {
-                          return (
-                            <div
-                              key={mi}
-                              className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.06] px-4 py-3 space-y-2"
-                            >
-                              {msg.items.map((item, ii) => (
-                                <div key={ii} className="flex items-start gap-2">
-                                  <span className="text-[#00FF87]/70 mt-0.5 text-xs font-bold">›</span>
-                                  <span className="text-sm text-white/75 leading-relaxed">{item}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )
-                        }
-                        return null
-                      })}
-                    </div>
-                  </div>
+                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0">
+                  JM
                 </div>
               </div>
 
-              {/* Mock input bar */}
-              <div className="shrink-0 border-t border-white/[0.06] p-3 bg-black/20">
-                <div className="rounded-[16px] border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 flex items-center gap-3">
-                  <span className="text-sm text-white/20 flex-1 select-none">Ask your FPL question...</span>
-                  <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-[#00FF87] to-[#00FFFF] flex items-center justify-center shrink-0">
-                    <svg className="h-3.5 w-3.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
+              {/* AI message */}
+              <div className="flex items-start gap-2.5">
+                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0 mt-0.5">
+                  AI
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[11px] font-semibold text-white/50">ChatFPL</span>
+                    <span className="text-[10px] text-white/20">just now</span>
                   </div>
+                  <div className="space-y-2.5">
+                    {tab.messages.map((msg, mi) => {
+                      if (msg.type === "text") {
+                        return (
+                          <div key={mi} className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.06] px-4 py-3">
+                            <p className="text-sm text-white/80 leading-relaxed">{renderMarkdown(msg.content!)}</p>
+                          </div>
+                        )
+                      }
+                      if (msg.type === "players" && msg.players) {
+                        return (
+                          <div key={mi} className="space-y-1.5">
+                            {msg.players.map((p, pi) => (
+                              <div key={pi} className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.04] px-3 py-2">
+                                <span className="text-[10px] font-bold text-white/20 w-4 shrink-0">#{pi + 1}</span>
+                                <div className="h-8 w-8 rounded-full overflow-hidden border border-white/20 shrink-0">
+                                  <Image src={p.img} alt={p.name} width={32} height={32} className="h-full w-full object-cover" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-sm font-semibold text-white leading-tight truncate">{p.name}</div>
+                                  <div className="text-[11px] text-white/35">{p.club}</div>
+                                </div>
+                                <div className="text-right shrink-0">
+                                  <div className="text-xs font-bold text-[#00FF87]">{p.pts}</div>
+                                  <div className="text-[11px] text-white/35">{p.price}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )
+                      }
+                      if (msg.type === "bullets" && msg.items) {
+                        return (
+                          <div key={mi} className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.06] px-4 py-3 space-y-2">
+                            {msg.items.map((item, ii) => (
+                              <div key={ii} className="flex items-start gap-2">
+                                <span className="text-[#00FF87]/70 mt-0.5 text-xs font-bold shrink-0">›</span>
+                                <span className="text-sm text-white/75 leading-relaxed">{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )
+                      }
+                      return null
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mock input bar */}
+            <div className="shrink-0 border-t border-white/[0.06] p-3.5 bg-black/20">
+              <div className="rounded-[16px] border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 flex items-center gap-3">
+                <span className="text-sm text-white/20 flex-1 select-none">Ask your FPL question...</span>
+                <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-[#00FF87] to-[#00FFFF] flex items-center justify-center shrink-0">
+                  <svg className="h-3.5 w-3.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
+        {/* ── DesignRocket-style pill tab bar ── */}
+        <div className="flex justify-center mb-4">
+          <div className="inline-flex items-center gap-1 rounded-full bg-white/[0.05] border border-white/[0.07] p-1.5">
+            {TABS.map((t, i) => {
+              const active = i === activeTab
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => goToTab(i)}
+                  className="relative rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 focus:outline-none"
+                  style={
+                    active
+                      ? {
+                          background:
+                            "linear-gradient(#0d0d0d, #0d0d0d) padding-box, linear-gradient(to right, #00FFFF, #00FF87) border-box",
+                          border: "1.5px solid transparent",
+                        }
+                      : { border: "1.5px solid transparent" }
+                  }
+                >
+                  {active ? (
+                    <span
+                      className="font-semibold"
+                      style={{
+                        background: "linear-gradient(to right, #00FFFF, #00FF87)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                      }}
+                    >
+                      {t.label}
+                    </span>
+                  ) : (
+                    <span className="text-white/40 hover:text-white/65 transition-colors">{t.label}</span>
+                  )}
+
+                  {/* Progress bar under active tab */}
+                  {active && (
+                    <span
+                      key={progressKey}
+                      className="absolute bottom-0 left-3 right-3 h-[2px] rounded-full overflow-hidden"
+                    >
+                      <span
+                        className="block h-full rounded-full"
+                        style={{
+                          background: "linear-gradient(to right, #00FFFF, #00FF87)",
+                          animation: `tabProgress ${INTERVAL_MS}ms linear forwards`,
+                        }}
+                      />
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Tab description line */}
+        <p
+          className="text-center text-sm text-white/40 transition-all duration-300"
+          style={{
+            opacity: visible ? 1 : 0,
+            transition: "opacity 0.2s ease",
+          }}
+        >
+          {tab.description}
+        </p>
+
         {/* Bottom CTA */}
-        <div className="mt-12 text-center">
+        <div className="mt-10 text-center">
           <Link
             href="/signup"
             className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-black font-bold text-base transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)] hover:-translate-y-0.5"
           >
             Start Chatting for Free →
           </Link>
-          <p className="mt-3 text-xs text-white/30">Free trial · No credit card required</p>
+          <p className="mt-3 text-xs text-white/25">Free trial · No credit card required</p>
         </div>
       </div>
 
       <style>{`
-        .scrollbar-none::-webkit-scrollbar { display: none; }
-        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes tabProgress {
+          from { width: 0%; }
+          to   { width: 100%; }
+        }
       `}</style>
     </section>
   )
