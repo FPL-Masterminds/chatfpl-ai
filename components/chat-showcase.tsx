@@ -170,24 +170,20 @@ export function ChatShowcase() {
       <div className="container mx-auto max-w-6xl">
         {/* Section header */}
         <div className="mb-14 text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#00FF87]/70">
-            How It Works
-          </p>
           <h2
-            className="mb-4 font-bold uppercase leading-[1.05]"
+            className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
             style={{
               fontFamily: "'Futura Maxi CG', sans-serif",
-              fontSize: "clamp(32px, 5vw, 52px)",
-              WebkitTextStroke: "5px #2E0032",
+              WebkitTextStroke: "6px #2E0032",
               paintOrder: "stroke fill",
             }}
           >
-            <span style={{ color: "#FFFFFF" }}>Ask. Analyse. </span>
-            <span style={{ color: "#00FFFF" }}>Dominate </span>
-            <span style={{ color: "#00FF86" }}>Your League.</span>
+            <span style={{ color: "#FFFFFF" }}>Ask Chat</span>
+            <span style={{ color: "#00FFFF" }}>FPL </span>
+            <span style={{ color: "#00FF86" }}>AI</span>
           </h2>
-          <p className="text-gray-400 max-w-xl mx-auto">
-            Four ways ChatFPL AI gives you the edge every single gameweek.
+          <p className="text-lg text-gray-300 max-w-xl mx-auto">
+            Get instant, data-driven answers to any FPL question. Here are some examples of what our power users are asking right now.
           </p>
         </div>
 
@@ -229,122 +225,146 @@ export function ChatShowcase() {
             })}
           </div>
 
-          {/* Right: mock chat window */}
+          {/* Right: mock chat window — two-pane layout like the real app */}
           <div
-            className="rounded-[24px] border border-white/10 bg-gradient-to-b from-white/[0.05] to-white/[0.02] backdrop-blur-xl shadow-[0_20px_80px_rgba(0,0,0,0.5)] overflow-hidden"
-            style={{ minHeight: 420 }}
+            className="rounded-[24px] border border-white/10 bg-gradient-to-b from-[#0d0d0d] to-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.6)] overflow-hidden flex"
+            style={{ minHeight: 460 }}
           >
-            {/* Chat window chrome */}
-            <div className="flex items-center gap-2 px-5 py-3.5 border-b border-white/[0.07] bg-white/[0.02]">
-              <div className="h-2.5 w-2.5 rounded-full bg-white/20" />
-              <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
-              <div className="h-2.5 w-2.5 rounded-full bg-white/10" />
-              <div className="ml-3 flex items-center gap-2">
-                <div className="h-5 w-5 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[8px] font-black text-black">AI</div>
-                <span className="text-[12px] text-white/40 font-medium">ChatFPL AI</span>
+            {/* Slim left sidebar (desktop only) */}
+            <div className="hidden lg:flex w-[180px] shrink-0 flex-col border-r border-white/[0.06] bg-white/[0.01] p-3 gap-1">
+              <div className="mb-2 px-1">
+                <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={100} height={28} className="h-6 w-auto" />
               </div>
-              <div className="ml-auto flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#00FF87] animate-pulse" />
-                <span className="text-[10px] text-[#00FF87]/70">Live data</span>
-              </div>
+              {["GW29 Captain advice", "Who to transfer in?", "Best budget picks", "Fixture analysis"].map((t, i) => (
+                <div
+                  key={i}
+                  className={`rounded-lg px-2.5 py-2 text-[11px] truncate cursor-default transition-colors ${
+                    i === activeTab
+                      ? "bg-white/[0.08] text-white/80 border border-white/[0.08]"
+                      : "text-white/30 hover:text-white/50"
+                  }`}
+                >
+                  {t}
+                </div>
+              ))}
             </div>
 
-            {/* Messages area */}
-            <div
-              className="p-5 space-y-4 transition-all"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(10px)",
-                transition: "opacity 0.22s ease, transform 0.22s ease",
-              }}
-            >
-              {/* User question bubble */}
-              <div className="flex items-end justify-end gap-2">
-                <div className="max-w-[75%] rounded-2xl rounded-br-sm bg-gradient-to-br from-[#00FF87]/20 to-[#00FFFF]/20 border border-[#00FF87]/20 px-4 py-2.5">
-                  <p className="text-sm text-white/90">{tab.question}</p>
+            {/* Main chat pane */}
+            <div className="flex-1 flex flex-col min-w-0">
+              {/* Top bar */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06] bg-white/[0.02] shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[8px] font-black text-black">AI</div>
+                  <span className="text-[12px] font-semibold text-white/60">ChatFPL</span>
                 </div>
-                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0">
-                  JM
+                <div className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#00FF87] animate-pulse" />
+                  <span className="text-[10px] text-[#00FF87]/60">Live FPL data</span>
                 </div>
               </div>
 
-              {/* AI response */}
-              <div className="flex items-start gap-2">
-                <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0 mt-0.5">
-                  AI
+              {/* Messages area */}
+              <div
+                className="flex-1 overflow-hidden p-4 space-y-4"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "translateY(0)" : "translateY(8px)",
+                  transition: "opacity 0.22s ease, transform 0.22s ease",
+                }}
+              >
+                {/* User message */}
+                <div className="flex items-end justify-end gap-2">
+                  <div className="max-w-[80%] rounded-2xl rounded-br-sm bg-white/[0.07] border border-white/[0.08] px-3.5 py-2.5">
+                    <p className="text-sm text-white/85 leading-relaxed">{tab.question}</p>
+                  </div>
+                  <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0">
+                    JM
+                  </div>
                 </div>
-                <div className="flex-1 space-y-3">
-                  {tab.messages.map((msg, mi) => {
-                    if (msg.type === "text") {
-                      return (
-                        <div
-                          key={mi}
-                          className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.07] px-4 py-3"
-                        >
-                          <p className="text-sm text-white/75 leading-relaxed">
-                            {renderMarkdown(msg.content!)}
-                          </p>
-                        </div>
-                      )
-                    }
-                    if (msg.type === "players" && msg.players) {
-                      return (
-                        <div key={mi} className="space-y-2">
-                          {msg.players.map((p, pi) => (
+
+                {/* AI message */}
+                <div className="flex items-start gap-2">
+                  <div className="h-7 w-7 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-[9px] font-black text-black shrink-0 mt-0.5">
+                    AI
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    {/* Sender label */}
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[11px] font-semibold text-white/50">ChatFPL</span>
+                      <span className="text-[10px] text-white/20">just now</span>
+                    </div>
+                    <div className="space-y-2.5">
+                      {tab.messages.map((msg, mi) => {
+                        if (msg.type === "text") {
+                          return (
                             <div
-                              key={pi}
-                              className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.04] px-3 py-2"
+                              key={mi}
+                              className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.06] px-4 py-3"
                             >
-                              <div className="h-9 w-9 rounded-full overflow-hidden border border-white/20 shrink-0">
-                                <Image
-                                  src={p.img}
-                                  alt={p.name}
-                                  width={36}
-                                  height={36}
-                                  className="h-full w-full object-cover"
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-semibold text-white leading-tight">{p.name}</div>
-                                <div className="text-[11px] text-white/40">{p.club}</div>
-                              </div>
-                              <div className="text-right shrink-0">
-                                <div className="text-xs font-bold text-[#00FF87]">{p.pts}</div>
-                                <div className="text-[11px] text-white/40">{p.price}</div>
-                              </div>
+                              <p className="text-sm text-white/80 leading-relaxed">
+                                {renderMarkdown(msg.content!)}
+                              </p>
                             </div>
-                          ))}
-                        </div>
-                      )
-                    }
-                    if (msg.type === "bullets" && msg.items) {
-                      return (
-                        <div
-                          key={mi}
-                          className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.07] px-4 py-3 space-y-1.5"
-                        >
-                          {msg.items.map((item, ii) => (
-                            <div key={ii} className="flex items-start gap-2">
-                              <span className="text-[#00FF87] mt-0.5 text-xs">›</span>
-                              <span className="text-sm text-white/70 leading-relaxed">{item}</span>
+                          )
+                        }
+                        if (msg.type === "players" && msg.players) {
+                          return (
+                            <div key={mi} className="space-y-1.5">
+                              {msg.players.map((p, pi) => (
+                                <div
+                                  key={pi}
+                                  className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.04] px-3 py-2"
+                                >
+                                  {/* Rank badge */}
+                                  <span className="text-[10px] font-bold text-white/25 w-4 shrink-0">#{pi + 1}</span>
+                                  <div className="h-8 w-8 rounded-full overflow-hidden border border-white/20 shrink-0">
+                                    <Image src={p.img} alt={p.name} width={32} height={32} className="h-full w-full object-cover" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-semibold text-white leading-tight truncate">{p.name}</div>
+                                    <div className="text-[11px] text-white/35">{p.club}</div>
+                                  </div>
+                                  <div className="text-right shrink-0">
+                                    <div className="text-xs font-bold text-[#00FF87]">{p.pts}</div>
+                                    <div className="text-[11px] text-white/35">{p.price}</div>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      )
-                    }
-                    return null
-                  })}
+                          )
+                        }
+                        if (msg.type === "bullets" && msg.items) {
+                          return (
+                            <div
+                              key={mi}
+                              className="rounded-2xl rounded-tl-sm bg-white/[0.05] border border-white/[0.06] px-4 py-3 space-y-2"
+                            >
+                              {msg.items.map((item, ii) => (
+                                <div key={ii} className="flex items-start gap-2">
+                                  <span className="text-[#00FF87]/70 mt-0.5 text-xs font-bold">›</span>
+                                  <span className="text-sm text-white/75 leading-relaxed">{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )
+                        }
+                        return null
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Mock input bar at bottom */}
-            <div className="mx-4 mb-4 mt-1 rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-2.5 flex items-center gap-3">
-              <span className="text-sm text-white/25 flex-1">Ask your FPL question...</span>
-              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-[#00FF87] to-[#00FFFF] flex items-center justify-center">
-                <svg className="h-3.5 w-3.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
+              {/* Mock input bar */}
+              <div className="shrink-0 border-t border-white/[0.06] p-3 bg-black/20">
+                <div className="rounded-[16px] border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 flex items-center gap-3">
+                  <span className="text-sm text-white/20 flex-1 select-none">Ask your FPL question...</span>
+                  <div className="h-7 w-7 rounded-xl bg-gradient-to-br from-[#00FF87] to-[#00FFFF] flex items-center justify-center shrink-0">
+                    <svg className="h-3.5 w-3.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
