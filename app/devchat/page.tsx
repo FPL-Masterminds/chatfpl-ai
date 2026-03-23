@@ -533,7 +533,7 @@ export default function DevChatPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() } }}
-                    placeholder="Ask about captaincy, transfers, wildcards, fixtures..."
+                    placeholder="Ask your FPL question..."
                     className="flex-1 bg-transparent text-white placeholder:text-white/35 resize-none outline-none text-sm leading-6 max-h-[140px] min-h-[36px] pt-1"
                     rows={1}
                     disabled={isLoading}
