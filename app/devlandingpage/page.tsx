@@ -97,18 +97,20 @@ export default function DevLandingPage() {
             </p>
 
             <div className="hero-fadein flex flex-col items-center gap-5" style={{ animationDelay: '0.55s' }}>
-              {/* CTA button with gradient border ring */}
+              {/* CTA button with liquid glass border */}
               <div
-                className="rounded-full p-[1.5px]"
-                style={{ background: 'linear-gradient(to right, #00FF87, #00FFFF)' }}
+                className="inline-block rounded-full p-[3px] transition-all duration-300 hover:scale-105"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  boxShadow: "0 0 40px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.15)",
+                  backdropFilter: "blur(8px)",
+                }}
               >
                 <Link
                   href="/signup"
-                  className="block rounded-full px-10 py-4 font-bold text-lg text-[#08020E] transition-all duration-300 hover:scale-105"
-                  style={{
-                    background: 'linear-gradient(to right, #00FF87, #00FFFF)',
-                    boxShadow: '0 0 24px rgba(0,255,133,0.4)',
-                  }}
+                  className="block rounded-full px-10 py-4 font-bold text-lg text-[#08020E]"
+                  style={{ background: 'linear-gradient(to right, #00FF87, #00FFFF)' }}
                 >
                   Start Chatting for Free
                 </Link>

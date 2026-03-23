@@ -505,12 +505,22 @@ export function ChatShowcase() {
 
         {/* CTA */}
         <div className="mt-10 text-center" style={fi("0.7s")}>
-          <Link
-            href="/signup"
-            className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-black font-bold text-base transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)] hover:-translate-y-0.5"
+          <div
+            className="inline-block rounded-full p-[3px] transition-all duration-300 hover:-translate-y-0.5"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              boxShadow: "0 0 32px rgba(0,255,135,0.25), inset 0 1px 0 rgba(255,255,255,0.15)",
+              backdropFilter: "blur(8px)",
+            }}
           >
-            Start Chatting for Free →
-          </Link>
+            <Link
+              href="/signup"
+              className="block px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-black font-bold text-base"
+            >
+              Start Chatting for Free →
+            </Link>
+          </div>
           <p className="mt-3 text-xs text-white/25">Free trial · No credit card required</p>
         </div>
       </div>
