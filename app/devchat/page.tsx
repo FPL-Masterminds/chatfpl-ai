@@ -547,6 +547,7 @@ export default function DevChatPage() {
                     <span>Send</span>
                   </button>
                 </div>
+                <p className="text-center text-[10px] text-white/25 mt-2">ChatFPL can make mistakes. Verify important information.</p>
               </div>
             </div>
           </section>
