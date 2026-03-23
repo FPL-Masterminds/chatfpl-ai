@@ -65,7 +65,7 @@ const PROMPTS = [
   "Should I use my wildcard now?",
 ]
 
-const INTERVAL_MS = 6000
+const INTERVAL_MS = 9000
 
 function renderText(text: string) {
   return text.split(/(\*\*[^*]+\*\*)/).map((part, i) =>
