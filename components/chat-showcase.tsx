@@ -163,10 +163,21 @@ export function ChatShowcase() {
           </p>
         </div>
 
-        {/* ── Mock app window ── */}
+        {/* ── Mock app window — gradient border + ambient glow ── */}
+        <div className="relative mb-5" style={fi("0.38s")}>
+          {/* Ambient glow — blurred gradient behind the card */}
+          <div
+            className="absolute inset-0 rounded-[32px] opacity-30 blur-2xl pointer-events-none"
+            style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
+          />
+          {/* 2px gradient border wrapper */}
+          <div
+            className="relative rounded-[26px] p-[2px]"
+            style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
+          >
         <div
-          className="rounded-[24px] border border-white/10 bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden flex mb-5"
-          style={{ height: 680, ...fi("0.38s") }}
+          className="rounded-[24px] bg-[#080808] overflow-hidden flex w-full"
+          style={{ height: 680 }}
         >
 
           {/* Left sidebar */}
@@ -397,7 +408,9 @@ export function ChatShowcase() {
               </div>
             </div>
           </div>
-        </div>
+        </div>{/* end inner window */}
+          </div>{/* end gradient border wrapper */}
+        </div>{/* end glow + relative container */}
 
         {/* Pill tab bar */}
         <div className="flex justify-center mb-4" style={fi("0.52s")}>
