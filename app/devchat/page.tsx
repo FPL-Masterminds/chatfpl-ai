@@ -95,6 +95,7 @@ export default function DevChatPage() {
   const [contextMenu, setContextMenu] = useState<ContextMenu>({ visible: false })
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState("")
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
 
   // Insights state
   const [insights, setInsights] = useState<Insights | null>(null)
@@ -313,7 +314,7 @@ export default function DevChatPage() {
   const accentFallback = ACCENT.emerald
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden devchat-root">
+    <div className="h-screen bg-black text-white overflow-hidden devchat-root">
       <style>{`
         .devchat-root ::-webkit-scrollbar { width: 4px; height: 4px; }
         .devchat-root ::-webkit-scrollbar-track { background: transparent; }
@@ -409,10 +410,38 @@ export default function DevChatPage() {
 
         {/* ─── Main ─── */}
         <main className="flex-1 flex min-w-0 min-h-0">
-          <section className="flex-1 min-w-0 px-4 md:px-5 py-4 flex flex-col gap-3">
+          <section className="flex-1 min-w-0 px-0 md:px-5 py-0 md:py-4 flex flex-col gap-0 md:gap-3">
 
-            {/* Top bar */}
-            <div className="rounded-[26px] border border-white/10 bg-white/[0.04] backdrop-blur-2xl px-5 py-3.5 flex items-center justify-between shadow-[0_8px_40px_rgba(0,0,0,0.3)] shrink-0">
+            {/* ── Mobile header (logo + icons) — hidden on desktop ── */}
+            <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-white/10 bg-black/60 backdrop-blur-xl shrink-0 z-10">
+              <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={100} height={28} className="h-7 w-auto" />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={startNewChat}
+                  title="New chat"
+                  className="h-9 w-9 rounded-xl flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.07] transition-all"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
+                </button>
+                <button
+                  onClick={() => setMobileDrawerOpen(true)}
+                  title="Chat history"
+                  className="h-9 w-9 rounded-xl flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.07] transition-all"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h10"/></svg>
+                </button>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  title="Sign out"
+                  className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 text-black font-bold flex items-center justify-center text-xs hover:brightness-110 transition-all"
+                >
+                  {userInitials}
+                </button>
+              </div>
+            </div>
+
+            {/* Top bar — hidden on mobile ── */}
+            <div className="hidden md:flex rounded-[26px] border border-white/10 bg-white/[0.04] backdrop-blur-2xl px-5 py-3.5 items-center justify-between shadow-[0_8px_40px_rgba(0,0,0,0.3)] shrink-0">
               <div>
                 <h1 className="text-lg md:text-xl font-semibold tracking-tight text-white">Chat with your FPL AI analyst</h1>
                 <p className="text-xs text-white/45 mt-0.5">Live data · Real-time reasoning · Smarter decisions</p>
@@ -434,7 +463,7 @@ export default function DevChatPage() {
             </div>
 
             {/* Chat window */}
-            <div className="flex-1 min-h-0 rounded-[28px] border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 rounded-none md:rounded-[28px] border-0 md:border md:border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl md:shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
@@ -627,6 +656,68 @@ export default function DevChatPage() {
           </aside>
         </main>
       </div>
+
+      {/* ── Mobile drawer ── */}
+      {mobileDrawerOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setMobileDrawerOpen(false)} />
+          <div className="absolute left-0 top-0 bottom-0 w-[280px] bg-[#080808] border-r border-white/10 flex flex-col p-5 overflow-hidden">
+            <div className="flex items-center justify-between mb-6">
+              <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={110} height={30} className="h-7 w-auto" />
+              <button onClick={() => setMobileDrawerOpen(false)} className="h-8 w-8 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.07] transition-all">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <button
+              onClick={() => { startNewChat(); setMobileDrawerOpen(false) }}
+              className="w-full rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-semibold px-4 py-3 mb-5 shadow-[0_0_24px_rgba(0,255,200,0.2)] hover:brightness-110 transition-all text-sm shrink-0"
+            >
+              + New Chat
+            </button>
+
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-white/35 mb-3 px-1">Recent chats</p>
+              <div className="space-y-1.5">
+                {conversations.length === 0 ? (
+                  <p className="text-sm text-white/35 px-2 py-2">No conversations yet</p>
+                ) : (
+                  conversations.map((conv) => (
+                    <div
+                      key={conv.id}
+                      onClick={() => { loadConversation(conv.id); setMobileDrawerOpen(false) }}
+                      className={`rounded-xl p-3 border cursor-pointer transition-all ${
+                        conv.id === conversationId
+                          ? "border-emerald-400/30 bg-emerald-400/10"
+                          : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05]"
+                      }`}
+                    >
+                      <div className="text-sm font-medium text-white truncate">
+                        {conv.title || conv.messages[0]?.content?.substring(0, 40) || "New Chat"}
+                      </div>
+                      <div className="text-[11px] text-white/40 mt-0.5">
+                        {new Date(conv.updated_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-[20px] border border-cyan-400/20 bg-gradient-to-br from-cyan-400/8 to-emerald-400/8 p-4 shrink-0">
+              <div className="text-[10px] uppercase tracking-widest text-white/40 mb-1">{userPlan}</div>
+              <div className="text-sm font-semibold text-white">
+                {messagesLimit === 999999 ? "Unlimited" : `${messagesUsed} / ${messagesLimit} messages`}
+              </div>
+              <Link href="/admin" onClick={() => setMobileDrawerOpen(false)}>
+                <button className="mt-2.5 w-full rounded-xl bg-white text-black font-semibold py-2 text-xs hover:bg-gray-100 transition-all">
+                  Manage Plan
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Right-click context menu */}
       {contextMenu.visible && (
