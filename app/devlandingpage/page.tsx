@@ -99,12 +99,11 @@ export default function DevLandingPage() {
             <div className="hero-fadein flex flex-col items-center gap-5" style={{ animationDelay: '0.55s' }}>
               {/* CTA button with liquid glass border */}
               <div
-                className="inline-block rounded-full p-[3px] transition-all duration-300 hover:scale-105"
+                className="inline-block rounded-full p-[4px] transition-all duration-300 hover:scale-105"
                 style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  boxShadow: "0 0 40px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.15)",
-                  backdropFilter: "blur(8px)",
+                  background: "rgba(255,255,255,0.18)",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  boxShadow: "0 0 40px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.4)",
                 }}
               >
                 <Link

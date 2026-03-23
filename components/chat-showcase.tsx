@@ -506,12 +506,11 @@ export function ChatShowcase() {
         {/* CTA */}
         <div className="mt-10 text-center" style={fi("0.7s")}>
           <div
-            className="inline-block rounded-full p-[3px] transition-all duration-300 hover:-translate-y-0.5"
+            className="inline-block rounded-full p-[4px] transition-all duration-300 hover:-translate-y-0.5"
             style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.12)",
-              boxShadow: "0 0 32px rgba(0,255,135,0.25), inset 0 1px 0 rgba(255,255,255,0.15)",
-              backdropFilter: "blur(8px)",
+              background: "rgba(255,255,255,0.18)",
+              border: "1px solid rgba(255,255,255,0.35)",
+              boxShadow: "0 0 32px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.4)",
             }}
           >
             <Link
