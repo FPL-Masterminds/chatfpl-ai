@@ -9,12 +9,27 @@ import Link from "next/link"
 
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
 
-const SUGGESTED_PROMPTS = [
+const ALL_PROMPTS = [
   "Best captain this gameweek?",
   "Compare Isak vs Watkins",
   "Give me 3 low-owned midfielders",
   "Who has the best fixtures in the next 4?",
+  "Who should I sell this gameweek?",
+  "Best budget defender under £4.5m?",
+  "Which premium forward is worth it right now?",
+  "Who are the best differential picks this GW?",
+  "Should I use my wildcard now?",
+  "Best players to triple-up on this gameweek?",
+  "Which midfielder has the most xG this season?",
+  "Who has the easiest run of fixtures?",
+  "Best bench boost candidates?",
+  "Which players have the most clean sheet potential?",
+  "Give me a differential captain option under 10% owned",
 ]
+
+function pickPrompts() {
+  return [...ALL_PROMPTS].sort(() => Math.random() - 0.5).slice(0, 4)
+}
 
 type Message = {
   id: string
@@ -61,6 +76,7 @@ function TeamBadge({ code, name }: { code: number; name: string }) {
 export default function DevChatPage() {
   const router = useRouter()
   const [authorized, setAuthorized] = useState(false)
+  const [suggestedPrompts] = useState<string[]>(pickPrompts)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -287,7 +303,6 @@ export default function DevChatPage() {
           {/* Logo */}
           <div className="mb-8">
             <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={140} height={40} className="h-9 w-auto" />
-            <p className="text-[11px] text-white/40 mt-2">Fantasy Premier League copilot</p>
           </div>
 
           {/* New Chat */}
@@ -305,7 +320,7 @@ export default function DevChatPage() {
               {conversations.length === 0 ? (
                 <p className="text-sm text-white/35 px-2 py-2">No conversations yet</p>
               ) : (
-                conversations.slice(0, 10).map((conv) => (
+                conversations.map((conv) => (
                   <div
                     key={conv.id}
                     onClick={() => loadConversation(conv.id)}
@@ -361,7 +376,7 @@ export default function DevChatPage() {
                 <button
                   onClick={() => signOut({ callbackUrl: "/login" })}
                   title="Sign out"
-                  className="h-9 w-9 rounded-xl bg-gradient-to-br from-cyan-400 to-emerald-400 text-black font-bold flex items-center justify-center text-xs hover:brightness-110 transition-all"
+                  className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 text-black font-bold flex items-center justify-center text-xs hover:brightness-110 transition-all"
                 >
                   {userInitials}
                 </button>
@@ -382,9 +397,9 @@ export default function DevChatPage() {
                   ) : (
                     <div key={message.id} className="w-full rounded-[28px] border border-white/8 bg-black/30 p-4 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-400 to-blue-500 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>
                         <div>
-                          <div className="text-sm font-semibold text-white">ChatFPL Analyst</div>
+                          <div className="text-sm font-semibold text-white">ChatFPL</div>
                           <div className="text-[11px] text-white/40">{message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
                         </div>
                       </div>
@@ -407,7 +422,7 @@ export default function DevChatPage() {
                 {isLoading && (
                   <div className="w-full rounded-[28px] border border-white/8 bg-black/30 p-5">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-cyan-400 via-emerald-400 to-blue-500 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>
                       <div className="flex gap-1.5">
                         <div className="h-2 w-2 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
                         <div className="h-2 w-2 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
@@ -422,7 +437,7 @@ export default function DevChatPage() {
               {/* Suggested prompts + input */}
               <div className="shrink-0 border-t border-white/[0.07] bg-black/20 p-4">
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {SUGGESTED_PROMPTS.map((prompt) => (
+                  {suggestedPrompts.map((prompt) => (
                     <button
                       key={prompt}
                       onClick={() => setInput(prompt)}
