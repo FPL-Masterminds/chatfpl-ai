@@ -200,6 +200,9 @@ export function ChatShowcase() {
               ["Which defenders have the bes...",   "17 Mar"],
               ["Is Salah still worth his pri...",   "15 Mar"],
               ["Show me the top price risers",      "14 Mar"],
+              ["Compare Mbeumo vs Watkins",         "12 Mar"],
+              ["Who has the best fixtures GW...",   "11 Mar"],
+              ["Wildcard options under £6m",        "10 Mar"],
             ].map(([t, d], i) => (
               <div
                 key={i}
