@@ -4,13 +4,13 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
-// FPL CDN helpers — these never go stale
+// FPL CDN helpers — auto-update each season
 const fplPhoto = (code: number) =>
   `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
 const fplBadge = (teamCode: number) =>
   `https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`
 
-type PlayerLine = { name: string; info: string; photoCode: number }
+type PlayerLine = { name: string; info: string; photoCode: number | null }
 
 type Tab = {
   id: string
@@ -37,7 +37,7 @@ const TABS: Tab[] = [
           { name: "Bukayo Saka",    info: "MID · £10.2m · 149 pts · Form 6.8", photoCode: 223340 },
         ],
       },
-      { type: "text", text: "Salah faces Ipswich at Anfield this week — an xG of 2.6 in his last three home games. Near-certain armband choice." },
+      { type: "text", text: "Salah faces Ipswich at Anfield this week — xG of 2.6 in his last three home games. Near-certain armband choice." },
     ],
   },
   {
@@ -46,13 +46,13 @@ const TABS: Tab[] = [
     description: "Make smarter transfer decisions with fixture-aware, data-driven recommendations.",
     question: "I own Mateta — should I sell him this week?",
     response: [
-      { type: "text", text: "**Short answer: yes.** Mateta's fixtures turn rough for the next four gameweeks — Arsenal (H), Man City (A), Chelsea (H), then a blank. His xG in that run is projected at 0.4 per game." },
-      { type: "text", text: "**Recommended replacement:** Alexander Isak (£8.9m). Home double in GW29/30, six goals in his last five starts, and 42% ownership growth week-on-week. Excellent value." },
+      { type: "text", text: "**Short answer: yes.** Mateta's fixtures turn rough for the next four gameweeks — Arsenal (H), Man City (A), Chelsea (H), then a blank in GW32. His projected xG across that run is just 0.4 per game." },
+      { type: "text", text: "**Recommended replacement:** Erling Haaland (£14.0m). Home double in GW29/30, six goals in his last five starts, and 42% ownership growth this week alone." },
       {
         type: "players",
         players: [
-          { name: "Alexander Isak",   info: "FWD · £8.9m · 142 pts · Form 8.4", photoCode: 461003 },
-          { name: "Antoine Semenyo",  info: "FWD · £5.7m · 91 pts · Form 6.2",  photoCode: 205651 },
+          { name: "Erling Haaland", info: "FWD · £14.0m · 174 pts · Form 7.2", photoCode: 447415 },
+          { name: "Bukayo Saka",    info: "MID · £10.2m · 149 pts · Form 6.8", photoCode: 223340 },
         ],
       },
     ],
@@ -65,7 +65,14 @@ const TABS: Tab[] = [
     response: [
       { type: "text", text: "Here's the fixture difficulty ranking for GW29–33 (FDR average, lower = easier):" },
       { type: "text", text: "🟢 **Liverpool** — FDR avg 2.0 · Ipswich, Brentford, Fulham, Southampton, Wolves\n🟢 **Aston Villa** — FDR avg 2.2 · Wolves, Bournemouth, Ipswich, Brighton, Everton\n🟡 **Arsenal** — FDR avg 2.8 · Crystal Palace, Newcastle, Brighton, Spurs, Brentford\n🔴 **Man Utd** — FDR avg 4.2 · Man City, Chelsea, Arsenal, Liverpool, Spurs" },
-      { type: "text", text: "Triple-up on Liverpool assets? Salah + Trent + Robertson gives you blanket coverage across that golden run. Would you like a specific squad recommendation?" },
+      {
+        type: "players",
+        players: [
+          { name: "Mohamed Salah", info: "FWD · £13.1m · 183 pts · Form 9.8", photoCode: 118748 },
+          { name: "Erling Haaland", info: "FWD · £14.0m · 174 pts · Form 7.2", photoCode: 447415 },
+        ],
+      },
+      { type: "text", text: "Triple-up on Liverpool assets? Salah + Trent + Robertson gives blanket coverage across that golden run." },
     ],
   },
   {
@@ -78,12 +85,12 @@ const TABS: Tab[] = [
       {
         type: "players",
         players: [
-          { name: "Antoine Semenyo",  info: "FWD · £5.7m · 4.1% owned · 3 goals in 4", photoCode: 205651 },
-          { name: "Jacob Ramsey",     info: "MID · £5.0m · 3.8% owned · 2G 1A last 3", photoCode: 205651 },
-          { name: "Matheus Cunha",    info: "FWD · £6.0m · 8.2% owned · 5 goal involvements", photoCode: 461003 },
+          { name: "Mohamed Salah", info: "FWD · £13.1m · 4.1% captained · 3 goals last 4", photoCode: 118748 },
+          { name: "Bukayo Saka",   info: "MID · £10.2m · 3.8% owned diff · 2G 1A last 3",  photoCode: 223340 },
+          { name: "Erling Haaland",info: "FWD · £14.0m · 8.2% owned · 5 goal involvements", photoCode: 447415 },
         ],
       },
-      { type: "text", text: "Semenyo is the standout — Bournemouth face Southampton and Ipswich next. Excellent budget option with price rise potential." },
+      { type: "text", text: "For true differentials, look at players with upcoming easy fixtures and sub-10% ownership. Would you like me to filter by position or budget?" },
     ],
   },
 ]
@@ -170,7 +177,7 @@ export function ChatShowcase() {
         {/* ── Mock app window ── */}
         <div
           className="rounded-[24px] border border-white/10 bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden flex mb-5"
-          style={{ height: 520, ...fi("0.38s") }}
+          style={{ height: 680, ...fi("0.38s") }}
         >
 
           {/* Left sidebar */}
@@ -254,18 +261,22 @@ export function ChatShowcase() {
                     }
                     if (block.type === "players") {
                       return (
-                        <ul key={bi} className="space-y-2">
+                        <ul key={bi} className="space-y-2 pl-1">
                           {block.players.map((p, pi) => (
                             <li key={pi} className="flex items-center gap-2.5">
-                              <span className="text-[10px] text-white/30 w-3 shrink-0">{pi + 1}.</span>
-                              {/* FPL CDN photo — small circle */}
-                              <div className="h-8 w-8 rounded-full overflow-hidden border border-white/15 shrink-0 bg-white/[0.04]">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={fplPhoto(p.photoCode)} alt={p.name} className="h-full w-full object-cover object-top" />
-                              </div>
+                              <span className="text-[11px] text-white/30 w-4 shrink-0">{pi + 1}.</span>
+                              {/* FPL CDN photo — portrait thumbnail, exactly as real app renders */}
+                              {p.photoCode && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={fplPhoto(p.photoCode)}
+                                  alt={p.name}
+                                  className="inline-block h-10 w-auto rounded shrink-0"
+                                />
+                              )}
                               <div className="flex-1 min-w-0">
-                                <span className="text-sm font-semibold text-white">{p.name}</span>
-                                <span className="text-[11px] text-white/40 ml-2">{p.info}</span>
+                                <span className="text-sm font-semibold text-white">{p.name} </span>
+                                <span className="text-[11px] text-white/45">{p.info}</span>
                               </div>
                             </li>
                           ))}
@@ -349,9 +360,9 @@ export function ChatShowcase() {
               <div className="text-[9px] uppercase tracking-[0.18em] text-purple-300/80 mb-2">Most Selected</div>
               <div className="space-y-1.5">
                 {[
-                  { rank:1, name:"Haaland",   team:"MCI", code:43, val:"55.0%" },
-                  { rank:2, name:"Semenyo",   team:"BOU", code:91, val:"53.6%" },
-                  { rank:3, name:"João Pedro",team:"CHE", code:8,  val:"50.5%" },
+                  { rank:1, name:"Haaland",    team:"MCI", code:43, val:"55.0%" },
+                  { rank:2, name:"Semenyo",    team:"BOU", code:91, val:"53.6%" },
+                  { rank:3, name:"João Pedro", team:"CHE", code:8,  val:"50.5%" },
                 ].map(p => (
                   <div key={p.rank} className="flex items-center gap-2 rounded-xl border border-white/[0.05] bg-black/20 px-2 py-1.5">
                     <span className="text-[9px] text-white/25 w-3">{p.rank}</span>
@@ -362,6 +373,29 @@ export function ChatShowcase() {
                       <div className="text-[9px] text-white/35">{p.team}</div>
                     </div>
                     <span className="text-[11px] font-bold text-purple-300 shrink-0">{p.val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Most Bonus Points */}
+            <div className="rounded-[16px] border border-amber-400/20 bg-amber-400/[0.04] p-3 shrink-0">
+              <div className="text-[9px] uppercase tracking-[0.18em] text-amber-300/80 mb-2">Most Bonus Points</div>
+              <div className="space-y-1.5">
+                {[
+                  { rank:1, name:"B.Fernandes", team:"MUN", code:1,  val:"36 bonus" },
+                  { rank:2, name:"Haaland",     team:"MCI", code:43, val:"35 bonus" },
+                  { rank:3, name:"João Pedro",  team:"CHE", code:8,  val:"28 bonus" },
+                ].map(p => (
+                  <div key={p.rank} className="flex items-center gap-2 rounded-xl border border-white/[0.05] bg-black/20 px-2 py-1.5">
+                    <span className="text-[9px] text-white/25 w-3">{p.rank}</span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={fplBadge(p.code)} alt={p.team} className="h-4 w-4 object-contain shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[11px] font-medium text-white truncate">{p.name}</div>
+                      <div className="text-[9px] text-white/35">{p.team}</div>
+                    </div>
+                    <span className="text-[11px] font-bold text-amber-300 shrink-0">{p.val}</span>
                   </div>
                 ))}
               </div>
