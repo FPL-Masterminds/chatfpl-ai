@@ -508,9 +508,9 @@ export function ChatShowcase() {
           <div
             className="inline-block rounded-full p-[4px] transition-all duration-300 hover:-translate-y-0.5"
             style={{
-              background: "rgba(255,255,255,0.18)",
-              border: "1px solid rgba(255,255,255,0.35)",
-              boxShadow: "0 0 32px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.4)",
+              background: "rgba(0,0,0,0.55)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              boxShadow: "0 0 32px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
             }}
           >
             <Link
