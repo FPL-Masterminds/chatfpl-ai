@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -152,6 +152,19 @@ function renderMarkdown(text: string) {
 export function ChatShowcase() {
   const [activeTab, setActiveTab] = useState(0)
   const [visible, setVisible] = useState(true)
+  const [inView, setInView] = useState(false)
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect() } },
+      { threshold: 0.08 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   const goToTab = useCallback((idx: number) => {
     setVisible(false)
@@ -175,8 +188,19 @@ export function ChatShowcase() {
 
   const tab = TABS[activeTab]
 
+  const fi = (delay: string) =>
+    inView
+      ? { animation: `scFadeUp 0.75s cubic-bezier(0.16,1,0.3,1) both`, animationDelay: delay }
+      : { opacity: 0 }
+
   return (
-    <section className="border-b border-white/[0.07] px-4 py-24 bg-black">
+    <section ref={sectionRef} className="border-b border-white/[0.07] px-4 py-24 bg-black">
+      <style>{`
+        @keyframes scFadeUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
       <div className="container mx-auto max-w-5xl">
 
         {/* Section header */}
@@ -187,13 +211,14 @@ export function ChatShowcase() {
               fontFamily: "'Futura Maxi CG', sans-serif",
               WebkitTextStroke: "6px #2E0032",
               paintOrder: "stroke fill",
+              ...fi("0.1s"),
             }}
           >
             <span style={{ color: "#FFFFFF" }}>Ask Chat</span>
             <span style={{ color: "#00FFFF" }}>FPL </span>
             <span style={{ color: "#00FF86" }}>AI</span>
           </h2>
-          <p className="text-lg text-gray-300 max-w-xl mx-auto">
+          <p className="text-lg text-gray-300 max-w-xl mx-auto" style={fi("0.22s")}>
             Get instant, data-driven answers to any FPL question. Here are some examples of what our power users are asking right now.
           </p>
         </div>
@@ -201,7 +226,7 @@ export function ChatShowcase() {
         {/* Full-width mock chat window — fixed height so it never resizes */}
         <div
           className="rounded-[24px] border border-white/10 bg-gradient-to-b from-[#0d0d0d] to-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.7)] overflow-hidden flex mb-5"
-          style={{ height: 500 }}
+          style={{ height: 500, ...fi("0.38s") }}
         >
           {/* Slim left sidebar */}
           <div className="hidden md:flex w-[190px] shrink-0 flex-col border-r border-white/[0.06] bg-white/[0.01] p-3 gap-1">
@@ -343,7 +368,7 @@ export function ChatShowcase() {
         </div>
 
         {/* ── DesignRocket-style pill tab bar ── */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-4" style={fi("0.52s")}>
           <div
             className="inline-flex items-center gap-1 rounded-full p-1.5"
             style={{
@@ -394,17 +419,17 @@ export function ChatShowcase() {
 
         {/* Tab description line */}
         <p
-          className="text-center text-sm text-white/40 transition-all duration-300"
+          className="text-center text-sm text-white/40 transition-opacity duration-200"
           style={{
-            opacity: visible ? 1 : 0,
-            transition: "opacity 0.2s ease",
+            ...fi("0.6s"),
+            opacity: inView ? (visible ? undefined : 0) : 0,
           }}
         >
           {tab.description}
         </p>
 
         {/* Bottom CTA */}
-        <div className="mt-10 text-center">
+        <div className="mt-10 text-center" style={fi("0.7s")}>
           <Link
             href="/signup"
             className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-black font-bold text-base transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)] hover:-translate-y-0.5"
