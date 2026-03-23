@@ -139,3 +139,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Scroll-reveal animation */
+.sr-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sr-reveal.sr-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

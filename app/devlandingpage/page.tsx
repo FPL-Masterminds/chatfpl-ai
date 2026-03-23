@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ChatShowcase } from "@/components/chat-showcase"
+import { Reveal } from "@/components/scroll-reveal"
 import { 
   TrendingUp, 
   Zap,
@@ -141,92 +142,70 @@ export default function DevLandingPage() {
       <section id="features" className="border-b border-gray-800 px-4 py-20">
         <div className="container mx-auto max-w-6xl">
           <div className="mb-12 text-center">
-            <h2 
-              className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
-            >
-              <span style={{ color: '#FFFFFF' }}>Everything You Need For </span>
-              <span style={{ color: '#00FFFF' }}>FPL </span>
-              <span style={{ color: '#00FF86' }}>Success</span>
-            </h2>
-            <p className="text-lg text-gray-300">
-              Powered by real-time data and AI intelligence
-            </p>
+            <Reveal>
+              <h2 
+                className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
+                style={{ 
+                  fontFamily: "'Futura Maxi CG', sans-serif",
+                  WebkitTextStroke: '6px #2E0032',
+                  paintOrder: 'stroke fill'
+                }}
+              >
+                <span style={{ color: '#FFFFFF' }}>Everything You Need For </span>
+                <span style={{ color: '#00FFFF' }}>FPL </span>
+                <span style={{ color: '#00FF86' }}>Success</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="text-lg text-gray-300">Powered by real-time data and AI intelligence</p>
+            </Reveal>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            {/* Feature 1 */}
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6 text-center">
-                <div className="mb-6 flex justify-center">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
-                    <Image
-                      src="/player_images/circular/bukayo_saka_circular.png"
-                      alt="Live Data"
-                      fill
-                      className="object-cover"
-                    />
+            <Reveal delay={0.1}>
+              <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87] h-full">
+                <CardContent className="p-6 text-center">
+                  <div className="mb-6 flex justify-center">
+                    <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
+                      <Image src="/player_images/circular/bukayo_saka_circular.png" alt="Live Data" fill className="object-cover" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="mb-3 text-xl font-bold text-white">Live Data</h3>
-                <p className="mb-4 text-sm text-[#00FF87] font-semibold">
-                  Give me some live data on Bukaya Saka
-                </p>
-                <p className="text-sm text-gray-400">
-                  Connects to the official FPL API for real-time stats, fixtures, player performance data, and live gameweek updates.
-                </p>
-              </CardContent>
-            </Card>
+                  <h3 className="mb-3 text-xl font-bold text-white">Live Data</h3>
+                  <p className="mb-4 text-sm text-[#00FF87] font-semibold">Give me some live data on Bukaya Saka</p>
+                  <p className="text-sm text-gray-400">Connects to the official FPL API for real-time stats, fixtures, player performance data, and live gameweek updates.</p>
+                </CardContent>
+              </Card>
+            </Reveal>
 
-            {/* Feature 2 */}
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6 text-center">
-                <div className="mb-6 flex justify-center">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
-                    <Image
-                      src="/player_images/circular/mickey_van_de_ven_circular.png"
-                      alt="Expert Knowledge"
-                      fill
-                      className="object-cover"
-                    />
+            <Reveal delay={0.2}>
+              <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87] h-full">
+                <CardContent className="p-6 text-center">
+                  <div className="mb-6 flex justify-center">
+                    <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
+                      <Image src="/player_images/circular/mickey_van_de_ven_circular.png" alt="Expert Knowledge" fill className="object-cover" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="mb-3 text-xl font-bold text-white">Expert Knowledge</h3>
-                <p className="mb-4 text-sm text-[#00FF87] font-semibold">
-                  Should I captain Micky van de Ven?
-                </p>
-                <p className="text-sm text-gray-400">
-                  Smart captain advice using live data, upcoming fixtures, recent form, and ownership trends to maximise your points.
-                </p>
-              </CardContent>
-            </Card>
+                  <h3 className="mb-3 text-xl font-bold text-white">Expert Knowledge</h3>
+                  <p className="mb-4 text-sm text-[#00FF87] font-semibold">Should I captain Micky van de Ven?</p>
+                  <p className="text-sm text-gray-400">Smart captain advice using live data, upcoming fixtures, recent form, and ownership trends to maximise your points.</p>
+                </CardContent>
+              </Card>
+            </Reveal>
 
-            {/* Feature 3 */}
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87]">
-              <CardContent className="p-6 text-center">
-                <div className="mb-6 flex justify-center">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
-                    <Image
-                      src="/player_images/circular/mateta_circular.png"
-                      alt="Natural Chat"
-                      fill
-                      className="object-cover"
-                    />
+            <Reveal delay={0.3}>
+              <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87] h-full">
+                <CardContent className="p-6 text-center">
+                  <div className="mb-6 flex justify-center">
+                    <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white">
+                      <Image src="/player_images/circular/mateta_circular.png" alt="Natural Chat" fill className="object-cover" />
+                    </div>
                   </div>
-                </div>
-                <h3 className="mb-3 text-xl font-bold text-white">Natural Chat</h3>
-                <p className="mb-4 text-sm text-[#00FF87] font-semibold">
-                  Is Jean-Philippe Mateta worth the transfer?
-                </p>
-                <p className="text-sm text-gray-400">
-                  Ask anything from 'Recommend the top 3 performing strikers' to 'Compare van Dijk vs Gabriel' in plain English.
-                </p>
-              </CardContent>
-            </Card>
+                  <h3 className="mb-3 text-xl font-bold text-white">Natural Chat</h3>
+                  <p className="mb-4 text-sm text-[#00FF87] font-semibold">Is Jean-Philippe Mateta worth the transfer?</p>
+                  <p className="text-sm text-gray-400">Ask anything from 'Recommend the top 3 performing strikers' to 'Compare van Dijk vs Gabriel' in plain English.</p>
+                </CardContent>
+              </Card>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -235,26 +214,29 @@ export default function DevLandingPage() {
       <section className="border-b border-gray-800 px-4 py-20">
         <div className="container mx-auto max-w-6xl">
           <div className="mb-12 text-center">
-            <h2 
-              className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
-            >
-              <span style={{ color: '#FFFFFF' }}>What </span>
-              <span style={{ color: '#00FFFF' }}>Users </span>
-              <span style={{ color: '#00FF86' }}>Say</span>
-            </h2>
-            <p className="text-lg text-gray-300">
-              Real feedback from FPL managers using ChatFPL AI
-            </p>
+            <Reveal>
+              <h2 
+                className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
+                style={{ 
+                  fontFamily: "'Futura Maxi CG', sans-serif",
+                  WebkitTextStroke: '6px #2E0032',
+                  paintOrder: 'stroke fill'
+                }}
+              >
+                <span style={{ color: '#FFFFFF' }}>What </span>
+                <span style={{ color: '#00FFFF' }}>Users </span>
+                <span style={{ color: '#00FF86' }}>Say</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="text-lg text-gray-300">Real feedback from FPL managers using ChatFPL AI</p>
+            </Reveal>
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
             {/* Testimonial 1 */}
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87]">
+            <Reveal delay={0.1}>
+            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87] h-full">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
                   <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-[#00FF86]">
@@ -281,9 +263,11 @@ export default function DevLandingPage() {
                 </p>
               </CardContent>
             </Card>
+            </Reveal>
 
             {/* Testimonial 2 */}
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87]">
+            <Reveal delay={0.2}>
+            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87] h-full">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
                   <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-[#00FFFF]">
@@ -310,9 +294,11 @@ export default function DevLandingPage() {
                 </p>
               </CardContent>
             </Card>
+            </Reveal>
 
             {/* Testimonial 3 */}
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87]">
+            <Reveal delay={0.3}>
+            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FF87] h-full">
               <CardContent className="p-6 text-center">
                 <div className="mb-4 flex flex-col items-center">
                   <div className="relative h-16 w-16 overflow-hidden rounded-full ring-4 ring-[#A855F7]">
@@ -339,6 +325,7 @@ export default function DevLandingPage() {
                 </p>
               </CardContent>
             </Card>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -347,26 +334,29 @@ export default function DevLandingPage() {
       <section className="border-b border-gray-800 px-4 py-20">
         <div className="container mx-auto max-w-6xl">
           <div className="mb-12 text-center">
-            <h2 
-              className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
-            >
-              <span style={{ color: '#FFFFFF' }}>Simple </span>
-              <span style={{ color: '#00FFFF' }}>Transparent </span>
-              <span style={{ color: '#00FF86' }}>Pricing</span>
-            </h2>
-            <p className="text-lg text-gray-300">
-              Choose the plan that fits your FPL ambitions
-            </p>
+            <Reveal>
+              <h2 
+                className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
+                style={{ 
+                  fontFamily: "'Futura Maxi CG', sans-serif",
+                  WebkitTextStroke: '6px #2E0032',
+                  paintOrder: 'stroke fill'
+                }}
+              >
+                <span style={{ color: '#FFFFFF' }}>Simple </span>
+                <span style={{ color: '#00FFFF' }}>Transparent </span>
+                <span style={{ color: '#00FF86' }}>Pricing</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="text-lg text-gray-300">Choose the plan that fits your FPL ambitions</p>
+            </Reveal>
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
             {/* Free Trial */}
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#A855F7]">
+            <Reveal delay={0.1}>
+            <Card className="border-gray-700 bg-black transition-all hover:border-[#A855F7] h-full">
               <CardHeader>
                 <CardTitle className="text-2xl text-white">Free Trial</CardTitle>
                 <div className="mt-4">
@@ -412,9 +402,11 @@ export default function DevLandingPage() {
                 </Link>
               </CardContent>
             </Card>
+            </Reveal>
 
             {/* Premium - Most Popular */}
-            <Card className="relative border-[#00FF87] bg-black shadow-xl shadow-[#00FF87]/20">
+            <Reveal delay={0.2}>
+            <Card className="relative border-[#00FF87] bg-black shadow-xl shadow-[#00FF87]/20 h-full">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                 <Badge className="bg-[#00FF87] text-gray-900 font-bold px-4 py-1">
                   MOST POPULAR
@@ -465,9 +457,11 @@ export default function DevLandingPage() {
                 </Link>
               </CardContent>
             </Card>
+            </Reveal>
 
             {/* Elite */}
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FFFF]">
+            <Reveal delay={0.3}>
+            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FFFF] h-full">
               <CardHeader>
                 <CardTitle className="text-2xl text-white">Elite</CardTitle>
                 <div className="mt-4">
@@ -513,6 +507,7 @@ export default function DevLandingPage() {
                 </Link>
               </CardContent>
             </Card>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -521,140 +516,50 @@ export default function DevLandingPage() {
       <section className="px-4 py-20">
         <div className="container mx-auto max-w-3xl">
           <div className="mb-12 text-center">
-            <h2 
-              className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
-            >
-              <span style={{ color: '#FFFFFF' }}>Frequently </span>
-              <span style={{ color: '#00FFFF' }}>Asked </span>
-              <span style={{ color: '#00FF86' }}>Questions</span>
-            </h2>
-            <p className="text-lg text-gray-300">
-              Everything you need to know about ChatFPL AI
-            </p>
+            <Reveal>
+              <h2 
+                className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
+                style={{ 
+                  fontFamily: "'Futura Maxi CG', sans-serif",
+                  WebkitTextStroke: '6px #2E0032',
+                  paintOrder: 'stroke fill'
+                }}
+              >
+                <span style={{ color: '#FFFFFF' }}>Frequently </span>
+                <span style={{ color: '#00FFFF' }}>Asked </span>
+                <span style={{ color: '#00FF86' }}>Questions</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="text-lg text-gray-300">Everything you need to know about ChatFPL AI</p>
+            </Reveal>
           </div>
 
           <Accordion type="single" collapsible className="space-y-4">
-            <AccordionItem value="item-1" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                🤖 What is ChatFPL AI?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                ChatFPL AI is your intelligent Fantasy Premier League assistant powered by artificial intelligence and real-time FPL data. Simply ask any question about players, transfers, captains, fixtures, or strategy, and receive instant, data-driven answers to help you make smarter FPL decisions and climb the rankings.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-2" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                🆓 Can I try it for free?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                Yes! Our Free plan includes 20 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-3" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                🎁 How do I earn extra messages on the Free plan?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                Free users can earn bonus messages by completing simple tasks like sharing ChatFPL AI on social media (X, Facebook, Reddit) or leaving a review. Each task rewards you with additional messages, up to a lifetime cap of 50 bonus messages. Visit your dashboard to see available rewards.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-4" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                ❓ What type of FPL questions can I ask?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                You can ask anything FPL-related: player statistics, captain picks, transfer advice, fixture analysis, differential suggestions, chip strategy, rule clarifications, price predictions, ownership trends, and much more. ChatFPL AI provides instant, data-driven answers backed by real-time Premier League data.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-5" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                🔄 How often is the FPL data updated?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                ChatFPL AI uses live Fantasy Premier League data that updates continuously. Player prices update daily at 1:30 AM UK time, match statistics update within hours of the final whistle, and injury news is refreshed as official team announcements are made. You're always getting the most current information available.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-6" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                📅 Do unused messages roll over to the next month?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                No, unused messages do not carry over. Premium users receive 100 messages each month, and Elite users receive 500 messages per month. Your message allowance resets on your renewal date, so make sure to use your messages before they expire.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-7" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                ⚠️ What happens if I run out of messages?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                If you've used all your messages for the current period, you can upgrade to a higher plan for more messages, or wait until your next renewal date when your allowance resets. Free users can also earn bonus messages by completing social sharing tasks.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-8" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                💎 What's the difference between Premium and Elite?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                Premium gives you 100 messages per month for £7.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £14.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-9" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                ❌ Can I cancel my subscription at any time?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                Yes! You can cancel your Premium or Elite subscription at any time from your account dashboard. Your access will continue until the end of your current billing period, and you won't be charged again. No cancellation fees or penalties.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-10" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                ⚽ Can I use ChatFPL AI during gameweeks?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                Yes! ChatFPL AI is available 24/7, including during live gameweeks. You can get last-minute captain advice before the deadline, check injury updates, analyse fixture swings, or plan your transfers for the following week. The AI is always ready when you need it.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-11" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                📈 Does ChatFPL AI guarantee I'll climb the rankings?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                While ChatFPL AI provides data-driven insights and analysis to support better decisions, FPL involves unpredictability that no tool can eliminate. We give you the information edge - form trends, expected stats, fixture analysis - but ultimately, player performance and your strategic decisions determine your rank.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-12" className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                💬 Can I ask follow-up questions?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                Yes! Each conversation with ChatFPL AI is contextual, meaning you can ask follow-up questions that build on previous answers. For example, after asking about Mohamed Salah's stats, you can immediately ask "Should I captain him?" or "Compare him with Son Heung-min." Each follow-up costs one message.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-13" className="rounded-lg border border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors !border-b">
-              <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                ✏️ Is there a limit to how long my questions can be?
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-300">
-                While there's no strict character limit, we recommend keeping questions clear and concise for the best results. Instead of asking multiple questions in one message, break them into separate queries. For example, ask "Who should I captain?" first, then follow up with "What about transfers?" This helps the AI provide more focused, accurate responses.
-              </AccordionContent>
-            </AccordionItem>
+            {[
+              { v:"item-1",  q:"🤖 What is ChatFPL AI?", a:"ChatFPL AI is your intelligent Fantasy Premier League assistant powered by artificial intelligence and real-time FPL data. Simply ask any question about players, transfers, captains, fixtures, or strategy, and receive instant, data-driven answers to help you make smarter FPL decisions and climb the rankings." },
+              { v:"item-2",  q:"🆓 Can I try it for free?", a:"Yes! Our Free plan includes 20 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages." },
+              { v:"item-3",  q:"🎁 How do I earn extra messages on the Free plan?", a:"Free users can earn bonus messages by completing simple tasks like sharing ChatFPL AI on social media (X, Facebook, Reddit) or leaving a review. Each task rewards you with additional messages, up to a lifetime cap of 50 bonus messages. Visit your dashboard to see available rewards." },
+              { v:"item-4",  q:"❓ What type of FPL questions can I ask?", a:"You can ask anything FPL-related: player statistics, captain picks, transfer advice, fixture analysis, differential suggestions, chip strategy, rule clarifications, price predictions, ownership trends, and much more. ChatFPL AI provides instant, data-driven answers backed by real-time Premier League data." },
+              { v:"item-5",  q:"🔄 How often is the FPL data updated?", a:"ChatFPL AI uses live Fantasy Premier League data that updates continuously. Player prices update daily at 1:30 AM UK time, match statistics update within hours of the final whistle, and injury news is refreshed as official team announcements are made. You're always getting the most current information available." },
+              { v:"item-6",  q:"📅 Do unused messages roll over to the next month?", a:"No, unused messages do not carry over. Premium users receive 100 messages each month, and Elite users receive 500 messages per month. Your message allowance resets on your renewal date, so make sure to use your messages before they expire." },
+              { v:"item-7",  q:"⚠️ What happens if I run out of messages?", a:"If you've used all your messages for the current period, you can upgrade to a higher plan for more messages, or wait until your next renewal date when your allowance resets. Free users can also earn bonus messages by completing social sharing tasks." },
+              { v:"item-8",  q:"💎 What's the difference between Premium and Elite?", a:"Premium gives you 100 messages per month for £7.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £14.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities." },
+              { v:"item-9",  q:"❌ Can I cancel my subscription at any time?", a:"Yes! You can cancel your Premium or Elite subscription at any time from your account dashboard. Your access will continue until the end of your current billing period, and you won't be charged again. No cancellation fees or penalties." },
+              { v:"item-10", q:"⚽ Can I use ChatFPL AI during gameweeks?", a:"Yes! ChatFPL AI is available 24/7, including during live gameweeks. You can get last-minute captain advice before the deadline, check injury updates, analyse fixture swings, or plan your transfers for the following week. The AI is always ready when you need it." },
+              { v:"item-11", q:"📈 Does ChatFPL AI guarantee I'll climb the rankings?", a:"While ChatFPL AI provides data-driven insights and analysis to support better decisions, FPL involves unpredictability that no tool can eliminate. We give you the information edge - form trends, expected stats, fixture analysis - but ultimately, player performance and your strategic decisions determine your rank." },
+              { v:"item-12", q:"💬 Can I ask follow-up questions?", a:"Yes! Each conversation with ChatFPL AI is contextual, meaning you can ask follow-up questions that build on previous answers. For example, after asking about Mohamed Salah's stats, you can immediately ask \"Should I captain him?\" or \"Compare him with Son Heung-min.\" Each follow-up costs one message." },
+              { v:"item-13", q:"✏️ Is there a limit to how long my questions can be?", a:"While there's no strict character limit, we recommend keeping questions clear and concise for the best results. Instead of asking multiple questions in one message, break them into separate queries. For example, ask \"Who should I captain?\" first, then follow up with \"What about transfers?\" This helps the AI provide more focused, accurate responses." },
+            ].map(({ v, q, a }, i) => (
+              <Reveal key={v} delay={i * 0.05}>
+                <AccordionItem value={v} className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
+                  <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
+                    {q}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-300">{a}</AccordionContent>
+                </AccordionItem>
+              </Reveal>
+            ))}
           </Accordion>
         </div>
       </section>
