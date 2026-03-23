@@ -467,7 +467,7 @@ export default function DevChatPage() {
             <div className="flex-1 min-h-0 rounded-none md:rounded-[28px] border-0 md:border md:border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl md:shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
 
               {/* Messages */}
-              <div className="devchat-messages flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
+              <div className="devchat-messages flex-1 overflow-y-auto p-4 pb-24 md:pb-6 md:p-6 space-y-5">
                 {messages.map((message) => (
                   message.role === "user" ? (
                     <div key={message.id} className="w-full rounded-[24px] border border-cyan-400/15 bg-cyan-400/[0.07] p-4 md:p-5">
@@ -515,7 +515,7 @@ export default function DevChatPage() {
               </div>
 
               {/* Suggested prompts + input */}
-              <div className="shrink-0 border-t border-white/[0.07] bg-black/20 p-4">
+              <div className="shrink-0 md:relative fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
                 <div className="hidden md:flex flex-wrap gap-2 mb-3">
                   {suggestedPrompts.map((prompt) => (
                     <button
