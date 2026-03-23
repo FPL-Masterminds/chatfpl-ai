@@ -96,6 +96,7 @@ export default function DevChatPage() {
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState("")
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const [mobileEdgeOpen, setMobileEdgeOpen] = useState(false)
 
   // Insights state
   const [insights, setInsights] = useState<Insights | null>(null)
@@ -416,7 +417,7 @@ export default function DevChatPage() {
             {/* ── Mobile header (logo + icons) — hidden on desktop ── */}
             <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-white/10 bg-black/60 backdrop-blur-xl shrink-0 z-10">
               <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={100} height={28} className="h-7 w-auto" />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={startNewChat}
                   title="New chat"
@@ -432,12 +433,20 @@ export default function DevChatPage() {
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h10"/></svg>
                 </button>
                 <button
-                  onClick={() => signOut({ callbackUrl: "/login" })}
-                  title="Sign out"
-                  className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 text-black font-bold flex items-center justify-center text-xs hover:brightness-110 transition-all"
+                  onClick={() => setMobileEdgeOpen(true)}
+                  title="Gameweek Edge"
+                  className="h-9 w-9 rounded-xl flex items-center justify-center text-white/60 hover:text-white hover:bg-white/[0.07] transition-all"
                 >
-                  {userInitials}
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 </button>
+                <Link href="/admin">
+                  <button
+                    title="My account"
+                    className="h-9 w-9 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 text-black font-bold flex items-center justify-center text-xs hover:brightness-110 transition-all"
+                  >
+                    {userInitials}
+                  </button>
+                </Link>
               </div>
             </div>
 
@@ -717,6 +726,106 @@ export default function DevChatPage() {
                 </button>
               </Link>
             </div>
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="mt-3 w-full rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/20 py-2 text-xs font-medium transition-all shrink-0"
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Mobile Gameweek Edge drawer (slides from right) ── */}
+      {mobileEdgeOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setMobileEdgeOpen(false)} />
+          <div className="absolute right-0 top-0 bottom-0 w-[300px] bg-[#080808] border-l border-white/10 flex flex-col p-4 overflow-y-auto gap-3">
+
+            {/* Header */}
+            <div className="flex items-center justify-between shrink-0">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.22em] text-white/40">Live FPL</div>
+                <h2 className="text-base font-semibold text-white">Gameweek Edge</h2>
+              </div>
+              <button onClick={() => setMobileEdgeOpen(false)} className="h-8 w-8 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.07] transition-all">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            {/* Countdown */}
+            <div className="rounded-[20px] border border-white/10 bg-white/[0.04] p-4 shrink-0">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-white/40 mb-3">
+                {insights?.gameweek || "Next Gameweek"} deadline
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {(["days", "hours", "minutes", "seconds"] as const).map((unit) => (
+                  <div key={unit} className="flex flex-col items-center rounded-2xl border border-white/8 bg-black/30 py-2.5 px-1">
+                    <span className="text-xl font-bold text-white tabular-nums leading-none">{countdown[unit]}</span>
+                    <span className="text-[9px] uppercase tracking-widest text-white/35 mt-1">{unit}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Injury ticker */}
+            {insights?.injuries && insights.injuries.length > 0 && (
+              <div className="rounded-[20px] border border-red-400/20 bg-red-400/[0.05] p-4 shrink-0">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="h-2 w-2 rounded-full bg-red-400 animate-pulse shrink-0" />
+                  <span className="text-[10px] uppercase tracking-[0.22em] text-red-400/80">Injury &amp; Availability</span>
+                </div>
+                <div className={`news-fade${newsFading ? " fading" : ""}`}>
+                  {currentInjury && (
+                    <>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <TeamBadge code={currentInjury.teamCode} name={currentInjury.team} />
+                        <span className="text-sm font-semibold text-white">{currentInjury.name}</span>
+                        <span className="ml-auto text-[10px] text-white/35 shrink-0">{currentInjury.team}</span>
+                      </div>
+                      <p className="text-xs text-white/65 leading-5">{currentInjury.news}</p>
+                    </>
+                  )}
+                </div>
+                <div className="mt-3 flex gap-1">
+                  {insights.injuries.slice(0, Math.min(8, insights.injuries.length)).map((_, i) => (
+                    <div key={i} className={`h-0.5 flex-1 rounded-full transition-all duration-500 ${i === newsIndex ? "bg-red-400" : "bg-white/15"}`} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Stat panels */}
+            {insights?.stats ? (
+              insights.stats.map((panel) => {
+                const ac = ACCENT[panel.accent] ?? accentFallback
+                return (
+                  <div key={panel.id} className={`rounded-[20px] border ${ac.border} ${ac.bg} p-4 shrink-0`}>
+                    <div className={`text-[10px] uppercase tracking-[0.22em] mb-3 ${ac.value}`}>{panel.title}</div>
+                    <div className="space-y-2">
+                      {panel.players.map((p, i) => (
+                        <div key={i} className="flex items-center gap-2.5 rounded-xl border border-white/6 bg-black/20 px-3 py-2.5">
+                          <span className="text-[10px] text-white/30 w-3 shrink-0">{i + 1}</span>
+                          <TeamBadge code={p.teamCode} name={p.team} />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium text-white truncate">{p.name}</div>
+                            <div className="text-[10px] text-white/40">{p.team}</div>
+                          </div>
+                          <div className={`text-sm font-bold shrink-0 ${ac.value}`}>{p.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })
+            ) : (
+              [0, 1].map((i) => (
+                <div key={i} className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4 shrink-0 animate-pulse">
+                  <div className="h-2 w-24 rounded-full bg-white/10 mb-4" />
+                  {[0, 1, 2].map((j) => <div key={j} className="h-10 rounded-xl bg-white/5 mb-2" />)}
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
