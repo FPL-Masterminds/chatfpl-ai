@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { ChatShowcase } from "@/components/chat-showcase"
 import { 
   TrendingUp, 
   Zap,
@@ -132,148 +133,8 @@ export default function DevLandingPage() {
         </div>
       </section>
 
-      {/* Questions Section */}
-      <section id="examples" className="border-b border-gray-800 px-4 py-20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="mb-12 text-center">
-            <h2 
-              className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
-            >
-              <span style={{ color: '#FFFFFF' }}>Ask Chat</span>
-              <span style={{ color: '#00FFFF' }}>FPL </span>
-              <span style={{ color: '#00FF86' }}>AI</span>
-            </h2>
-            <p className="text-lg text-gray-300">
-              Get instant, data-driven answers to any FPL question. Here are some examples of what 
-              our power users are asking right now.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-4 max-w-4xl mx-auto">
-            {/* Question Card 1 - Mohamed Salah */}
-            <Link href="/mohamed-salah-statistics" className="group block">
-              <div className="border border-gray-700 rounded-lg bg-black p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
-                  <Image 
-                    src="/player_images/circular/mohamed_salah_circular.png"
-                    alt="Mohamed Salah"
-                    width={48}
-                    height={48}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-gray-400 uppercase">STATS</span>
-                    <span className="text-xs text-gray-600">• Player Research</span>
-                  </div>
-                  <h3 className="text-base font-normal text-white group-hover:text-[#00FF87] transition-colors">
-                    "Give me some live statistics about Mohamed Salah this season."
-                  </h3>
-                </div>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
-                  View Answer →
-                </button>
-              </div>
-            </Link>
-
-            {/* Question Card 2 - Erling Haaland */}
-            <Link href="/erling-haaland-price-worth-it" className="group block">
-              <div className="border border-gray-700 rounded-lg bg-black p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
-                  <Image 
-                    src="/player_images/circular/erling_haaland_circular.png"
-                    alt="Erling Haaland"
-                    width={48}
-                    height={48}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-gray-400 uppercase">PRICE</span>
-                    <span className="text-xs text-gray-600">• Price Analysis</span>
-                  </div>
-                  <h3 className="text-base font-normal text-white group-hover:text-[#00FF87] transition-colors">
-                    "Is Erling Haaland worth his price this season given current form?"
-                  </h3>
-                </div>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
-                  View Answer →
-                </button>
-              </div>
-            </Link>
-
-            {/* Question Card 3 - Jack Grealish */}
-            <Link href="/jack-grealish-everton-fixtures" className="group block">
-              <div className="border border-gray-700 rounded-lg bg-black p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
-                  <Image 
-                    src="/player_images/circular/jack_grealish_circular.png"
-                    alt="Jack Grealish"
-                    width={48}
-                    height={48}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-gray-400 uppercase">STRATEGY</span>
-                    <span className="text-xs text-gray-600">• Fixtures</span>
-                  </div>
-                  <h3 className="text-base font-normal text-white group-hover:text-[#00FF87] transition-colors">
-                    "Is Jack Grealish a good pick with Everton's upcoming fixtures?"
-                  </h3>
-                </div>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
-                  View Answer →
-                </button>
-              </div>
-            </Link>
-
-            {/* Question Card 4 - Antoine Semenyo */}
-            <Link href="/antoine-semenyo-budget-midfielder" className="group block">
-              <div className="border border-gray-700 rounded-lg bg-black p-4 flex items-center gap-4 transition-all hover:border-[#00FF87]">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full shrink-0 overflow-hidden border-2 border-white">
-                  <Image 
-                    src="/player_images/circular/antoine_semenyo_circular.png"
-                    alt="Antoine Semenyo"
-                    width={48}
-                    height={48}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-semibold text-gray-400 uppercase">TRANSFERS</span>
-                    <span className="text-xs text-gray-600">• Transfer Advice</span>
-                  </div>
-                  <h3 className="text-base font-normal text-white group-hover:text-[#00FF87] transition-colors">
-                    "Is Antoine Semenyo a good budget midfield option?"
-                  </h3>
-                </div>
-                <button className="px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
-                  View Answer →
-                </button>
-              </div>
-            </Link>
-          </div>
-
-          <div className="mt-12 text-center">
-            <Link 
-              href="/signup"
-              className="inline-block px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1a0e24] font-bold text-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
-            >
-              Start your 20-message free trial today
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Questions Section — replaced with interactive showcase */}
+      <ChatShowcase />
 
       {/* Features Section */}
       <section id="features" className="border-b border-gray-800 px-4 py-20">
