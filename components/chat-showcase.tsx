@@ -5,13 +5,11 @@ import Image from "next/image"
 import Link from "next/link"
 import type { ShowcasePlayer, ShowcasePlayers } from "@/app/api/showcase-players/route"
 
-// FPL CDN helpers
-const fplPhoto = (code: number) =>
-  `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
+// Team badge helper (badges don't change between seasons)
 const fplBadge = (teamCode: number) =>
   `https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`
 
-type PlayerLine = { name: string; info: string; photoCode: number | null }
+type PlayerLine = { name: string; info: string; photoUrl: string | null }
 
 type Tab = {
   id: string
@@ -134,7 +132,7 @@ export function ChatShowcase() {
       players: livePlayers.map(p => ({
         name: p.name,
         info: `${p.position} · ${p.price} · ${p.club} · ${p.totalPts} pts · Form ${p.form}`,
-        photoCode: p.photoCode,
+        photoUrl: p.photoUrl,
       })),
     }] : []),
     { type: "text", text: tabDef.outro },
@@ -256,10 +254,10 @@ export function ChatShowcase() {
                           {block.players.map((p, pi) => (
                             <li key={pi} className="flex items-center gap-2.5">
                               <span className="text-[11px] text-white/30 w-4 shrink-0">{pi + 1}.</span>
-                              {p.photoCode && (
+                              {p.photoUrl && (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
-                                  src={fplPhoto(p.photoCode)}
+                                  src={p.photoUrl}
                                   alt={p.name}
                                   className="inline-block h-10 w-auto rounded shrink-0"
                                 />

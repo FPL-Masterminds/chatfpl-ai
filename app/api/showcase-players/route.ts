@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { fplPhotoUrlFromElement } from "@/lib/fpl-player-photo"
 
 const FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
@@ -13,7 +14,7 @@ export type ShowcasePlayer = {
   price: string
   totalPts: number
   form: string
-  photoCode: number
+  photoUrl: string  // full CDN URL built by the shared helper — always correct season
 }
 
 export type ShowcasePlayers = {
@@ -45,7 +46,7 @@ export async function GET() {
     price: `£${(p.now_cost / 10).toFixed(1)}m`,
     totalPts: p.total_points,
     form: parseFloat(p.form).toFixed(1),
-    photoCode: p.code,
+    photoUrl: fplPhotoUrlFromElement(p.photo, p.code),  // uses premierleague25 base
   })
 
   const topPts = [...active]
