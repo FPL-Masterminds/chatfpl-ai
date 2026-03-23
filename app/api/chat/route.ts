@@ -369,6 +369,18 @@ PERSONALITY RULES:
     console.log('First 500 chars of enhanced message:', enhancedMessage.substring(0, 500));
     console.log('=== END PAYLOAD DEBUG ===');
 
+    // Resolve the Dify-side conversation ID so threading works correctly.
+    // The frontend always uses the Prisma conversation ID; the Dify ID is
+    // stored separately so the two systems never get mixed up.
+    let difyConversationId = "";
+    if (conversationId) {
+      const existingConv = await prisma.conversation.findUnique({
+        where: { id: conversationId },
+        select: { dify_conversation_id: true },
+      });
+      difyConversationId = existingConv?.dify_conversation_id || "";
+    }
+
     // Add 60 second timeout for Dify API call
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000);
@@ -386,7 +398,7 @@ PERSONALITY RULES:
           inputs: {},
           query: enhancedMessage,
           response_mode: "blocking",
-          conversation_id: conversationId || "",
+          conversation_id: difyConversationId,
           user: user.id,
         }),
         signal: controller.signal,
@@ -449,8 +461,15 @@ PERSONALITY RULES:
       conversation = await prisma.conversation.create({
         data: {
           user_id: user.id,
-          title: message.substring(0, 50), // First 50 chars as title
+          title: message.substring(0, 50),
+          dify_conversation_id: difyData.conversation_id || null,
         },
+      });
+    } else if (!conversation.dify_conversation_id && difyData.conversation_id) {
+      // Back-fill Dify ID on older conversations that pre-date this fix
+      await prisma.conversation.update({
+        where: { id: conversation.id },
+        data: { dify_conversation_id: difyData.conversation_id },
       });
     }
 
@@ -477,7 +496,7 @@ PERSONALITY RULES:
 
     return NextResponse.json({
       answer: fixedAnswer,
-      conversation_id: difyData.conversation_id || conversation.id,
+      conversation_id: conversation.id,  // Always return the stable Prisma ID
       messages_used: usage.messages_used + 1,
       messages_limit: usage.messages_limit,
     });
