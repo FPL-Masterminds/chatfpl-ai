@@ -314,7 +314,7 @@ export default function DevChatPage() {
   const accentFallback = ACCENT.emerald
 
   return (
-    <div className="h-screen bg-black text-white overflow-hidden devchat-root">
+    <div className="bg-black text-white overflow-hidden devchat-root" style={{ height: '100dvh' }}>
       <style>{`
         .devchat-root ::-webkit-scrollbar { width: 4px; height: 4px; }
         .devchat-root ::-webkit-scrollbar-track { background: transparent; }
@@ -322,13 +322,14 @@ export default function DevChatPage() {
         .devchat-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
         .news-fade { transition: opacity 0.4s ease; }
         .news-fade.fading { opacity: 0; }
+        .devchat-messages { -webkit-overflow-scrolling: touch; }
       `}</style>
       {/* Ambient gradients */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,200,0.16),transparent_28%),radial-gradient(circle_at_top_right,rgba(0,180,255,0.14),transparent_28%),radial-gradient(circle_at_bottom,rgba(122,92,255,0.12),transparent_30%)]" />
       {/* Subtle grid */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.045] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] bg-[size:48px_48px]" />
 
-      <div className="relative flex h-screen">
+      <div className="relative flex h-full">
 
         {/* ─── Left Sidebar ─── */}
         <aside className="w-[280px] shrink-0 border-r border-white/10 bg-white/[0.04] backdrop-blur-2xl p-5 hidden lg:flex lg:flex-col">
@@ -409,8 +410,8 @@ export default function DevChatPage() {
         </aside>
 
         {/* ─── Main ─── */}
-        <main className="flex-1 flex min-w-0 min-h-0">
-          <section className="flex-1 min-w-0 px-0 md:px-5 py-0 md:py-4 flex flex-col gap-0 md:gap-3">
+        <main className="flex-1 flex min-w-0 min-h-0 overflow-hidden">
+          <section className="flex-1 min-w-0 min-h-0 px-0 md:px-5 py-0 md:py-4 flex flex-col gap-0 md:gap-3 overflow-hidden">
 
             {/* ── Mobile header (logo + icons) — hidden on desktop ── */}
             <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-white/10 bg-black/60 backdrop-blur-xl shrink-0 z-10">
@@ -466,7 +467,7 @@ export default function DevChatPage() {
             <div className="flex-1 min-h-0 rounded-none md:rounded-[28px] border-0 md:border md:border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl md:shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
+              <div className="devchat-messages flex-1 overflow-y-auto p-4 md:p-6 space-y-5">
                 {messages.map((message) => (
                   message.role === "user" ? (
                     <div key={message.id} className="w-full rounded-[24px] border border-cyan-400/15 bg-cyan-400/[0.07] p-4 md:p-5">
