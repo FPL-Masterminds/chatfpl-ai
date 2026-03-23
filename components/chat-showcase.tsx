@@ -21,6 +21,19 @@ type Tab = {
   response: Array<{ type: "text"; text: string } | { type: "players"; players: PlayerLine[] }>
 }
 
+// Confirmed codes from FPL bootstrap-static API
+const CODE = {
+  salah:      118748,
+  haaland:    223094,
+  saka:       223340,
+  isak:       219168,
+  semenyo:    437730,
+  mbeumo:     446008,
+  fernandes:  141746,
+  robertson:  122798,
+  ramsey:     232653,
+}
+
 const TABS: Tab[] = [
   {
     id: "captain",
@@ -32,12 +45,12 @@ const TABS: Tab[] = [
       {
         type: "players",
         players: [
-          { name: "Mohamed Salah", info: "FWD · £13.1m · 183 pts · Form 9.8", photoCode: 118748 },
-          { name: "Erling Haaland", info: "FWD · £14.0m · 174 pts · Form 7.2", photoCode: 447415 },
-          { name: "Bukayo Saka",    info: "MID · £10.2m · 149 pts · Form 6.8", photoCode: 223340 },
+          { name: "Mohamed Salah",  info: "FWD · £13.1m · 183 pts · Form 9.8", photoCode: CODE.salah },
+          { name: "Erling Haaland", info: "FWD · £14.0m · 174 pts · Form 7.2", photoCode: CODE.haaland },
+          { name: "Bukayo Saka",    info: "MID · £10.2m · 149 pts · Form 6.8", photoCode: CODE.saka },
         ],
       },
-      { type: "text", text: "Salah faces Ipswich at Anfield this week — xG of 2.6 in his last three home games. Near-certain armband choice." },
+      { type: "text", text: "Salah faces Ipswich at Anfield — xG of 2.6 in his last three home games. Near-certain armband choice." },
     ],
   },
   {
@@ -46,13 +59,13 @@ const TABS: Tab[] = [
     description: "Make smarter transfer decisions with fixture-aware, data-driven recommendations.",
     question: "I own Mateta — should I sell him this week?",
     response: [
-      { type: "text", text: "**Short answer: yes.** Mateta's fixtures turn rough for the next four gameweeks — Arsenal (H), Man City (A), Chelsea (H), then a blank in GW32. His projected xG across that run is just 0.4 per game." },
-      { type: "text", text: "**Recommended replacement:** Erling Haaland (£14.0m). Home double in GW29/30, six goals in his last five starts, and 42% ownership growth this week alone." },
+      { type: "text", text: "**Short answer: yes.** Mateta's fixtures turn rough for the next four gameweeks — Arsenal (H), Man City (A), Chelsea (H), then a blank. Projected xG of just 0.4 per game across that run." },
+      { type: "text", text: "**Recommended replacement:** Alexander Isak (£8.9m). Home double in GW29/30, six goals in his last five, and 42% ownership growth this week alone." },
       {
         type: "players",
         players: [
-          { name: "Erling Haaland", info: "FWD · £14.0m · 174 pts · Form 7.2", photoCode: 447415 },
-          { name: "Bukayo Saka",    info: "MID · £10.2m · 149 pts · Form 6.8", photoCode: 223340 },
+          { name: "Alexander Isak",   info: "FWD · £8.9m · 142 pts · Form 8.4", photoCode: CODE.isak },
+          { name: "Bryan Mbeumo",     info: "FWD · £7.1m · 124 pts · Form 7.1", photoCode: CODE.mbeumo },
         ],
       },
     ],
@@ -63,16 +76,16 @@ const TABS: Tab[] = [
     description: "Know exactly who to target and who to avoid with fixture difficulty rankings.",
     question: "Which teams have the easiest next 5 fixtures?",
     response: [
-      { type: "text", text: "Here's the fixture difficulty ranking for GW29–33 (FDR average, lower = easier):" },
+      { type: "text", text: "Fixture difficulty ranking for GW29–33 (FDR average — lower is easier):" },
       { type: "text", text: "🟢 **Liverpool** — FDR avg 2.0 · Ipswich, Brentford, Fulham, Southampton, Wolves\n🟢 **Aston Villa** — FDR avg 2.2 · Wolves, Bournemouth, Ipswich, Brighton, Everton\n🟡 **Arsenal** — FDR avg 2.8 · Crystal Palace, Newcastle, Brighton, Spurs, Brentford\n🔴 **Man Utd** — FDR avg 4.2 · Man City, Chelsea, Arsenal, Liverpool, Spurs" },
       {
         type: "players",
         players: [
-          { name: "Mohamed Salah", info: "FWD · £13.1m · 183 pts · Form 9.8", photoCode: 118748 },
-          { name: "Erling Haaland", info: "FWD · £14.0m · 174 pts · Form 7.2", photoCode: 447415 },
+          { name: "Mohamed Salah",  info: "FWD · £13.1m · LIV · 183 pts",  photoCode: CODE.salah },
+          { name: "Andy Robertson", info: "DEF · £7.0m · LIV · 91 pts",     photoCode: CODE.robertson },
         ],
       },
-      { type: "text", text: "Triple-up on Liverpool assets? Salah + Trent + Robertson gives blanket coverage across that golden run." },
+      { type: "text", text: "Triple-up on Liverpool? Salah + Robertson + Trent gives you blanket coverage across that golden run." },
     ],
   },
   {
@@ -81,16 +94,16 @@ const TABS: Tab[] = [
     description: "Spot price risers early and find the differentials your mini-league rivals are missing.",
     question: "Give me three differential picks under £6m",
     response: [
-      { type: "text", text: "Here are **three under-the-radar value picks** under £6.0m with excellent upcoming fixtures and strong recent form:" },
+      { type: "text", text: "Here are **three under-the-radar value picks** with excellent upcoming fixtures and strong recent form:" },
       {
         type: "players",
         players: [
-          { name: "Mohamed Salah", info: "FWD · £13.1m · 4.1% captained · 3 goals last 4", photoCode: 118748 },
-          { name: "Bukayo Saka",   info: "MID · £10.2m · 3.8% owned diff · 2G 1A last 3",  photoCode: 223340 },
-          { name: "Erling Haaland",info: "FWD · £14.0m · 8.2% owned · 5 goal involvements", photoCode: 447415 },
+          { name: "Antoine Semenyo", info: "FWD · £5.7m · 4.1% owned · 3 goals in last 4",    photoCode: CODE.semenyo },
+          { name: "Jacob Ramsey",    info: "MID · £5.0m · 3.8% owned · 2G 1A in last 3",       photoCode: CODE.ramsey },
+          { name: "Bryan Mbeumo",    info: "FWD · £7.1m · 8.2% owned · 5 goal involvements",   photoCode: CODE.mbeumo },
         ],
       },
-      { type: "text", text: "For true differentials, look at players with upcoming easy fixtures and sub-10% ownership. Would you like me to filter by position or budget?" },
+      { type: "text", text: "Semenyo is the standout — Bournemouth face Southampton and Ipswich next. Budget option with real price rise potential." },
     ],
   },
 ]
