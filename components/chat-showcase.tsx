@@ -80,14 +80,31 @@ export function ChatShowcase() {
   const [visible, setVisible]       = useState(true)
   const [inView, setInView]         = useState(false)
   const [players, setPlayers]       = useState<ShowcasePlayers | null>(null)
+  const [countdown, setCountdown]   = useState({ d: "--", h: "--", m: "--", s: "--" })
   const sectionRef                  = useRef<HTMLElement>(null)
 
   // Fetch live player data once
   useEffect(() => {
     fetch("/api/showcase-players")
       .then(r => r.json())
-      .then(setPlayers)
-      .catch(() => {}) // silent fail — tabs still render without player cards
+      .then((data: ShowcasePlayers) => {
+        setPlayers(data)
+        if (!data.nextDeadline) return
+        const deadline = new Date(data.nextDeadline).getTime()
+        const tick = () => {
+          const diff = deadline - Date.now()
+          if (diff <= 0) { setCountdown({ d: "0", h: "0", m: "0", s: "0" }); return }
+          const d = Math.floor(diff / 86400000)
+          const h = Math.floor((diff % 86400000) / 3600000)
+          const m = Math.floor((diff % 3600000) / 60000)
+          const s = Math.floor((diff % 60000) / 1000)
+          setCountdown({ d: String(d), h: String(h), m: String(m), s: String(s).padStart(2, "0") })
+        }
+        tick()
+        const id = setInterval(tick, 1000)
+        return () => clearInterval(id)
+      })
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -372,9 +389,9 @@ export function ChatShowcase() {
 
             {/* Countdown */}
             <div className="rounded-[16px] border border-white/10 bg-white/[0.04] p-3 shrink-0">
-              <div className="text-[9px] uppercase tracking-[0.18em] text-white/35 mb-2">Gameweek 32 Deadline</div>
+              <div className="text-[9px] uppercase tracking-[0.18em] text-white/35 mb-2">{players?.nextGwName ?? "Gameweek"} Deadline</div>
               <div className="grid grid-cols-4 gap-1">
-                {[["17","DAYS"],["20","HRS"],["28","MIN"],["30","SEC"]].map(([n,u]) => (
+                {([[ countdown.d,"DAYS"],[countdown.h,"HRS"],[countdown.m,"MIN"],[countdown.s,"SEC"]] as [string,string][]).map(([n,u]) => (
                   <div key={u} className="flex flex-col items-center rounded-xl border border-white/[0.07] bg-black/30 py-2">
                     <span className="text-base font-bold text-white tabular-nums leading-none">{n}</span>
                     <span className="text-[8px] uppercase tracking-wider text-white/30 mt-0.5">{u}</span>

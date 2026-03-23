@@ -31,6 +31,8 @@ export type ShowcasePlayers = {
   differentials: ShowcasePlayer[]
   mostSelected: EdgePlayer[]   // top 3 by ownership %
   mostBonus: EdgePlayer[]      // top 3 by season bonus points
+  nextDeadline: string | null  // ISO string of next GW deadline
+  nextGwName: string           // e.g. "Gameweek 32"
 }
 
 export async function GET() {
@@ -101,7 +103,15 @@ export async function GET() {
     .slice(0, 3)
     .map((p: any) => toEdge(p, `${p.bonus} bonus`))
 
-  const data: ShowcasePlayers = { topPts, topForm, risers, differentials, mostSelected, mostBonus }
+  const now = new Date()
+  const nextEvent = json.events
+    .filter((e: any) => new Date(e.deadline_time) > now)
+    .sort((a: any, b: any) => new Date(a.deadline_time).getTime() - new Date(b.deadline_time).getTime())[0]
+
+  const nextDeadline: string | null = nextEvent ? nextEvent.deadline_time : null
+  const nextGwName: string = nextEvent ? `Gameweek ${nextEvent.id}` : "Gameweek"
+
+  const data: ShowcasePlayers = { topPts, topForm, risers, differentials, mostSelected, mostBonus, nextDeadline, nextGwName }
   cache = { data, ts: Date.now() }
   return NextResponse.json(data)
 }
