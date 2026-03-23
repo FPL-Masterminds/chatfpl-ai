@@ -107,7 +107,7 @@ export default function DevLandingPage() {
                   className="block rounded-full px-10 py-4 font-bold text-lg text-[#08020E] transition-all duration-300 hover:scale-105"
                   style={{
                     background: 'linear-gradient(to right, #00FF87, #00FFFF)',
-                    boxShadow: '0 0 0 3px rgba(0,0,0,0.55), 0 0 0 4.5px rgba(255,255,255,0.07), 0 8px 32px rgba(0,255,135,0.35)',
+                    boxShadow: '0 0 24px rgba(0,255,133,0.4)',
                   }}
                 >
                   Start Chatting for Free
