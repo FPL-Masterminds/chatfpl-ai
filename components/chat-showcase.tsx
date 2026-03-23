@@ -443,7 +443,7 @@ export function ChatShowcase() {
         {/* Pill tab bar */}
         <div className="flex justify-center mb-4" style={fi("0.52s")}>
           <div
-            className="inline-flex items-center gap-1 rounded-full p-1.5"
+            className="inline-flex items-center gap-0.5 sm:gap-1 rounded-full p-1 sm:p-1.5"
             style={{
               background: "rgba(255,255,255,0.03)",
               border: "1px solid rgba(255,255,255,0.08)",
@@ -458,7 +458,7 @@ export function ChatShowcase() {
                 <button
                   key={t.id}
                   onClick={() => goToTab(i)}
-                  className="relative rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 focus:outline-none"
+                  className="relative rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-[11px] sm:text-sm font-medium transition-all duration-300 focus:outline-none"
                   style={active ? {
                     background: "linear-gradient(rgba(0,0,0,0.9),rgba(0,0,0,0.9)) padding-box, linear-gradient(to right,#00FFFF,#00FF87) border-box",
                     border: "1.5px solid transparent",
