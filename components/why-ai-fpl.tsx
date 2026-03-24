@@ -209,7 +209,7 @@ export function WhyAiFpl() {
                 {/* Card */}
                 <div
                   className="rounded-[24px] p-7 flex flex-col h-full"
-                  style={{ background: "#000000", border: "1px solid #333333" }}
+                  style={{ background: "#000000", border: "1px solid rgba(51,51,51,0.25)" }}
                 >
                     {/* Graphic */}
                     <div className="flex justify-center items-center mb-6 h-[130px]">
