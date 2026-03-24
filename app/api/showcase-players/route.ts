@@ -29,7 +29,12 @@ export type InjuryItem = {
   team: string
   teamCode: number
   news: string
-  isNew: boolean   // news added in last 48 hours
+  isNew: boolean
+}
+
+export type TickerFact = {
+  photoUrl: string | null
+  text: string
 }
 
 export type ShowcasePlayers = {
@@ -39,7 +44,8 @@ export type ShowcasePlayers = {
   differentials: ShowcasePlayer[]
   mostSelected: EdgePlayer[]
   mostBonus: EdgePlayer[]
-  injuryNews: InjuryItem[]     // top 3 most recent injury/availability news
+  injuryNews: InjuryItem[]
+  tickerFacts: TickerFact[]
   nextDeadline: string | null
   nextGwName: string
 }
@@ -53,11 +59,17 @@ export async function GET() {
   const json = await res.json()
 
   const teams: Record<number, string> = {}
+  const teamFullNames: Record<number, string> = {}
   const teamCodes: Record<number, number> = {}
   for (const t of json.teams) {
     teams[t.id] = t.short_name
+    teamFullNames[t.id] = t.name
     teamCodes[t.id] = t.code
   }
+
+  const fmtTransfers = (n: number) =>
+    n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}m` :
+    n >= 1_000     ? `${Math.round(n / 1_000)}k` : `${n}`
 
   const posMap: Record<number, string> = { 1: "GKP", 2: "DEF", 3: "MID", 4: "FWD" }
 
@@ -124,6 +136,61 @@ export async function GET() {
       isNew: (Date.now() - new Date(p.news_added).getTime()) < 48 * 3600 * 1000,
     }))
 
+  const toFact = (p: any, text: string): TickerFact => ({
+    photoUrl: fplPhotoUrlFromElement(p.photo, p.code),
+    text,
+  })
+
+  const allPlayers: any[] = json.elements
+
+  const tickerFacts: TickerFact[] = [
+    // Most expensive
+    (() => {
+      const p = [...allPlayers].sort((a, b) => b.now_cost - a.now_cost)[0]
+      return toFact(p, `${p.first_name} ${p.second_name} of ${teamFullNames[p.team]} is the most expensive player in FPL this season at £${(p.now_cost / 10).toFixed(1)}m`)
+    })(),
+    // Highest form
+    (() => {
+      const p = [...active].sort((a, b) => parseFloat(b.form) - parseFloat(a.form))[0]
+      return toFact(p, `${p.first_name} ${p.second_name} of ${teamFullNames[p.team]} is the in-form player in FPL right now with a form score of ${parseFloat(p.form).toFixed(1)}`)
+    })(),
+    // Most owned
+    (() => {
+      const p = [...allPlayers].sort((a, b) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent))[0]
+      return toFact(p, `${p.first_name} ${p.second_name} of ${teamFullNames[p.team]} is the most-owned player in FPL — selected by ${parseFloat(p.selected_by_percent).toFixed(1)}% of managers`)
+    })(),
+    // Most transferred in this GW
+    (() => {
+      const p = [...allPlayers].sort((a, b) => b.transfers_in_event - a.transfers_in_event)[0]
+      return toFact(p, `${p.first_name} ${p.second_name} of ${teamFullNames[p.team]} is the most-transferred-in player this gameweek with ${fmtTransfers(p.transfers_in_event)} transfers in`)
+    })(),
+    // Most total points
+    (() => {
+      const p = [...allPlayers].sort((a, b) => b.total_points - a.total_points)[0]
+      return toFact(p, `${p.first_name} ${p.second_name} of ${teamFullNames[p.team]} leads the FPL points table this season with ${p.total_points} points`)
+    })(),
+    // Top scorer
+    (() => {
+      const p = [...allPlayers].sort((a, b) => b.goals_scored - a.goals_scored)[0]
+      return toFact(p, `${p.first_name} ${p.second_name} of ${teamFullNames[p.team]} is FPL's top scorer this season with ${p.goals_scored} goals`)
+    })(),
+    // Most assists
+    (() => {
+      const p = [...allPlayers].sort((a, b) => b.assists - a.assists)[0]
+      return toFact(p, `${p.first_name} ${p.second_name} of ${teamFullNames[p.team]} has more FPL assists than anyone else this season — ${p.assists} in total`)
+    })(),
+    // Most transferred out this GW
+    (() => {
+      const p = [...allPlayers].sort((a, b) => b.transfers_out_event - a.transfers_out_event)[0]
+      return toFact(p, `${p.first_name} ${p.second_name} of ${teamFullNames[p.team]} is the most-sold player this gameweek — ${fmtTransfers(p.transfers_out_event)} managers have moved on`)
+    })(),
+    // Most bonus points
+    (() => {
+      const p = [...allPlayers].sort((a, b) => b.bonus - a.bonus)[0]
+      return toFact(p, `${p.first_name} ${p.second_name} of ${teamFullNames[p.team]} has earned more FPL bonus points than any other player this season — ${p.bonus} in total`)
+    })(),
+  ]
+
   const now = new Date()
   const nextEvent = json.events
     .filter((e: any) => new Date(e.deadline_time) > now)
@@ -132,7 +199,7 @@ export async function GET() {
   const nextDeadline: string | null = nextEvent ? nextEvent.deadline_time : null
   const nextGwName: string = nextEvent ? `Gameweek ${nextEvent.id}` : "Gameweek"
 
-  const data: ShowcasePlayers = { topPts, topForm, risers, differentials, mostSelected, mostBonus, injuryNews, nextDeadline, nextGwName }
+  const data: ShowcasePlayers = { topPts, topForm, risers, differentials, mostSelected, mostBonus, injuryNews, tickerFacts, nextDeadline, nextGwName }
   cache = { data, ts: Date.now() }
   return NextResponse.json(data)
 }

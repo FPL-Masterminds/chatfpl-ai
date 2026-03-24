@@ -54,6 +54,7 @@ type StatPanel = { id: string; title: string; accent: string; players: InsightPl
 type InjuryItem = { name: string; news: string; teamCode: number; team: string }
 type Insights = { gameweek: string; deadline: string | null; stats: StatPanel[]; injuries: InjuryItem[] }
 type Countdown = { days: string; hours: string; minutes: string; seconds: string }
+type TickerFact = { photoUrl: string | null; text: string }
 
 const ACCENT: Record<string, { value: string; border: string; bg: string; dot: string }> = {
   emerald: { value: "text-emerald-300", border: "border-emerald-400/20", bg: "bg-emerald-400/8", dot: "bg-emerald-400" },
@@ -103,6 +104,13 @@ export default function DevChatPage() {
   const [countdown, setCountdown] = useState<Countdown>({ days: "--", hours: "--", minutes: "--", seconds: "--" })
   const [newsIndex, setNewsIndex] = useState(0)
   const [newsFading, setNewsFading] = useState(false)
+
+  // Ticker facts state
+  const [tickerFacts, setTickerFacts] = useState<TickerFact[]>([])
+  const [tickerIdx, setTickerIdx] = useState(0)
+  const [tickerDisplay, setTickerDisplay] = useState("")
+  const [tickerFading, setTickerFading] = useState(false)
+  const [tickerPhoto, setTickerPhoto] = useState<string | null>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -181,6 +189,40 @@ export default function DevChatPage() {
       .then((d) => { if (!d.error) setInsights(d) })
       .catch(console.error)
   }, [authorized])
+
+  // Fetch ticker facts
+  useEffect(() => {
+    if (!authorized) return
+    fetch("/api/showcase-players")
+      .then((r) => r.json())
+      .then((d) => { if (d.tickerFacts?.length) setTickerFacts(d.tickerFacts) })
+      .catch(console.error)
+  }, [authorized])
+
+  // Typewriter effect — types out each fact then cycles to the next
+  useEffect(() => {
+    if (!tickerFacts.length) return
+    const fact = tickerFacts[tickerIdx]
+    setTickerPhoto(fact.photoUrl)
+    setTickerDisplay("")
+    setTickerFading(false)
+    let charCount = 0
+    const typeId = setInterval(() => {
+      charCount++
+      setTickerDisplay(fact.text.slice(0, charCount))
+      if (charCount >= fact.text.length) clearInterval(typeId)
+    }, 30)
+    const totalMs = fact.text.length * 30
+    const advanceTimer = setTimeout(() => {
+      setTickerFading(true)
+      setTimeout(() => {
+        setTickerFading(false)
+        setTickerDisplay("")
+        setTickerIdx(i => (i + 1) % tickerFacts.length)
+      }, 500)
+    }, totalMs + 4000)
+    return () => { clearInterval(typeId); clearTimeout(advanceTimer) }
+  }, [tickerFacts, tickerIdx])
 
   // Live countdown
   useEffect(() => {
@@ -451,17 +493,40 @@ export default function DevChatPage() {
             </div>
 
             {/* Top bar — hidden on mobile ── */}
-            <div className="hidden md:flex rounded-[26px] border border-white/10 bg-white/[0.04] backdrop-blur-2xl px-5 py-3.5 items-center justify-between shadow-[0_8px_40px_rgba(0,0,0,0.3)] shrink-0">
-              <div>
-                <h1 className="text-lg md:text-xl font-semibold tracking-tight text-white">Chat with your FPL AI analyst</h1>
-                <p className="text-xs text-white/45 mt-0.5">Live data · Real-time reasoning · Smarter decisions</p>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <div className="hidden md:flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/8 px-3.5 py-1.5 text-xs text-emerald-300">
+            <div className="hidden md:flex rounded-[26px] border border-white/10 bg-white/[0.04] backdrop-blur-2xl px-5 py-3 items-center gap-4 shadow-[0_8px_40px_rgba(0,0,0,0.3)] shrink-0">
+              {/* Glowing orb */}
+              <span
+                className="h-2.5 w-2.5 rounded-full shrink-0 animate-pulse"
+                style={{ background: "#00FF87", boxShadow: "0 0 10px 3px rgba(0,255,135,0.7)" }}
+              />
+              {/* Player photo */}
+              {tickerPhoto && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={tickerPhoto}
+                  src={tickerPhoto}
+                  alt=""
+                  className="h-9 w-auto rounded shrink-0 object-contain"
+                  style={{ transition: "opacity 0.5s ease", opacity: tickerFading ? 0 : 1 }}
+                />
+              )}
+              {/* Typewriter text */}
+              <p
+                className="flex-1 min-w-0 text-sm text-white/80 truncate font-medium"
+                style={{ transition: "opacity 0.5s ease", opacity: tickerFading ? 0 : 1 }}
+              >
+                {tickerDisplay}
+                {!tickerFading && tickerDisplay.length > 0 && tickerDisplay.length < (tickerFacts[tickerIdx]?.text.length ?? 0) && (
+                  <span className="inline-block w-0.5 h-3.5 bg-emerald-400 ml-0.5 animate-pulse align-middle" />
+                )}
+              </p>
+              {/* Right side */}
+              <div className="flex items-center gap-2.5 shrink-0">
+                <div className="flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.08] px-3.5 py-1.5 text-xs text-emerald-300">
                   <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                   API live
                 </div>
-                <span className="rounded-full border border-yellow-500/40 bg-yellow-500/8 px-2.5 py-1 text-[10px] font-bold text-yellow-400 tracking-wide">DEV</span>
+                <span className="rounded-full border border-yellow-500/40 bg-yellow-500/[0.08] px-2.5 py-1 text-[10px] font-bold text-yellow-400 tracking-wide">DEV</span>
                 <button
                   onClick={() => signOut({ callbackUrl: "/login" })}
                   title="Sign out"
