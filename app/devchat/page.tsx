@@ -445,7 +445,7 @@ export default function DevChatPage() {
             </div>
             <p className="text-xs text-white/55 mt-1.5 leading-5">Live FPL data, smarter recommendations.</p>
             <Link href="/admin">
-              <button className="mt-3 w-full rounded-xl bg-white text-black font-semibold py-2 text-sm hover:bg-gray-100 transition-all">
+              <button className="mt-3 w-full rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-semibold py-2 text-sm shadow-[0_0_20px_rgba(0,255,200,0.2)] hover:brightness-110 transition-all">
                 Manage Plan
               </button>
             </Link>
@@ -786,7 +786,7 @@ export default function DevChatPage() {
                 {messagesLimit === 999999 ? "Unlimited" : `${messagesUsed} / ${messagesLimit} messages`}
               </div>
               <Link href="/admin" onClick={() => setMobileDrawerOpen(false)}>
-                <button className="mt-2.5 w-full rounded-xl bg-white text-black font-semibold py-2 text-xs hover:bg-gray-100 transition-all">
+                <button className="mt-2.5 w-full rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-semibold py-2 text-xs shadow-[0_0_20px_rgba(0,255,200,0.2)] hover:brightness-110 transition-all">
                   Manage Plan
                 </button>
               </Link>
