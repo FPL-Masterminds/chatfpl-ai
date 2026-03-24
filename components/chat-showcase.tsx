@@ -213,7 +213,7 @@ export function ChatShowcase() {
         {/* Header */}
         <div className="mb-12 text-center">
           <h2
-            className="mb-4 text-5xl font-bold leading-[1.1] tracking-tighter lg:text-6xl"
+            className="mb-4 text-[clamp(36px,6vw,60px)] font-bold leading-[1.1] tracking-tighter lg:text-6xl"
             style={fi("0.1s")}
           >
             <span className="text-white">Ask </span>
@@ -601,4 +601,5 @@ export function ChatShowcase() {
     </section>
   )
 }
+
 

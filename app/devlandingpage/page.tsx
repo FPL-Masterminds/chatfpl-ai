@@ -147,7 +147,7 @@ export default function DevLandingPage() {
         <div className="container mx-auto max-w-6xl">
           <div className="mb-12 text-center">
             <Reveal>
-              <h2 className="mb-4 text-5xl font-bold leading-[1.1] tracking-tighter lg:text-6xl">
+              <h2 className="mb-4 text-[clamp(36px,6vw,60px)] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
                 <span className="text-white">Everything You Need For </span>
                 <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(to right, #00ff85, #02efff, #a855f7)', WebkitBackgroundClip: 'text' }}>FPL Success</span>
               </h2>
@@ -211,7 +211,7 @@ export default function DevLandingPage() {
         <div className="container mx-auto max-w-6xl">
           <div className="mb-12 text-center">
             <Reveal>
-              <h2 className="mb-4 text-5xl font-bold leading-[1.1] tracking-tighter lg:text-6xl">
+              <h2 className="mb-4 text-[clamp(36px,6vw,60px)] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
                 <span className="text-white">What </span>
                 <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(to right, #00ff85, #02efff, #a855f7)', WebkitBackgroundClip: 'text' }}>Users </span>
                 <span style={{ color: '#00FF86' }}>Say</span>
@@ -324,7 +324,7 @@ export default function DevLandingPage() {
         <div className="container mx-auto max-w-6xl">
           <div className="mb-12 text-center">
             <Reveal>
-              <h2 className="mb-4 text-5xl font-bold leading-[1.1] tracking-tighter lg:text-6xl">
+              <h2 className="mb-4 text-[clamp(36px,6vw,60px)] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
                 <span className="text-white">Simple </span>
                 <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(to right, #00ff85, #02efff, #a855f7)', WebkitBackgroundClip: 'text' }}>Transparent Pricing</span>
               </h2>
@@ -498,7 +498,7 @@ export default function DevLandingPage() {
         <div className="container mx-auto max-w-3xl">
           <div className="mb-12 text-center">
             <Reveal>
-              <h2 className="mb-4 text-5xl font-bold leading-[1.1] tracking-tighter lg:text-6xl">
+              <h2 className="mb-4 text-[clamp(36px,6vw,60px)] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
                 <span className="text-white">Frequently </span>
                 <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(to right, #00ff85, #02efff, #a855f7)', WebkitBackgroundClip: 'text' }}>Asked Questions</span>
               </h2>
@@ -539,5 +539,6 @@ export default function DevLandingPage() {
     </div>
   )
 }
+
 
 
