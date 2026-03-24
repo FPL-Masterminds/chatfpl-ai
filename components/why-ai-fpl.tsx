@@ -50,7 +50,7 @@ function LineChartGraphic() {
   const area = `${points[0][0]},110 ` + polyline + ` 200,110`
 
   return (
-    <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full max-w-[220px]">
+    <svg viewBox="-6 -12 218 132" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full max-w-[220px]">
       <defs>
         <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#29D3FF" />
