@@ -226,12 +226,18 @@ export function WhyAiFpl() {
                 </div>
 
                 {/* Headline */}
-                <h3 className="text-xl font-bold text-white leading-snug mb-3">
+                <h3
+                  className="font-bold text-white mb-3"
+                  style={{ fontSize: "22px", lineHeight: "1.3", letterSpacing: "-0.01em" }}
+                >
                   {card.headline}
                 </h3>
 
                 {/* Body */}
-                <p className="text-sm text-white/55 leading-6 flex-1">
+                <p
+                  className="flex-1"
+                  style={{ fontSize: "14px", fontWeight: 400, lineHeight: "1.65", color: "rgba(255,255,255,0.52)" }}
+                >
                   {card.body}
                 </p>
               </div>
@@ -252,8 +258,8 @@ export function WhyAiFpl() {
                   ✓
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-white mb-1">{b.title}</p>
-                  <p className="text-sm text-white/50 leading-5">{b.body}</p>
+                  <p className="font-bold text-white mb-1" style={{ fontSize: "15px", letterSpacing: "-0.01em" }}>{b.title}</p>
+                  <p style={{ fontSize: "14px", fontWeight: 400, lineHeight: "1.65", color: "rgba(255,255,255,0.52)" }}>{b.body}</p>
                 </div>
               </div>
             </Reveal>
