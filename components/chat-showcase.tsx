@@ -213,8 +213,8 @@ export function ChatShowcase() {
         {/* Header */}
         <div className="mb-12 text-center">
           <h2
-            className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
-            style={{ fontFamily:"'Futura Maxi CG',sans-serif", WebkitTextStroke:"6px #2E0032", paintOrder:"stroke fill", ...fi("0.1s") }}
+            className="mb-4 text-3xl font-bold uppercase lg:text-4xl"
+            style={{ fontFamily:"'Futura Maxi CG',sans-serif", WebkitTextStroke:"4px #2E0032", paintOrder:"stroke fill", ...fi("0.1s") }}
           >
             <span style={{ color:"#FFFFFF" }}>Ask Chat</span>
             <span style={{ color:"#00FFFF" }}>FPL </span>

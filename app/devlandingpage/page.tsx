@@ -148,10 +148,10 @@ export default function DevLandingPage() {
           <div className="mb-12 text-center">
             <Reveal>
               <h2 
-                className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
+                className="mb-4 text-3xl font-bold uppercase lg:text-4xl"
                 style={{ 
                   fontFamily: "'Futura Maxi CG', sans-serif",
-                  WebkitTextStroke: '6px #2E0032',
+                  WebkitTextStroke: '4px #2E0032',
                   paintOrder: 'stroke fill'
                 }}
               >
@@ -220,10 +220,10 @@ export default function DevLandingPage() {
           <div className="mb-12 text-center">
             <Reveal>
               <h2 
-                className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
+                className="mb-4 text-3xl font-bold uppercase lg:text-4xl"
                 style={{ 
                   fontFamily: "'Futura Maxi CG', sans-serif",
-                  WebkitTextStroke: '6px #2E0032',
+                  WebkitTextStroke: '4px #2E0032',
                   paintOrder: 'stroke fill'
                 }}
               >
@@ -340,10 +340,10 @@ export default function DevLandingPage() {
           <div className="mb-12 text-center">
             <Reveal>
               <h2 
-                className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
+                className="mb-4 text-3xl font-bold uppercase lg:text-4xl"
                 style={{ 
                   fontFamily: "'Futura Maxi CG', sans-serif",
-                  WebkitTextStroke: '6px #2E0032',
+                  WebkitTextStroke: '4px #2E0032',
                   paintOrder: 'stroke fill'
                 }}
               >
@@ -522,10 +522,10 @@ export default function DevLandingPage() {
           <div className="mb-12 text-center">
             <Reveal>
               <h2 
-                className="mb-4 text-4xl font-bold uppercase lg:text-5xl"
+                className="mb-4 text-3xl font-bold uppercase lg:text-4xl"
                 style={{ 
                   fontFamily: "'Futura Maxi CG', sans-serif",
-                  WebkitTextStroke: '6px #2E0032',
+                  WebkitTextStroke: '4px #2E0032',
                   paintOrder: 'stroke fill'
                 }}
               >

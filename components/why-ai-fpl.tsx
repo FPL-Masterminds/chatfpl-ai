@@ -180,10 +180,10 @@ export function WhyAiFpl() {
         <div className="mb-16 text-center">
           <Reveal>
             <h2
-              className="mb-5 text-4xl font-bold uppercase lg:text-5xl leading-tight"
+              className="mb-5 text-3xl font-bold uppercase lg:text-4xl leading-tight"
               style={{
                 fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: "6px #2E0032",
+                WebkitTextStroke: "4px #2E0032",
                 paintOrder: "stroke fill",
               }}
             >
