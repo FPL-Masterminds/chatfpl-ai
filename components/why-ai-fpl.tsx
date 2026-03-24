@@ -205,22 +205,12 @@ export function WhyAiFpl() {
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mb-10">
           {CARDS.map((card, i) => (
             <Reveal key={card.label} delay={i * 0.12}>
-              {/* Ambient glow */}
               <div className="relative h-full">
+                {/* Card */}
                 <div
-                  className="absolute inset-0 rounded-[32px] opacity-25 blur-2xl pointer-events-none"
-                  style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
-                />
-                {/* Gradient border wrapper */}
-                <div
-                  className="relative rounded-[26px] p-[2px] h-full"
-                  style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
+                  className="rounded-[24px] p-7 flex flex-col h-full"
+                  style={{ background: "#000000", border: "1px solid #333333" }}
                 >
-                  {/* Card inner */}
-                  <div
-                    className="rounded-[24px] p-7 flex flex-col h-full"
-                    style={{ background: "#080808" }}
-                  >
                     {/* Graphic */}
                     <div className="flex justify-center items-center mb-6 h-[130px]">
                       {i === 0
@@ -244,7 +234,6 @@ export function WhyAiFpl() {
                     >
                       {card.body}
                     </p>
-                  </div>
                 </div>
               </div>
             </Reveal>
