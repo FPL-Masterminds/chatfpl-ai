@@ -213,12 +213,11 @@ export function ChatShowcase() {
         {/* Header */}
         <div className="mb-12 text-center">
           <h2
-            className="mb-4 text-3xl font-bold uppercase lg:text-4xl"
-            style={{ fontFamily:"'Futura Maxi CG',sans-serif", WebkitTextStroke:"4px #2E0032", paintOrder:"stroke fill", ...fi("0.1s") }}
+            className="mb-4 text-3xl font-bold leading-[1.1] tracking-tighter lg:text-4xl"
+            style={fi("0.1s")}
           >
-            <span style={{ color:"#FFFFFF" }}>Ask Chat</span>
-            <span style={{ color:"#00FFFF" }}>FPL </span>
-            <span style={{ color:"#00FF86" }}>AI</span>
+            <span className="text-white">Ask </span>
+            <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right, #00ff85, #02efff, #a855f7)", WebkitBackgroundClip: "text" }}>ChatFPL AI</span>
           </h2>
           <p className="text-lg text-gray-300 max-w-xl mx-auto" style={fi("0.22s")}>
             Get instant, data-driven answers to any FPL question. Here are some examples of what our power users are asking right now.

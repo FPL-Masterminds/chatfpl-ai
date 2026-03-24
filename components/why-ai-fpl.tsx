@@ -180,18 +180,12 @@ export function WhyAiFpl() {
         <div className="mb-16 text-center">
           <Reveal>
             <h2
-              className="mb-5 text-3xl font-bold uppercase lg:text-4xl leading-tight"
-              style={{
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: "4px #2E0032",
-                paintOrder: "stroke fill",
-              }}
+              className="mb-5 text-3xl font-bold leading-[1.1] tracking-tighter lg:text-4xl"
             >
-              <span style={{ color: "#FFFFFF" }}>AI Is the Future of </span>
-              <span style={{ color: "#00FFFF" }}>Fantasy Premier </span>
-              <span style={{ color: "#00FF86" }}>League.</span>
+              <span className="text-white">AI is the Future of </span>
+              <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right, #00ff85, #02efff, #a855f7)", WebkitBackgroundClip: "text" }}>Fantasy Premier League.</span>
               <br />
-              <span style={{ color: "#FFFFFF" }}>Here&apos;s Why Smart Managers Are Switching…</span>
+              <span className="text-white">Here&apos;s Why Smart Managers Are Switching…</span>
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
