@@ -76,12 +76,6 @@ function LineChartGraphic() {
       {/* End dot */}
       <circle cx="200" cy="8" r="4" fill="#00FFA8" />
       <circle cx="200" cy="8" r="8" fill="#00FFA8" fillOpacity="0.2" />
-      {/* Arrow up */}
-      <path d="M 188 16 L 200 4 L 200 10" stroke="#00FFA8" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.7" />
-      {/* Labels */}
-      <text x="2" y="108" fill="rgba(255,255,255,0.3)" fontSize="7.5" fontFamily="monospace">GW1</text>
-      <text x="160" y="108" fill="rgba(255,255,255,0.3)" fontSize="7.5" fontFamily="monospace">NOW</text>
-      <text x="130" y="20" fill="#00FFA8" fontSize="9" fontWeight="700" fontFamily="monospace">↑ RANK</text>
     </svg>
   )
 }
