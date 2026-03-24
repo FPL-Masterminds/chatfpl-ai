@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Reveal } from "@/components/scroll-reveal"
 
 function GaugeGraphic() {
@@ -204,42 +205,47 @@ export function WhyAiFpl() {
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mb-10">
           {CARDS.map((card, i) => (
             <Reveal key={card.label} delay={i * 0.12}>
-              <div
-                className="relative rounded-[28px] p-7 flex flex-col h-full"
-                style={{
-                  background: "rgba(255,255,255,0.02)",
-                  border: `1px solid ${card.borderColor}`,
-                  boxShadow: `0 0 60px ${card.glowColor}`,
-                }}
-              >
-                {/* Small label */}
+              {/* Ambient glow */}
+              <div className="relative h-full">
                 <div
-                  className="text-[10px] uppercase tracking-[0.25em] font-semibold mb-4"
-                  style={{ color: card.accent }}
+                  className="absolute inset-0 rounded-[32px] opacity-25 blur-2xl pointer-events-none"
+                  style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
+                />
+                {/* Gradient border wrapper */}
+                <div
+                  className="relative rounded-[26px] p-[2px] h-full"
+                  style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
                 >
-                  {card.label}
+                  {/* Card inner */}
+                  <div
+                    className="rounded-[24px] p-7 flex flex-col h-full"
+                    style={{ background: "#080808" }}
+                  >
+                    {/* Graphic */}
+                    <div className="flex justify-center items-center mb-6 h-[130px]">
+                      {i === 0
+                        ? <Image src="/gauge.png" alt="Decision Speed" width={200} height={130} className="h-[130px] w-auto object-contain" />
+                        : <card.Graphic />
+                      }
+                    </div>
+
+                    {/* Headline */}
+                    <h3
+                      className="font-bold text-white mb-3"
+                      style={{ fontSize: "22px", lineHeight: "1.3", letterSpacing: "-0.01em" }}
+                    >
+                      {card.headline}
+                    </h3>
+
+                    {/* Body */}
+                    <p
+                      className="flex-1"
+                      style={{ fontSize: "14px", fontWeight: 400, lineHeight: "1.65", color: "rgba(255,255,255,0.52)" }}
+                    >
+                      {card.body}
+                    </p>
+                  </div>
                 </div>
-
-                {/* Graphic */}
-                <div className="flex justify-center items-center mb-6 h-[130px]">
-                  <card.Graphic />
-                </div>
-
-                {/* Headline */}
-                <h3
-                  className="font-bold text-white mb-3"
-                  style={{ fontSize: "22px", lineHeight: "1.3", letterSpacing: "-0.01em" }}
-                >
-                  {card.headline}
-                </h3>
-
-                {/* Body */}
-                <p
-                  className="flex-1"
-                  style={{ fontSize: "14px", fontWeight: 400, lineHeight: "1.65", color: "rgba(255,255,255,0.52)" }}
-                >
-                  {card.body}
-                </p>
               </div>
             </Reveal>
           ))}
