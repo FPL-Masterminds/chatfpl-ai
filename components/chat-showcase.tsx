@@ -83,6 +83,10 @@ export function ChatShowcase() {
   const [countdown, setCountdown]   = useState({ d: "--", h: "--", m: "--", s: "--" })
   const [newsIndex, setNewsIndex]   = useState(0)
   const [newsFading, setNewsFading] = useState(false)
+  const [scTickerIdx, setScTickerIdx]       = useState(0)
+  const [scTickerDisplay, setScTickerDisplay] = useState("")
+  const [scTickerFading, setScTickerFading]   = useState(false)
+  const [scTickerPhoto, setScTickerPhoto]     = useState<string | null>(null)
   const sectionRef                  = useRef<HTMLElement>(null)
 
   // Fetch live player data once
@@ -145,6 +149,34 @@ export function ChatShowcase() {
     }, 7000)
     return () => clearInterval(id)
   }, [players?.injuryNews])
+
+  // Showcase desktop ticker — typewriter through 3 picked facts
+  const SC_FACTS_INDICES = [0, 4, 9] // most expensive, most owned, most transferred-out
+  useEffect(() => {
+    const facts = players?.tickerFacts
+    if (!facts?.length) return
+    const pool = SC_FACTS_INDICES.map(i => facts[i] ?? facts[i % facts.length]).filter(Boolean)
+    const fact = pool[scTickerIdx % pool.length]
+    setScTickerPhoto(fact.photoUrl)
+    setScTickerDisplay("")
+    setScTickerFading(false)
+    let charCount = 0
+    const typeId = setInterval(() => {
+      charCount++
+      setScTickerDisplay(fact.text.slice(0, charCount))
+      if (charCount >= fact.text.length) clearInterval(typeId)
+    }, 30)
+    const advanceTimer = setTimeout(() => {
+      setScTickerFading(true)
+      setTimeout(() => {
+        setScTickerFading(false)
+        setScTickerDisplay("")
+        setScTickerIdx(i => (i + 1) % pool.length)
+      }, 500)
+    }, fact.text.length * 30 + 4000)
+    return () => { clearInterval(typeId); clearTimeout(advanceTimer) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [players?.tickerFacts, scTickerIdx])
 
   const fi = (delay: string) =>
     inView
@@ -259,10 +291,31 @@ export function ChatShowcase() {
                 <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={110} height={28} className="h-6 w-auto" />
               </div>
 
-              {/* Desktop left: title + subtitle */}
-              <div className="hidden md:block flex-1 min-w-0">
-                <div className="text-[13px] font-semibold text-white leading-tight truncate">Chat with your FPL AI analyst</div>
-                <div className="text-[10px] text-white/40 mt-0.5">Live data · Real-time reasoning · Smarter decisions</div>
+              {/* Desktop left: live ticker */}
+              <div className="hidden md:flex flex-1 min-w-0 items-center gap-2">
+                <span
+                  className="h-2 w-2 rounded-full shrink-0 animate-pulse"
+                  style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
+                />
+                {scTickerPhoto && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={scTickerPhoto}
+                    src={scTickerPhoto}
+                    alt=""
+                    className="h-8 w-auto rounded shrink-0 object-contain"
+                    style={{ transition: "opacity 0.5s ease", opacity: scTickerFading ? 0 : 1 }}
+                  />
+                )}
+                <span
+                  className="text-[11px] text-white/75 font-medium truncate"
+                  style={{ transition: "opacity 0.5s ease", opacity: scTickerFading ? 0 : 1 }}
+                >
+                  {scTickerDisplay}
+                  {!scTickerFading && scTickerDisplay.length > 0 && (
+                    <span className="inline-block w-px h-3 bg-emerald-400 ml-0.5 animate-pulse align-middle" />
+                  )}
+                </span>
               </div>
 
               {/* Right-side actions */}
