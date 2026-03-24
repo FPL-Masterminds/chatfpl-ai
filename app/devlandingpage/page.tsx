@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ChatShowcase } from "@/components/chat-showcase"
+import { WhyAiFpl } from "@/components/why-ai-fpl"
 import { Reveal } from "@/components/scroll-reveal"
 import { 
   TrendingUp, 
@@ -137,6 +138,9 @@ export default function DevLandingPage() {
 
       {/* Questions Section — replaced with interactive showcase */}
       <ChatShowcase />
+
+      {/* Why AI FPL Section */}
+      <WhyAiFpl />
 
       {/* Features Section */}
       <section id="features" className="border-b border-gray-800 px-4 py-20">
