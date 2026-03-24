@@ -203,9 +203,9 @@ export function WhyAiFpl() {
                     <div className="flex justify-center items-center mb-6 h-[130px]">
                       {i === 0
                         ? <Image src="/gauge.png" alt="Decision Speed" width={200} height={130} className="h-[130px] w-auto object-contain" />
-                        : i === 2
-                          ? <Image src="/bar_chart.png" alt="No Expertise Required" width={200} height={130} className="h-[130px] w-auto object-contain" />
-                          : <card.Graphic />
+                        : i === 1
+                          ? <Image src="/line_graph.png" alt="Climb the Ranks" width={200} height={130} className="h-[130px] w-auto object-contain" />
+                          : <Image src="/bar_chart.png" alt="No Expertise Required" width={200} height={130} className="h-[130px] w-auto object-contain" />
                       }
                     </div>
 
