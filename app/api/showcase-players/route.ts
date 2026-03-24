@@ -24,15 +24,24 @@ export type EdgePlayer = {
   value: string     // e.g. "55.0%" or "36 bonus"
 }
 
+export type InjuryItem = {
+  name: string
+  team: string
+  teamCode: number
+  news: string
+  isNew: boolean   // news added in last 48 hours
+}
+
 export type ShowcasePlayers = {
   topPts: ShowcasePlayer[]
   topForm: ShowcasePlayer[]
   risers: ShowcasePlayer[]
   differentials: ShowcasePlayer[]
-  mostSelected: EdgePlayer[]   // top 3 by ownership %
-  mostBonus: EdgePlayer[]      // top 3 by season bonus points
-  nextDeadline: string | null  // ISO string of next GW deadline
-  nextGwName: string           // e.g. "Gameweek 32"
+  mostSelected: EdgePlayer[]
+  mostBonus: EdgePlayer[]
+  injuryNews: InjuryItem[]     // top 3 most recent injury/availability news
+  nextDeadline: string | null
+  nextGwName: string
 }
 
 export async function GET() {
@@ -103,6 +112,18 @@ export async function GET() {
     .slice(0, 3)
     .map((p: any) => toEdge(p, `${p.bonus} bonus`))
 
+  const injuryNews: InjuryItem[] = json.elements
+    .filter((p: any) => p.news && p.news.trim().length > 0)
+    .sort((a: any, b: any) => new Date(b.news_added).getTime() - new Date(a.news_added).getTime())
+    .slice(0, 3)
+    .map((p: any): InjuryItem => ({
+      name: p.web_name,
+      team: teams[p.team] ?? "???",
+      teamCode: teamCodes[p.team] ?? 0,
+      news: p.news,
+      isNew: (Date.now() - new Date(p.news_added).getTime()) < 48 * 3600 * 1000,
+    }))
+
   const now = new Date()
   const nextEvent = json.events
     .filter((e: any) => new Date(e.deadline_time) > now)
@@ -111,7 +132,7 @@ export async function GET() {
   const nextDeadline: string | null = nextEvent ? nextEvent.deadline_time : null
   const nextGwName: string = nextEvent ? `Gameweek ${nextEvent.id}` : "Gameweek"
 
-  const data: ShowcasePlayers = { topPts, topForm, risers, differentials, mostSelected, mostBonus, nextDeadline, nextGwName }
+  const data: ShowcasePlayers = { topPts, topForm, risers, differentials, mostSelected, mostBonus, injuryNews, nextDeadline, nextGwName }
   cache = { data, ts: Date.now() }
   return NextResponse.json(data)
 }

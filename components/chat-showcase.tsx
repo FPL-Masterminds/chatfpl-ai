@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import type { ShowcasePlayer, ShowcasePlayers, EdgePlayer } from "@/app/api/showcase-players/route"
+import type { ShowcasePlayer, ShowcasePlayers, EdgePlayer, InjuryItem } from "@/app/api/showcase-players/route"
 
 // Team badge helper (badges don't change between seasons)
 const fplBadge = (teamCode: number) =>
@@ -406,13 +406,19 @@ export function ChatShowcase() {
                 <span className="h-1.5 w-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />
                 <span className="text-[9px] uppercase tracking-[0.18em] text-red-400/80">Injury &amp; Availability</span>
               </div>
-              <div className="flex items-center gap-2 mb-1">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={fplBadge(43)} alt="MCI" className="h-5 w-5 object-contain" />
-                <span className="text-xs font-semibold text-white">K. Walker</span>
-                <span className="ml-auto text-[9px] text-white/35">NEW</span>
-              </div>
-              <p className="text-[11px] text-white/60 leading-4">Has joined AC Milan on loan for the rest of the season.</p>
+              {players?.injuryNews?.length ? players.injuryNews.map((item, i) => (
+                <div key={i} className={i > 0 ? "mt-2 pt-2 border-t border-white/[0.06]" : ""}>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={fplBadge(item.teamCode)} alt={item.team} className="h-5 w-5 object-contain" />
+                    <span className="text-xs font-semibold text-white">{item.name}</span>
+                    {item.isNew && <span className="ml-auto text-[9px] text-white/35">NEW</span>}
+                  </div>
+                  <p className="text-[11px] text-white/60 leading-4">{item.news}</p>
+                </div>
+              )) : (
+                <p className="text-[11px] text-white/40 leading-4">No injury news available.</p>
+              )}
             </div>
 
             {/* Most Selected */}
