@@ -81,6 +81,8 @@ export function ChatShowcase() {
   const [inView, setInView]         = useState(false)
   const [players, setPlayers]       = useState<ShowcasePlayers | null>(null)
   const [countdown, setCountdown]   = useState({ d: "--", h: "--", m: "--", s: "--" })
+  const [newsIndex, setNewsIndex]   = useState(0)
+  const [newsFading, setNewsFading] = useState(false)
   const sectionRef                  = useRef<HTMLElement>(null)
 
   // Fetch live player data once
@@ -130,6 +132,19 @@ export function ChatShowcase() {
     }, INTERVAL_MS)
     return () => clearInterval(id)
   }, [])
+
+  // News ticker — fade out, swap, fade in every 7 s
+  useEffect(() => {
+    if (!players?.injuryNews?.length) return
+    const id = setInterval(() => {
+      setNewsFading(true)
+      setTimeout(() => {
+        setNewsIndex(i => (i + 1) % players.injuryNews.length)
+        setNewsFading(false)
+      }, 400)
+    }, 7000)
+    return () => clearInterval(id)
+  }, [players?.injuryNews])
 
   const fi = (delay: string) =>
     inView
@@ -406,19 +421,21 @@ export function ChatShowcase() {
                 <span className="h-1.5 w-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />
                 <span className="text-[9px] uppercase tracking-[0.18em] text-red-400/80">Injury &amp; Availability</span>
               </div>
-              {players?.injuryNews?.length ? players.injuryNews.map((item, i) => (
-                <div key={i} className={i > 0 ? "mt-2 pt-2 border-t border-white/[0.06]" : ""}>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={fplBadge(item.teamCode)} alt={item.team} className="h-5 w-5 object-contain" />
-                    <span className="text-xs font-semibold text-white">{item.name}</span>
-                    {item.isNew && <span className="ml-auto text-[9px] text-white/35">NEW</span>}
-                  </div>
-                  <p className="text-[11px] text-white/60 leading-4">{item.news}</p>
-                </div>
-              )) : (
-                <p className="text-[11px] text-white/40 leading-4">No injury news available.</p>
-              )}
+              <div style={{ transition: "opacity 0.4s ease", opacity: newsFading ? 0 : 1 }}>
+                {players?.injuryNews?.[newsIndex] ? (
+                  <>
+                    <div className="flex items-center gap-2 mb-1">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={fplBadge(players.injuryNews[newsIndex].teamCode)} alt={players.injuryNews[newsIndex].team} className="h-5 w-5 object-contain" />
+                      <span className="text-xs font-semibold text-white">{players.injuryNews[newsIndex].name}</span>
+                      {players.injuryNews[newsIndex].isNew && <span className="ml-auto text-[9px] text-white/35">NEW</span>}
+                    </div>
+                    <p className="text-[11px] text-white/60 leading-4">{players.injuryNews[newsIndex].news}</p>
+                  </>
+                ) : (
+                  <p className="text-[11px] text-white/40 leading-4">No injury news available.</p>
+                )}
+              </div>
             </div>
 
             {/* Most Selected */}
