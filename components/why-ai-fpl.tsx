@@ -180,7 +180,7 @@ export function WhyAiFpl() {
         <div className="mb-16 text-center">
           <Reveal>
             <h2
-              className="mb-5 text-3xl font-bold leading-[1.1] tracking-tighter lg:text-4xl"
+              className="mb-5 text-5xl font-bold leading-[1.1] tracking-tighter lg:text-6xl"
             >
               <span className="text-white">AI is the Future of </span>
               <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right, #00ff85, #02efff, #a855f7)", WebkitBackgroundClip: "text" }}>Fantasy Premier League.</span>
@@ -259,3 +259,4 @@ export function WhyAiFpl() {
     </section>
   )
 }
+
