@@ -244,11 +244,11 @@ export function WhyAiFpl() {
         <div className="grid gap-6 md:grid-cols-3">
           {BENEFITS.map((b, i) => (
             <Reveal key={b.title} delay={0.1 + i * 0.1}>
-              <div className="flex items-start gap-4 rounded-[20px] p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="flex items-start gap-4 px-2">
                 {/* Check mark */}
                 <span
                   className="mt-0.5 h-5 w-5 rounded-full shrink-0 flex items-center justify-center text-black text-[10px] font-black"
-                  style={{ background: "linear-gradient(135deg, #00F0FF, #00FFA8)", boxShadow: "0 0 12px rgba(0,255,168,0.4)" }}
+                  style={{ background: "#00FF86", boxShadow: "0 0 10px rgba(0,255,134,0.35)" }}
                 >
                   ✓
                 </span>
