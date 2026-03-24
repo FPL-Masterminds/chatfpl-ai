@@ -141,7 +141,7 @@ const CARDS = [
   },
   {
     label: "Learning Curve",
-    headline: "No Expertise Required",
+    headline: "No Expertise or Stats Knowledge Required",
     body: "You don't need to understand advanced stats or spend hours analysing. Just ask questions and ChatFPL AI translates complex data into clear, actionable advice.",
     Graphic: BarChartGraphic,
     accent: "#00FFA8",
@@ -203,7 +203,9 @@ export function WhyAiFpl() {
                     <div className="flex justify-center items-center mb-6 h-[130px]">
                       {i === 0
                         ? <Image src="/gauge.png" alt="Decision Speed" width={200} height={130} className="h-[130px] w-auto object-contain" />
-                        : <card.Graphic />
+                        : i === 2
+                          ? <Image src="/bar_chart.png" alt="No Expertise Required" width={200} height={130} className="h-[130px] w-auto object-contain" />
+                          : <card.Graphic />
                       }
                     </div>
 
