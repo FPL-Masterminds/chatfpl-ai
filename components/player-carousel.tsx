@@ -13,12 +13,8 @@ const POSITIONS = [
   { x:  520, z: -220, rotY: -28, scale: 0.60, opacity: 0.35, zIdx: 1 },
 ]
 
-const POS_COLORS: Record<string, string> = {
-  GKP: "#F5C518",
-  DEF: "#00BFFF",
-  MID: "#00FF85",
-  FWD: "#FF6B35",
-}
+// All positions use the same green pill — consistent brand colour
+const PILL_COLOR = "#00FF85"
 
 const FALLBACK: ShowcasePlayer[] = [
   { name: "Salah",   club: "LIV", position: "MID", price: "£13.2m", totalPts: 210, form: "9.8", photoUrl: "", teamCode: 14 },
@@ -33,13 +29,33 @@ const FALLBACK: ShowcasePlayer[] = [
 const badgeUrl = (code: number) =>
   `https://resources.premierleague.com/premierleague/badges/70/t${code}.png`
 
-export default function PlayerCarousel() {
-  const [players, setPlayers]       = useState<ShowcasePlayer[]>(FALLBACK)
-  const [center, setCenter]         = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const dragStartX = useRef<number>(0)
-  const autoTimer  = useRef<ReturnType<typeof setInterval> | null>(null)
+// Generate a short "why featured" sentence from live player stats
+const POS_NAMES: Record<string, string> = {
+  GKP: "goalkeeper", DEF: "defender", MID: "midfielder", FWD: "forward",
+}
+function playerReason(p: ShowcasePlayer): string {
+  const pos  = POS_NAMES[p.position] ?? "player"
+  const form = parseFloat(p.form)
+  if (form >= 9)
+    return `${p.name} of ${p.club} is arguably the form ${pos} in FPL right now, posting an outstanding score of ${p.form} over the last 5 gameweeks`
+  if (form >= 7)
+    return `${p.name} of ${p.club} is one of the hottest ${pos}s in FPL this gameweek - form score of ${p.form} with ${p.totalPts} total points this season`
+  if (p.totalPts >= 150)
+    return `${p.name} of ${p.club} is a season-long FPL asset, accumulating ${p.totalPts} total points and priced at ${p.price}`
+  return `${p.name} of ${p.club} is worth your attention this gameweek - ${p.totalPts} points this season at just ${p.price}`
+}
 
+// ── Component ─────────────────────────────────────────────────────────────────
+export default function PlayerCarousel() {
+  const [players, setPlayers]         = useState<ShowcasePlayer[]>(FALLBACK)
+  const [center, setCenter]           = useState(0)
+  const [isDragging, setIsDragging]   = useState(false)
+  const [twText, setTwText]           = useState("")      // typewriter display text
+  const [twFading, setTwFading]       = useState(false)   // fade-out before advancing
+  const [twDone, setTwDone]           = useState(false)   // typing complete — hide cursor
+  const dragStartX = useRef<number>(0)
+
+  // Fetch live players
   useEffect(() => {
     fetch("/api/showcase-players")
       .then(r => r.json())
@@ -57,21 +73,48 @@ export default function PlayerCarousel() {
 
   const total = players.length
 
+  // ── Typewriter effect drives auto-rotation ────────────────────────────────
+  useEffect(() => {
+    if (!players.length) return
+    const reason = playerReason(players[center])
+    setTwText("")
+    setTwFading(false)
+    setTwDone(false)
+
+    let charIdx = 0
+    let advanceTimeout: ReturnType<typeof setTimeout> | undefined
+    let fadeTimeout:    ReturnType<typeof setTimeout> | undefined
+
+    const typeInterval = setInterval(() => {
+      charIdx++
+      setTwText(reason.slice(0, charIdx))
+      if (charIdx >= reason.length) {
+        clearInterval(typeInterval)
+        setTwDone(true)
+        // Pause 2 s so the user can read, then fade out and advance
+        advanceTimeout = setTimeout(() => {
+          setTwFading(true)
+          fadeTimeout = setTimeout(() => {
+            setCenter(c => (c + 1 + players.length) % players.length)
+          }, 400)
+        }, 2000)
+      }
+    }, 28)
+
+    return () => {
+      clearInterval(typeInterval)
+      if (advanceTimeout) clearTimeout(advanceTimeout)
+      if (fadeTimeout)    clearTimeout(fadeTimeout)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center, players])
+
+  // Manual navigation — just update center; typewriter effect restarts automatically
   const advance = useCallback((dir: 1 | -1) => {
     setCenter(c => (c + dir + total) % total)
   }, [total])
 
-  useEffect(() => {
-    autoTimer.current = setInterval(() => advance(1), 4000)
-    return () => { if (autoTimer.current) clearInterval(autoTimer.current) }
-  }, [advance])
-
-  const resetTimer = () => {
-    if (autoTimer.current) clearInterval(autoTimer.current)
-    autoTimer.current = setInterval(() => advance(1), 4000)
-  }
-
-  const goTo = (idx: number) => { setCenter(idx); resetTimer() }
+  const goTo = (idx: number) => setCenter(idx)
 
   const onPointerDown = (e: React.PointerEvent) => {
     dragStartX.current = e.clientX
@@ -79,7 +122,7 @@ export default function PlayerCarousel() {
   }
   const onPointerUp = (e: React.PointerEvent) => {
     const diff = e.clientX - dragStartX.current
-    if (Math.abs(diff) > 40) { advance(diff < 0 ? 1 : -1); resetTimer() }
+    if (Math.abs(diff) > 40) advance(diff < 0 ? 1 : -1)
     setIsDragging(false)
   }
 
@@ -130,7 +173,6 @@ export default function PlayerCarousel() {
           const player   = players[playerIdx]
           const pos      = POSITIONS[slotIdx]
           const isCenter = slotIdx === 2
-          const posColor = POS_COLORS[player.position] ?? "#00FF85"
 
           return (
             <motion.div
@@ -141,18 +183,14 @@ export default function PlayerCarousel() {
               animate={{ x: pos.x, z: pos.z, rotateY: pos.rotY, scale: pos.scale, opacity: pos.opacity }}
               transition={{ type: "spring", stiffness: 260, damping: 28 }}
             >
-              {/*
-                Outer wrapper — gives coordinate system for photo + card.
-                overflow:visible so the photo can float above the card boundary.
-              */}
+              {/* Outer wrapper — gives coordinate system; overflow:visible lets photo float above */}
               <div style={{ position: "relative", width: 220, height: 310, marginLeft: -110 }}>
 
-                {/* Player photo — sits outside the overflow:hidden card face */}
+                {/* Player photo — outside the overflow:hidden card face */}
                 <div
                   className="absolute left-1/2 -translate-x-1/2"
                   style={{ bottom: 148, width: 130, zIndex: 10 }}
                 >
-                  {/* Bobbing ground shadow */}
                   <motion.div
                     className="mx-auto rounded-full"
                     style={{
@@ -163,8 +201,6 @@ export default function PlayerCarousel() {
                     animate={isCenter ? { scaleX: [1, 0.82, 1], opacity: [0.55, 0.35, 0.55] } : { scaleX: 1, opacity: 0.4 }}
                     transition={isCenter ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : {}}
                   />
-
-                  {/* Photo — bobs when centre */}
                   <motion.div
                     animate={isCenter ? { y: [0, -14, 0] } : { y: 0 }}
                     transition={isCenter ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : {}}
@@ -197,8 +233,7 @@ export default function PlayerCarousel() {
                         </svg>
                       </div>
                     )}
-
-                    {/* Glowing white separator line at base of photo */}
+                    {/* Glowing separator line at base of photo */}
                     <div
                       style={{
                         height: 1,
@@ -213,15 +248,11 @@ export default function PlayerCarousel() {
                   </motion.div>
                 </div>
 
-                {/*
-                  Card face — overflow:hidden forces the top accent strip
-                  to be clipped to the border-radius, so it curves with the corners.
-                */}
+                {/* Card face — overflow:hidden clips top strip to border-radius */}
                 <div
                   style={{
                     position: "absolute", inset: 0,
-                    borderRadius: 20,
-                    overflow: "hidden",
+                    borderRadius: 20, overflow: "hidden",
                     background: isCenter
                       ? "linear-gradient(145deg, rgba(0,20,16,0.95) 0%, rgba(0,10,20,0.98) 100%)"
                       : "linear-gradient(145deg, rgba(8,12,18,0.92) 0%, rgba(4,8,14,0.95) 100%)",
@@ -231,31 +262,30 @@ export default function PlayerCarousel() {
                       : "0 12px 32px rgba(0,0,0,0.5)",
                   }}
                 >
-                  {/* Top accent strip — now clips to rounded corners via overflow:hidden on parent */}
+                  {/* Top accent strip — curves with border-radius via overflow:hidden */}
                   <div
                     style={{
                       height: 3,
-                      background: isCenter
-                        ? "linear-gradient(to right, #00ff85, #02efff)"
-                        : "transparent",
+                      background: isCenter ? "linear-gradient(to right, #00ff85, #02efff)" : "transparent",
                     }}
                   />
 
-                  {/* Card info — bottom section */}
+                  {/* Card info */}
                   <div
                     className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-3"
                     style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 60%, transparent)" }}
                   >
-                    {/* Position badge + club crest row */}
                     <div className="flex items-center justify-between mb-1">
                       <span
                         className="inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                        style={{ color: posColor, background: `${posColor}18`, border: `1px solid ${posColor}40` }}
+                        style={{
+                          color: PILL_COLOR,
+                          background: `${PILL_COLOR}18`,
+                          border: `1px solid ${PILL_COLOR}40`,
+                        }}
                       >
                         {player.position}
                       </span>
-
-                      {/* Club badge — 75% larger than original 26px */}
                       {player.teamCode > 0 && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -266,23 +296,13 @@ export default function PlayerCarousel() {
                         />
                       )}
                     </div>
-
-                    {/* Name */}
                     <p className="text-[17px] font-bold leading-[1.1] text-white tracking-tight">
                       {player.name}
                     </p>
-
-                    {/* Club short name */}
-                    <p className="text-[11px] text-white/45 font-medium mt-0.5">
-                      {player.club}
-                    </p>
-
-                    {/* Stats row */}
+                    <p className="text-[11px] text-white/45 font-medium mt-0.5">{player.club}</p>
                     <div className="mt-3 flex items-center justify-between">
                       <div className="text-center">
-                        <p className="text-[15px] font-bold leading-none" style={{ color: "#00FF85" }}>
-                          {player.totalPts}
-                        </p>
+                        <p className="text-[15px] font-bold leading-none" style={{ color: "#00FF85" }}>{player.totalPts}</p>
                         <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Pts</p>
                       </div>
                       <div className="h-6 w-px bg-white/10" />
@@ -298,7 +318,6 @@ export default function PlayerCarousel() {
                     </div>
                   </div>
 
-                  {/* Centre card inner glow */}
                   {isCenter && (
                     <div
                       className="pointer-events-none absolute inset-0"
@@ -312,8 +331,38 @@ export default function PlayerCarousel() {
         })}
       </div>
 
-      {/* Dot nav — wrapped in pill panel matching ChatShowcase tab bar */}
-      <div className="relative z-10 mt-6 flex justify-center">
+      {/* ── Typewriter reason pill ─────────────────────────────────────────── */}
+      <div className="relative z-10 mt-6 flex justify-center px-4">
+        <div
+          className="inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 max-w-2xl"
+          style={{
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "0 0 0 1px rgba(255,255,255,0.04) inset, 0 2px 20px rgba(0,0,0,0.4)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            opacity: twFading ? 0 : 1,
+            transition: "opacity 0.4s ease",
+            minHeight: 40,
+          }}
+        >
+          {/* Glowing green orb */}
+          <span
+            className="h-2 w-2 rounded-full shrink-0 animate-pulse"
+            style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
+          />
+          {/* Typewriter text + blinking cursor */}
+          <span className="text-[13px] text-white/75 font-medium leading-snug">
+            {twText}
+            {!twDone && twText.length > 0 && (
+              <span className="inline-block w-px h-3.5 bg-emerald-400 ml-0.5 animate-pulse align-middle" />
+            )}
+          </span>
+        </div>
+      </div>
+
+      {/* Dot nav pill */}
+      <div className="relative z-10 mt-4 flex justify-center">
         <div
           className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5"
           style={{
@@ -344,7 +393,7 @@ export default function PlayerCarousel() {
 
       {/* Arrow buttons */}
       <button
-        onClick={() => { advance(-1); resetTimer() }}
+        onClick={() => advance(-1)}
         className="absolute left-4 top-1/2 z-20 -translate-y-1/2 rounded-full p-2 text-white/50 transition-all hover:text-white/90"
         style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
         aria-label="Previous"
@@ -354,7 +403,7 @@ export default function PlayerCarousel() {
         </svg>
       </button>
       <button
-        onClick={() => { advance(1); resetTimer() }}
+        onClick={() => advance(1)}
         className="absolute right-4 top-1/2 z-20 -translate-y-1/2 rounded-full p-2 text-white/50 transition-all hover:text-white/90"
         style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)" }}
         aria-label="Next"
