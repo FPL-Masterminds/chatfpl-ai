@@ -127,7 +127,7 @@ export async function GET() {
         ep_next: parseFloat(p.ep_next ?? "0"),
         chance: p.chance_of_playing_next_round ?? 100,
         news: p.news ?? "",
-        photo_url: `https://resources.premierleague.com/premierleague25/photos/players/110x140/p${p.code}.png`,
+        photo_url: `https://resources.premierleague.com/premierleague25/photos/players/110x140/${p.code}.png`,
         next_fixtures: teamFixtureMap[p.team] ?? [],
       };
     }).filter(Boolean);

@@ -56,6 +56,13 @@ const DIFF_COLORS: Record<number, string> = {
   1: "#00FF87", 2: "#86efac", 3: "#fde68a", 4: "#fb923c", 5: "#ef4444",
 }
 
+const POS_STYLE: Record<string, { border: string; glow: string; label: string }> = {
+  GKP: { border: "#f59e0b", glow: "rgba(245,158,11,0.18)", label: "#fcd34d" },
+  DEF: { border: "#3b82f6", glow: "rgba(59,130,246,0.18)", label: "#93c5fd" },
+  MID: { border: "#00FF87", glow: "rgba(0,255,135,0.18)", label: "#00FF87" },
+  FWD: { border: "#f97316", glow: "rgba(249,115,22,0.18)", label: "#fdba74" },
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function fmt(n: number) { return n.toLocaleString("en-GB") }
@@ -156,66 +163,102 @@ function HeatmapCell({ pts, avg }: { pts: number; avg: number }) {
 
 function PlayerCard({ p, bench }: { p: SquadPlayer; bench: boolean }) {
   const [photoOk, setPhotoOk] = useState(true)
+  const pos = POS_STYLE[p.pos] ?? POS_STYLE.MID
   const injured = p.chance < 75
   const priceUp = p.cost_change_event > 0
   const priceDown = p.cost_change_event < 0
+  const isCap = p.is_captain
+  const isVC = p.is_vice_captain
 
   return (
-    <div className={`relative rounded-xl border flex flex-col items-center gap-0.5 pb-1.5 overflow-hidden transition-all hover:scale-[1.03] hover:z-10 ${
-      bench
-        ? "border-white/5 bg-white/[0.02]"
-        : p.is_captain
-          ? "border-emerald-400/40 bg-emerald-400/[0.07] shadow-[0_0_18px_rgba(0,255,135,0.12)]"
-          : "border-white/8 bg-white/[0.04]"
-    }`}>
-      {/* Captain / VC */}
-      {p.is_captain && <span className="absolute top-1 right-1 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400 text-[9px] font-black text-black">C</span>}
-      {p.is_vice_captain && <span className="absolute top-1 right-1 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400 text-[9px] font-black text-black">V</span>}
+    <div className="flex flex-col gap-1">
+      {/* ── Card ── */}
+      <div
+        className="relative rounded-xl overflow-hidden flex flex-col transition-all duration-200 hover:scale-[1.05] hover:z-10 cursor-default"
+        style={{
+          background: bench
+            ? "rgba(255,255,255,0.025)"
+            : `linear-gradient(160deg, ${pos.glow} 0%, rgba(10,10,15,0.95) 60%)`,
+          border: injured
+            ? "1px solid rgba(239,68,68,0.5)"
+            : isCap
+              ? `1px solid rgba(0,255,135,0.5)`
+              : `1px solid ${pos.border}22`,
+          boxShadow: isCap
+            ? "0 0 20px rgba(0,255,135,0.15), inset 0 0 20px rgba(0,255,135,0.03)"
+            : bench ? "none" : `0 4px 20px ${pos.glow}`,
+        }}
+      >
+        {/* Position stripe at top */}
+        <div className="h-[3px] w-full shrink-0" style={{ background: bench ? "rgba(255,255,255,0.08)" : pos.border, opacity: bench ? 1 : 0.8 }} />
 
-      {/* Injury dot */}
-      {injured && <span className="absolute top-1 left-1 z-20 h-2 w-2 rounded-full bg-red-500 border border-black" title={p.news} />}
-
-      {/* Player photo */}
-      <div className="w-full bg-gradient-to-b from-white/[0.04] to-transparent flex items-end justify-center h-14 overflow-hidden">
-        {photoOk ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={p.photo_url} alt={p.name} className="h-14 w-auto object-contain object-bottom"
-            onError={() => setPhotoOk(false)} />
-        ) : (
-          <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/40 mb-1">
-            {p.name.slice(0, 2).toUpperCase()}
-          </div>
-        )}
-      </div>
-
-      {/* Name + team */}
-      <div className="px-1 w-full text-center">
-        <p className="text-[10px] font-semibold text-white leading-tight truncate">{p.name}</p>
-        <div className="flex items-center justify-center gap-1 mt-0.5">
+        {/* Badges row */}
+        <div className="absolute top-1.5 left-1.5 right-1.5 flex items-start justify-between z-20 pointer-events-none">
+          {/* Team badge */}
           <BadgeImg code={p.team_code} name={p.team_short} />
-          <span className="text-[8px] text-white/40">{p.pos}</span>
+          {/* Captain / VC / Injured */}
+          {isCap && (
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400 text-[9px] font-black text-black shadow-[0_0_8px_rgba(0,255,135,0.6)]">C</span>
+          )}
+          {isVC && (
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400 text-[9px] font-black text-black">V</span>
+          )}
+          {injured && !isCap && !isVC && (
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white">!</span>
+          )}
+        </div>
+
+        {/* Photo area */}
+        <div className="relative w-full" style={{ height: "88px" }}>
+          {photoOk ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={p.photo_url}
+              alt={p.name}
+              className="absolute inset-0 w-full h-full object-cover object-top"
+              style={{ filter: bench ? "brightness(0.65) saturate(0.6)" : "brightness(0.92) saturate(1.05)" }}
+              onError={() => setPhotoOk(false)}
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-lg font-black text-white/20">{p.name.slice(0, 2).toUpperCase()}</span>
+            </div>
+          )}
+          {/* Bottom gradient fade into card */}
+          <div className="absolute bottom-0 left-0 right-0 h-10 pointer-events-none"
+            style={{ background: "linear-gradient(to bottom, transparent, rgba(6,6,10,0.98))" }} />
+        </div>
+
+        {/* Info */}
+        <div className="px-1.5 pb-1.5 -mt-1">
+          <p className="text-[10px] font-bold text-white truncate leading-tight">{p.name}</p>
+          <div className="flex items-center justify-between mt-0.5 gap-0.5">
+            <span className="text-[8px] font-semibold" style={{ color: bench ? "rgba(255,255,255,0.3)" : pos.label }}>{p.pos}</span>
+            <div className="flex items-center gap-0.5">
+              <span className="text-[8px] text-white/50">£{p.price.toFixed(1)}m</span>
+              {priceUp && <span className="text-[7px] font-bold text-emerald-400">▲</span>}
+              {priceDown && <span className="text-[7px] font-bold text-red-400">▼</span>}
+            </div>
+          </div>
+          <div className="flex items-center justify-between mt-0.5">
+            <span className="text-[9px] font-semibold text-white/70">{p.points}<span className="text-white/30 font-normal">pts</span></span>
+            {p.ep_next > 0 && (
+              <span className="text-[7px] text-emerald-400/80">xP {p.ep_next.toFixed(1)}</span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Price + change */}
-      <div className="flex items-center gap-1 px-1">
-        <span className="text-[9px] text-white/50">£{p.price.toFixed(1)}m</span>
-        {priceUp && <span className="text-[8px] text-emerald-400 font-bold">+{p.cost_change_event.toFixed(1)}</span>}
-        {priceDown && <span className="text-[8px] text-red-400 font-bold">{p.cost_change_event.toFixed(1)}</span>}
-      </div>
-
-      {/* Points + xP */}
-      <div className="flex items-center gap-1.5 px-1">
-        <span className="text-[9px] text-white/60">{p.points}pts</span>
-        {p.ep_next > 0 && <span className="text-[8px] text-emerald-400">xP:{p.ep_next.toFixed(1)}</span>}
-      </div>
-
-      {/* Next fixtures */}
+      {/* Fixture pills — sit below the card */}
       {p.next_fixtures.length > 0 && (
-        <div className="flex gap-0.5 px-1 mt-0.5 flex-wrap justify-center">
+        <div className="flex gap-0.5 justify-center flex-wrap">
           {p.next_fixtures.slice(0, 3).map((f, i) => (
-            <span key={i} className="text-[7px] font-bold px-0.5 rounded" style={{ color: "#000", backgroundColor: DIFF_COLORS[f.difficulty] ?? "#888" }}>
-              {f.opponent}{f.home ? "" : "(A)"}
+            <span
+              key={i}
+              className="text-[7px] font-bold px-1 py-0.5 rounded-sm leading-none"
+              style={{ color: "#000", backgroundColor: DIFF_COLORS[f.difficulty] ?? "#888" }}
+            >
+              {f.opponent}{!f.home ? "(A)" : ""}
             </span>
           ))}
         </div>
@@ -519,18 +562,18 @@ export default function DashboardPage() {
           </div>
 
           {/* Starters */}
-          <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-6 md:grid-cols-11 mb-4">
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-11 mb-5">
             {starters.map((p) => <PlayerCard key={p.slot} p={p} bench={false} />)}
           </div>
 
           {/* Bench divider */}
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-4">
             <div className="flex-1 h-px bg-white/[0.06]" />
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/25">Bench</p>
             <div className="flex-1 h-px bg-white/[0.06]" />
           </div>
 
-          <div className="grid grid-cols-4 gap-1.5 max-w-xs mx-auto sm:max-w-sm">
+          <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
             {bench.map((p) => <PlayerCard key={p.slot} p={p} bench={true} />)}
           </div>
         </div>
