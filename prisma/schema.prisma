@@ -23,6 +23,7 @@ model User {
   emailVerificationExpires DateTime?
   viral_rewards_claimed    Boolean        @default(false)
   referred_by              String?        // User ID of the referrer
+  fpl_team_id              Int?           // Public FPL team ID — no credentials, just the number from the FPL URL
   
   accounts      Account[]
   sessions      Session[]

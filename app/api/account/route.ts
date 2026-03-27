@@ -45,6 +45,7 @@ export async function GET() {
         email: userData.email,
         role: userData.role || "user",
         created_at: userData.created_at.toISOString(),
+        fpl_team_id: userData.fpl_team_id ?? null,
       },
       subscription: {
         plan: subscription?.plan || "Free",

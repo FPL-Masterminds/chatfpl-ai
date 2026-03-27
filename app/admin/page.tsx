@@ -18,6 +18,7 @@ interface AccountData {
     email: string
     role: string
     created_at: string
+    fpl_team_id: number | null
   }
   subscription: {
     plan: string
@@ -107,6 +108,10 @@ export default function AdminPage() {
   })
   const [billingLoading, setBillingLoading] = useState(false)
   const [cancellationDate, setCancellationDate] = useState<string | null>(null)
+  const [fplTeamInput, setFplTeamInput] = useState("")
+  const [fplTeamSaving, setFplTeamSaving] = useState(false)
+  const [fplFeedback, setFplFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [fplVerifiedName, setFplVerifiedName] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAccountData()
@@ -142,6 +147,9 @@ export default function AdminPage() {
 
       const accountData = await response.json()
       setData(accountData)
+      if (accountData.user?.fpl_team_id) {
+        setFplTeamInput(String(accountData.user.fpl_team_id))
+      }
     } catch (err) {
       setError("Failed to load account data")
       console.error(err)
@@ -354,6 +362,31 @@ export default function AdminPage() {
     }
   }
 
+  const handleSaveFplTeam = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setFplTeamSaving(true)
+    setFplFeedback(null)
+    setFplVerifiedName(null)
+    try {
+      const res = await fetch("/api/account/fpl-team", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fpl_team_id: fplTeamInput.trim() || null }),
+      })
+      const result = await res.json()
+      if (res.ok) {
+        setFplFeedback({ type: "success", text: "Saved!" })
+        if (result.team_name) setFplVerifiedName(result.team_name)
+      } else {
+        setFplFeedback({ type: "error", text: result.error || "Failed to save." })
+      }
+    } catch {
+      setFplFeedback({ type: "error", text: "Network error. Please try again." })
+    } finally {
+      setFplTeamSaving(false)
+    }
+  }
+
   const getPlanBadgeColor = (plan: string) => {
     switch (plan.toLowerCase()) {
       case "admin":
@@ -537,6 +570,69 @@ export default function AdminPage() {
                   {billingLoading ? "Loading..." : "Manage Subscription"}
                 </Button>
               )}
+            </CardContent>
+          </Card>
+
+          {/* FPL Settings */}
+          <Card className="border-gray-200 bg-white shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xl text-gray-900">FPL Settings</CardTitle>
+              <CardDescription className="text-gray-600">
+                Link your public FPL Team ID so ChatFPL can reference your squad, rank, and mini-league data in conversations.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSaveFplTeam} className="flex items-center gap-3">
+                <div className="relative flex-1">
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="e.g. 1234567"
+                    value={fplTeamInput}
+                    onChange={(e) => { setFplTeamInput(e.target.value); setFplFeedback(null) }}
+                    disabled={fplTeamSaving}
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#00FF87] focus:outline-none focus:ring-2 focus:ring-[#00FF87]/40 disabled:opacity-60 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={fplTeamSaving}
+                  className="shrink-0 bg-[#00FF87] text-gray-900 hover:bg-[#00FF87]/90 font-semibold text-sm px-4"
+                >
+                  {fplTeamSaving ? "Saving..." : "Save"}
+                </Button>
+              </form>
+
+              {/* Feedback row */}
+              {fplFeedback && (
+                <p className={`mt-2 text-sm font-medium ${fplFeedback.type === "success" ? "text-[#00b060]" : "text-red-600"}`}>
+                  {fplFeedback.type === "success" ? "✓" : "✕"} {fplFeedback.text}
+                  {fplVerifiedName && (
+                    <span className="ml-1 font-normal text-gray-700">- <span className="font-semibold">{fplVerifiedName}</span></span>
+                  )}
+                </p>
+              )}
+
+              {/* Pre-saved state label */}
+              {!fplFeedback && data.user.fpl_team_id && (
+                <p className="mt-2 text-xs text-gray-500">
+                  Currently saved: Team ID <span className="font-semibold text-gray-700">{data.user.fpl_team_id}</span>
+                </p>
+              )}
+
+              <p className="mt-3 text-xs text-gray-400">
+                Your Team ID appears in your FPL URL:{" "}
+                <span className="font-mono text-gray-500">fantasy.premierleague.com/entry/<strong>XXXXXXX</strong>/event/...</span>{" "}
+                &mdash;{" "}
+                <a
+                  href="https://fantasy.premierleague.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#00b060] underline underline-offset-2 hover:text-[#00FF87]"
+                >
+                  Open FPL
+                </a>
+              </p>
             </CardContent>
           </Card>
 
