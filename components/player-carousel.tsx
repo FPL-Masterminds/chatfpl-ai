@@ -141,28 +141,13 @@ export default function PlayerCarousel() {
               animate={{ x: pos.x, z: pos.z, rotateY: pos.rotY, scale: pos.scale, opacity: pos.opacity }}
               transition={{ type: "spring", stiffness: 260, damping: 28 }}
             >
-              {/* Card body */}
-              <div
-                className="relative overflow-visible"
-                style={{
-                  width: 220, height: 310, marginLeft: -110,
-                  borderRadius: 20,
-                  background: isCenter
-                    ? "linear-gradient(145deg, rgba(0,20,16,0.95) 0%, rgba(0,10,20,0.98) 100%)"
-                    : "linear-gradient(145deg, rgba(8,12,18,0.92) 0%, rgba(4,8,14,0.95) 100%)",
-                  border: isCenter ? "1px solid rgba(0,255,133,0.25)" : "1px solid rgba(255,255,255,0.06)",
-                  boxShadow: isCenter
-                    ? "0 0 40px rgba(0,255,133,0.15), 0 24px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)"
-                    : "0 12px 32px rgba(0,0,0,0.5)",
-                }}
-              >
-                {/* Top accent strip */}
-                <div
-                  className="absolute top-0 left-0 right-0 rounded-t-[20px]"
-                  style={{ height: 3, background: isCenter ? "linear-gradient(to right, #00ff85, #02efff)" : "transparent" }}
-                />
+              {/*
+                Outer wrapper — gives coordinate system for photo + card.
+                overflow:visible so the photo can float above the card boundary.
+              */}
+              <div style={{ position: "relative", width: 220, height: 310, marginLeft: -110 }}>
 
-                {/* Player photo — floating above card */}
+                {/* Player photo — sits outside the overflow:hidden card face */}
                 <div
                   className="absolute left-1/2 -translate-x-1/2"
                   style={{ bottom: 148, width: 130, zIndex: 10 }}
@@ -223,76 +208,104 @@ export default function PlayerCarousel() {
                         boxShadow: isCenter
                           ? "0 0 8px 2px rgba(255,255,255,0.35)"
                           : "0 0 4px 1px rgba(255,255,255,0.10)",
-                        marginTop: 0,
                       }}
                     />
                   </motion.div>
                 </div>
 
-                {/* Card info — bottom section */}
+                {/*
+                  Card face — overflow:hidden forces the top accent strip
+                  to be clipped to the border-radius, so it curves with the corners.
+                */}
                 <div
-                  className="absolute bottom-0 left-0 right-0 rounded-b-[20px] px-4 pb-4 pt-3"
-                  style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 60%, transparent)" }}
+                  style={{
+                    position: "absolute", inset: 0,
+                    borderRadius: 20,
+                    overflow: "hidden",
+                    background: isCenter
+                      ? "linear-gradient(145deg, rgba(0,20,16,0.95) 0%, rgba(0,10,20,0.98) 100%)"
+                      : "linear-gradient(145deg, rgba(8,12,18,0.92) 0%, rgba(4,8,14,0.95) 100%)",
+                    border: isCenter ? "1px solid rgba(0,255,133,0.25)" : "1px solid rgba(255,255,255,0.06)",
+                    boxShadow: isCenter
+                      ? "0 0 40px rgba(0,255,133,0.15), 0 24px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)"
+                      : "0 12px 32px rgba(0,0,0,0.5)",
+                  }}
                 >
-                  {/* Position badge + club crest row */}
-                  <div className="flex items-center justify-between mb-1">
-                    <span
-                      className="inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-                      style={{ color: posColor, background: `${posColor}18`, border: `1px solid ${posColor}40` }}
-                    >
-                      {player.position}
-                    </span>
-
-                    {/* Club badge */}
-                    {player.teamCode > 0 && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={badgeUrl(player.teamCode)}
-                        alt={player.club}
-                        draggable={false}
-                        style={{ width: 26, height: 26, objectFit: "contain", opacity: isCenter ? 0.9 : 0.6 }}
-                      />
-                    )}
-                  </div>
-
-                  {/* Name */}
-                  <p className="text-[17px] font-bold leading-[1.1] text-white tracking-tight">
-                    {player.name}
-                  </p>
-
-                  {/* Club short name */}
-                  <p className="text-[11px] text-white/45 font-medium mt-0.5">
-                    {player.club}
-                  </p>
-
-                  {/* Stats row */}
-                  <div className="mt-3 flex items-center justify-between">
-                    <div className="text-center">
-                      <p className="text-[15px] font-bold leading-none" style={{ color: "#00FF85" }}>
-                        {player.totalPts}
-                      </p>
-                      <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Pts</p>
-                    </div>
-                    <div className="h-6 w-px bg-white/10" />
-                    <div className="text-center">
-                      <p className="text-[15px] font-bold leading-none text-white/90">{player.form}</p>
-                      <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Form</p>
-                    </div>
-                    <div className="h-6 w-px bg-white/10" />
-                    <div className="text-center">
-                      <p className="text-[15px] font-bold leading-none text-white/90">{player.price}</p>
-                      <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Price</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Centre card inner glow */}
-                {isCenter && (
+                  {/* Top accent strip — now clips to rounded corners via overflow:hidden on parent */}
                   <div
-                    className="pointer-events-none absolute inset-0 rounded-[20px]"
-                    style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(0,255,133,0.06) 0%, transparent 65%)" }}
+                    style={{
+                      height: 3,
+                      background: isCenter
+                        ? "linear-gradient(to right, #00ff85, #02efff)"
+                        : "transparent",
+                    }}
                   />
-                )}
+
+                  {/* Card info — bottom section */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-3"
+                    style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 60%, transparent)" }}
+                  >
+                    {/* Position badge + club crest row */}
+                    <div className="flex items-center justify-between mb-1">
+                      <span
+                        className="inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                        style={{ color: posColor, background: `${posColor}18`, border: `1px solid ${posColor}40` }}
+                      >
+                        {player.position}
+                      </span>
+
+                      {/* Club badge — 75% larger than original 26px */}
+                      {player.teamCode > 0 && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={badgeUrl(player.teamCode)}
+                          alt={player.club}
+                          draggable={false}
+                          style={{ width: 46, height: 46, objectFit: "contain", opacity: isCenter ? 0.9 : 0.6 }}
+                        />
+                      )}
+                    </div>
+
+                    {/* Name */}
+                    <p className="text-[17px] font-bold leading-[1.1] text-white tracking-tight">
+                      {player.name}
+                    </p>
+
+                    {/* Club short name */}
+                    <p className="text-[11px] text-white/45 font-medium mt-0.5">
+                      {player.club}
+                    </p>
+
+                    {/* Stats row */}
+                    <div className="mt-3 flex items-center justify-between">
+                      <div className="text-center">
+                        <p className="text-[15px] font-bold leading-none" style={{ color: "#00FF85" }}>
+                          {player.totalPts}
+                        </p>
+                        <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Pts</p>
+                      </div>
+                      <div className="h-6 w-px bg-white/10" />
+                      <div className="text-center">
+                        <p className="text-[15px] font-bold leading-none text-white/90">{player.form}</p>
+                        <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Form</p>
+                      </div>
+                      <div className="h-6 w-px bg-white/10" />
+                      <div className="text-center">
+                        <p className="text-[15px] font-bold leading-none text-white/90">{player.price}</p>
+                        <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Price</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Centre card inner glow */}
+                  {isCenter && (
+                    <div
+                      className="pointer-events-none absolute inset-0"
+                      style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(0,255,133,0.06) 0%, transparent 65%)" }}
+                    />
+                  )}
+                </div>
               </div>
             </motion.div>
           )
