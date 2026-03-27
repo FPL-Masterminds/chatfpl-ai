@@ -15,6 +15,7 @@ export type ShowcasePlayer = {
   totalPts: number
   form: string
   photoUrl: string  // full CDN URL built by the shared helper, always correct season
+  teamCode: number  // for badge URL: https://resources.premierleague.com/premierleague/badges/70/t{code}.png
 }
 
 export type EdgePlayer = {
@@ -82,7 +83,8 @@ export async function GET() {
     price: `£${(p.now_cost / 10).toFixed(1)}m`,
     totalPts: p.total_points,
     form: parseFloat(p.form).toFixed(1),
-    photoUrl: fplPhotoUrlFromElement(p.photo, p.code),  // uses premierleague25 base
+    photoUrl: fplPhotoUrlFromElement(p.photo, p.code),
+    teamCode: teamCodes[p.team] ?? 0,
   })
 
   const topPts = [...active]
