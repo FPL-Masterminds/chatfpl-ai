@@ -163,7 +163,7 @@ function HeatmapCell({ pts, avg }: { pts: number; avg: number }) {
 
 function PlayerCard({ p, bench }: { p: SquadPlayer; bench: boolean }) {
   const [photoOk, setPhotoOk] = useState(true)
-  const pos = POS_STYLE[p.pos] ?? POS_STYLE.MID
+  const ps = POS_STYLE[p.pos] ?? POS_STYLE.MID
   const injured = p.chance < 75
   const priceUp = p.cost_change_event > 0
   const priceDown = p.cost_change_event < 0
@@ -171,91 +171,117 @@ function PlayerCard({ p, bench }: { p: SquadPlayer; bench: boolean }) {
   const isVC = p.is_vice_captain
 
   return (
-    <div className="flex flex-col gap-1">
-      {/* ── Card ── */}
+    <div className={`flex flex-col gap-1.5 ${bench ? "w-[110px] sm:w-[130px]" : "w-[115px] sm:w-[145px] lg:w-[160px]"}`}>
       <div
-        className="relative rounded-xl overflow-hidden flex flex-col transition-all duration-200 hover:scale-[1.05] hover:z-10 cursor-default"
+        className="relative rounded-2xl overflow-hidden flex flex-col transition-all duration-200 hover:scale-[1.04] hover:z-10 cursor-default"
         style={{
           background: bench
-            ? "rgba(255,255,255,0.025)"
-            : `linear-gradient(160deg, ${pos.glow} 0%, rgba(10,10,15,0.95) 60%)`,
+            ? "linear-gradient(170deg,rgba(255,255,255,0.03),rgba(0,0,0,0.6))"
+            : `linear-gradient(170deg,${ps.glow} 0%,rgba(8,8,14,0.97) 55%)`,
           border: injured
-            ? "1px solid rgba(239,68,68,0.5)"
+            ? "1px solid rgba(239,68,68,0.55)"
             : isCap
-              ? `1px solid rgba(0,255,135,0.5)`
-              : `1px solid ${pos.border}22`,
+              ? "1px solid rgba(0,255,135,0.55)"
+              : `1px solid ${ps.border}28`,
           boxShadow: isCap
-            ? "0 0 20px rgba(0,255,135,0.15), inset 0 0 20px rgba(0,255,135,0.03)"
-            : bench ? "none" : `0 4px 20px ${pos.glow}`,
+            ? `0 0 28px rgba(0,255,135,0.18), 0 8px 32px rgba(0,0,0,0.5)`
+            : bench
+              ? "0 4px 16px rgba(0,0,0,0.4)"
+              : `0 6px 28px ${ps.glow}, 0 8px 32px rgba(0,0,0,0.5)`,
         }}
       >
-        {/* Position stripe at top */}
-        <div className="h-[3px] w-full shrink-0" style={{ background: bench ? "rgba(255,255,255,0.08)" : pos.border, opacity: bench ? 1 : 0.8 }} />
+        {/* Top accent stripe */}
+        <div
+          className="h-[3px] w-full shrink-0"
+          style={{ background: bench ? "rgba(255,255,255,0.07)" : `linear-gradient(90deg,transparent,${ps.border},transparent)` }}
+        />
 
-        {/* Badges row */}
-        <div className="absolute top-1.5 left-1.5 right-1.5 flex items-start justify-between z-20 pointer-events-none">
-          {/* Team badge */}
+        {/* Team badge + captain/injury badge */}
+        <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-20 pointer-events-none">
           <BadgeImg code={p.team_code} name={p.team_short} />
-          {/* Captain / VC / Injured */}
           {isCap && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400 text-[9px] font-black text-black shadow-[0_0_8px_rgba(0,255,135,0.6)]">C</span>
+            <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-emerald-400 text-[10px] font-black text-black shadow-[0_0_10px_rgba(0,255,135,0.7)]">C</span>
           )}
           {isVC && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-400 text-[9px] font-black text-black">V</span>
+            <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-cyan-400 text-[10px] font-black text-black shadow-[0_0_8px_rgba(34,211,238,0.5)]">V</span>
           )}
           {injured && !isCap && !isVC && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white">!</span>
+            <span className="flex h-[20px] w-[20px] items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white">!</span>
           )}
         </div>
 
-        {/* Photo area */}
-        <div className="relative w-full" style={{ height: "88px" }}>
+        {/* Photo */}
+        <div className={`relative w-full ${bench ? "h-[118px]" : "h-[148px] sm:h-[160px]"}`}>
           {photoOk ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={p.photo_url}
               alt={p.name}
               className="absolute inset-0 w-full h-full object-cover object-top"
-              style={{ filter: bench ? "brightness(0.65) saturate(0.6)" : "brightness(0.92) saturate(1.05)" }}
+              style={{
+                filter: bench
+                  ? "brightness(0.55) saturate(0.5)"
+                  : "brightness(0.95) saturate(1.08) contrast(1.03)",
+              }}
               onError={() => setPhotoOk(false)}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-lg font-black text-white/20">{p.name.slice(0, 2).toUpperCase()}</span>
+              <span
+                className="text-4xl font-black"
+                style={{ color: bench ? "rgba(255,255,255,0.1)" : `${ps.border}33` }}
+              >
+                {p.name.slice(0, 2).toUpperCase()}
+              </span>
             </div>
           )}
-          {/* Bottom gradient fade into card */}
-          <div className="absolute bottom-0 left-0 right-0 h-10 pointer-events-none"
-            style={{ background: "linear-gradient(to bottom, transparent, rgba(6,6,10,0.98))" }} />
+          {/* Gradient fade photo → card body */}
+          <div
+            className="absolute bottom-0 left-0 right-0 pointer-events-none"
+            style={{
+              height: "56px",
+              background: bench
+                ? "linear-gradient(to bottom,transparent,rgba(4,4,8,0.96))"
+                : `linear-gradient(to bottom,transparent,rgba(6,6,12,0.98))`,
+            }}
+          />
         </div>
 
-        {/* Info */}
-        <div className="px-1.5 pb-1.5 -mt-1">
-          <p className="text-[10px] font-bold text-white truncate leading-tight">{p.name}</p>
-          <div className="flex items-center justify-between mt-0.5 gap-0.5">
-            <span className="text-[8px] font-semibold" style={{ color: bench ? "rgba(255,255,255,0.3)" : pos.label }}>{p.pos}</span>
+        {/* Info block */}
+        <div className="px-2 pb-2.5 -mt-1.5">
+          <p className={`font-bold text-white truncate leading-tight ${bench ? "text-[10px]" : "text-xs sm:text-[13px]"}`}>
+            {p.name}
+          </p>
+          <div className="flex items-center justify-between mt-1 gap-1">
+            <span className={`font-bold uppercase tracking-wide ${bench ? "text-[8px]" : "text-[9px]"}`} style={{ color: bench ? "rgba(255,255,255,0.25)" : ps.label }}>
+              {p.pos}
+            </span>
             <div className="flex items-center gap-0.5">
-              <span className="text-[8px] text-white/50">£{p.price.toFixed(1)}m</span>
-              {priceUp && <span className="text-[7px] font-bold text-emerald-400">▲</span>}
-              {priceDown && <span className="text-[7px] font-bold text-red-400">▼</span>}
+              <span className={`text-white/50 ${bench ? "text-[8px]" : "text-[9px]"}`}>£{p.price.toFixed(1)}m</span>
+              {priceUp && <span className="text-[8px] font-bold text-emerald-400">▲</span>}
+              {priceDown && <span className="text-[8px] font-bold text-red-400">▼</span>}
             </div>
           </div>
-          <div className="flex items-center justify-between mt-0.5">
-            <span className="text-[9px] font-semibold text-white/70">{p.points}<span className="text-white/30 font-normal">pts</span></span>
+          <div className="flex items-center justify-between mt-1">
+            <span className={`font-semibold ${bench ? "text-[9px] text-white/50" : "text-[11px] text-white/80"}`}>
+              {p.points}<span className="text-white/30 font-normal text-[8px]"> pts</span>
+            </span>
             {p.ep_next > 0 && (
-              <span className="text-[7px] text-emerald-400/80">xP {p.ep_next.toFixed(1)}</span>
+              <span className={`text-emerald-400/80 ${bench ? "text-[7px]" : "text-[8px]"}`}>
+                xP {p.ep_next.toFixed(1)}
+              </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Fixture pills — sit below the card */}
+      {/* Fixture pills below card */}
       {p.next_fixtures.length > 0 && (
-        <div className="flex gap-0.5 justify-center flex-wrap">
+        <div className="flex gap-1 justify-center flex-wrap">
           {p.next_fixtures.slice(0, 3).map((f, i) => (
             <span
               key={i}
-              className="text-[7px] font-bold px-1 py-0.5 rounded-sm leading-none"
+              className={`font-bold rounded leading-none ${bench ? "text-[7px] px-1 py-0.5" : "text-[8px] px-1.5 py-0.5"}`}
               style={{ color: "#000", backgroundColor: DIFF_COLORS[f.difficulty] ?? "#888" }}
             >
               {f.opponent}{!f.home ? "(A)" : ""}
@@ -328,7 +354,7 @@ export default function DashboardPage() {
   if (status === "no_team") return <GateScreen title="Link Your FPL Team" body="To use the dashboard, save your public FPL Team ID in account settings. It takes 10 seconds." cta="Go to Settings" href="/admin" />
   if (status === "error" || !data) return <GateScreen title="Something went wrong" body="We couldn't load your FPL data. The FPL API may be temporarily unavailable — try again in a moment." cta="Retry" href="/dashboard" />
 
-  const starters = data.squad.filter((p) => p.slot <= 11).sort((a, b) => POS_ORDER[a.pos] - POS_ORDER[b.pos])
+  const starters = data.squad.filter((p) => p.slot <= 11)
   const bench = data.squad.filter((p) => p.slot > 11).sort((a, b) => a.slot - b.slot)
 
   // Group transfers by GW
@@ -561,19 +587,36 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Starters */}
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-11 mb-5">
-            {starters.map((p) => <PlayerCard key={p.slot} p={p} bench={false} />)}
+          {/* Starters — 4 position rows */}
+          <div className="space-y-6">
+            {(["GKP", "DEF", "MID", "FWD"] as const).map((pos) => {
+              const row = starters.filter((p) => p.pos === pos)
+              if (!row.length) return null
+              const label: Record<string, string> = { GKP: "GK", DEF: "DEF", MID: "MID", FWD: "FWD" }
+              const ps = POS_STYLE[pos]
+              return (
+                <div key={pos}>
+                  <p
+                    className="text-center text-[9px] font-bold uppercase tracking-[0.25em] mb-3"
+                    style={{ color: `${ps.border}60` }}
+                  >
+                    {label[pos]}
+                  </p>
+                  <div className="flex items-start justify-center gap-2 sm:gap-3 flex-wrap">
+                    {row.map((p) => <PlayerCard key={p.slot} p={p} bench={false} />)}
+                  </div>
+                </div>
+              )
+            })}
           </div>
 
-          {/* Bench divider */}
-          <div className="flex items-center gap-3 mb-4">
+          {/* Bench */}
+          <div className="flex items-center gap-3 mt-8 mb-5">
             <div className="flex-1 h-px bg-white/[0.06]" />
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/25">Bench</p>
             <div className="flex-1 h-px bg-white/[0.06]" />
           </div>
-
-          <div className="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+          <div className="flex items-start justify-center gap-2 sm:gap-3 flex-wrap">
             {bench.map((p) => <PlayerCard key={p.slot} p={p} bench={true} />)}
           </div>
         </div>
