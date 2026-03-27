@@ -247,7 +247,7 @@ export default function PlayerCarousel() {
                     style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 60%, transparent)" }}
                   >
                     {/* Position badge + club crest row */}
-                    <div className="flex items-start justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1">
                       <span
                         className="inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
                         style={{ color: posColor, background: `${posColor}18`, border: `1px solid ${posColor}40` }}
@@ -262,7 +262,7 @@ export default function PlayerCarousel() {
                           src={badgeUrl(player.teamCode)}
                           alt={player.club}
                           draggable={false}
-                          style={{ width: 46, height: 46, objectFit: "contain", opacity: isCenter ? 0.9 : 0.6 }}
+                          style={{ width: 28, height: 28, objectFit: "contain", opacity: isCenter ? 0.9 : 0.6 }}
                         />
                       )}
                     </div>
