@@ -135,7 +135,7 @@ export default function PlayerCarousel() {
   ]
 
   return (
-    <section className="relative w-full overflow-hidden py-20 bg-black">
+    <section className="relative w-full overflow-hidden py-14 bg-black">
       {/* Ambient glow */}
       <div
         className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
@@ -165,7 +165,7 @@ export default function PlayerCarousel() {
       {/* Carousel stage */}
       <div
         className="relative mx-auto select-none"
-        style={{ width: "100%", maxWidth: 1100, height: 480, perspective: "1200px" }}
+        style={{ width: "100%", maxWidth: 1100, height: 350, perspective: "1200px" }}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
       >
