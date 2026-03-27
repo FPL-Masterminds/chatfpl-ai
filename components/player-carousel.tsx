@@ -334,7 +334,7 @@ export default function PlayerCarousel() {
       {/* ── Typewriter reason pill ─────────────────────────────────────────── */}
       <div className="relative z-10 mt-6 flex justify-center px-4">
         <div
-          className="inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 max-w-2xl"
+          className="flex items-center gap-2.5 rounded-full px-5 py-2.5 w-full max-w-2xl"
           style={{
             background: "rgba(255,255,255,0.03)",
             border: "1px solid rgba(255,255,255,0.08)",
@@ -352,7 +352,7 @@ export default function PlayerCarousel() {
             style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
           />
           {/* Typewriter text + blinking cursor */}
-          <span className="text-[13px] text-white/75 font-medium leading-snug">
+          <span className="text-[13px] text-white/75 font-medium leading-snug truncate">
             {twText}
             {!twDone && twText.length > 0 && (
               <span className="inline-block w-px h-3.5 bg-emerald-400 ml-0.5 animate-pulse align-middle" />
