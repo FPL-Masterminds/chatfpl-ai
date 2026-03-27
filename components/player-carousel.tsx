@@ -331,39 +331,27 @@ export default function PlayerCarousel() {
         })}
       </div>
 
-      {/* ── Typewriter reason pill ─────────────────────────────────────────── */}
-      <div className="relative z-10 mt-6 flex justify-center px-4">
-        <div
-          className="flex items-center gap-2.5 rounded-full px-5 py-2.5 overflow-hidden"
-          style={{
-            width: "min(90vw, 820px)",
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            boxShadow: "0 0 0 1px rgba(255,255,255,0.04) inset, 0 2px 20px rgba(0,0,0,0.4)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            opacity: twFading ? 0 : 1,
-            transition: "opacity 0.4s ease",
-            minHeight: 40,
-          }}
-        >
-          {/* Glowing green orb */}
-          <span
-            className="h-2 w-2 rounded-full shrink-0 animate-pulse"
-            style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
-          />
-          {/* Typewriter text + blinking cursor */}
-          <span className="text-[13px] text-white/75 font-medium leading-snug whitespace-nowrap">
-            {twText}
-            {!twDone && twText.length > 0 && (
-              <span className="inline-block w-px h-3.5 bg-emerald-400 ml-0.5 animate-pulse align-middle" />
-            )}
-          </span>
-        </div>
+      {/* ── Typewriter reason — no pill background, plain centred text ───────── */}
+      <div
+        className="relative z-10 mt-5 flex justify-center items-center gap-2.5 px-6"
+        style={{ opacity: twFading ? 0 : 1, transition: "opacity 0.4s ease" }}
+      >
+        {/* Glowing green orb */}
+        <span
+          className="h-2 w-2 rounded-full shrink-0 animate-pulse"
+          style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
+        />
+        {/* Typewriter text + blinking cursor */}
+        <span className="text-[13px] text-white/75 font-medium leading-snug whitespace-nowrap overflow-hidden">
+          {twText}
+          {!twDone && twText.length > 0 && (
+            <span className="inline-block w-px h-3.5 bg-emerald-400 ml-0.5 animate-pulse align-middle" />
+          )}
+        </span>
       </div>
 
       {/* Dot nav pill */}
-      <div className="relative z-10 mt-4 flex justify-center">
+      <div className="relative z-10 mt-5 flex justify-center">
         <div
           className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5"
           style={{
