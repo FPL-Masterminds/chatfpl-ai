@@ -449,6 +449,12 @@ export default function DevChatPage() {
                 Manage Plan
               </button>
             </Link>
+            <Link href="/dashboard">
+              <button className="mt-2 w-full rounded-xl border border-emerald-400/30 text-emerald-400 font-semibold py-2 text-sm hover:bg-emerald-400/10 transition-all flex items-center justify-center gap-1.5">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                FPL Dashboard
+              </button>
+            </Link>
           </div>
         </aside>
 
@@ -788,6 +794,12 @@ export default function DevChatPage() {
               <Link href="/admin" onClick={() => setMobileDrawerOpen(false)}>
                 <button className="mt-2.5 w-full rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-semibold py-2 text-xs shadow-[0_0_20px_rgba(0,255,200,0.2)] hover:brightness-110 transition-all">
                   Manage Plan
+                </button>
+              </Link>
+              <Link href="/dashboard" onClick={() => setMobileDrawerOpen(false)}>
+                <button className="mt-2 w-full rounded-xl border border-emerald-400/30 text-emerald-400 font-semibold py-2 text-xs hover:bg-emerald-400/10 transition-all flex items-center justify-center gap-1.5">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                  FPL Dashboard
                 </button>
               </Link>
             </div>
