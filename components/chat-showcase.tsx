@@ -65,7 +65,10 @@ const PROMPTS = [
   "Should I use my wildcard now?",
 ]
 
-const INTERVAL_MS = 9000
+const INTERVAL_MS = 13000
+
+// Strip **bold** markers for typewriter display (avoids ** appearing mid-type)
+function stripBold(text: string) { return text.replace(/\*\*/g, "") }
 
 function renderText(text: string) {
   return text.split(/(\*\*[^*]+\*\*)/).map((part, i) =>
@@ -88,6 +91,17 @@ export function ChatShowcase() {
   const [scTickerFading, setScTickerFading]   = useState(false)
   const [scTickerPhoto, setScTickerPhoto]     = useState<string | null>(null)
   const sectionRef                  = useRef<HTMLElement>(null)
+
+  // ── Typewriter animation states ───────────────────────────────────────────
+  const [qText, setQText]                     = useState("")   // user question typed so far
+  const [showAiBubble, setShowAiBubble]       = useState(false)
+  const [introText, setIntroText]             = useState("")
+  const [introDone, setIntroDone]             = useState(false)
+  const [revealedPlayers, setRevealedPlayers] = useState(0)
+  const [outroText, setOutroText]             = useState("")
+  const [outroDone, setOutroDone]             = useState(false)
+  const playersRef  = useRef<ShowcasePlayers | null>(null)   // latest players without dep issues
+  const animCleanup = useRef<(() => void) | null>(null)
 
   // Fetch live player data once
   useEffect(() => {
@@ -124,18 +138,26 @@ export function ChatShowcase() {
     return () => obs.disconnect()
   }, [])
 
+  const resetAnimStates = useCallback(() => {
+    setQText(""); setShowAiBubble(false)
+    setIntroText(""); setIntroDone(false)
+    setRevealedPlayers(0); setOutroText(""); setOutroDone(false)
+  }, [])
+
   const goToTab = useCallback((idx: number) => {
     setVisible(false)
+    resetAnimStates()
     setTimeout(() => { setActiveTab(idx); setVisible(true) }, 200)
-  }, [])
+  }, [resetAnimStates])
 
   useEffect(() => {
     const id = setInterval(() => {
       setVisible(false)
+      resetAnimStates()
       setTimeout(() => { setActiveTab(p => (p + 1) % TAB_DEFS.length); setVisible(true) }, 200)
     }, INTERVAL_MS)
     return () => clearInterval(id)
-  }, [])
+  }, [resetAnimStates])
 
   // News ticker — fade out, swap, fade in every 7 s
   useEffect(() => {
@@ -149,6 +171,94 @@ export function ChatShowcase() {
     }, 7000)
     return () => clearInterval(id)
   }, [players?.injuryNews])
+
+  // Keep playersRef in sync so animation closures always see latest data
+  useEffect(() => { playersRef.current = players }, [players])
+
+  // ── Chat typewriter animation — drives on every tab change ───────────────
+  useEffect(() => {
+    if (animCleanup.current) animCleanup.current()
+
+    const tab      = TAB_DEFS[activeTab]
+    const plainIntro = stripBold(tab.intro)
+    const plainOutro = stripBold(tab.outro)
+
+    // Reset all animation state
+    setQText(""); setShowAiBubble(false)
+    setIntroText(""); setIntroDone(false)
+    setRevealedPlayers(0)
+    setOutroText(""); setOutroDone(false)
+
+    const timers: ReturnType<typeof setTimeout>[]   = []
+    const intervals: ReturnType<typeof setInterval>[] = []
+    let cancelled = false
+
+    // Phase 1 — type the user question
+    let qi = 0
+    const qInterval = setInterval(() => {
+      if (cancelled) return
+      qi++
+      setQText(tab.question.slice(0, qi))
+      if (qi >= tab.question.length) {
+        clearInterval(qInterval)
+
+        // Phase 2 — "thinking" pause, then reveal AI bubble
+        const t1 = setTimeout(() => {
+          if (cancelled) return
+          setShowAiBubble(true)
+
+          // Phase 3 — type intro
+          let ii = 0
+          const introInterval = setInterval(() => {
+            if (cancelled) return
+            ii++
+            setIntroText(plainIntro.slice(0, ii))
+            if (ii >= plainIntro.length) {
+              clearInterval(introInterval)
+              setIntroDone(true)
+
+              // Phase 4 — reveal player rows one-by-one
+              const liveP = playersRef.current ? playersRef.current[tab.dataKey] as ShowcasePlayer[] : []
+              let pi = 0
+              const revealNext = () => {
+                if (cancelled) return
+                if (pi < liveP.length) {
+                  pi++
+                  setRevealedPlayers(pi)
+                  timers.push(setTimeout(revealNext, 380))
+                } else {
+                  // Phase 5 — type outro
+                  let oi = 0
+                  const outroInterval = setInterval(() => {
+                    if (cancelled) return
+                    oi++
+                    setOutroText(plainOutro.slice(0, oi))
+                    if (oi >= plainOutro.length) {
+                      clearInterval(outroInterval)
+                      setOutroDone(true)
+                    }
+                  }, 22)
+                  intervals.push(outroInterval)
+                }
+              }
+              timers.push(setTimeout(revealNext, 250))
+            }
+          }, 22)
+          intervals.push(introInterval)
+        }, 500)
+        timers.push(t1)
+      }
+    }, 22)
+    intervals.push(qInterval)
+
+    animCleanup.current = () => {
+      cancelled = true
+      intervals.forEach(clearInterval)
+      timers.forEach(clearTimeout)
+    }
+    return () => { if (animCleanup.current) animCleanup.current() }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab])
 
   // Showcase desktop ticker — typewriter through 3 picked facts
   const SC_FACTS_INDICES = [0, 4, 9] // most expensive, most owned, most transferred-out
@@ -356,64 +466,83 @@ export function ChatShowcase() {
                 transition: "opacity 0.2s ease, transform 0.2s ease",
               }}
             >
-              {/* User message — exact devchat style */}
+              {/* User message — types out character by character */}
               <div className="w-full rounded-[20px] border border-cyan-400/15 bg-cyan-400/[0.07] px-4 py-3">
                 <div className="text-[10px] uppercase tracking-[0.22em] text-cyan-300/70 mb-1.5">You</div>
-                <p className="text-sm leading-6 text-white/90">{tabDef.question}</p>
+                <p className="text-sm leading-6 text-white/90">
+                  {qText}
+                  {qText.length > 0 && qText.length < tabDef.question.length && (
+                    <span className="inline-block w-0.5 h-3.5 bg-cyan-400 ml-0.5 animate-pulse align-middle" />
+                  )}
+                </p>
               </div>
 
-              {/* AI message — exact devchat style */}
-              <div className="w-full rounded-[24px] border border-white/[0.08] bg-black/30 px-4 py-4 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="h-8 w-8 rounded-full flex items-center justify-center text-black font-black text-[10px] shrink-0"
-                    style={{ background: "linear-gradient(135deg,#00FFFF,#00FF87)" }}>AI</div>
-                  <div>
-                    <div className="text-sm font-semibold text-white">ChatFPL</div>
-                    <div className="text-[11px] text-white/40">live</div>
+              {/* AI message — appears after thinking pause, content streams in */}
+              {showAiBubble && (
+                <div className="w-full rounded-[24px] border border-white/[0.08] bg-black/30 px-4 py-4 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className="h-8 w-8 rounded-full flex items-center justify-center text-black font-black text-[10px] shrink-0"
+                      style={{ background: "linear-gradient(135deg,#00FFFF,#00FF87)" }}>AI</div>
+                    <div>
+                      <div className="text-sm font-semibold text-white">ChatFPL</div>
+                      <div className="text-[11px] text-white/40">live</div>
+                    </div>
+                  </div>
+                  <div className="text-sm leading-6 text-white/85 space-y-3">
+                    {/* Intro — types, then shows formatted */}
+                    <p className="whitespace-pre-wrap">
+                      {introDone ? renderText(tabDef.intro) : introText}
+                      {!introDone && introText.length > 0 && (
+                        <span className="inline-block w-0.5 h-3.5 bg-emerald-400 ml-0.5 animate-pulse align-middle" />
+                      )}
+                    </p>
+
+                    {/* Player rows — fade in one-by-one */}
+                    {introDone && (
+                      <ul className="space-y-2 pl-1">
+                        {livePlayers.slice(0, revealedPlayers).map((p, pi) => (
+                          <li
+                            key={pi}
+                            className="flex items-center gap-2.5"
+                            style={{ animation: "scFadeUp 0.35s cubic-bezier(0.16,1,0.3,1) both" }}
+                          >
+                            <span className="text-[11px] text-white/30 w-4 shrink-0">{pi + 1}.</span>
+                            {p.photoUrl && (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={p.photoUrl} alt={p.name} className="inline-block h-10 w-auto rounded shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm font-semibold text-white">{p.name} </span>
+                              <span className="text-[11px] text-white/45">
+                                {p.position} · {p.price} · {p.club} · {p.totalPts} pts · Form {p.form}
+                              </span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {/* Outro — types once players revealed, then shows formatted */}
+                    {revealedPlayers >= livePlayers.length && livePlayers.length > 0 && (
+                      <p className="whitespace-pre-wrap">
+                        {outroDone ? renderText(tabDef.outro) : outroText}
+                        {!outroDone && outroText.length > 0 && (
+                          <span className="inline-block w-0.5 h-3.5 bg-emerald-400 ml-0.5 animate-pulse align-middle" />
+                        )}
+                      </p>
+                    )}
+
+                    {/* Skeleton while API fetches */}
+                    {!players && (
+                      <div className="space-y-2">
+                        {[1,2,3].map(i => (
+                          <div key={i} className="h-8 rounded-xl bg-white/[0.04] animate-pulse" />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="text-sm leading-6 text-white/85 space-y-3">
-                  {responseBlocks.map((block, bi) => {
-                    if (block.type === "text") {
-                      return (
-                        <p key={bi} className="whitespace-pre-wrap">{renderText(block.text)}</p>
-                      )
-                    }
-                    if (block.type === "players") {
-                      return (
-                        <ul key={bi} className="space-y-2 pl-1">
-                          {block.players.map((p, pi) => (
-                            <li key={pi} className="flex items-center gap-2.5">
-                              <span className="text-[11px] text-white/30 w-4 shrink-0">{pi + 1}.</span>
-                              {p.photoUrl && (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={p.photoUrl}
-                                  alt={p.name}
-                                  className="inline-block h-10 w-auto rounded shrink-0"
-                                />
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <span className="text-sm font-semibold text-white">{p.name} </span>
-                                <span className="text-[11px] text-white/45">{p.info}</span>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      )
-                    }
-                    return null
-                  })}
-                  {/* Loading skeleton while API fetches */}
-                  {!players && (
-                    <div className="space-y-2">
-                      {[1,2,3].map(i => (
-                        <div key={i} className="h-8 rounded-xl bg-white/[0.04] animate-pulse" />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Prompt pills + input — exact devchat */}
