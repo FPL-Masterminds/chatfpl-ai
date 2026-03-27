@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion } from "framer-motion"
 import type { ShowcasePlayer } from "@/app/api/showcase-players/route"
+import { Reveal } from "@/components/scroll-reveal"
 
 // ── Card position configs for 5 visible slots ────────────────────────────────
 const POSITIONS = [
@@ -147,7 +148,7 @@ export default function PlayerCarousel() {
       />
 
       {/* Heading */}
-      <div className="relative z-10 mb-10 px-4 text-center">
+      <Reveal className="relative z-10 mb-10 px-4 text-center">
         <h2 className="text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
           <span className="text-white">Your Rivals Are Already </span>
           <span
@@ -160,9 +161,10 @@ export default function PlayerCarousel() {
         <p className="mt-4 text-base text-white/55 max-w-xl mx-auto" style={{ fontWeight: 400, lineHeight: 1.65 }}>
           Live form, price, and points data pulled straight from the FPL API. Tap any player and ask ChatFPL AI exactly why they&apos;re worth your attention.
         </p>
-      </div>
+      </Reveal>
 
       {/* Carousel stage */}
+      <Reveal delay={0.1}>
       <div
         className="relative mx-auto select-none"
         style={{ width: "100%", maxWidth: 1100, height: 350, perspective: "1200px" }}
@@ -330,8 +332,10 @@ export default function PlayerCarousel() {
           )
         })}
       </div>
+      </Reveal>
 
       {/* ── Typewriter reason — no pill background, plain centred text ───────── */}
+      <Reveal delay={0.2}>
       <div
         className="relative z-10 mt-5 flex justify-center items-center gap-2.5 px-6"
         style={{ opacity: twFading ? 0 : 1, transition: "opacity 0.4s ease" }}
@@ -349,8 +353,10 @@ export default function PlayerCarousel() {
           )}
         </span>
       </div>
+      </Reveal>
 
       {/* Dot nav pill */}
+      <Reveal delay={0.3}>
       <div className="relative z-10 mt-5 flex justify-center">
         <div
           className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5"
@@ -379,6 +385,7 @@ export default function PlayerCarousel() {
           ))}
         </div>
       </div>
+      </Reveal>
 
       {/* Arrow buttons */}
       <button
