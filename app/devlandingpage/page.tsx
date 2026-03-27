@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ChatShowcase } from "@/components/chat-showcase"
+import PlayerCarousel from "@/components/player-carousel"
 import { WhyAiFpl } from "@/components/why-ai-fpl"
 import { Reveal } from "@/components/scroll-reveal"
 import { 
@@ -138,6 +139,9 @@ export default function DevLandingPage() {
 
       {/* Questions Section — replaced with interactive showcase */}
       <ChatShowcase />
+
+      {/* 3D Player Carousel */}
+      <PlayerCarousel />
 
       {/* Why AI FPL Section */}
       <WhyAiFpl />
