@@ -224,17 +224,21 @@ export async function POST(request: Request) {
         let userTeamContext = "";
         if (user.fpl_team_id) {
           try {
-            const [entryRes, picksRes] = await Promise.all([
+            const [entryRes, picksRes, historyRes] = await Promise.all([
               fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/`, {
                 headers: { "User-Agent": "ChatFPL/1.0" },
               }),
               fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/event/${currentGW}/picks/`, {
                 headers: { "User-Agent": "ChatFPL/1.0" },
               }),
+              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/history/`, {
+                headers: { "User-Agent": "ChatFPL/1.0" },
+              }),
             ]);
 
             const entryData = entryRes.ok ? await entryRes.json() : null;
             const picksData = picksRes.ok ? await picksRes.json() : null;
+            const historyData = historyRes.ok ? await historyRes.json() : null;
 
             if (entryData) {
               const teamName = entryData.name || "Unknown";
@@ -245,10 +249,18 @@ export async function POST(request: Request) {
               const bank = entryData.last_deadline_bank != null ? `£${(entryData.last_deadline_bank / 10).toFixed(1)}m` : "?";
               const totalTransfers = entryData.last_deadline_total_transfers ?? "?";
 
-              const chipsUsed: string[] = (entryData.chips || []).map((c: any) => `${c.name} (GW${c.event})`);
-              const chipsUsedNames: string[] = (entryData.chips || []).map((c: any) => c.name);
-              const allChips = ["wildcard", "freehit", "bboost", "3xc"];
-              const chipsAvailable = allChips.filter((c) => !chipsUsedNames.includes(c));
+              // Use history endpoint for chip data — it's the reliable source
+              const playedChips: any[] = historyData?.chips || entryData?.chips || [];
+              const chipsUsed: string[] = playedChips.map((c: any) => `${c.name} (GW${c.event})`);
+              const usedNames: string[] = playedChips.map((c: any) => c.name);
+
+              // Wildcards: managers get 2 per season — track usage count
+              const wildcardsUsed = usedNames.filter((n) => n === "wildcard").length;
+              const chipsAvailable: string[] = [];
+              if (wildcardsUsed < 2) chipsAvailable.push(`wildcard (${wildcardsUsed === 0 ? "both still available" : "1 used, 1 remaining"})`);
+              if (!usedNames.includes("freehit")) chipsAvailable.push("freehit");
+              if (!usedNames.includes("bboost")) chipsAvailable.push("bboost (bench boost)");
+              if (!usedNames.includes("3xc")) chipsAvailable.push("3xc (triple captain)");
 
               let squadSection = "";
               if (picksData?.picks) {
