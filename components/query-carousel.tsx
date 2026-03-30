@@ -245,10 +245,14 @@ export function QueryCarousel() {
                       style={{ filter: "brightness(0.96) saturate(1.05)" }}
                     />
                   )}
-                  {/* Glow line under player's feet */}
+                  {/* Glow line under player's feet — identical to player-carousel */}
                   <div
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px pointer-events-none"
-                    style={{ width: "70%", background: "radial-gradient(ellipse at center,rgba(255,255,255,0.6) 0%,transparent 70%)", boxShadow: "0 0 24px 3px rgba(255,255,255,0.35)" }}
+                    className="absolute bottom-0 left-0 right-0 pointer-events-none"
+                    style={{
+                      height: 1,
+                      background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+                      boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+                    }}
                   />
                 </div>
 
