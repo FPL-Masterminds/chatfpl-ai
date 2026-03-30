@@ -65,7 +65,7 @@ const PROMPTS = [
   "Should I use my wildcard now?",
 ]
 
-const INTERVAL_MS = 13000
+const INTERVAL_MS = 26000
 
 // Strip **bold** markers for typewriter display (avoids ** appearing mid-type)
 function stripBold(text: string) { return text.replace(/\*\*/g, "") }
