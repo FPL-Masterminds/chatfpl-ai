@@ -153,7 +153,7 @@ export default function PlayerCarousel() {
           <span className="text-white">Your Rivals Are Already </span>
           <span
             className="text-transparent bg-clip-text"
-            style={{ backgroundImage: "linear-gradient(to right, #00ff85, #02efff, #a855f7)", WebkitBackgroundClip: "text" }}
+            style={{ backgroundImage: "linear-gradient(to right, #00ff85, #02efff)", WebkitBackgroundClip: "text" }}
           >
             Watching These Players
           </span>

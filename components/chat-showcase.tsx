@@ -327,7 +327,7 @@ export function ChatShowcase() {
             style={fi("0.1s")}
           >
             <span className="text-white">Ask </span>
-            <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right, #00ff85, #02efff, #a855f7)", WebkitBackgroundClip: "text" }}>ChatFPL AI</span>
+            <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right, #00ff85, #02efff)", WebkitBackgroundClip: "text" }}>ChatFPL AI</span>
           </h2>
           <p className="text-lg text-gray-300 max-w-xl mx-auto" style={fi("0.22s")}>
             Get instant, data-driven answers to any FPL question. Here are some examples of what our power users are asking right now.
