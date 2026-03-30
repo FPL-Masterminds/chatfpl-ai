@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -73,7 +72,7 @@ const STAT_LABELS = [
 // ─── Shared animation config ──────────────────────────────────────────────────
 
 const SPRING = { type: "spring" as const, stiffness: 100, damping: 22, mass: 0.8 }
-const AUTO_MS = 7000
+const AUTO_MS = 10000
 const REVEAL = { duration: 0.75, ease: [0.16, 1, 0.3, 1] as number[] }
 
 // ─── Fallback players ─────────────────────────────────────────────────────────
@@ -90,9 +89,10 @@ export function QueryCarousel() {
   const [idx, setIdx]         = useState(0)
   const [photoSrc, setPhotoSrc] = useState<string | null>(null)
   const [displayedQ, setDisplayedQ] = useState("")
-  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const typingRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const pausedRef = useRef(false)
+  const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const typingRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pausedRef  = useRef(false)
+  const playersRef = useRef(players)
 
   useEffect(() => {
     fetch("/api/query-players")
@@ -209,16 +209,14 @@ export function QueryCarousel() {
         >
           {/* ── Left — Player portrait ── */}
           <div
-            className="relative rounded-3xl overflow-hidden bg-black"
+            className="relative rounded-3xl overflow-hidden"
             style={{
+              background: "linear-gradient(145deg,rgba(0,255,135,0.06) 0%,rgba(255,255,255,0.03) 50%,rgba(0,210,255,0.04) 100%)",
+              boxShadow: "0 0 60px rgba(0,255,135,0.06), inset 0 1px 0 rgba(255,255,255,0.07)",
               height: "480px",
               willChange: "transform",
             }}
           >
-            {/* Hero video background */}
-            <DevHeroVideoBg />
-            {/* Dark overlay so player photo stays legible */}
-            <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.55) 100%)" }} />
 
             {/* Rotating glow border */}
             <div
