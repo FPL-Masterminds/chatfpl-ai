@@ -105,8 +105,8 @@ export function ConversationalFAQ() {
   ])
   const [typing, setTyping] = useState(false)
   const [asked, setAsked] = useState<Set<string>>(new Set())
+  const [showAll, setShowAll] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const container = scrollRef.current
@@ -117,11 +117,10 @@ export function ConversationalFAQ() {
   function ask(item: typeof FAQ_DATA[0]) {
     if (asked.has(item.id) || typing) return
     setAsked((prev) => new Set([...prev, item.id]))
+    setShowAll(false) // collapse back to one-at-a-time after answering
 
-    // User bubble
     setMessages((prev) => [...prev, { id: `u-${item.id}`, role: "user", text: item.question }])
 
-    // Typing delay then answer
     setTyping(true)
     setTimeout(() => {
       setTyping(false)
@@ -130,6 +129,8 @@ export function ConversationalFAQ() {
   }
 
   const remaining = FAQ_DATA.filter((f) => !asked.has(f.id))
+  // In default mode show only the next question; "Load All" reveals everything
+  const visiblePills = showAll ? remaining : remaining.slice(0, 1)
 
   return (
     <div className="flex flex-col h-full">
@@ -188,9 +189,9 @@ export function ConversationalFAQ() {
       {remaining.length > 0 && (
         <div className="px-4 md:px-6 pb-6 pt-3 border-t border-white/6">
           <p className="text-white/30 text-xs mb-3 uppercase tracking-widest">Ask a question</p>
-          <div className="flex flex-wrap gap-2">
-            <AnimatePresence>
-              {remaining.map((item) => (
+          <div className="flex flex-wrap gap-2 items-center">
+            <AnimatePresence mode="popLayout">
+              {visiblePills.map((item) => (
                 <motion.button
                   key={item.id}
                   layout
@@ -211,10 +212,24 @@ export function ConversationalFAQ() {
                 </motion.button>
               ))}
             </AnimatePresence>
+
+            {/* Load All toggle — only shown when more than 1 question remains */}
+            {remaining.length > 1 && (
+              <motion.button
+                layout
+                onClick={() => setShowAll((v) => !v)}
+                disabled={typing}
+                className="text-sm px-4 py-2 rounded-full border transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:-translate-y-0.5"
+                style={{
+                  borderColor: "rgba(255,255,255,0.12)",
+                  background: "transparent",
+                  color: "rgba(255,255,255,0.35)",
+                }}
+              >
+                {showAll ? "Show less" : `Load all ${remaining.length} questions`}
+              </motion.button>
+            )}
           </div>
-          {remaining.length === 0 && (
-            <p className="text-white/30 text-sm">All questions answered. Ready to get started?</p>
-          )}
         </div>
       )}
 
