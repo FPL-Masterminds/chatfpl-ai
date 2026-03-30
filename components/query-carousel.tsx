@@ -211,11 +211,6 @@ export function QueryCarousel() {
                 animation: "glow_scroll 5.5s linear infinite",
               }}
             />
-            {/* Glow line — pinned to bottom of card, always visible */}
-            <div
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px pointer-events-none z-10"
-              style={{ width: "70%", background: "radial-gradient(ellipse at center,rgba(255,255,255,0.6) 0%,transparent 70%)", boxShadow: "0 0 24px 3px rgba(255,255,255,0.35)" }}
-            />
             <AnimatePresence mode="wait">
               <motion.div
                 key={`photo-${idx}`}
@@ -246,6 +241,11 @@ export function QueryCarousel() {
                       style={{ filter: "brightness(0.96) saturate(1.05)" }}
                     />
                   )}
+                  {/* Glow line under player's feet */}
+                  <div
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px pointer-events-none"
+                    style={{ width: "70%", background: "radial-gradient(ellipse at center,rgba(255,255,255,0.6) 0%,transparent 70%)", boxShadow: "0 0 24px 3px rgba(255,255,255,0.35)" }}
+                  />
                 </div>
 
                 {/* Player name chip — matches right panel bottom row style */}
