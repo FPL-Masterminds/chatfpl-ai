@@ -44,7 +44,7 @@ export default function FAQPage() {
 
         {/* Chat window */}
         <div
-          className="w-full max-w-2xl flex flex-col overflow-hidden"
+          className="w-full max-w-4xl flex flex-col overflow-hidden"
           style={{
             height: "clamp(520px, 72vh, 760px)",
             borderRadius: 28,
