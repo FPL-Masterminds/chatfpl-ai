@@ -211,10 +211,15 @@ export function QueryCarousel() {
                 animation: "glow_scroll 5.5s linear infinite",
               }}
             />
+            {/* Glow line — pinned to bottom of card, always visible */}
+            <div
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px pointer-events-none z-10"
+              style={{ width: "70%", background: "radial-gradient(ellipse at center,rgba(255,255,255,0.6) 0%,transparent 70%)", boxShadow: "0 0 24px 3px rgba(255,255,255,0.35)" }}
+            />
             <AnimatePresence mode="wait">
               <motion.div
                 key={`photo-${idx}`}
-                className="absolute inset-0 flex flex-col items-center justify-end pb-6"
+                className="absolute inset-0 flex flex-col items-center justify-end pb-5"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -222,7 +227,7 @@ export function QueryCarousel() {
                 style={{ willChange: "opacity" }}
               >
                 {/* Player photo */}
-                <div className="absolute inset-x-0 top-4 bottom-20 flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-x-0 top-4 bottom-24 flex items-center justify-center overflow-hidden">
                   {photoOk ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -241,24 +246,19 @@ export function QueryCarousel() {
                       style={{ filter: "brightness(0.96) saturate(1.05)" }}
                     />
                   )}
-                  <div
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px pointer-events-none"
-                    style={{ width: "70%", background: "radial-gradient(ellipse at center, rgba(255,255,255,0.5) 0%, transparent 70%)", boxShadow: "0 0 20px 2px rgba(255,255,255,0.3)" }}
-                  />
                 </div>
 
-                {/* Player name chip */}
+                {/* Player name chip — matches right panel bottom row style */}
                 <div
-                  className="relative z-10 rounded-2xl px-5 py-2.5 text-center"
-                  style={{ background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.2)", backdropFilter: "blur(12px)" }}
+                  className="relative z-10 rounded-2xl px-4 py-3 flex items-center gap-3"
+                  style={{ background: "rgba(0,0,0,0.72)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}
                 >
-                  <p
-                    className="font-bold text-transparent bg-clip-text text-lg leading-tight"
-                    style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
-                  >
-                    {p.full_name}
-                  </p>
-                  <p className="text-white/50 text-xs mt-0.5">{p.team} · {p.pos} · £{p.price}m</p>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.badge_url} alt={p.team} className="h-7 w-7 object-contain shrink-0" />
+                  <div>
+                    <p className="font-bold text-white text-base leading-tight">{p.full_name}</p>
+                    <p className="text-white/40 text-xs mt-0.5">{p.team} · {p.pos} · £{p.price}m</p>
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>
