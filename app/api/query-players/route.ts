@@ -14,7 +14,8 @@ export async function GET() {
     const data = await res.json();
 
     const teamMap: Record<number, string> = {};
-    (data.teams ?? []).forEach((t: any) => { teamMap[t.id] = t.name; });
+    const teamCodeMap: Record<number, number> = {};
+    (data.teams ?? []).forEach((t: any) => { teamMap[t.id] = t.name; teamCodeMap[t.id] = t.code; });
 
     const posMap: Record<number, string> = {};
     (data.element_types ?? []).forEach((pt: any) => { posMap[pt.id] = pt.singular_name_short; });
@@ -40,6 +41,7 @@ export async function GET() {
         total_points: p.total_points,
         photo_url: `https://resources.premierleague.com/premierleague25/photos/players/250x250/${p.code}.png`,
         photo_fallback: `https://resources.premierleague.com/premierleague25/photos/players/110x140/${p.code}.png`,
+        badge_url: `https://resources.premierleague.com/premierleague/badges/70/t${teamCodeMap[p.team]}.png`,
         news: p.news ?? "",
       }));
 

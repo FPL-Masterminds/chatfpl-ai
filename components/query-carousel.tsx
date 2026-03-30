@@ -10,7 +10,7 @@ interface Player {
   id: number; code: number; name: string; full_name: string; team: string
   pos: string; price: string; ownership: string; form: string; ep_next: string
   goals: number; assists: number; total_points: number
-  photo_url: string; photo_fallback: string; news: string
+  photo_url: string; photo_fallback: string; badge_url: string; news: string
 }
 
 // ─── Query templates ─────────────────────────────────────────────────────────
@@ -78,8 +78,8 @@ const REVEAL = { duration: 0.75, ease: [0.16, 1, 0.3, 1] as number[] }
 // ─── Fallback players ─────────────────────────────────────────────────────────
 
 const FALLBACK: Player[] = [
-  { id: 1, code: 223094, name: "Haaland", full_name: "Erling Haaland", team: "Man City", pos: "FWD", price: "14.0", ownership: "47.2", form: "8.8", ep_next: "8.5", goals: 18, assists: 3, total_points: 162, photo_url: "https://resources.premierleague.com/premierleague25/photos/players/250x250/223094.png", photo_fallback: "https://resources.premierleague.com/premierleague25/photos/players/110x140/223094.png", news: "" },
-  { id: 2, code: 118748, name: "Salah", full_name: "Mohamed Salah", team: "Liverpool", pos: "MID", price: "13.5", ownership: "62.1", form: "12.0", ep_next: "11.5", goals: 20, assists: 14, total_points: 210, photo_url: "https://resources.premierleague.com/premierleague25/photos/players/250x250/118748.png", photo_fallback: "https://resources.premierleague.com/premierleague25/photos/players/110x140/118748.png", news: "" },
+  { id: 1, code: 223094, name: "Haaland", full_name: "Erling Haaland", team: "Man City", pos: "FWD", price: "14.0", ownership: "47.2", form: "8.8", ep_next: "8.5", goals: 18, assists: 3, total_points: 162, photo_url: "https://resources.premierleague.com/premierleague25/photos/players/250x250/223094.png", photo_fallback: "https://resources.premierleague.com/premierleague25/photos/players/110x140/223094.png", badge_url: "https://resources.premierleague.com/premierleague/badges/70/t43.png", news: "" },
+  { id: 2, code: 118748, name: "Salah", full_name: "Mohamed Salah", team: "Liverpool", pos: "MID", price: "13.5", ownership: "62.1", form: "12.0", ep_next: "11.5", goals: 20, assists: 14, total_points: 210, photo_url: "https://resources.premierleague.com/premierleague25/photos/players/250x250/118748.png", photo_fallback: "https://resources.premierleague.com/premierleague25/photos/players/110x140/118748.png", badge_url: "https://resources.premierleague.com/premierleague/badges/70/t14.png", news: "" },
 ]
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -327,10 +327,14 @@ export function QueryCarousel() {
             </div>
 
             {/* Bottom row — pinned by justify-between on parent, never moves */}
-            <div className="flex items-end justify-between pt-5 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-              <div>
-                <p className="font-bold text-white text-base">{p.name}</p>
-                <p className="text-white/40 text-sm">{p.team}</p>
+            <div className="flex items-center justify-between pt-5 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="flex items-center gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.badge_url} alt={p.team} className="h-8 w-8 object-contain shrink-0" />
+                <div>
+                  <p className="font-bold text-white text-base leading-tight">{p.name}</p>
+                  <p className="text-white/40 text-sm">{p.team}</p>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
