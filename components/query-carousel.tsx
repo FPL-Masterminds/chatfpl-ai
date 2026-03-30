@@ -248,17 +248,10 @@ export function QueryCarousel() {
                   />
                 </div>
 
-                {/* Player name chip — matches right panel bottom row style */}
-                <div
-                  className="relative z-10 rounded-2xl px-4 py-3 flex items-center gap-3"
-                  style={{ background: "rgba(0,0,0,0.72)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.badge_url} alt={p.team} className="h-7 w-7 object-contain shrink-0" />
-                  <div>
-                    <p className="font-bold text-white text-base leading-tight">{p.full_name}</p>
-                    <p className="text-white/40 text-xs mt-0.5">{p.team} · {p.pos} · £{p.price}m</p>
-                  </div>
+                {/* Player name — plain centred text, no background */}
+                <div className="relative z-10 text-center">
+                  <p className="font-bold text-white text-lg leading-tight">{p.full_name}</p>
+                  <p className="text-white/50 text-xs mt-1">{p.team} · {p.pos} · £{p.price}m</p>
                 </div>
               </motion.div>
             </AnimatePresence>
