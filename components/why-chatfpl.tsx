@@ -120,7 +120,7 @@ export function WhyChatFPL() {
   return (
     <section ref={containerRef} className="relative bg-black px-4 py-24 overflow-hidden">
       {/* Ambient glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_50%_60%_at_50%_50%,rgba(0,255,135,0.04),transparent)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_50%_at_15%_60%,rgba(0,255,135,0.07),transparent)]" />
 
       <div className="relative mx-auto max-w-4xl">
 

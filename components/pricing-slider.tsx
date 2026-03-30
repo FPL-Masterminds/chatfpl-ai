@@ -171,7 +171,7 @@ export function PricingSlider() {
 
   return (
     <section className="relative bg-black px-4 py-24 overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(0,255,135,0.05),transparent)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_50%_at_85%_70%,rgba(0,210,255,0.06),transparent),radial-gradient(ellipse_40%_40%_at_20%_30%,rgba(0,255,135,0.06),transparent)]" />
 
       <div className="relative mx-auto max-w-6xl">
 

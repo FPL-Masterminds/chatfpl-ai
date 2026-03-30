@@ -330,7 +330,8 @@ export default function DevLandingPage() {
           </div>}
 
       {/* FAQ Link */}
-      <section className="px-4 py-16 text-center">
+      <section className="relative px-4 py-16 text-center overflow-hidden">
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 80% at 50% 50%, rgba(0,255,135,0.05) 0%, transparent 70%)" }} />
         <Reveal>
           <p className="text-white/40 text-sm mb-4">Got questions?</p>
           <Link
