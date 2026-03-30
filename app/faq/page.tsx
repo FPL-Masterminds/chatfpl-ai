@@ -39,11 +39,8 @@ export default function FAQPage() {
       <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 pt-28 pb-12">
 
         {/* Heading */}
-        <div className="text-center mb-10 max-w-2xl">
-          <h1
-            className="font-bold leading-[1.1] tracking-tighter mb-3 whitespace-nowrap"
-            style={{ fontSize: "clamp(20px,3.5vw,42px)" }}
-          >
+        <div className="text-center mb-10 max-w-4xl">
+          <h1 className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
             <span className="text-white">Frequently </span>
             <span
               className="text-transparent bg-clip-text"
@@ -52,7 +49,7 @@ export default function FAQPage() {
               Asked Questions
             </span>
           </h1>
-          <p className="text-white/45 text-base">
+          <p className="text-lg text-gray-300">
             Click a question below and get the answer instantly.
           </p>
         </div>
