@@ -173,11 +173,20 @@ export function QueryCarousel() {
               className="relative rounded-3xl overflow-hidden"
               style={{
                 background: "linear-gradient(145deg,rgba(0,255,135,0.06) 0%,rgba(255,255,255,0.03) 50%,rgba(0,210,255,0.04) 100%)",
-                border: "1px solid rgba(0,255,135,0.12)",
                 boxShadow: "0 0 60px rgba(0,255,135,0.06), inset 0 1px 0 rgba(255,255,255,0.07)",
                 height: "480px",
               }}
             >
+              {/* Rotating glow border */}
+              <div
+                className="glow-border-mask pointer-events-none absolute inset-0 rounded-3xl"
+                style={{
+                  padding: "1px",
+                  background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+                  backgroundSize: "220% 220%",
+                  animation: "glow_scroll 5.5s linear infinite",
+                }}
+              />
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`photo-${idx}`}
@@ -251,7 +260,7 @@ export function QueryCarousel() {
               <div
                 className="glow-border-mask pointer-events-none absolute inset-0 rounded-3xl"
                 style={{
-                  padding: "2px",
+                  padding: "1px",
                   background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
                   backgroundSize: "220% 220%",
                   animation: "glow_scroll 5s linear infinite",
@@ -332,7 +341,7 @@ export function QueryCarousel() {
                     <div
                       className="glow-border-mask pointer-events-none absolute inset-0 rounded-full"
                       style={{
-                        padding: "2px",
+                        padding: "1px",
                         background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
                         backgroundSize: "220% 220%",
                         animation: "glow_scroll 4s linear infinite",
@@ -354,7 +363,7 @@ export function QueryCarousel() {
                     <div
                       className="glow-border-mask pointer-events-none absolute inset-0 rounded-full"
                       style={{
-                        padding: "2px",
+                        padding: "1px",
                         background: "linear-gradient(90deg,#00FFFF,rgba(255,255,255,0.08),#00FF87,rgba(255,255,255,0.08),#00FFFF)",
                         backgroundSize: "220% 220%",
                         animation: "glow_scroll 4.8s linear infinite",

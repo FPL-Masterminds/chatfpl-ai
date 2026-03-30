@@ -183,7 +183,7 @@ export default function PlayerCarousel() {
               className="absolute top-0 left-1/2 cursor-pointer"
               style={{ transformStyle: "preserve-3d", zIndex: pos.zIdx }}
               animate={{ x: pos.x, z: pos.z, rotateY: pos.rotY, scale: pos.scale, opacity: pos.opacity }}
-              transition={{ type: "spring", stiffness: 260, damping: 28 }}
+              transition={{ type: "spring", stiffness: 155, damping: 30 }}
             >
               {/* Outer wrapper — gives coordinate system; overflow:visible lets photo float above */}
               <div style={{ position: "relative", width: 220, height: 310, marginLeft: -110 }}>
@@ -334,10 +334,10 @@ export default function PlayerCarousel() {
                     className="glow-border-mask pointer-events-none absolute inset-0"
                     style={{
                       borderRadius: 20,
-                      padding: "2px",
+                      padding: "1px",
                       background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
                       backgroundSize: "220% 220%",
-                      animation: "glow_scroll 4s linear infinite",
+                      animation: "glow_scroll 6s linear infinite",
                       zIndex: 6,
                     }}
                   />
