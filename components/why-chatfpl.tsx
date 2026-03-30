@@ -109,7 +109,6 @@ function Card({ card, index }: { card: typeof CARDS[0]; index: number }) {
             <p className="text-white/55 leading-relaxed text-sm md:text-base">{card.desc}</p>
           </div>
         </div>
-        </div>
       </motion.div>
     </div>
   )
