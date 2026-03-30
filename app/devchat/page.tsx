@@ -550,9 +550,13 @@ export default function DevChatPage() {
               <div className="devchat-messages flex-1 overflow-y-auto p-4 pb-24 md:pb-6 md:p-6 space-y-5">
                 {messages.map((message) => (
                   message.role === "user" ? (
-                    <div key={message.id} className="w-full rounded-[24px] border border-cyan-400/15 bg-cyan-400/[0.07] p-4 md:p-5">
-                      <div className="text-[10px] uppercase tracking-[0.22em] text-cyan-300/70 mb-2">You</div>
-                      <p className="text-sm md:text-base leading-7 text-white/90">{message.content}</p>
+                    <div key={message.id} className="flex justify-end">
+                      <div
+                        className="max-w-[80%] rounded-[20px] rounded-br-sm px-4 py-3 text-sm leading-relaxed font-medium text-black"
+                        style={{ background: "linear-gradient(to right,#22d3ee,#34d399)" }}
+                      >
+                        {message.content}
+                      </div>
                     </div>
                   ) : (
                     <div key={message.id} className="w-full rounded-[28px] border border-white/8 bg-black/30 p-4 md:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
