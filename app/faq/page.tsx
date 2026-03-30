@@ -75,12 +75,8 @@ export default function FAQPage() {
           >
             {/* Inner chat window */}
             <div
-              className="w-full flex flex-col overflow-hidden rounded-[24px]"
-              style={{
-                height: "clamp(520px, 72vh, 780px)",
-                background: "linear-gradient(to bottom,rgba(255,255,255,0.04),rgba(255,255,255,0.02))",
-                backdropFilter: "blur(24px)",
-              }}
+              className="w-full flex flex-col overflow-hidden rounded-[24px] bg-[#080808]"
+              style={{ height: "clamp(520px, 72vh, 780px)" }}
             >
               <ConversationalFAQ />
             </div>
