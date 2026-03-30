@@ -258,7 +258,7 @@ export default function PlayerCarousel() {
                     background: isCenter
                       ? "linear-gradient(145deg, rgba(0,20,16,0.95) 0%, rgba(0,10,20,0.98) 100%)"
                       : "linear-gradient(145deg, rgba(8,12,18,0.92) 0%, rgba(4,8,14,0.95) 100%)",
-                    border: isCenter ? "1px solid rgba(0,255,133,0.25)" : "1px solid rgba(255,255,255,0.06)",
+                    border: isCenter ? "none" : "1px solid rgba(255,255,255,0.06)",
                     boxShadow: isCenter
                       ? "0 0 40px rgba(0,255,133,0.15), 0 24px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)"
                       : "0 12px 32px rgba(0,0,0,0.5)",
@@ -327,6 +327,21 @@ export default function PlayerCarousel() {
                     />
                   )}
                 </div>
+
+                {/* Rotating glow border — center card only */}
+                {isCenter && (
+                  <div
+                    className="glow-border-mask pointer-events-none absolute inset-0"
+                    style={{
+                      borderRadius: 20,
+                      padding: "2px",
+                      background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+                      backgroundSize: "220% 220%",
+                      animation: "glow_scroll 4s linear infinite",
+                      zIndex: 6,
+                    }}
+                  />
+                )}
               </div>
             </motion.div>
           )
