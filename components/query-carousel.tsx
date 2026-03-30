@@ -96,7 +96,7 @@ export function QueryCarousel() {
   useEffect(() => {
     fetch("/api/query-players")
       .then((r) => r.json())
-      .then((d) => { if (d.players?.length) setPlayers(d.players) })
+      .then((d) => { if (d.players?.length) { setPlayers(d.players); setPhotoOk(true) } })
       .catch(() => {})
   }, [])
 
@@ -329,7 +329,7 @@ export function QueryCarousel() {
                         className="rounded-xl px-3 py-2"
                         style={{ background: "linear-gradient(135deg,#00ff85,#02efff)" }}
                       >
-                        <p className="text-[9px] uppercase tracking-[0.15em] mb-0.5" style={{ color: "rgba(0,0,0,0.5)" }}>{s.label}</p>
+                        <p className="text-[9px] uppercase tracking-[0.15em] mb-0.5" style={{ color: "#00190D" }}>{s.label}</p>
                         <p className="text-sm font-bold" style={{ color: "rgba(0,0,0,0.85)" }}>{s.value}</p>
                       </div>
                     ))}
