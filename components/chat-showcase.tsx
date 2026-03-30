@@ -312,8 +312,8 @@ export function ChatShowcase() {
 
   return (
     <section ref={sectionRef} className="relative px-4 py-24 bg-black overflow-hidden">
-      {/* Green gaseous glow — top-right */}
-      <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 40% at 80% 10%, rgba(0,255,135,0.07) 0%, transparent 70%)" }} />
+      {/* Green gaseous glow — middle-right */}
+      <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 45% 50% at 92% 50%, rgba(0,255,135,0.05) 0%, transparent 70%)" }} />
       <style>{`
         @keyframes scFadeUp {
           from { opacity:0; transform:translateY(24px); }
