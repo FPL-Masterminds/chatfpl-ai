@@ -243,11 +243,20 @@ export function QueryCarousel() {
               className="relative rounded-3xl flex flex-col justify-between p-7 md:p-8 overflow-hidden"
               style={{
                 background: "linear-gradient(145deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.02) 100%)",
-                border: "1px solid rgba(255,255,255,0.08)",
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
                 height: "480px",
               }}
             >
+              {/* Rotating glow border — inset inside overflow:hidden */}
+              <div
+                className="glow-border-mask pointer-events-none absolute inset-0 rounded-3xl"
+                style={{
+                  padding: "2px",
+                  background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+                  backgroundSize: "220% 220%",
+                  animation: "glow_scroll 5s linear infinite",
+                }}
+              />
               <div className="flex-1">
                 {/* "Question asked" label */}
                 <div className="flex items-center gap-2 mb-5">
@@ -318,26 +327,50 @@ export function QueryCarousel() {
 
                 {/* Nav buttons */}
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => go(-1)}
-                    className="h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                    style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
-                    aria-label="Previous player"
-                  >
-                    <svg className="h-4 w-4 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => go(1)}
-                    className="h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                    style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
-                    aria-label="Next player"
-                  >
-                    <svg className="h-4 w-4 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
+                  {/* Prev */}
+                  <div className="relative rounded-full inline-flex">
+                    <div
+                      className="glow-border-mask pointer-events-none absolute inset-0 rounded-full"
+                      style={{
+                        padding: "2px",
+                        background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+                        backgroundSize: "220% 220%",
+                        animation: "glow_scroll 4s linear infinite",
+                      }}
+                    />
+                    <button
+                      onClick={() => go(-1)}
+                      className="relative h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                      style={{ background: "rgba(255,255,255,0.06)" }}
+                      aria-label="Previous player"
+                    >
+                      <svg className="h-4 w-4 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                  {/* Next */}
+                  <div className="relative rounded-full inline-flex">
+                    <div
+                      className="glow-border-mask pointer-events-none absolute inset-0 rounded-full"
+                      style={{
+                        padding: "2px",
+                        background: "linear-gradient(90deg,#00FFFF,rgba(255,255,255,0.08),#00FF87,rgba(255,255,255,0.08),#00FFFF)",
+                        backgroundSize: "220% 220%",
+                        animation: "glow_scroll 4.8s linear infinite",
+                      }}
+                    />
+                    <button
+                      onClick={() => go(1)}
+                      className="relative h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                      style={{ background: "rgba(255,255,255,0.06)" }}
+                      aria-label="Next player"
+                    >
+                      <svg className="h-4 w-4 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

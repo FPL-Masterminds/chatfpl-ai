@@ -56,12 +56,21 @@ export default function DevLandingPage() {
 
             {/* Announcement pill */}
             <div className="flex justify-center hero-fadein" style={{ animationDelay: '0.1s' }}>
+              <div className="relative inline-flex rounded-full">
+                <div
+                  className="glow-border-mask pointer-events-none absolute inset-0 rounded-full"
+                  style={{
+                    padding: "1px",
+                    background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+                    backgroundSize: "220% 220%",
+                    animation: "glow_scroll 5s linear infinite",
+                  }}
+                />
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:brightness-110"
+                className="relative inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:brightness-110"
                 style={{
                   background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(0,255,133,0.35)',
                   backdropFilter: 'blur(8px)',
                 }}
               >
@@ -78,6 +87,7 @@ export default function DevLandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
+              </div>
             </div>
 
             <h1 className="hero-fadein font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: 'clamp(36px, 6vw, 68px)', animationDelay: '0.25s' }}>

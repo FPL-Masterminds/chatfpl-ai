@@ -341,10 +341,14 @@ export function ChatShowcase() {
             className="absolute inset-0 rounded-[32px] opacity-30 blur-2xl pointer-events-none"
             style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
           />
-          {/* 2px gradient border wrapper */}
+          {/* 2px animated glow border wrapper */}
           <div
             className="relative rounded-[26px] p-[2px]"
-            style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
+            style={{
+              background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
+              backgroundSize: "220% 220%",
+              animation: "glow_scroll 6s linear infinite",
+            }}
           >
         <div
           className="rounded-[24px] bg-[#080808] overflow-hidden flex w-full"
@@ -675,24 +679,35 @@ export function ChatShowcase() {
           >
             {TAB_DEFS.map((t, i) => {
               const active = i === activeTab
-              return (
+              return active ? (
+                <div key={t.id} className="relative rounded-full inline-flex">
+                  <div
+                    className="glow-border-mask pointer-events-none absolute inset-0 rounded-full"
+                    style={{
+                      padding: "1.5px",
+                      background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+                      backgroundSize: "220% 220%",
+                      animation: `glow_scroll ${3.5 + i * 0.4}s linear infinite`,
+                    }}
+                  />
+                  <button
+                    onClick={() => goToTab(i)}
+                    className="relative rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-[11px] sm:text-sm font-medium transition-all duration-300 focus:outline-none"
+                    style={{ background: "rgba(0,0,0,0.9)", boxShadow: "0 0 12px rgba(0,255,200,0.12)" }}
+                  >
+                    <span className="font-semibold" style={{ background:"linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+                      {t.label}
+                    </span>
+                  </button>
+                </div>
+              ) : (
                 <button
                   key={t.id}
                   onClick={() => goToTab(i)}
                   className="relative rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-[11px] sm:text-sm font-medium transition-all duration-300 focus:outline-none"
-                  style={active ? {
-                    background: "linear-gradient(rgba(0,0,0,0.9),rgba(0,0,0,0.9)) padding-box, linear-gradient(to right,#00FFFF,#00FF87) border-box",
-                    border: "1.5px solid transparent",
-                    boxShadow: "0 0 12px rgba(0,255,200,0.12)",
-                  } : { border: "1.5px solid transparent" }}
+                  style={{ border: "1.5px solid transparent" }}
                 >
-                  {active ? (
-                    <span className="font-semibold" style={{ background:"linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-                      {t.label}
-                    </span>
-                  ) : (
-                    <span className="text-white/38 hover:text-white/60 transition-colors">{t.label}</span>
-                  )}
+                  <span className="text-white/38 hover:text-white/60 transition-colors">{t.label}</span>
                 </button>
               )
             })}
