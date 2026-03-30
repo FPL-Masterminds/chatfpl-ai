@@ -164,7 +164,6 @@ export function QueryCarousel() {
     >
       {/* Ambient background */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_20%_50%,rgba(0,255,135,0.06),transparent),radial-gradient(ellipse_60%_50%_at_80%_50%,rgba(0,210,255,0.06),transparent)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.025] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] bg-[size:48px_48px]" />
 
       <div className="relative mx-auto max-w-6xl">
 
