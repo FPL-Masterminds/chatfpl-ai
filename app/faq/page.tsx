@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function FAQPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-[#080c10]">
+    <div className="flex min-h-screen flex-col bg-black">
       {/* Subtle grid */}
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"
@@ -21,7 +21,7 @@ export default function FAQPage() {
 
       <DevHeader />
 
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 pt-16 pb-12">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 pt-28 pb-12">
 
         {/* Heading */}
         <div className="text-center mb-10 max-w-xl">
