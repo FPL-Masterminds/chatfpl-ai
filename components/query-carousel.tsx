@@ -88,7 +88,7 @@ const FALLBACK: Player[] = [
 export function QueryCarousel() {
   const [players, setPlayers] = useState<Player[]>(FALLBACK)
   const [idx, setIdx]         = useState(0)
-  const [photoOk, setPhotoOk] = useState(true)
+  const [photoSrc, setPhotoSrc] = useState<string | null>(null)
   const [displayedQ, setDisplayedQ] = useState("")
   const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
   const typingRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -97,12 +97,27 @@ export function QueryCarousel() {
   useEffect(() => {
     fetch("/api/query-players")
       .then((r) => r.json())
-      .then((d) => { if (d.players?.length) { setPlayers(d.players); setPhotoOk(true) } })
+      .then((d) => { if (d.players?.length) setPlayers(d.players) })
       .catch(() => {})
   }, [])
 
+  // Preload image so it's decoded and ready before entering the DOM
+  useEffect(() => {
+    const player = players[idx]
+    setPhotoSrc(null)
+    const img = new window.Image()
+    img.onload  = () => setPhotoSrc(img.src)
+    img.onerror = () => {
+      // primary URL failed — try fallback
+      const fb = new window.Image()
+      fb.onload  = () => setPhotoSrc(fb.src)
+      fb.onerror = () => setPhotoSrc(player.photo_fallback) // show whatever we have
+      fb.src = player.photo_fallback
+    }
+    img.src = player.photo_url
+  }, [idx, players])
+
   const go = useCallback((dir: 1 | -1) => {
-    setPhotoOk(true)
     setIdx((i) => (i + dir + players.length) % players.length)
   }, [players.length])
 
@@ -225,24 +240,15 @@ export function QueryCarousel() {
                 transition={{ duration: 0.4, ease: "easeInOut" }}
                 style={{ willChange: "opacity" }}
               >
-                {/* Player photo */}
+                {/* Player photo — only rendered once preloaded, no broken-image flash */}
                 <div className="absolute inset-x-0 top-4 bottom-24 flex items-center justify-center overflow-hidden">
-                  {photoOk ? (
+                  {photoSrc && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={p.photo_url}
+                      src={photoSrc}
                       alt={p.name}
                       className="h-full w-auto object-contain object-bottom drop-shadow-2xl"
                       style={{ filter: "brightness(0.96) saturate(1.05) contrast(1.02)" }}
-                      onError={() => setPhotoOk(false)}
-                    />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={p.photo_fallback}
-                      alt={p.name}
-                      className="h-full w-auto object-contain object-bottom drop-shadow-2xl"
-                      style={{ filter: "brightness(0.96) saturate(1.05)" }}
                     />
                   )}
                   {/* Glow line under player's feet — identical to player-carousel */}
@@ -400,7 +406,7 @@ export function QueryCarousel() {
           {players.map((_, i) => (
             <button
               key={i}
-              onClick={() => { setPhotoOk(true); setIdx(i) }}
+              onClick={() => setIdx(i)}
               className="rounded-full transition-all duration-300"
               style={{
                 width: i === idx ? "24px" : "6px",
