@@ -250,7 +250,7 @@ export function QueryCarousel() {
 
           {/* ── Right — Question + stats + nav ── */}
           <div
-            className="relative rounded-3xl flex flex-col p-7 md:p-8 overflow-hidden"
+            className="relative rounded-3xl flex flex-col justify-between p-7 md:p-8 overflow-hidden"
             style={{
               background: "linear-gradient(145deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.02) 100%)",
               boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
@@ -279,12 +279,12 @@ export function QueryCarousel() {
               </span>
             </div>
 
-            {/* Fixed-height content zone — absolutely positioned slides can't affect layout */}
-            <div className="relative shrink-0" style={{ height: "260px" }}>
-              <AnimatePresence mode="wait">
+            {/* Fixed-height content zone — popLayout keeps exiting element in-place so layout never collapses */}
+            <div className="overflow-hidden shrink-0" style={{ height: "280px" }}>
+              <AnimatePresence mode="popLayout">
                 <motion.div
                   key={`q-${idx}`}
-                  className="absolute inset-0 overflow-hidden"
+                  className="h-full overflow-hidden"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -326,10 +326,7 @@ export function QueryCarousel() {
               </AnimatePresence>
             </div>
 
-            {/* Pushes bottom row to end regardless of content above */}
-            <div className="flex-1" />
-
-            {/* Bottom row — pinned, never moves */}
+            {/* Bottom row — pinned by justify-between on parent, never moves */}
             <div className="flex items-end justify-between pt-5 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
               <div>
                 <p className="font-bold text-white text-base">{p.name}</p>
