@@ -266,25 +266,27 @@ export function QueryCarousel() {
                   animation: "glow_scroll 5s linear infinite",
                 }}
               />
-              <div className="flex-1">
-                {/* "Question asked" label */}
-                <div className="flex items-center gap-2 mb-5">
-                  <span
-                    className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest"
-                    style={{ background: "rgba(0,255,135,0.1)", color: "#00FF87", border: "1px solid rgba(0,255,135,0.25)" }}
-                  >
-                    Example question
-                  </span>
-                </div>
+              {/* Fixed-height label — never moves */}
+              <div className="flex items-center gap-2 mb-5 shrink-0">
+                <span
+                  className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest"
+                  style={{ background: "rgba(0,255,135,0.1)", color: "#00FF87", border: "1px solid rgba(0,255,135,0.25)" }}
+                >
+                  Example question
+                </span>
+              </div>
 
-                {/* Question text */}
+              {/* Fixed-height content area — question + stats locked in place */}
+              <div className="relative shrink-0" style={{ height: "260px" }}>
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`q-${idx}`}
+                    className="absolute inset-0 overflow-hidden"
                     initial={{ opacity: 0, x: direction > 0 ? 30 : -30 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: direction > 0 ? -30 : 30 }}
                     transition={{ ...SPRING, stiffness: 140, damping: 25 }}
+                    style={{ willChange: "transform, opacity" }}
                   >
                     <p
                       className="text-white leading-relaxed mb-6"
@@ -301,7 +303,6 @@ export function QueryCarousel() {
                     <div className="grid grid-cols-2 gap-2">
                       {stats.map((s, i) => (
                         <div key={s.label} className="relative rounded-xl">
-                          {/* Scrolling gradient border layer */}
                           <div
                             className="glow-border-mask absolute inset-0 rounded-xl"
                             style={{
@@ -311,7 +312,6 @@ export function QueryCarousel() {
                               animation: `glow_scroll ${3.8 + i * 0.65}s linear infinite`,
                             }}
                           />
-                          {/* Card content */}
                           <div
                             className="relative rounded-xl px-3 py-2"
                             style={{ background: "rgba(10,10,15,0.7)" }}
@@ -325,6 +325,9 @@ export function QueryCarousel() {
                   </motion.div>
                 </AnimatePresence>
               </div>
+
+              {/* Spacer pushes bottom row to end */}
+              <div className="flex-1" />
 
               {/* Bottom row — name + nav */}
               <div className="flex items-end justify-between mt-6 pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
