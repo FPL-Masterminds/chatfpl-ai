@@ -9,7 +9,13 @@ export const metadata = {
 
 export default function FAQPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-black">
+    <div className="flex min-h-screen flex-col bg-black faq-root">
+      <style>{`
+        .faq-root ::-webkit-scrollbar { width: 4px; height: 4px; }
+        .faq-root ::-webkit-scrollbar-track { background: transparent; }
+        .faq-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
+        .faq-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
+      `}</style>
       {/* Subtle grid */}
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"
