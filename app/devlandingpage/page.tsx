@@ -10,6 +10,7 @@ import { ChatShowcase } from "@/components/chat-showcase"
 import PlayerCarousel from "@/components/player-carousel"
 import { QueryCarousel } from "@/components/query-carousel"
 import { WhyChatFPL } from "@/components/why-chatfpl"
+import { PricingSlider } from "@/components/pricing-slider"
 import { Reveal } from "@/components/scroll-reveal"
 import { 
   TrendingUp, 
@@ -169,21 +170,10 @@ export default function DevLandingPage() {
       <WhyChatFPL />
 
       {/* Pricing Section */}
-      <section className="border-b border-gray-800 px-4 py-20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="mb-12 text-center">
-            <Reveal>
-              <h2 className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
-                <span className="text-white">Simple </span>
-                <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(to right, #00ff85, #02efff)', WebkitBackgroundClip: 'text' }}>Transparent Pricing</span>
-              </h2>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <p className="text-lg text-gray-300">Choose the plan that fits your FPL ambitions</p>
-            </Reveal>
-          </div>
+      <PricingSlider />
 
-          <div className="grid gap-6 md:grid-cols-3">
+      {/* HIDDEN BELOW — kept for reference only */}
+      {false && <div className="grid gap-6 md:grid-cols-3">
             {/* Free Trial */}
             <Reveal delay={0.1}>
             <Card className="border-gray-700 bg-black transition-all hover:border-[#A855F7] h-full">
@@ -338,9 +328,7 @@ export default function DevLandingPage() {
               </CardContent>
             </Card>
             </Reveal>
-          </div>
-        </div>
-      </section>
+          </div>}
 
       {/* FAQ Section */}
       <section className="px-4 py-20">
