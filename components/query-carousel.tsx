@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
+import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -209,14 +210,11 @@ export function QueryCarousel() {
         >
           {/* ── Left — Player portrait ── */}
           <div
-            className="relative rounded-3xl overflow-hidden"
-            style={{
-              background: "linear-gradient(145deg,rgba(0,255,135,0.06) 0%,rgba(255,255,255,0.03) 50%,rgba(0,210,255,0.04) 100%)",
-              boxShadow: "0 0 60px rgba(0,255,135,0.06), inset 0 1px 0 rgba(255,255,255,0.07)",
-              height: "480px",
-              willChange: "transform",
-            }}
+            className="relative rounded-3xl overflow-hidden bg-black"
+            style={{ height: "480px", willChange: "transform" }}
           >
+            <DevHeroVideoBg />
+            <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0.15) 50%,rgba(0,0,0,0.55) 100%)" }} />
 
             {/* Rotating glow border */}
             <div
