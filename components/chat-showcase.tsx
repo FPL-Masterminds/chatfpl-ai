@@ -471,14 +471,16 @@ export function ChatShowcase() {
               }}
             >
               {/* User message — types out character by character */}
-              <div className="w-full rounded-[20px] border border-cyan-400/15 bg-cyan-400/[0.07] px-4 py-3">
-                <div className="text-[10px] uppercase tracking-[0.22em] text-cyan-300/70 mb-1.5">You</div>
-                <p className="text-sm leading-6 text-white/90">
+              <div className="flex justify-end">
+                <div
+                  className="max-w-[80%] rounded-[20px] rounded-br-sm px-4 py-3 text-sm leading-relaxed font-medium text-black"
+                  style={{ background: "linear-gradient(to right,#22d3ee,#34d399)" }}
+                >
                   {qText}
                   {qText.length > 0 && qText.length < tabDef.question.length && (
-                    <span className="inline-block w-0.5 h-3.5 bg-cyan-400 ml-0.5 animate-pulse align-middle" />
+                    <span className="inline-block w-0.5 h-3.5 bg-black/40 ml-0.5 animate-pulse align-middle" />
                   )}
-                </p>
+                </div>
               </div>
 
               {/* AI message — appears after thinking pause, content streams in */}
