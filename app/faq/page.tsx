@@ -57,30 +57,12 @@ export default function FAQPage() {
           </p>
         </div>
 
-        {/* Ambient glow behind window — same as ChatShowcase */}
-        <div className="relative w-full max-w-6xl">
-          <div
-            className="absolute inset-0 rounded-[32px] opacity-30 blur-2xl pointer-events-none"
-            style={{ background: "linear-gradient(135deg,#00FFFF 0%,#00FF87 100%)" }}
-          />
-
-          {/* 2px animated glow border wrapper — verbatim from chat-showcase.tsx */}
-          <div
-            className="relative rounded-[26px] p-[2px]"
-            style={{
-              background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
-              backgroundSize: "220% 220%",
-              animation: "glow_scroll 6s linear infinite",
-            }}
-          >
-            {/* Inner chat window */}
-            <div
-              className="w-full flex flex-col overflow-hidden rounded-[24px] bg-[#080808]"
-              style={{ height: "clamp(520px, 72vh, 780px)" }}
-            >
-              <ConversationalFAQ />
-            </div>
-          </div>
+        {/* Chat — no panel, questions float on the dark background */}
+        <div
+          className="w-full max-w-6xl flex flex-col"
+          style={{ height: "clamp(520px, 72vh, 780px)" }}
+        >
+          <ConversationalFAQ />
         </div>
 
         {/* Back link */}
