@@ -18,6 +18,8 @@ const PLANS = [
     features: [
       "20 messages",
       "Live FPL data access",
+      "FPL Team ID integration",
+      "FPL Dashboard access",
       "Limited support",
     ],
     cta: "Get Started",
@@ -38,8 +40,9 @@ const PLANS = [
     features: [
       "100 messages per month",
       "Live FPL data access",
-      "Priority support",
       "FPL Team ID integration",
+      "FPL Dashboard access",
+      "Priority support",
     ],
     cta: "Subscribe",
     ctaHref: "/signup",
@@ -58,9 +61,9 @@ const PLANS = [
     features: [
       "500 messages per month",
       "Live FPL data access",
-      "Priority support",
       "FPL Team ID integration",
       "FPL Dashboard access",
+      "Priority support",
     ],
     cta: "Subscribe",
     ctaHref: "/signup",
