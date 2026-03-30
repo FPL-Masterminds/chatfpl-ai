@@ -287,7 +287,7 @@ export function QueryCarousel() {
                           <div
                             className="glow-border-mask absolute inset-0 rounded-xl"
                             style={{
-                              padding: "1px",
+                              padding: "2px",
                               background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
                               backgroundSize: "220% 220%",
                               animation: `glow_scroll ${3.8 + i * 0.65}s linear infinite`,
