@@ -105,10 +105,13 @@ export function ConversationalFAQ() {
   ])
   const [typing, setTyping] = useState(false)
   const [asked, setAsked] = useState<Set<string>>(new Set())
+  const scrollRef = useRef<HTMLDivElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+    const container = scrollRef.current
+    if (!container) return
+    container.scrollTo({ top: container.scrollHeight, behavior: "smooth" })
   }, [messages, typing])
 
   function ask(item: typeof FAQ_DATA[0]) {
@@ -131,7 +134,7 @@ export function ConversationalFAQ() {
   return (
     <div className="flex flex-col h-full">
       {/* Chat window */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-4 min-h-0">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-4 min-h-0">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div
