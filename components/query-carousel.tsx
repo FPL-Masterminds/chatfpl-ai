@@ -136,7 +136,7 @@ export function QueryCarousel() {
   const isTyping = displayedQ.length < question.length
   const highlightedQuestion = question.replace(
     p.name,
-    `<span style="font-weight:900;color:#003320">${p.name}</span>`
+    `<span style="background:linear-gradient(to right,#00ff85,#00ffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">${p.name}</span>`
   )
 
   return (
@@ -268,16 +268,28 @@ export function QueryCarousel() {
           <div
             className="relative rounded-3xl flex flex-col justify-between p-7 md:p-8 overflow-hidden"
             style={{
-              background: "linear-gradient(135deg,#00ff85 0%,#02efff 100%)",
+              background: "linear-gradient(145deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.02) 100%)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
               height: "480px",
               willChange: "transform",
             }}
           >
+            {/* Rotating glow border */}
+            <div
+              className="glow-border-mask pointer-events-none absolute inset-0 rounded-3xl"
+              style={{
+                padding: "1px",
+                background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+                backgroundSize: "220% 220%",
+                animation: "glow_scroll 5s linear infinite",
+              }}
+            />
+
             {/* Label — static, never moves */}
             <div className="flex items-center gap-2 mb-5 shrink-0">
               <span
                 className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest"
-                style={{ background: "rgba(0,0,0,0.12)", color: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,0,0,0.15)" }}
+                style={{ background: "rgba(0,255,135,0.1)", color: "#00FF87", border: "1px solid rgba(0,255,135,0.25)" }}
               >
                 Ask ChatFPL this
               </span>
@@ -296,8 +308,8 @@ export function QueryCarousel() {
                   style={{ willChange: "opacity" }}
                 >
                   <p
-                    className="leading-relaxed mb-6"
-                    style={{ fontSize: "clamp(16px,1.6vw,20px)", fontWeight: 500, color: "rgba(0,0,0,0.85)" }}
+                    className="text-white leading-relaxed mb-6"
+                    style={{ fontSize: "clamp(16px,1.6vw,20px)", fontWeight: 500 }}
                   >
                     {isTyping ? (
                       <>
@@ -311,14 +323,21 @@ export function QueryCarousel() {
 
                   {/* Stat pills */}
                   <div className="grid grid-cols-2 gap-2">
-                    {stats.map((s) => (
-                      <div
-                        key={s.label}
-                        className="rounded-xl px-3 py-2"
-                        style={{ background: "rgba(0,0,0,0.12)", border: "1px solid rgba(0,0,0,0.1)" }}
-                      >
-                        <p className="text-[9px] uppercase tracking-[0.15em] mb-0.5" style={{ color: "rgba(0,0,0,0.5)" }}>{s.label}</p>
-                        <p className="text-sm font-bold" style={{ color: "rgba(0,0,0,0.85)" }}>{s.value}</p>
+                    {stats.map((s, i) => (
+                      <div key={s.label} className="relative rounded-xl">
+                        <div
+                          className="glow-border-mask absolute inset-0 rounded-xl"
+                          style={{
+                            padding: "2px",
+                            background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+                            backgroundSize: "220% 220%",
+                            animation: `glow_scroll ${3.8 + i * 0.65}s linear infinite`,
+                          }}
+                        />
+                        <div className="relative rounded-xl px-3 py-2" style={{ background: "rgba(10,10,15,0.7)" }}>
+                          <p className="text-[9px] uppercase tracking-[0.15em] text-white/35 mb-0.5">{s.label}</p>
+                          <p className="text-sm font-bold text-white">{s.value}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -327,37 +346,49 @@ export function QueryCarousel() {
             </div>
 
             {/* Bottom row — pinned by justify-between on parent, never moves */}
-            <div className="flex items-center justify-between pt-5 shrink-0" style={{ borderTop: "1px solid rgba(0,0,0,0.12)" }}>
+            <div className="flex items-center justify-between pt-5 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.badge_url} alt={p.team} className="h-8 w-8 object-contain shrink-0" />
                 <div>
-                  <p className="font-bold text-base leading-tight" style={{ color: "rgba(0,0,0,0.85)" }}>{p.name}</p>
-                  <p className="text-sm" style={{ color: "rgba(0,0,0,0.5)" }}>{p.team}</p>
+                  <p className="font-bold text-white text-base leading-tight">{p.name}</p>
+                  <p className="text-white/40 text-sm">{p.team}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => go(-1)}
-                  className="h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                  style={{ background: "rgba(0,0,0,0.12)", border: "1px solid rgba(0,0,0,0.12)" }}
-                  aria-label="Previous player"
-                >
-                  <svg className="h-4 w-4" style={{ color: "rgba(0,0,0,0.7)" }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => go(1)}
-                  className="h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                  style={{ background: "rgba(0,0,0,0.12)", border: "1px solid rgba(0,0,0,0.12)" }}
-                  aria-label="Next player"
-                >
-                  <svg className="h-4 w-4" style={{ color: "rgba(0,0,0,0.7)" }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
+                <div className="relative rounded-full inline-flex">
+                  <div
+                    className="glow-border-mask pointer-events-none absolute inset-0 rounded-full"
+                    style={{ padding: "1px", background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)", backgroundSize: "220% 220%", animation: "glow_scroll 4s linear infinite" }}
+                  />
+                  <button
+                    onClick={() => go(-1)}
+                    className="relative h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                    style={{ background: "rgba(255,255,255,0.06)" }}
+                    aria-label="Previous player"
+                  >
+                    <svg className="h-4 w-4 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="relative rounded-full inline-flex">
+                  <div
+                    className="glow-border-mask pointer-events-none absolute inset-0 rounded-full"
+                    style={{ padding: "1px", background: "linear-gradient(90deg,#00FFFF,rgba(255,255,255,0.08),#00FF87,rgba(255,255,255,0.08),#00FFFF)", backgroundSize: "220% 220%", animation: "glow_scroll 4.8s linear infinite" }}
+                  />
+                  <button
+                    onClick={() => go(1)}
+                    className="relative h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                    style={{ background: "rgba(255,255,255,0.06)" }}
+                    aria-label="Next player"
+                  >
+                    <svg className="h-4 w-4 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
