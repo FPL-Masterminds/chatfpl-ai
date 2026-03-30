@@ -22,7 +22,7 @@ const CARDS = [
     tag: "THE ROI",
     number: "03",
     title: "Secure the Crown.",
-    desc: "High-performance management for the price of a pint. One calculated captaincy call doesn't just pay for the season — it settles the debate.",
+    desc: "Elite-level FPL management at a fraction of what your rivals spend on tips that don't work. One calculated captaincy call doesn't just pay for the season — it settles the debate.",
     side: "left" as const,
   },
   {
