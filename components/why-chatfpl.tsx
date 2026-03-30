@@ -61,22 +61,18 @@ function Card({ card, index }: { card: typeof CARDS[0]; index: number }) {
         transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: index * 0.05 }}
         className="w-full md:w-auto"
       >
-        <div className="relative rounded-2xl">
-          {/* Rotating glow border */}
+        <div
+          className="rounded-2xl p-px"
+          style={{
+            background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+            backgroundSize: "200% 200%",
+            animation: `glow_scroll ${7 + index * 2.3}s linear infinite`,
+          }}
+        >
           <div
-            className="glow-border-mask pointer-events-none absolute inset-0 rounded-2xl"
+            className="rounded-2xl p-6 md:p-8"
             style={{
-              padding: "1px",
-              background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
-              backgroundSize: "220% 220%",
-              animation: `glow_scroll ${7 + index * 2.3}s linear infinite`,
-            }}
-          />
-          <div
-            className="relative rounded-2xl p-6 md:p-8"
-            style={{
-              background: "linear-gradient(145deg,rgba(0,15,10,0.95),rgba(0,8,18,0.98))",
-              boxShadow: "0 0 40px rgba(0,255,135,0.05), inset 0 1px 0 rgba(255,255,255,0.05)",
+              background: "linear-gradient(145deg,rgba(0,15,10,0.97),rgba(0,8,18,0.99))",
             }}
           >
             {/* Tag + number row */}
