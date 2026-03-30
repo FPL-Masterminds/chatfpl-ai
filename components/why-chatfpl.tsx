@@ -7,29 +7,29 @@ const CARDS = [
   {
     tag: "THE FEAR",
     number: "01",
-    title: "Stop the Guesswork",
-    desc: "FPL is won on data, not gut feelings. Every week you rely on instinct, a rival using AI is quietly climbing past you on the leaderboard.",
+    title: "Eliminate the Variables.",
+    desc: "FPL is won on cold logic. While your rivals react to Sunday's highlights, you're executing a strategy backed by millions of match simulations.",
     side: "left" as const,
   },
   {
     tag: "THE EDGE",
     number: "02",
-    title: "Find Differentials Nobody Else Sees",
-    desc: "ChatFPL scans the entire player pool to surface the sub-5% owned gems that blow up big — before your mini-league knows what hit them.",
+    title: "Spot the Invisible.",
+    desc: "Our engine identifies the sub-5% owned gems before they explode. Move first, move fast, and leave the pack behind.",
     side: "right" as const,
   },
   {
     tag: "THE ROI",
     number: "03",
-    title: "Win Your Mini-League",
-    desc: "Less than the cost of a pint gets you a full season of elite-level FPL coaching. One well-timed captain call pays for itself.",
+    title: "Secure the Crown.",
+    desc: "High-performance management for the price of a pint. One calculated captaincy call doesn't just pay for the season — it settles the debate.",
     side: "left" as const,
   },
   {
     tag: "THE TIMING",
     number: "04",
-    title: "Never Miss a Deadline Again",
-    desc: "Injuries, suspensions, late leaks — ChatFPL processes live news in real-time so your team is always set before the whistle blows.",
+    title: "Total Tactical Awareness.",
+    desc: "Late leaks and injury news are filtered and processed in seconds. Your squad is locked, loaded, and bulletproof before the whistle blows.",
     side: "right" as const,
   },
 ]
@@ -132,12 +132,12 @@ export function WhyChatFPL() {
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
           >
             <h2 className="font-bold leading-[1.1] tracking-tighter mb-4" style={{ fontSize: "clamp(28px,4.5vw,52px)" }}>
-              <span className="text-white">Why FPL Managers Are </span>
+              <span className="text-white">Why Smart Managers Are </span>
               <span
                 className="text-transparent bg-clip-text"
                 style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
               >
-                Switching to AI
+                Pulling Away
               </span>
             </h2>
           </motion.div>
@@ -147,7 +147,7 @@ export function WhyChatFPL() {
             animate={headingInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           >
-            Four reasons your rivals already have an unfair advantage — and how to take it back.
+            Four edges your rivals already have. Here's how you close the gap.
           </motion.p>
         </div>
 
