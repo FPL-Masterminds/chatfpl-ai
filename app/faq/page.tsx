@@ -32,8 +32,8 @@ export default function FAQPage() {
         {/* Heading */}
         <div className="text-center mb-10 max-w-xl">
           <h1
-            className="font-bold leading-[1.1] tracking-tighter mb-3"
-            style={{ fontSize: "clamp(28px,5vw,52px)" }}
+            className="font-bold leading-[1.1] tracking-tighter mb-3 whitespace-nowrap"
+            style={{ fontSize: "clamp(20px,3.5vw,42px)" }}
           >
             <span className="text-white">Frequently </span>
             <span
