@@ -61,14 +61,19 @@ function Card({ card, index }: { card: typeof CARDS[0]; index: number }) {
         transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: index * 0.05 }}
         className="w-full md:w-auto"
       >
-        <div
-          className="relative rounded-2xl p-px"
-          style={{
-            background: "linear-gradient(135deg,rgba(0,255,135,0.4),rgba(0,210,255,0.15),rgba(255,255,255,0.05))",
-          }}
-        >
+        <div className="relative rounded-2xl">
+          {/* Rotating glow border */}
           <div
-            className="rounded-2xl p-6 md:p-8"
+            className="glow-border-mask pointer-events-none absolute inset-0 rounded-2xl"
+            style={{
+              padding: "1px",
+              background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+              backgroundSize: "220% 220%",
+              animation: `glow_scroll ${7 + index * 2.3}s linear infinite`,
+            }}
+          />
+          <div
+            className="relative rounded-2xl p-6 md:p-8"
             style={{
               background: "linear-gradient(145deg,rgba(0,15,10,0.95),rgba(0,8,18,0.98))",
               boxShadow: "0 0 40px rgba(0,255,135,0.05), inset 0 1px 0 rgba(255,255,255,0.05)",
@@ -85,7 +90,7 @@ function Card({ card, index }: { card: typeof CARDS[0]; index: number }) {
               <span
                 className="text-5xl font-black leading-none tabular-nums"
                 style={{
-                  background: "linear-gradient(to bottom,rgba(255,255,255,0.15),rgba(255,255,255,0.03))",
+                  background: "linear-gradient(to right,#00FF87,#00FFFF)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   letterSpacing: "-0.04em",
@@ -103,6 +108,7 @@ function Card({ card, index }: { card: typeof CARDS[0]; index: number }) {
             </h3>
             <p className="text-white/55 leading-relaxed text-sm md:text-base">{card.desc}</p>
           </div>
+        </div>
         </div>
       </motion.div>
     </div>
