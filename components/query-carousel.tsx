@@ -131,6 +131,7 @@ export function QueryCarousel() {
   return (
     <section
       className="relative overflow-hidden bg-black px-4 py-20"
+      style={{ contain: "layout" }}
       onMouseEnter={() => { pausedRef.current = true }}
       onMouseLeave={() => { pausedRef.current = false }}
     >
@@ -174,7 +175,7 @@ export function QueryCarousel() {
                 background: "linear-gradient(145deg,rgba(0,255,135,0.06) 0%,rgba(255,255,255,0.03) 50%,rgba(0,210,255,0.04) 100%)",
                 border: "1px solid rgba(0,255,135,0.12)",
                 boxShadow: "0 0 60px rgba(0,255,135,0.06), inset 0 1px 0 rgba(255,255,255,0.07)",
-                minHeight: "380px",
+                height: "420px",
               }}
             >
               <AnimatePresence mode="wait">
@@ -239,12 +240,12 @@ export function QueryCarousel() {
 
             {/* ── Right — Question + stats + nav ── */}
             <div
-              className="relative rounded-3xl flex flex-col justify-between p-7 md:p-8"
+              className="relative rounded-3xl flex flex-col justify-between p-7 md:p-8 overflow-hidden"
               style={{
                 background: "linear-gradient(145deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.02) 100%)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
-                minHeight: "380px",
+                height: "420px",
               }}
             >
               <div className="flex-1">
