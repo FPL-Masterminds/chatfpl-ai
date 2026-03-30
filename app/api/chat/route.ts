@@ -386,8 +386,8 @@ TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
-- xPNext = Expected points for NEXT gameweek (FPL's official prediction)
-- xPThis = Expected points for THIS gameweek (FPL's official prediction)
+- xPNext = Expected points for NEXT gameweek (FPL's official prediction) — always use this for forward-looking recommendations
+- xPThis = Expected points for the CURRENT gameweek (FPL's official prediction). IMPORTANT: once a gameweek has concluded, the FPL API resets this field to 0.0 — that value simply means the gameweek is over or the player had no remaining fixture that round. A value of 0.0 does NOT mean the player performed poorly, had a blank, or was injured. Never interpret xPThis=0.0 as negative; always rely on xPNext for upcoming gameweek predictions.
 - TI_GW = Transfers IN this gameweek (shows trending players)
 - TO_GW = Transfers OUT this gameweek (shows who managers are selling)
 - TI_Total = Total transfers IN this season
