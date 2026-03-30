@@ -6,43 +6,68 @@ import { motion, AnimatePresence } from "framer-motion"
 const FAQ_DATA = [
   {
     id: "what",
-    question: "What is ChatFPL?",
-    answer: "ChatFPL is your private FPL strategist. It uses advanced performance models and real-time data to give you a bulletproof edge in your mini-league — from captain picks to transfer chains and chip strategy.",
+    question: "What is ChatFPL AI?",
+    answer: "ChatFPL AI is your intelligent Fantasy Premier League assistant powered by artificial intelligence and real-time FPL data. Simply ask any question about players, transfers, captains, fixtures, or strategy, and receive instant, data-driven answers to help you make smarter FPL decisions and climb the rankings.",
   },
   {
     id: "free",
     question: "Can I try it for free?",
-    answer: "Absolutely. The Free Trial gives you 20 messages per month to test the engine before unlocking full access. No credit card required.",
+    answer: "Yes! Our Free plan includes 20 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages.",
+  },
+  {
+    id: "earn",
+    question: "How do I earn extra messages on the Free plan?",
+    answer: "Free users can earn bonus messages by completing simple tasks like sharing ChatFPL AI on social media (X, Facebook, Reddit) or leaving a review. Each task rewards you with additional messages, up to a lifetime cap of 50 bonus messages. Visit your dashboard to see available rewards.",
   },
   {
     id: "questions",
     question: "What type of FPL questions can I ask?",
-    answer: "Anything. 'Who is the best Salah replacement for the next 3 gameweeks?' — 'Analyse my team's defensive rotation for a double gameweek.' — 'Give me three differentials under 5% owned with good fixtures.' The engine handles it all.",
+    answer: "You can ask anything FPL-related: player statistics, captain picks, transfer advice, fixture analysis, differential suggestions, chip strategy, rule clarifications, price predictions, ownership trends, and much more. ChatFPL AI provides instant, data-driven answers backed by real-time Premier League data.",
   },
   {
     id: "data",
-    question: "How often is data updated?",
-    answer: "Continuously. The engine processes live FPL data, injury leaks, and press conference news in real-time, 24/7. You're always working with the latest information before the deadline.",
+    question: "How often is the FPL data updated?",
+    answer: "ChatFPL AI uses live Fantasy Premier League data that updates continuously. Player prices update daily at 1:30 AM UK time, match statistics update within hours of the final whistle, and injury news is refreshed as official team announcements are made. You're always getting the most current information available.",
   },
   {
     id: "rollover",
-    question: "Do unused messages roll over?",
-    answer: "No. Your message allowance resets on your renewal date each month. Premium gets 100, Elite gets 500. Use them — that's what they're there for.",
+    question: "Do unused messages roll over to the next month?",
+    answer: "No, unused messages do not carry over. Premium users receive 100 messages each month, and Elite users receive 500 messages per month. Your message allowance resets on your renewal date, so make sure to use your messages before they expire.",
   },
   {
-    id: "team",
-    question: "Can ChatFPL see my actual FPL team?",
-    answer: "Yes. Link your public FPL Team ID in your account settings and ChatFPL will use your squad, chip status, and transfer history as context when answering questions.",
+    id: "runout",
+    question: "What happens if I run out of messages?",
+    answer: "If you've used all your messages for the current period, you can upgrade to a higher plan for more messages, or wait until your next renewal date when your allowance resets. Free users can also earn bonus messages by completing social sharing tasks.",
   },
   {
-    id: "dashboard",
-    question: "What is the FPL Dashboard?",
-    answer: "A real-time animated dashboard showing your rank graph, season heatmap, squad analysis, mini-league standings, transfer history, and captaincy performance — all in one place. Included on every plan.",
+    id: "difference",
+    question: "What's the difference between Premium and Elite?",
+    answer: "Premium gives you 100 messages per month for £7.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £14.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities.",
   },
   {
     id: "cancel",
-    question: "Can I cancel anytime?",
-    answer: "Yes. Cancel from your account dashboard at any time. You keep access until the end of your billing period. No fees, no penalties.",
+    question: "Can I cancel my subscription at any time?",
+    answer: "Yes! You can cancel your Premium or Elite subscription at any time from your account dashboard. Your access will continue until the end of your current billing period, and you won't be charged again. No cancellation fees or penalties.",
+  },
+  {
+    id: "gameweeks",
+    question: "Can I use ChatFPL AI during gameweeks?",
+    answer: "Yes! ChatFPL AI is available 24/7, including during live gameweeks. You can get last-minute captain advice before the deadline, check injury updates, analyse fixture swings, or plan your transfers for the following week. The AI is always ready when you need it.",
+  },
+  {
+    id: "guarantee",
+    question: "Does ChatFPL AI guarantee I'll climb the rankings?",
+    answer: "While ChatFPL AI provides data-driven insights and analysis to support better decisions, FPL involves unpredictability that no tool can eliminate. We give you the information edge — form trends, expected stats, fixture analysis — but ultimately, player performance and your strategic decisions determine your rank.",
+  },
+  {
+    id: "followup",
+    question: "Can I ask follow-up questions?",
+    answer: "Yes! Each conversation with ChatFPL AI is contextual, meaning you can ask follow-up questions that build on previous answers. For example, after asking about Mohamed Salah's stats, you can immediately ask \"Should I captain him?\" or \"Compare him with Son Heung-min.\" Each follow-up costs one message.",
+  },
+  {
+    id: "length",
+    question: "Is there a limit to how long my questions can be?",
+    answer: "While there's no strict character limit, we recommend keeping questions clear and concise for the best results. Instead of asking multiple questions in one message, break them into separate queries. For example, ask \"Who should I captain?\" first, then follow up with \"What about transfers?\" This helps the AI provide more focused, accurate responses.",
   },
 ]
 
