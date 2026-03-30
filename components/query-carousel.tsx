@@ -214,7 +214,7 @@ export function QueryCarousel() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={`photo-${idx}`}
-                className="absolute inset-0 flex flex-col items-center justify-end pb-5"
+                className="absolute inset-0 flex flex-col items-center justify-end pb-9"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
