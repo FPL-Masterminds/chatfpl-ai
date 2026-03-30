@@ -41,6 +41,11 @@ export function Footer() {
                   📧 Contact Us
                 </Link>
               </li>
+              <li>
+                <Link href="/faq" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
+                  ❓ FAQ
+                </Link>
+              </li>
             </ul>
           </div>
 

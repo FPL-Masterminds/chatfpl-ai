@@ -16,7 +16,8 @@ export default function FAQPage() {
         .faq-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
         .faq-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
       `}</style>
-      {/* Subtle grid */}
+
+      {/* Grid pattern — same as devlandingpage */}
       <div
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"
         style={{
@@ -25,12 +26,20 @@ export default function FAQPage() {
         }}
       />
 
+      {/* Radial green glow — mid-page */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background: "radial-gradient(ellipse 70% 50% at 50% 60%, rgba(0,255,135,0.07) 0%, transparent 70%)",
+        }}
+      />
+
       <DevHeader />
 
       <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 pt-28 pb-12">
 
         {/* Heading */}
-        <div className="text-center mb-10 max-w-xl">
+        <div className="text-center mb-10 max-w-2xl">
           <h1
             className="font-bold leading-[1.1] tracking-tighter mb-3 whitespace-nowrap"
             style={{ fontSize: "clamp(20px,3.5vw,42px)" }}
@@ -48,19 +57,34 @@ export default function FAQPage() {
           </p>
         </div>
 
-        {/* Chat window */}
-        <div
-          className="w-full max-w-4xl flex flex-col overflow-hidden"
-          style={{
-            height: "clamp(520px, 72vh, 760px)",
-            borderRadius: 28,
-            border: "1px solid rgba(255,255,255,0.08)",
-            background: "linear-gradient(to bottom,rgba(255,255,255,0.04),rgba(255,255,255,0.02))",
-            backdropFilter: "blur(24px)",
-            boxShadow: "0 20px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset",
-          }}
-        >
-          <ConversationalFAQ />
+        {/* Ambient glow behind window — same as ChatShowcase */}
+        <div className="relative w-full max-w-6xl">
+          <div
+            className="absolute inset-0 rounded-[32px] opacity-30 blur-2xl pointer-events-none"
+            style={{ background: "linear-gradient(135deg,#00FFFF 0%,#00FF87 100%)" }}
+          />
+
+          {/* 2px animated glow border wrapper — verbatim from chat-showcase.tsx */}
+          <div
+            className="relative rounded-[26px] p-[2px]"
+            style={{
+              background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
+              backgroundSize: "220% 220%",
+              animation: "glow_scroll 6s linear infinite",
+            }}
+          >
+            {/* Inner chat window */}
+            <div
+              className="w-full flex flex-col overflow-hidden rounded-[24px]"
+              style={{
+                height: "clamp(520px, 72vh, 780px)",
+                background: "linear-gradient(to bottom,rgba(255,255,255,0.04),rgba(255,255,255,0.02))",
+                backdropFilter: "blur(24px)",
+              }}
+            >
+              <ConversationalFAQ />
+            </div>
+          </div>
         </div>
 
         {/* Back link */}
