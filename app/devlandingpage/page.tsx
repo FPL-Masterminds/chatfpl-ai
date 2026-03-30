@@ -5,7 +5,6 @@ import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ChatShowcase } from "@/components/chat-showcase"
 import PlayerCarousel from "@/components/player-carousel"
 import { QueryCarousel } from "@/components/query-carousel"
@@ -330,48 +329,18 @@ export default function DevLandingPage() {
             </Reveal>
           </div>}
 
-      {/* FAQ Section */}
-      <section className="px-4 py-20">
-        <div className="container mx-auto max-w-3xl">
-          <div className="mb-12 text-center">
-            <Reveal>
-              <h2 className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
-                <span className="text-white">Frequently </span>
-                <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(to right, #00ff85, #02efff)', WebkitBackgroundClip: 'text' }}>Asked Questions</span>
-              </h2>
-            </Reveal>
-            <Reveal delay={0.1}>
-              <p className="text-lg text-gray-300">Everything you need to know about ChatFPL AI</p>
-            </Reveal>
-          </div>
-
-          <Accordion type="single" collapsible className="space-y-4">
-            {[
-              { v:"item-1",  q:"🤖 What is ChatFPL AI?", a:"ChatFPL AI is your intelligent Fantasy Premier League assistant powered by artificial intelligence and real-time FPL data. Simply ask any question about players, transfers, captains, fixtures, or strategy, and receive instant, data-driven answers to help you make smarter FPL decisions and climb the rankings." },
-              { v:"item-2",  q:"🆓 Can I try it for free?", a:"Yes! Our Free plan includes 20 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages." },
-              { v:"item-3",  q:"🎁 How do I earn extra messages on the Free plan?", a:"Free users can earn bonus messages by completing simple tasks like sharing ChatFPL AI on social media (X, Facebook, Reddit) or leaving a review. Each task rewards you with additional messages, up to a lifetime cap of 50 bonus messages. Visit your dashboard to see available rewards." },
-              { v:"item-4",  q:"❓ What type of FPL questions can I ask?", a:"You can ask anything FPL-related: player statistics, captain picks, transfer advice, fixture analysis, differential suggestions, chip strategy, rule clarifications, price predictions, ownership trends, and much more. ChatFPL AI provides instant, data-driven answers backed by real-time Premier League data." },
-              { v:"item-5",  q:"🔄 How often is the FPL data updated?", a:"ChatFPL AI uses live Fantasy Premier League data that updates continuously. Player prices update daily at 1:30 AM UK time, match statistics update within hours of the final whistle, and injury news is refreshed as official team announcements are made. You're always getting the most current information available." },
-              { v:"item-6",  q:"📅 Do unused messages roll over to the next month?", a:"No, unused messages do not carry over. Premium users receive 100 messages each month, and Elite users receive 500 messages per month. Your message allowance resets on your renewal date, so make sure to use your messages before they expire." },
-              { v:"item-7",  q:"⚠️ What happens if I run out of messages?", a:"If you've used all your messages for the current period, you can upgrade to a higher plan for more messages, or wait until your next renewal date when your allowance resets. Free users can also earn bonus messages by completing social sharing tasks." },
-              { v:"item-8",  q:"💎 What's the difference between Premium and Elite?", a:"Premium gives you 100 messages per month for £7.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £14.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities." },
-              { v:"item-9",  q:"❌ Can I cancel my subscription at any time?", a:"Yes! You can cancel your Premium or Elite subscription at any time from your account dashboard. Your access will continue until the end of your current billing period, and you won't be charged again. No cancellation fees or penalties." },
-              { v:"item-10", q:"⚽ Can I use ChatFPL AI during gameweeks?", a:"Yes! ChatFPL AI is available 24/7, including during live gameweeks. You can get last-minute captain advice before the deadline, check injury updates, analyse fixture swings, or plan your transfers for the following week. The AI is always ready when you need it." },
-              { v:"item-11", q:"📈 Does ChatFPL AI guarantee I'll climb the rankings?", a:"While ChatFPL AI provides data-driven insights and analysis to support better decisions, FPL involves unpredictability that no tool can eliminate. We give you the information edge - form trends, expected stats, fixture analysis - but ultimately, player performance and your strategic decisions determine your rank." },
-              { v:"item-12", q:"💬 Can I ask follow-up questions?", a:"Yes! Each conversation with ChatFPL AI is contextual, meaning you can ask follow-up questions that build on previous answers. For example, after asking about Mohamed Salah's stats, you can immediately ask \"Should I captain him?\" or \"Compare him with Son Heung-min.\" Each follow-up costs one message." },
-              { v:"item-13", q:"✏️ Is there a limit to how long my questions can be?", a:"While there's no strict character limit, we recommend keeping questions clear and concise for the best results. Instead of asking multiple questions in one message, break them into separate queries. For example, ask \"Who should I captain?\" first, then follow up with \"What about transfers?\" This helps the AI provide more focused, accurate responses." },
-            ].map(({ v, q, a }, i) => (
-              <Reveal key={v} delay={i * 0.05}>
-                <AccordionItem value={v} className="rounded-lg !border !border-gray-700 bg-black px-6 shadow-sm hover:bg-white/5 transition-colors">
-                  <AccordionTrigger className="text-left text-white hover:no-underline focus-visible:ring-0 focus-visible:ring-offset-0 [&[data-state=open]>svg]:text-[#00FF87] [&[data-state=open]:hover>svg]:text-gray-400">
-                    {q}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-gray-300">{a}</AccordionContent>
-                </AccordionItem>
-              </Reveal>
-            ))}
-          </Accordion>
-        </div>
+      {/* FAQ Link */}
+      <section className="px-4 py-16 text-center">
+        <Reveal>
+          <p className="text-white/40 text-sm mb-4">Got questions?</p>
+          <Link
+            href="/faq"
+            className="inline-block px-8 py-3 rounded-full font-semibold text-sm text-black transition-all hover:brightness-110 hover:-translate-y-0.5 shadow-[0_0_24px_rgba(0,255,200,0.25)]"
+            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+          >
+            View FAQ →
+          </Link>
+        </Reveal>
       </section>
     </div>
   )
