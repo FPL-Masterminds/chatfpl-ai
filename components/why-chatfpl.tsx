@@ -120,7 +120,7 @@ export function WhyChatFPL() {
   return (
     <section ref={containerRef} className="relative bg-black px-4 py-24 overflow-hidden">
       {/* Ambient glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_50%_at_15%_60%,rgba(0,255,135,0.07),transparent)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_45%_40%_at_8%_50%,rgba(0,255,135,0.05),transparent)]" />
 
       <div className="relative mx-auto max-w-4xl">
 
@@ -131,13 +131,13 @@ export function WhyChatFPL() {
             animate={headingInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h2 className="font-bold leading-[1.1] tracking-tighter mb-4" style={{ fontSize: "clamp(28px,4.5vw,52px)" }}>
-              <span className="text-white">Why Smart Managers Are </span>
+            <h2 className="font-bold leading-[1.1] tracking-tighter mb-4 text-[36px] lg:text-6xl">
+              <span className="text-white">The Edge </span>
               <span
                 className="text-transparent bg-clip-text"
                 style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
               >
-                Pulling Away
+                Smart Managers Have
               </span>
             </h2>
           </motion.div>
