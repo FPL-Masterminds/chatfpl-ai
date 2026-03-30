@@ -323,21 +323,14 @@ export function QueryCarousel() {
 
                   {/* Stat pills */}
                   <div className="grid grid-cols-2 gap-2">
-                    {stats.map((s, i) => (
-                      <div key={s.label} className="relative rounded-xl">
-                        <div
-                          className="glow-border-mask absolute inset-0 rounded-xl"
-                          style={{
-                            padding: "2px",
-                            background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
-                            backgroundSize: "220% 220%",
-                            animation: `glow_scroll ${3.8 + i * 0.65}s linear infinite`,
-                          }}
-                        />
-                        <div className="relative rounded-xl px-3 py-2" style={{ background: "rgba(10,10,15,0.7)" }}>
-                          <p className="text-[9px] uppercase tracking-[0.15em] text-white/35 mb-0.5">{s.label}</p>
-                          <p className="text-sm font-bold text-white">{s.value}</p>
-                        </div>
+                    {stats.map((s) => (
+                      <div
+                        key={s.label}
+                        className="rounded-xl px-3 py-2"
+                        style={{ background: "linear-gradient(135deg,#00ff85,#02efff)" }}
+                      >
+                        <p className="text-[9px] uppercase tracking-[0.15em] mb-0.5" style={{ color: "rgba(0,0,0,0.5)" }}>{s.label}</p>
+                        <p className="text-sm font-bold" style={{ color: "rgba(0,0,0,0.85)" }}>{s.value}</p>
                       </div>
                     ))}
                   </div>
