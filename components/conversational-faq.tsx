@@ -182,7 +182,6 @@ export function ConversationalFAQ() {
             </motion.div>
           )}
         </AnimatePresence>
-        <div ref={bottomRef} />
       </div>
 
       {/* Question pills */}
