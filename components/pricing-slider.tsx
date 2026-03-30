@@ -116,7 +116,7 @@ function PlanCard({ plan, active }: { plan: typeof PLANS[0]; active: boolean }) 
 
         <div className="mb-1 text-lg font-bold text-white">{plan.label}</div>
         <div className="flex items-end gap-1 mb-1">
-          <span className="text-4xl font-black text-white leading-none">{plan.price}</span>
+          <span className="text-4xl font-bold tracking-tight text-white leading-none">{plan.price}</span>
           <span className="text-white/40 text-sm mb-1">{plan.period}</span>
         </div>
         <p className="text-white/40 text-sm mb-6">{plan.tagline}</p>
