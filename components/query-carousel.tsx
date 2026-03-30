@@ -18,17 +18,17 @@ interface Player {
 
 const TEMPLATES = [
   (p: Player) =>
-    `How many points is ${p.name} predicted to score for ${p.team} in the next gameweek - and what is driving that number?`,
+    `How many points is ${p.name} predicted to score for ${p.team} this gameweek - and why?`,
   (p: Player) =>
-    `${p.name} is currently ${p.ownership}% owned across FPL. Is he worth the hype or is the price peak coming?`,
+    `${p.name} is ${p.ownership}% owned. Is he still worth it or has the price peaked?`,
   (p: Player) =>
-    `My captain is ${p.name} this week. His xP is ${p.ep_next} and he plays for ${p.team}. Am I making the right call?`,
+    `My captain is ${p.name} - xP ${p.ep_next} for ${p.team}. Am I making the right call?`,
   (p: Player) =>
-    `${p.name} has ${p.goals} goals and ${p.assists} assists this season priced at £${p.price}m. Is that value for money?`,
+    `${p.name}: ${p.goals} goals, ${p.assists} assists at £${p.price}m. Is that value for money?`,
   (p: Player) =>
-    `I want to bring in ${p.name} - he has a form rating of ${p.form}. Walk me through his next three fixtures.`,
+    `I want to bring in ${p.name} - form ${p.form}. Walk me through his next three fixtures.`,
   (p: Player) =>
-    `Compare ${p.name}'s season stats with the top alternatives at £${p.price}m. Should I make the switch?`,
+    `Compare ${p.name}'s stats with the top alternatives at £${p.price}m. Worth the switch?`,
 ]
 
 const STAT_LABELS = [
@@ -175,7 +175,7 @@ export function QueryCarousel() {
                 background: "linear-gradient(145deg,rgba(0,255,135,0.06) 0%,rgba(255,255,255,0.03) 50%,rgba(0,210,255,0.04) 100%)",
                 border: "1px solid rgba(0,255,135,0.12)",
                 boxShadow: "0 0 60px rgba(0,255,135,0.06), inset 0 1px 0 rgba(255,255,255,0.07)",
-                height: "420px",
+                height: "480px",
               }}
             >
               <AnimatePresence mode="wait">
@@ -188,7 +188,7 @@ export function QueryCarousel() {
                   transition={SPRING}
                 >
                   {/* Player photo */}
-                  <div className="absolute inset-x-0 top-0 bottom-20 flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-x-0 top-4 bottom-20 flex items-center justify-center overflow-hidden">
                     {photoOk ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -245,7 +245,7 @@ export function QueryCarousel() {
                 background: "linear-gradient(145deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.02) 100%)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
-                height: "420px",
+                height: "480px",
               }}
             >
               <div className="flex-1">
