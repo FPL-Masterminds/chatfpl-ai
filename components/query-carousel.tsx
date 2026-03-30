@@ -1,0 +1,374 @@
+"use client"
+
+import { useState, useEffect, useCallback, useRef } from "react"
+import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
+import { Reveal } from "@/components/scroll-reveal"
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface Player {
+  id: number; code: number; name: string; full_name: string; team: string
+  pos: string; price: string; ownership: string; form: string; ep_next: string
+  goals: number; assists: number; total_points: number
+  photo_url: string; photo_fallback: string; news: string
+}
+
+// ─── Query templates — one per player, each highlights different live data ───
+
+const TEMPLATES = [
+  (p: Player) =>
+    `How many points is ${p.name} predicted to score for ${p.team} in the next gameweek - and what is driving that number?`,
+  (p: Player) =>
+    `${p.name} is currently ${p.ownership}% owned across FPL. Is he worth the hype or is the price peak coming?`,
+  (p: Player) =>
+    `My captain is ${p.name} this week. His xP is ${p.ep_next} and he plays for ${p.team}. Am I making the right call?`,
+  (p: Player) =>
+    `${p.name} has ${p.goals} goals and ${p.assists} assists this season priced at £${p.price}m. Is that value for money?`,
+  (p: Player) =>
+    `I want to bring in ${p.name} - he has a form rating of ${p.form}. Walk me through his next three fixtures.`,
+  (p: Player) =>
+    `Compare ${p.name}'s season stats with the top alternatives at £${p.price}m. Should I make the switch?`,
+]
+
+const STAT_LABELS = [
+  (p: Player) => [
+    { label: "xP Next GW", value: p.ep_next },
+    { label: "Form", value: p.form },
+    { label: "Owned by", value: `${p.ownership}%` },
+    { label: "Price", value: `£${p.price}m` },
+  ],
+  (p: Player) => [
+    { label: "Ownership", value: `${p.ownership}%` },
+    { label: "Price", value: `£${p.price}m` },
+    { label: "Total pts", value: String(p.total_points) },
+    { label: "Form", value: p.form },
+  ],
+  (p: Player) => [
+    { label: "xP Next GW", value: p.ep_next },
+    { label: "Form", value: p.form },
+    { label: "Club", value: p.team },
+    { label: "Position", value: p.pos },
+  ],
+  (p: Player) => [
+    { label: "Goals", value: String(p.goals) },
+    { label: "Assists", value: String(p.assists) },
+    { label: "Price", value: `£${p.price}m` },
+    { label: "Total pts", value: String(p.total_points) },
+  ],
+  (p: Player) => [
+    { label: "Form", value: p.form },
+    { label: "xP Next GW", value: p.ep_next },
+    { label: "Ownership", value: `${p.ownership}%` },
+    { label: "Club", value: p.team },
+  ],
+  (p: Player) => [
+    { label: "Price", value: `£${p.price}m` },
+    { label: "Goals", value: String(p.goals) },
+    { label: "Assists", value: String(p.assists) },
+    { label: "Form", value: p.form },
+  ],
+]
+
+// ─── Spring config ─────────────────────────────────────────────────────────
+
+const SPRING = { type: "spring" as const, stiffness: 100, damping: 22, mass: 0.8 }
+const AUTO_MS = 7000
+
+// ─── Fallback players shown while loading ────────────────────────────────────
+
+const FALLBACK: Player[] = [
+  { id: 1, code: 223094, name: "Haaland", full_name: "Erling Haaland", team: "Man City", pos: "FWD", price: "14.0", ownership: "47.2", form: "8.8", ep_next: "8.5", goals: 18, assists: 3, total_points: 162, photo_url: `https://resources.premierleague.com/premierleague25/photos/players/250x250/223094.png`, photo_fallback: `https://resources.premierleague.com/premierleague25/photos/players/110x140/223094.png`, news: "" },
+  { id: 2, code: 118748, name: "Salah", full_name: "Mohamed Salah", team: "Liverpool", pos: "MID", price: "13.5", ownership: "62.1", form: "12.0", ep_next: "11.5", goals: 20, assists: 14, total_points: 210, photo_url: `https://resources.premierleague.com/premierleague25/photos/players/250x250/118748.png`, photo_fallback: `https://resources.premierleague.com/premierleague25/photos/players/110x140/118748.png`, news: "" },
+]
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
+export function QueryCarousel() {
+  const [players, setPlayers] = useState<Player[]>(FALLBACK)
+  const [idx, setIdx] = useState(0)
+  const [direction, setDirection] = useState<1 | -1>(1)
+  const [photoOk, setPhotoOk] = useState(true)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pausedRef = useRef(false)
+
+  useEffect(() => {
+    fetch("/api/query-players")
+      .then((r) => r.json())
+      .then((d) => { if (d.players?.length) setPlayers(d.players) })
+      .catch(() => {})
+  }, [])
+
+  const go = useCallback((dir: 1 | -1) => {
+    setDirection(dir)
+    setPhotoOk(true)
+    setIdx((i) => (i + dir + players.length) % players.length)
+  }, [players.length])
+
+  // Reset photo ok state when player changes
+  useEffect(() => { setPhotoOk(true) }, [idx])
+
+  // Auto-rotate
+  useEffect(() => {
+    const tick = () => {
+      if (!pausedRef.current) go(1)
+      timerRef.current = setTimeout(tick, AUTO_MS)
+    }
+    timerRef.current = setTimeout(tick, AUTO_MS)
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [go])
+
+  const p = players[idx]
+  const question = TEMPLATES[idx % TEMPLATES.length]?.(p) ?? TEMPLATES[0](p)
+  const stats = STAT_LABELS[idx % STAT_LABELS.length]?.(p) ?? STAT_LABELS[0](p)
+
+  // Highlight player name inside the question with gradient
+  const highlightedQuestion = question.replace(
+    p.name,
+    `<mark>${p.name}</mark>`
+  )
+
+  return (
+    <section
+      className="relative overflow-hidden bg-black px-4 py-20"
+      onMouseEnter={() => { pausedRef.current = true }}
+      onMouseLeave={() => { pausedRef.current = false }}
+    >
+      {/* Ambient background */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_20%_50%,rgba(0,255,135,0.06),transparent),radial-gradient(ellipse_60%_50%_at_80%_50%,rgba(0,210,255,0.06),transparent)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.025] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] bg-[size:48px_48px]" />
+
+      <div className="relative mx-auto max-w-6xl">
+
+        {/* Heading */}
+        <div className="mb-14 text-center">
+          <Reveal>
+            <h2
+              className="font-bold leading-[1.1] tracking-tighter"
+              style={{ fontSize: "clamp(28px,4.5vw,52px)" }}
+            >
+              <span className="text-white">Ask ChatFPL About </span>
+              <span
+                className="text-transparent bg-clip-text"
+                style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff,#a855f7)", WebkitBackgroundClip: "text" }}
+              >
+                Any Player
+              </span>
+            </h2>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="mt-4 text-base text-gray-400 max-w-xl mx-auto">
+              Live data. Real answers. Here are some of the questions you could be asking right now.
+            </p>
+          </Reveal>
+        </div>
+
+        {/* Split pane */}
+        <Reveal delay={0.15}>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 items-stretch max-w-4xl mx-auto">
+
+            {/* ── Left — Player portrait ── */}
+            <div
+              className="relative rounded-3xl overflow-hidden"
+              style={{
+                background: "linear-gradient(145deg,rgba(0,255,135,0.06) 0%,rgba(255,255,255,0.03) 50%,rgba(0,210,255,0.04) 100%)",
+                border: "1px solid rgba(0,255,135,0.12)",
+                boxShadow: "0 0 60px rgba(0,255,135,0.06), inset 0 1px 0 rgba(255,255,255,0.07)",
+                minHeight: "380px",
+              }}
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`photo-${idx}`}
+                  className="absolute inset-0 flex flex-col items-center justify-end pb-6"
+                  initial={{ opacity: 0, y: direction > 0 ? 40 : -40, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: direction > 0 ? -40 : 40, scale: 0.96 }}
+                  transition={SPRING}
+                >
+                  {/* Player photo */}
+                  <div className="absolute inset-x-0 top-0 bottom-20 flex items-center justify-center overflow-hidden">
+                    {photoOk ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.photo_url}
+                        alt={p.name}
+                        className="h-full w-auto object-contain object-bottom drop-shadow-2xl"
+                        style={{ filter: "brightness(0.96) saturate(1.05) contrast(1.02)" }}
+                        onError={() => {
+                          // Try fallback 110x140
+                          setPhotoOk(false)
+                        }}
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.photo_fallback}
+                        alt={p.name}
+                        className="h-full w-auto object-contain object-bottom drop-shadow-2xl"
+                        style={{ filter: "brightness(0.96) saturate(1.05)" }}
+                      />
+                    )}
+                    {/* Glow line at bottom of photo */}
+                    <div
+                      className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px pointer-events-none"
+                      style={{ width: "70%", background: "radial-gradient(ellipse at center, rgba(255,255,255,0.5) 0%, transparent 70%)", boxShadow: "0 0 20px 2px rgba(255,255,255,0.3)" }}
+                    />
+                  </div>
+
+                  {/* Player name chip */}
+                  <div
+                    className="relative z-10 rounded-2xl px-5 py-2.5 text-center"
+                    style={{
+                      background: "rgba(0,0,0,0.7)",
+                      border: "1px solid rgba(0,255,135,0.2)",
+                      backdropFilter: "blur(12px)",
+                    }}
+                  >
+                    <p
+                      className="font-bold text-transparent bg-clip-text text-lg leading-tight"
+                      style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
+                    >
+                      {p.full_name}
+                    </p>
+                    <p className="text-white/50 text-xs mt-0.5">{p.team} · {p.pos} · £{p.price}m</p>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* ── Right — Question + stats + nav ── */}
+            <div
+              className="relative rounded-3xl flex flex-col justify-between p-7 md:p-8"
+              style={{
+                background: "linear-gradient(145deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.02) 100%)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+                minHeight: "380px",
+              }}
+            >
+              <div className="flex-1">
+                {/* "Question asked" label */}
+                <div className="flex items-center gap-2 mb-5">
+                  <span
+                    className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest"
+                    style={{ background: "rgba(0,255,135,0.1)", color: "#00FF87", border: "1px solid rgba(0,255,135,0.25)" }}
+                  >
+                    Example question
+                  </span>
+                </div>
+
+                {/* Question text */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`q-${idx}`}
+                    initial={{ opacity: 0, x: direction > 0 ? 30 : -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: direction > 0 ? -30 : 30 }}
+                    transition={{ ...SPRING, stiffness: 140, damping: 25 }}
+                  >
+                    <p
+                      className="text-white leading-relaxed mb-6"
+                      style={{ fontSize: "clamp(16px,1.6vw,20px)", fontWeight: 500 }}
+                      dangerouslySetInnerHTML={{
+                        __html: highlightedQuestion.replace(
+                          /<mark>(.*?)<\/mark>/g,
+                          `<span style="background:linear-gradient(to right,#00ff85,#00ffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">$1</span>`
+                        ),
+                      }}
+                    />
+
+                    {/* Live stat pills */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {stats.map((s) => (
+                        <div
+                          key={s.label}
+                          className="rounded-xl px-3 py-2"
+                          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                        >
+                          <p className="text-[9px] uppercase tracking-[0.15em] text-white/35 mb-0.5">{s.label}</p>
+                          <p className="text-sm font-bold text-white">{s.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* Bottom row — name + nav */}
+              <div className="flex items-end justify-between mt-6 pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                {/* Player identity */}
+                <div>
+                  <p className="font-bold text-white text-base">{p.name}</p>
+                  <p className="text-white/40 text-sm">{p.team}</p>
+                </div>
+
+                {/* Nav buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => go(-1)}
+                    className="h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                    style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
+                    aria-label="Previous player"
+                  >
+                    <svg className="h-4 w-4 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => go(1)}
+                    className="h-10 w-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                    style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)" }}
+                    aria-label="Next player"
+                  >
+                    <svg className="h-4 w-4 text-white/70" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Dot indicators */}
+        <Reveal delay={0.2}>
+          <div className="flex items-center justify-center gap-2 mt-8">
+            {players.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => { setDirection(i > idx ? 1 : -1); setPhotoOk(true); setIdx(i) }}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: i === idx ? "24px" : "6px",
+                  height: "6px",
+                  background: i === idx
+                    ? "linear-gradient(to right,#00FF87,#00FFFF)"
+                    : "rgba(255,255,255,0.2)",
+                }}
+                aria-label={`Go to player ${i + 1}`}
+              />
+            ))}
+          </div>
+        </Reveal>
+
+        {/* CTA */}
+        <Reveal delay={0.25}>
+          <div className="mt-10 text-center">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
+              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+            >
+              Ask ChatFPL AI now
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        </Reveal>
+
+      </div>
+    </section>
+  )
+}

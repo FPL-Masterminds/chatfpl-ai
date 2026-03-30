@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ChatShowcase } from "@/components/chat-showcase"
 import PlayerCarousel from "@/components/player-carousel"
-import { WhyAiFpl } from "@/components/why-ai-fpl"
+import { QueryCarousel } from "@/components/query-carousel"
 import { Reveal } from "@/components/scroll-reveal"
 import { 
   TrendingUp, 
@@ -143,8 +143,8 @@ export default function DevLandingPage() {
       {/* 3D Player Carousel */}
       <PlayerCarousel />
 
-      {/* Why AI FPL Section */}
-      <WhyAiFpl />
+      {/* Query Carousel — player showcase with live API data */}
+      <QueryCarousel />
 
       {/* Features Section */}
       <section id="features" className="border-b border-gray-800 px-4 py-20">
