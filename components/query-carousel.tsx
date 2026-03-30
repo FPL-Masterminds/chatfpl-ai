@@ -86,8 +86,7 @@ const FALLBACK: Player[] = [
 
 export function QueryCarousel() {
   const [players, setPlayers] = useState<Player[]>(FALLBACK)
-  const [idx, setIdx]         = useState(0)
-  const [direction, setDirection] = useState<1 | -1>(1)
+  const [idx, setIdx]     = useState(0)
   const [photoOk, setPhotoOk] = useState(true)
   const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pausedRef = useRef(false)
@@ -101,7 +100,6 @@ export function QueryCarousel() {
 
   // Batches direction + photoOk + idx in one React render — no extra effects
   const go = useCallback((dir: 1 | -1) => {
-    setDirection(dir)
     setPhotoOk(true)
     setIdx((i) => (i + dir + players.length) % players.length)
   }, [players.length])
@@ -201,11 +199,11 @@ export function QueryCarousel() {
               <motion.div
                 key={`photo-${idx}`}
                 className="absolute inset-0 flex flex-col items-center justify-end pb-6"
-                initial={{ opacity: 0, y: direction > 0 ? 40 : -40 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: direction > 0 ? -40 : 40 }}
-                transition={SPRING}
-                style={{ willChange: "transform, opacity" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                style={{ willChange: "opacity" }}
               >
                 {/* Player photo */}
                 <div className="absolute inset-x-0 top-4 bottom-20 flex items-center justify-center overflow-hidden">
@@ -287,11 +285,11 @@ export function QueryCarousel() {
                 <motion.div
                   key={`q-${idx}`}
                   className="absolute inset-0 overflow-hidden"
-                  initial={{ opacity: 0, x: direction > 0 ? 30 : -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: direction > 0 ? -30 : 30 }}
-                  transition={{ ...SPRING, stiffness: 140, damping: 25 }}
-                  style={{ willChange: "transform, opacity" }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                  style={{ willChange: "opacity" }}
                 >
                   <p
                     className="text-white leading-relaxed mb-6"
@@ -389,7 +387,7 @@ export function QueryCarousel() {
           {players.map((_, i) => (
             <button
               key={i}
-              onClick={() => { setDirection(i > idx ? 1 : -1); setPhotoOk(true); setIdx(i) }}
+              onClick={() => { setPhotoOk(true); setIdx(i) }}
               className="rounded-full transition-all duration-300"
               style={{
                 width: i === idx ? "24px" : "6px",
