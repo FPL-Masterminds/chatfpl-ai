@@ -40,6 +40,9 @@ const CARDS = [
 ]
 
 // ── Player images + animated branch line ──────────────────────────────────────
+const IMG_W = 82
+const IMG_H = 108
+
 function PlayerStack({
   players,
   side,
@@ -53,41 +56,46 @@ function PlayerStack({
   if (!players.length) return null
 
   return (
-    // Covers the opposite half of the card — hidden on mobile
+    // Container anchored so its BOTTOM sits exactly on the card's vertical midline.
+    // Players therefore "stand on" the branch line. Desktop (lg) only.
     <div
-      className={`absolute top-1/2 -translate-y-1/2 hidden md:flex items-end z-0 ${
-        isLeft
-          ? "left-[52%] right-0 flex-row pl-2"
-          : "right-[52%] left-0 flex-row-reverse pr-2"
+      className={`absolute hidden lg:block z-0 ${
+        isLeft ? "left-[52%] right-0" : "right-[52%] left-0"
       }`}
+      style={{ bottom: "50%", height: IMG_H + 1 }}
     >
-      {/* Animated horizontal branch from the dot */}
+      {/* Full-width branch line running at the base — behind players */}
       <motion.div
-        className="flex-1 self-end"
         initial={{ scaleX: 0 }}
         animate={inView ? { scaleX: 1 } : {}}
-        transition={{ delay: 0.35, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ delay: 0.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
           height: 1,
           transformOrigin: isLeft ? "left" : "right",
           background: isLeft
-            ? "linear-gradient(to right, #00FF87, rgba(0,255,135,0.12))"
-            : "linear-gradient(to left, #00FF87, rgba(0,255,135,0.12))",
-          boxShadow: "0 0 6px rgba(0,255,135,0.55)",
-          minWidth: 12,
-          marginBottom: 0,
+            ? "linear-gradient(to right, #00FF87, rgba(0,255,135,0.1))"
+            : "linear-gradient(to left, #00FF87, rgba(0,255,135,0.1))",
+          boxShadow: "0 0 8px rgba(0,255,135,0.6)",
+          zIndex: 0,
         }}
       />
 
-      {/* Three player photos */}
-      <div className="flex items-end gap-1.5 shrink-0">
+      {/* Players centred in the half-space, standing on the line */}
+      <div
+        className="flex items-end justify-center h-full"
+        style={{ gap: 16, position: "relative", zIndex: 1 }}
+      >
         {players.slice(0, 3).map((p, i) => (
           <motion.div
             key={p.name}
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{
-              delay: 0.6 + i * 0.11,
+              delay: 0.55 + i * 0.1,
               duration: 0.45,
               ease: [0.16, 1, 0.3, 1],
             }}
@@ -99,23 +107,23 @@ function PlayerStack({
                 alt={p.name}
                 draggable={false}
                 style={{
-                  width: 57,
-                  height: 74,
+                  width: IMG_W,
+                  height: IMG_H,
                   objectFit: "contain",
-                  filter: "drop-shadow(0 4px 12px rgba(0,255,133,0.2))",
                   display: "block",
+                  filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.55))",
                 }}
               />
             ) : (
-              <div style={{ width: 57, height: 74 }} />
+              <div style={{ width: IMG_W, height: IMG_H }} />
             )}
-            {/* Glowing white separator line under each photo */}
+            {/* White glowing base line at player feet */}
             <div
               style={{
                 height: 1,
                 background:
-                  "linear-gradient(to right,transparent,rgba(255,255,255,0.7) 30%,rgba(255,255,255,0.95) 50%,rgba(255,255,255,0.7) 70%,transparent)",
-                boxShadow: "0 0 8px 2px rgba(255,255,255,0.28)",
+                  "linear-gradient(to right,transparent,rgba(255,255,255,0.8) 25%,rgba(255,255,255,1) 50%,rgba(255,255,255,0.8) 75%,transparent)",
+                boxShadow: "0 0 8px 2px rgba(255,255,255,0.32)",
               }}
             />
           </motion.div>
@@ -148,7 +156,7 @@ function Card({
     >
       {/* Node on the line */}
       <motion.div
-        className="absolute left-1/2 -translate-x-1/2 z-20 hidden md:block"
+        className="absolute left-1/2 -translate-x-1/2 z-20 hidden lg:block"
         initial={{ scale: 0, opacity: 0 }}
         animate={inView ? { scale: 1, opacity: 1 } : {}}
         transition={{ delay: 0.2, duration: 0.4, type: "spring", stiffness: 200 }}
