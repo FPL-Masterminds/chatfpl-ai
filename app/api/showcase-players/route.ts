@@ -89,24 +89,24 @@ export async function GET() {
 
   const topPts = [...active]
     .sort((a: any, b: any) => b.total_points - a.total_points)
-    .slice(0, 3)
+    .slice(0, 5)
     .map(toPlayer)
 
   const topForm = [...active]
     .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
-    .slice(0, 3)
+    .slice(0, 5)
     .map(toPlayer)
 
   const risers = [...active]
     .filter((p: any) => p.cost_change_event > 0)
     .sort((a: any, b: any) => b.cost_change_event - a.cost_change_event)
-    .slice(0, 3)
+    .slice(0, 5)
     .map(toPlayer)
 
   const differentials = [...active]
-    .filter((p: any) => p.selected_by_percent < 10 && parseFloat(p.form) >= 5)
+    .filter((p: any) => parseFloat(p.selected_by_percent) < 12 && parseFloat(p.form) >= 4.5)
     .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
-    .slice(0, 3)
+    .slice(0, 5)
     .map(toPlayer)
 
   const toEdge = (p: any, value: string): EdgePlayer => ({

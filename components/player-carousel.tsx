@@ -56,18 +56,37 @@ export default function PlayerCarousel() {
   const [twDone, setTwDone]           = useState(false)   // typing complete — hide cursor
   const dragStartX = useRef<number>(0)
 
-  // Fetch live players
+  // Fetch live players — sample from 4 pools for variety, then shuffle
   useEffect(() => {
     fetch("/api/showcase-players")
       .then(r => r.json())
       .then(d => {
-        const combined: ShowcasePlayer[] = []
+        const pick = (pool: ShowcasePlayer[], n: number) => (pool ?? []).slice(0, n)
         const seen = new Set<string>()
-        for (const p of [...(d.topPts ?? []), ...(d.topForm ?? []), ...(d.differentials ?? [])]) {
-          if (!seen.has(p.name)) { seen.add(p.name); combined.push(p) }
-          if (combined.length >= 7) break
+        const add = (list: ShowcasePlayer[]) => list.filter(p => {
+          if (seen.has(p.name)) return false
+          seen.add(p.name)
+          return true
+        })
+
+        // 2 best point scorers, 2 hottest form, 3 differentials, 2 price risers
+        const pool = [
+          ...add(pick(d.topPts,        2)),
+          ...add(pick(d.topForm,       2)),
+          ...add(pick(d.differentials, 3)),
+          ...add(pick(d.risers,        2)),
+          // top up to 10 from remaining topPts / topForm if not enough
+          ...add(pick(d.topPts,        5)),
+          ...add(pick(d.topForm,       5)),
+        ].slice(0, 10)
+
+        // Shuffle so order varies on every page load
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [pool[i], pool[j]] = [pool[j], pool[i]]
         }
-        if (combined.length >= 3) setPlayers(combined)
+
+        if (pool.length >= 3) setPlayers(pool)
       })
       .catch(() => {})
   }, [])
