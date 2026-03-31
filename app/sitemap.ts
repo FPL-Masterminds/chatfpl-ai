@@ -65,7 +65,7 @@ function getRouteMetadata(route: string) {
   }
   
   // Important content pages
-  if (['/about', '/playbook', '/contact'].includes(route)) {
+  if (['/about', '/faq', '/contact'].includes(route)) {
     return { priority: 0.8, changeFrequency: 'weekly' as const }
   }
   

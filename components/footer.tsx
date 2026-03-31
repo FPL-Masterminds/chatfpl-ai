@@ -45,11 +45,10 @@ export function Footer() {
             <h3 className="mb-4 text-sm font-semibold text-white">Product</h3>
             <ul className="space-y-3">
               {[
-                { href: "/",         label: "Home"        },
-                { href: "/about",    label: "About"       },
-                { href: "/playbook", label: "The Playbook"},
-                { href: "/contact",  label: "Contact Us"  },
-                { href: "/faq",      label: "FAQ"         },
+                { href: "/",        label: "Home"       },
+                { href: "/about",   label: "About"      },
+                { href: "/faq",     label: "FAQ"        },
+                { href: "/contact", label: "Contact Us" },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87] group">
