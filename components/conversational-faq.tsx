@@ -314,18 +314,6 @@ export function ConversationalFAQ() {
         </div>
       )}
 
-      {remaining.length === 0 && (
-        <div className="px-4 md:px-6 pb-6 pt-3 border-t border-white/6 text-center">
-          <p className="text-white/40 text-sm mb-3">All questions answered.</p>
-          <a
-            href="/signup"
-            className="inline-block px-8 py-3 rounded-full font-bold text-sm text-black transition-all hover:brightness-110 hover:-translate-y-0.5"
-            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-          >
-            Get Started Free →
-          </a>
-        </div>
-      )}
     </div>
   )
 }
