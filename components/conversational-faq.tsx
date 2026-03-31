@@ -6,68 +6,128 @@ import { motion, AnimatePresence } from "framer-motion"
 const FAQ_DATA = [
   {
     id: "what",
-    question: "What is ChatFPL AI?",
-    answer: "ChatFPL AI is your intelligent Fantasy Premier League assistant powered by artificial intelligence and real-time FPL data. Simply ask any question about players, transfers, captains, fixtures, or strategy, and receive instant, data-driven answers to help you make smarter FPL decisions and climb the rankings.",
+    question: "What is ChatFPL?",
+    answer: "ChatFPL is your personal Fantasy Premier League analyst. It's powered by live FPL data and trained to answer anything from captain picks to chip timing to transfer targets - instantly, without you having to trawl through Twitter or Reddit. Just ask, and it answers.",
+  },
+  {
+    id: "fplid",
+    question: "Can it actually look at my own team?",
+    answer: "Yes - and this is honestly one of the most powerful things it does. Drop your FPL Manager ID into the chat (you'll find it in the URL on your FPL profile page) and ChatFPL will pull in your squad, your budget, your chip status, and your captain history. From that point, every answer is tailored to you. Ask 'Who should I transfer out?' or 'Who's my best captain option this week?' and it responds knowing exactly who you have, what you can afford, and where your weak spots are. It's like having a scout who's already done their homework on your team.",
+  },
+  {
+    id: "questions",
+    question: "What kind of FPL questions can I ask?",
+    answer: "Pretty much anything - captain picks, transfer suggestions, fixture analysis, differentials, chip strategy, price predictions, ownership trends, double gameweek planning, budget options by position... If it's FPL-related, you can ask it. The more specific you are, the sharper the answer.",
+  },
+  {
+    id: "quality",
+    question: "Does how I word my question actually matter?",
+    answer: "It does, yeah. ChatFPL is scanning data across 700+ players at any given moment - so a vague question like 'Who's good this week?' gives it a lot of ground to cover and the answer will reflect that. But ask 'Who are three differential forwards under £8m with good fixtures in GW27?' and it can zero straight in. Think of it like briefing a scout - the more context you give, the better the intel you get back.",
+  },
+  {
+    id: "phrasing",
+    question: "How should I phrase my questions?",
+    answer: "One topic per message - that's the golden rule. Instead of 'Tell me about transfers, captaincy, and my defence all at once,' break it into separate questions. Shorter and focused always beats long and sprawling. Mention a gameweek number, a price range, or a specific player name and you'll get much tighter results.",
+  },
+  {
+    id: "captain",
+    question: "How do I ask about captaincy?",
+    answer: "Use words like captain, armband, or VC and you're set. Something like 'Who's the safest captain for GW27?' or 'Best differential captain under 20% ownership?' works perfectly. Vague questions like 'Who should I pick?' don't give it enough to work with - it doesn't know if you mean captain, transfer, or bench order.",
+  },
+  {
+    id: "differentials",
+    question: "How do I find differentials and hidden gems?",
+    answer: "Words like differential, low ownership, or under the radar tell it exactly what you're after. Try something like 'Top 3 midfield differentials under 15% ownership for GW28' or 'Low-owned defenders with green fixtures in the next four.' The more filters you give it, the more targeted the picks.",
+  },
+  {
+    id: "budget",
+    question: "How do I ask about players by price?",
+    answer: "Just say the number. 'Best defenders under £4.5m for clean sheet potential' or 'Is there a premium midfielder worth £11m+ right now?' will get you instant filtered results. Asking 'Who's cheap?' doesn't really tell it what you need - cheap compared to what, and for which position?",
+  },
+  {
+    id: "transfers",
+    question: "How do I ask about transfers?",
+    answer: "Use words like transfer, replace, or bring in. 'Who should I replace Watkins with if he's injured?' or 'Best transfer targets under £7m for the next three gameweeks' both work really well. The AI needs a bit of context - just saying 'Who should I buy?' leaves it guessing what you already have and what you need.",
+  },
+  {
+    id: "position",
+    question: "How do I filter by position?",
+    answer: "Just name the position - goalkeeper, defender, midfielder, or forward. 'Best budget goalkeepers for save points' or 'Which midfielders are in the best form right now?' will get you focused answers. Without a position, it has to consider everyone and the answer gets broader.",
+  },
+  {
+    id: "compare",
+    question: "Can I compare players against each other?",
+    answer: "Absolutely - comparisons are one of its strongest features. Stick to two to four players though. 'Haaland vs Isak for the next four fixtures' or 'Palmer, Mbeumo, or Salah for captaincy this week?' will get you a proper breakdown with context. Asking it to compare ten players at once is too wide and the results suffer for it.",
+  },
+  {
+    id: "combine",
+    question: "Can I combine multiple filters in one question?",
+    answer: "Yes, and this is where it gets really good. You can stack filters for very precise results - try things like 'Budget defenders with green fixtures under £5m,' 'Premium captain options for the next double gameweek,' or 'Under-the-radar forwards with strong xG over the last three matches.' The more you layer in, the more surgical the answer.",
+  },
+  {
+    id: "avoid",
+    question: "Is there anything I should avoid asking?",
+    answer: "A few things to steer clear of: asking for 'all players this week,' pasting in long lists of names to analyse at once, or open-ended questions like 'Give me expert insights on everything.' These overload the system and tend to produce slower, less useful responses. One clear, specific question always beats a paragraph of requests.",
+  },
+  {
+    id: "examples",
+    question: "Can you give me some example questions that work well?",
+    answer: "Here are a few that hit the sweet spot:\n\n• 'Who is the best captain pick for GW22?'\n• 'Give me three differentials under £7m with good fixtures'\n• 'Who should I replace Saka with if he's injured?'\n• 'Compare Haaland vs Isak for the next five gameweeks'\n• 'Best cheap defenders with a strong fixture run'\n• 'Should I use my wildcard before or after GW24?'\n\nShort, specific, and focused. That's the formula.",
+  },
+  {
+    id: "followup",
+    question: "Can I ask follow-up questions in the same chat?",
+    answer: "Yes - conversations are contextual, so you can build on previous answers. After asking about Salah's stats, you can immediately follow with 'Should I captain him?' or 'Compare him with Son Heung-min' and it knows exactly what you mean. Each follow-up uses one message.",
+  },
+  {
+    id: "data",
+    question: "How current is the data?",
+    answer: "Very. Player prices update daily at 1:30 AM UK time, match stats update within hours of the final whistle, and injury news refreshes as official team announcements come in. Whatever you're asking about, you're getting the latest available picture.",
+  },
+  {
+    id: "gameweeks",
+    question: "Can I use it right before a deadline?",
+    answer: "That's exactly when it's most useful. ChatFPL is available 24/7, including during live gameweeks. Last-minute captain call, injury news, fixture swing you hadn't clocked - ask it anything right up to the deadline. It doesn't sleep.",
   },
   {
     id: "free",
     question: "Can I try it for free?",
-    answer: "Yes! Our Free plan includes 20 trial messages to experience ChatFPL AI with no credit card required. You can upgrade at any time or complete simple tasks to earn additional messages.",
+    answer: "Yes - the Free plan gives you 20 messages to try it out with no credit card required. You can upgrade any time, or earn extra messages by completing quick tasks like sharing on social media. Either way, you can put it through its paces before you commit to anything.",
   },
   {
     id: "earn",
-    question: "How do I earn extra messages on the Free plan?",
-    answer: "Free users can earn bonus messages by completing simple tasks like sharing ChatFPL AI on social media (X, Facebook, Reddit) or leaving a review. Each task rewards you with additional messages, up to a lifetime cap of 50 bonus messages. Visit your dashboard to see available rewards.",
-  },
-  {
-    id: "questions",
-    question: "What type of FPL questions can I ask?",
-    answer: "You can ask anything FPL-related: player statistics, captain picks, transfer advice, fixture analysis, differential suggestions, chip strategy, rule clarifications, price predictions, ownership trends, and much more. ChatFPL AI provides instant, data-driven answers backed by real-time Premier League data.",
-  },
-  {
-    id: "data",
-    question: "How often is the FPL data updated?",
-    answer: "ChatFPL AI uses live Fantasy Premier League data that updates continuously. Player prices update daily at 1:30 AM UK time, match statistics update within hours of the final whistle, and injury news is refreshed as official team announcements are made. You're always getting the most current information available.",
+    question: "How do I earn extra free messages?",
+    answer: "Share ChatFPL on X, Facebook, or Reddit, or leave a review, and each completed task adds bonus messages to your account - up to a lifetime cap of 50. Your dashboard shows what's available.",
   },
   {
     id: "rollover",
-    question: "Do unused messages roll over to the next month?",
-    answer: "No, unused messages do not carry over. Premium users receive 100 messages each month, and Elite users receive 500 messages per month. Your message allowance resets on your renewal date, so make sure to use your messages before they expire.",
+    question: "Do messages roll over if I don't use them?",
+    answer: "They don't, no. Premium is 100 messages a month, Elite is 500 - both reset on your renewal date. So make sure you're using them.",
   },
   {
     id: "runout",
-    question: "What happens if I run out of messages?",
-    answer: "If you've used all your messages for the current period, you can upgrade to a higher plan for more messages, or wait until your next renewal date when your allowance resets. Free users can also earn bonus messages by completing social sharing tasks.",
+    question: "What happens when I run out of messages?",
+    answer: "You can upgrade to a higher plan for immediate access to more messages, or sit tight until your next renewal date. Free users can also top up by completing the social sharing tasks on their dashboard.",
   },
   {
     id: "difference",
     question: "What's the difference between Premium and Elite?",
-    answer: "Premium gives you 100 messages per month for £7.99, perfect for regular FPL managers who want consistent support throughout the season. Elite offers 500 messages per month for £14.99, ideal for dedicated players, content creators, or those managing multiple teams who need extensive research capabilities.",
+    answer: "Premium is £7.99/month for 100 messages - ideal for regular FPL managers who want reliable weekly support. Elite is £14.99/month for 500 messages - built for serious players, content creators, or anyone managing multiple teams who needs serious research capacity.",
   },
   {
     id: "cancel",
-    question: "Can I cancel my subscription at any time?",
-    answer: "Yes! You can cancel your Premium or Elite subscription at any time from your account dashboard. Your access will continue until the end of your current billing period, and you won't be charged again. No cancellation fees or penalties.",
-  },
-  {
-    id: "gameweeks",
-    question: "Can I use ChatFPL AI during gameweeks?",
-    answer: "Yes! ChatFPL AI is available 24/7, including during live gameweeks. You can get last-minute captain advice before the deadline, check injury updates, analyse fixture swings, or plan your transfers for the following week. The AI is always ready when you need it.",
+    question: "Can I cancel whenever I want?",
+    answer: "Any time, from your account dashboard. Your access continues to the end of the current billing period and that's it - no charges after, no cancellation fees, no awkward calls.",
   },
   {
     id: "guarantee",
-    question: "Does ChatFPL AI guarantee I'll climb the rankings?",
-    answer: "While ChatFPL AI provides data-driven insights and analysis to support better decisions, FPL involves unpredictability that no tool can eliminate. We give you the information edge — form trends, expected stats, fixture analysis — but ultimately, player performance and your strategic decisions determine your rank.",
-  },
-  {
-    id: "followup",
-    question: "Can I ask follow-up questions?",
-    answer: "Yes! Each conversation with ChatFPL AI is contextual, meaning you can ask follow-up questions that build on previous answers. For example, after asking about Mohamed Salah's stats, you can immediately ask \"Should I captain him?\" or \"Compare him with Son Heung-min.\" Each follow-up costs one message.",
+    question: "Will it guarantee I climb the rankings?",
+    answer: "No tool can guarantee that - FPL has too much unpredictability built in. What ChatFPL does is give you a genuine information edge: form data, fixture difficulty, expected stats, ownership trends. You still make the calls. But you'll be making them with better information than most of your mini-league.",
   },
   {
     id: "length",
     question: "Is there a limit to how long my questions can be?",
-    answer: "While there's no strict character limit, we recommend keeping questions clear and concise for the best results. Instead of asking multiple questions in one message, break them into separate queries. For example, ask \"Who should I captain?\" first, then follow up with \"What about transfers?\" This helps the AI provide more focused, accurate responses.",
+    answer: "No hard limit, but shorter and more focused always gets better results. If you have three things to ask, ask them as three separate questions rather than one big block. The AI responds better to clarity than volume.",
   },
 ]
 
