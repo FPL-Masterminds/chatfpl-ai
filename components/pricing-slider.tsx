@@ -273,7 +273,7 @@ export function PricingSlider() {
               <PlanCard plan={p} active={active === p.index} />
             </div>
           ))}
-        </div>
+        </Reveal>
 
         {/* Mobile — single card with slide transition */}
         <Reveal delay={0.2} className="md:hidden overflow-hidden">
