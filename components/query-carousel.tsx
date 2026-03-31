@@ -166,7 +166,7 @@ export function QueryCarousel() {
       {/* Grid + animated green glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <AnimatedGlow
-          color="rgba(0,220,255,0.11)"
+          color="rgba(0,255,135,0.12)"
           size="65% 55%"
           duration={20}
           waypoints={[
