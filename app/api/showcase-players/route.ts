@@ -43,6 +43,10 @@ export type ShowcasePlayers = {
   topForm: ShowcasePlayer[]
   risers: ShowcasePlayer[]
   differentials: ShowcasePlayer[]
+  topGkp: ShowcasePlayer[]
+  topDef: ShowcasePlayer[]
+  topMid: ShowcasePlayer[]
+  topFwd: ShowcasePlayer[]
   mostSelected: EdgePlayer[]
   mostBonus: EdgePlayer[]
   injuryNews: InjuryItem[]
@@ -117,6 +121,19 @@ export async function GET() {
     .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
     .slice(0, 5)
     .map(toPlayer)
+
+  // Top 3 by position (for WhyChatFPL section) — no form gate, pure season points
+  const topByPos = (type: number) =>
+    [...active]
+      .filter((p: any) => p.element_type === type)
+      .sort((a: any, b: any) => b.total_points - a.total_points)
+      .slice(0, 3)
+      .map(toPlayer)
+
+  const topGkp = topByPos(1)
+  const topDef = topByPos(2)
+  const topMid = topByPos(3)
+  const topFwd = topByPos(4)
 
   const toEdge = (p: any, value: string): EdgePlayer => ({
     name: p.web_name,
@@ -252,7 +269,7 @@ export async function GET() {
   const nextDeadline: string | null = nextEvent ? nextEvent.deadline_time : null
   const nextGwName: string = nextEvent ? `Gameweek ${nextEvent.id}` : "Gameweek"
 
-  const data: ShowcasePlayers = { topPts, topForm, risers, differentials, mostSelected, mostBonus, injuryNews, tickerFacts, nextDeadline, nextGwName }
+  const data: ShowcasePlayers = { topPts, topForm, risers, differentials, topGkp, topDef, topMid, topFwd, mostSelected, mostBonus, injuryNews, tickerFacts, nextDeadline, nextGwName }
   cache = { data, ts: Date.now() }
   return NextResponse.json(data)
 }
