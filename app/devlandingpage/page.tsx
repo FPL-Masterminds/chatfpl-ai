@@ -334,20 +334,6 @@ export default function DevLandingPage() {
             </Reveal>
           </div>}
 
-      {/* FAQ Link */}
-      <section className="relative px-4 py-16 text-center overflow-hidden">
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 80% at 50% 50%, rgba(0,255,135,0.05) 0%, transparent 70%)" }} />
-        <Reveal>
-          <p className="text-white/40 text-sm mb-4">Got questions?</p>
-          <Link
-            href="/faq"
-            className="inline-block px-8 py-3 rounded-full font-semibold text-sm text-black transition-all hover:brightness-110 hover:-translate-y-0.5 shadow-[0_0_24px_rgba(0,255,200,0.25)]"
-            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-          >
-            View FAQ →
-          </Link>
-        </Reveal>
-      </section>
     </div>
   )
 }

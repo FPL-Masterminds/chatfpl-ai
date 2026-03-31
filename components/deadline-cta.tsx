@@ -24,16 +24,22 @@ function pad(n: number) {
   return String(n).padStart(2, "0")
 }
 
-function Unit({ value, label, urgent }: { value: string; label: string; urgent: boolean }) {
+function Unit({ value, label, urgent, speed }: { value: string; label: string; urgent: boolean; speed: number }) {
   return (
+    <div
+      className="rounded-2xl p-px"
+      style={{
+        background: urgent
+          ? "linear-gradient(90deg,#ff4444,rgba(255,255,255,0.1),#ff8888,rgba(255,255,255,0.1),#ff4444)"
+          : "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+        backgroundSize: "220% 220%",
+        animation: `glow_scroll ${speed}s linear infinite`,
+      }}
+    >
     <div
       className="flex flex-col items-center justify-center rounded-2xl px-4 py-4 sm:px-6 sm:py-5 min-w-[72px] sm:min-w-[90px]"
       style={{
-        background: "rgba(0,0,0,0.45)",
-        border: `1px solid ${urgent ? "rgba(255,60,60,0.35)" : "rgba(0,255,135,0.2)"}`,
-        boxShadow: urgent
-          ? "0 0 18px rgba(255,60,60,0.15), inset 0 1px 0 rgba(255,255,255,0.05)"
-          : "0 0 18px rgba(0,255,135,0.08), inset 0 1px 0 rgba(255,255,255,0.05)",
+        background: "rgba(0,0,0,0.7)",
         backdropFilter: "blur(12px)",
       }}
     >
@@ -57,6 +63,7 @@ function Unit({ value, label, urgent }: { value: string; label: string; urgent: 
         </motion.span>
       </AnimatePresence>
       <span className="mt-1.5 text-[10px] uppercase tracking-widest text-white/35">{label}</span>
+    </div>
     </div>
   )
 }
@@ -162,10 +169,10 @@ export function DeadlineCTA() {
         >
           {remaining ? (
             <>
-              <Unit value={pad(remaining.days)}    label="Days"    urgent={urgent} />
-              <Unit value={pad(remaining.hours)}   label="Hours"   urgent={urgent} />
-              <Unit value={pad(remaining.minutes)} label="Mins"    urgent={urgent} />
-              <Unit value={pad(remaining.seconds)} label="Secs"    urgent={urgent} />
+              <Unit value={pad(remaining.days)}    label="Days"    urgent={urgent} speed={7} />
+              <Unit value={pad(remaining.hours)}   label="Hours"   urgent={urgent} speed={9} />
+              <Unit value={pad(remaining.minutes)} label="Mins"    urgent={urgent} speed={11} />
+              <Unit value={pad(remaining.seconds)} label="Secs"    urgent={urgent} speed={8} />
             </>
           ) : (
             <p className="text-white/40 text-base">The next deadline will be announced shortly.</p>
