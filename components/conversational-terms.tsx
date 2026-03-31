@@ -7,7 +7,7 @@ const TERMS_DATA = [
   {
     id: "accept",
     question: "What am I agreeing to by using ChatFPL?",
-    answer: "By using ChatFPL, you're agreeing to use the service as it's intended - for FPL advice and analysis - and to not do anything that would damage or abuse it. If you don't agree with any of this, the door's there.",
+    answer: "By using ChatFPL, you're agreeing to use the service as it's intended - for FPL advice and analysis - and not to do anything that would damage or abuse it. That's pretty much it. If anything in the full terms is unclear, get in touch and we'll explain.",
   },
   {
     id: "limits",
