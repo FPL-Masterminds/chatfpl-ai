@@ -72,9 +72,9 @@ export function Footer() {
                   href="https://www.instagram.com/chatfpl_ai"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87]"
+                  className="flex items-center gap-2 text-sm text-white transition-colors hover:text-[#00FF87] group"
                 >
-                  <Instagram className="h-4 w-4" />
+                  <Instagram className="h-4 w-4 text-[#00FF87] transition-colors group-hover:text-white" />
                   Instagram
                 </a>
               </li>
@@ -83,9 +83,9 @@ export function Footer() {
                   href="https://x.com/ChatFPL_AI"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87]"
+                  className="flex items-center gap-2 text-sm text-white transition-colors hover:text-[#00FF87] group"
                 >
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4 text-[#00FF87] transition-colors group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
                   X (Twitter)
@@ -96,9 +96,9 @@ export function Footer() {
                   href="https://www.youtube.com/@ChatFPL_AI"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87]"
+                  className="flex items-center gap-2 text-sm text-white transition-colors hover:text-[#00FF87] group"
                 >
-                  <Youtube className="h-4 w-4" />
+                  <Youtube className="h-4 w-4 text-[#00FF87] transition-colors group-hover:text-white" />
                   YouTube
                 </a>
               </li>
