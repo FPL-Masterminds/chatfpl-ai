@@ -268,7 +268,7 @@ export default function ContactPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.2 }}
-                    className="flex items-center gap-3"
+                    className="rounded-[20px] border border-white/10 bg-white/[0.03] p-3 flex items-end gap-3"
                   >
                     <input
                       ref={inputRef}
@@ -278,23 +278,15 @@ export default function ContactPage() {
                       onKeyDown={handleKey}
                       placeholder={PLACEHOLDERS[step]}
                       disabled={typing}
-                      className="flex-1 rounded-full px-5 py-3 text-sm text-white placeholder-white/25 outline-none transition-all duration-200 disabled:opacity-40"
-                      style={{
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                      }}
-                      onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,255,200,0.35)")}
-                      onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
+                      className="flex-1 bg-transparent text-white placeholder:text-white/35 outline-none text-sm leading-6 min-h-[36px] pt-1 disabled:opacity-40"
                     />
                     <button
                       onClick={handleSend}
                       disabled={!inputVal.trim() || typing}
-                      className="h-11 w-11 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105"
-                      style={{
-                        background: "linear-gradient(to right, #00FF87, #00FFFF)",
-                      }}
+                      className="h-10 px-5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-semibold text-sm shadow-[0_0_24px_rgba(0,255,200,0.2)] hover:brightness-110 transition-all disabled:opacity-35 disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
                     >
-                      <Send className="h-4 w-4 text-black" />
+                      <Send className="h-3.5 w-3.5" />
+                      <span>Send</span>
                     </button>
                   </motion.div>
                 )}
