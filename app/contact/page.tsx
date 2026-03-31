@@ -350,7 +350,30 @@ export default function ContactPage() {
                     transition={{ duration: 0.3 }}
                     className="flex justify-center"
                   >
-                    <p className="text-white/30 text-sm">Message sent - we will be in touch.</p>
+                    <div
+                      className="inline-block rounded-full p-[3px] transition-all duration-300 hover:scale-105"
+                      style={{
+                        background: "rgba(0,0,0,0.55)",
+                        border: "1px solid rgba(255,255,255,0.14)",
+                        boxShadow: "0 0 30px rgba(0,255,135,0.25), inset 0 1px 0 rgba(255,255,255,0.18)",
+                      }}
+                    >
+                      <a
+                        href="/"
+                        className="relative block overflow-hidden rounded-full px-8 py-3 font-bold text-sm text-[#08020E]"
+                        style={{ background: "linear-gradient(to right, #00FF87, #00FFFF)" }}
+                      >
+                        <span
+                          className="pointer-events-none absolute inset-0 rounded-full"
+                          style={{
+                            background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
+                            backgroundSize: "200% 100%",
+                            animation: "shimmer 2.4s linear infinite",
+                          }}
+                        />
+                        Back to ChatFPL
+                      </a>
+                    </div>
                   </motion.div>
                 )}
 
