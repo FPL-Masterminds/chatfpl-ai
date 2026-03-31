@@ -1,3 +1,5 @@
+import { auth } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { DevHeader } from "@/components/dev-header"
@@ -20,12 +22,19 @@ import {
   Star
 } from "lucide-react"
 
+const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
+
 export const metadata = {
   title: "Dev Landing Page - ChatFPL AI",
   description: "Test landing page for new design",
 }
 
-export default function DevLandingPage() {
+export default async function DevLandingPage() {
+  const session = await auth()
+  if (!session?.user?.email || session.user.email !== ALLOWED_EMAIL) {
+    redirect("/login")
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-black">
       <DevHeader />

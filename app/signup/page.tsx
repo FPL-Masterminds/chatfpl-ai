@@ -313,6 +313,10 @@ function SignupForm() {
                     }
                     className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/30 min-w-0"
                     autoComplete={isPasswordStep ? "new-password" : step === "email" ? "email" : "name"}
+                    style={{
+                      WebkitBoxShadow: "0 0 0 1000px #080808 inset",
+                      WebkitTextFillColor: "white",
+                    }}
                   />
                   {isPasswordStep && (
                     <button
