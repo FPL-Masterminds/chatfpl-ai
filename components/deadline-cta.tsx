@@ -134,12 +134,12 @@ export function DeadlineCTA() {
             </>
           ) : (
             <>
-              <span className="text-white">Deadline Passed. </span>
+              <span className="text-white">New Season. </span>
               <span
                 className="text-transparent bg-clip-text"
                 style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
               >
-                Prep for GW{GW + 1}.
+                Same Rivals. Head Start.
               </span>
             </>
           )}
@@ -153,7 +153,10 @@ export function DeadlineCTA() {
           transition={{ duration: 0.6, delay: 0.18 }}
           className="text-lg text-gray-300 max-w-xl mx-auto mb-10"
         >
-          Every hour you wait, someone else gets the edge. Sort your squad before the whistle.
+          {remaining
+            ? "Every hour you wait, someone else gets the edge. Sort your squad before the whistle."
+            : "The season's done. But the managers who finish top next year are already thinking. Don't start on the back foot."
+          }
         </motion.p>
 
         {/* Countdown boxes */}
@@ -172,7 +175,7 @@ export function DeadlineCTA() {
               <Unit value={pad(remaining.seconds)} label="Secs"    urgent={urgent} speed={8} />
             </>
           ) : (
-            <p className="text-white/40 text-base">The next deadline will be announced shortly.</p>
+            <p className="text-white/40 text-base italic">GW1 deadline date to be confirmed by the Premier League.</p>
           )}
         </motion.div>
 
@@ -206,7 +209,7 @@ export function DeadlineCTA() {
                   animation: "shimmer 2.4s linear infinite",
                 }}
               />
-              Secure My Advantage
+              {remaining ? "Get the Edge — Free" : "Get a Head Start — Free"}
             </Link>
           </div>
           <p className="mt-3 text-xs text-white/60">Free trial · No credit card required</p>
