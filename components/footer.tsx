@@ -1,11 +1,34 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Instagram, Youtube } from "lucide-react"
+import { AnimatedGlow } from "@/components/animated-glow"
 
 export function Footer() {
   return (
-    <footer className="border-t border-gray-700 bg-[#1A0E24]">
-      <div className="container mx-auto px-4 py-12">
+    <footer className="relative overflow-hidden bg-black border-t border-white/[0.06]">
+      {/* Grid + animated green glow */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <AnimatedGlow
+          color="rgba(0,255,135,0.10)"
+          size="60% 70%"
+          duration={22}
+          waypoints={[
+            { x: "10%",  y: "-10%" },
+            { x: "-15%", y: "15%"  },
+            { x: "20%",  y: "10%"  },
+            { x: "-5%",  y: "-15%" },
+          ]}
+        />
+        <div
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
+      </div>
+
+      <div className="relative container mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
             <Image 
@@ -107,11 +130,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-gray-700 pt-8">
-          <p className="mb-4 text-center text-xs text-gray-400 leading-relaxed">
+        <div className="mt-12 border-t border-white/[0.06] pt-8">
+          <p className="mb-4 text-center text-xs text-white/40 leading-relaxed">
             ChatFPL AI offers live Fantasy Premier League statistics and intelligent analysis to help guide your decisions. Although results may vary, our data-driven insights are built to enhance your strategy and performance across every gameweek.
           </p>
-          <p className="text-center text-xs text-gray-400">&copy; 2025 ChatFPL AI.ai. All rights reserved.</p>
+          <p className="text-center text-xs text-white/40">&copy; 2025 ChatFPL AI.ai. All rights reserved.</p>
         </div>
       </div>
     </footer>
