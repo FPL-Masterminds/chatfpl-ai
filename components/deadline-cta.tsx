@@ -153,7 +153,7 @@ export function DeadlineCTA() {
           transition={{ duration: 0.6, delay: 0.18 }}
           className="text-lg text-gray-300 max-w-xl mx-auto mb-10"
         >
-          Your rivals are already refining their rosters with live data. Don't go into the deadline blind.
+          Every hour you wait, someone else gets the edge. Sort your squad before the whistle.
         </motion.p>
 
         {/* Countdown boxes */}
