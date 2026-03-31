@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
+import { AnimatedGlow } from "@/components/animated-glow"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -162,9 +163,19 @@ export function QueryCarousel() {
       onMouseEnter={() => { pausedRef.current = true }}
       onMouseLeave={() => { pausedRef.current = false }}
     >
-      {/* Grid + green spotlight — centre-right */}
+      {/* Grid + animated green glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 65% 55% at 82% 50%, rgba(0,255,135,0.12) 0%, transparent 65%)" }} />
+        <AnimatedGlow
+          color="rgba(0,220,255,0.11)"
+          size="65% 55%"
+          duration={20}
+          waypoints={[
+            { x: "25%",  y: "5%"   },
+            { x: "-10%", y: "-15%" },
+            { x: "15%",  y: "20%"  },
+            { x: "-20%", y: "0%"   },
+          ]}
+        />
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
       </div>
 

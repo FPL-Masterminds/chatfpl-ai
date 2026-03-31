@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
+import { AnimatedGlow } from "@/components/animated-glow"
 import Image from "next/image"
 import Link from "next/link"
 import type { ShowcasePlayer, ShowcasePlayers, EdgePlayer, InjuryItem } from "@/app/api/showcase-players/route"
@@ -312,9 +313,19 @@ export function ChatShowcase() {
 
   return (
     <section ref={sectionRef} className="relative px-4 py-24 bg-black overflow-hidden">
-      {/* Grid + green spotlight — top-left */}
+      {/* Grid + animated green glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 60% at 18% 30%, rgba(0,255,135,0.13) 0%, transparent 65%)" }} />
+        <AnimatedGlow
+          color="rgba(0,255,135,0.13)"
+          size="70% 60%"
+          duration={16}
+          waypoints={[
+            { x: "-15%", y: "-20%" },
+            { x: "20%",  y: "10%"  },
+            { x: "-5%",  y: "25%"  },
+            { x: "10%",  y: "-10%" },
+          ]}
+        />
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
       </div>
       <style>{`

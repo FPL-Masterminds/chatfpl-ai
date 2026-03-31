@@ -3,6 +3,7 @@
 import { useState, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
+import { AnimatedGlow } from "@/components/animated-glow"
 
 const PLANS = [
   {
@@ -174,9 +175,19 @@ export function PricingSlider() {
 
   return (
     <section className="relative bg-black px-4 py-24 overflow-hidden">
-      {/* Grid + green spotlight — bottom-left */}
+      {/* Grid + animated green glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 65% 55% at 20% 72%, rgba(0,255,135,0.12) 0%, transparent 65%)" }} />
+        <AnimatedGlow
+          color="rgba(0,255,135,0.11)"
+          size="60% 50%"
+          duration={18}
+          waypoints={[
+            { x: "-20%", y: "20%"  },
+            { x: "10%",  y: "-10%" },
+            { x: "20%",  y: "15%"  },
+            { x: "-5%",  y: "-20%" },
+          ]}
+        />
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
       </div>
 
