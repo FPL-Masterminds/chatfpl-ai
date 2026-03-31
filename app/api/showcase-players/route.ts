@@ -3,9 +3,9 @@ import { fplPhotoUrlFromElement } from "@/lib/fpl-player-photo"
 
 const FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
-// Cache for 30 minutes
+// Cache for 15 minutes
 let cache: { data: ShowcasePlayers; ts: number } | null = null
-const CACHE_MS = 30 * 60 * 1000
+const CACHE_MS = 15 * 60 * 1000
 
 export type ShowcasePlayer = {
   name: string
@@ -74,7 +74,10 @@ export async function GET() {
 
   const posMap: Record<number, string> = { 1: "GKP", 2: "DEF", 3: "MID", 4: "FWD" }
 
-  const active = json.elements.filter((p: any) => p.status !== "u" && p.minutes > 0)
+  // Playing regularly, not suspended/unavailable
+  const active = json.elements.filter((p: any) =>
+    p.status !== "u" && p.status !== "s" && p.minutes > 200
+  )
 
   const toPlayer = (p: any): ShowcasePlayer => ({
     name: p.web_name,
@@ -87,22 +90,28 @@ export async function GET() {
     teamCode: teamCodes[p.team] ?? 0,
   })
 
+  // Top points scorers who are still in decent form (removes historically good but currently dead players)
   const topPts = [...active]
+    .filter((p: any) => parseFloat(p.form) >= 4.0)
     .sort((a: any, b: any) => b.total_points - a.total_points)
     .slice(0, 5)
     .map(toPlayer)
 
+  // Hottest form players right now
   const topForm = [...active]
+    .filter((p: any) => parseFloat(p.form) >= 5.0)
     .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
     .slice(0, 5)
     .map(toPlayer)
 
+  // Price risers this gameweek - trending transfer targets
   const risers = [...active]
-    .filter((p: any) => p.cost_change_event > 0)
+    .filter((p: any) => p.cost_change_event > 0 && parseFloat(p.form) >= 3.0)
     .sort((a: any, b: any) => b.cost_change_event - a.cost_change_event)
     .slice(0, 5)
     .map(toPlayer)
 
+  // Differentials: low owned but in form
   const differentials = [...active]
     .filter((p: any) => parseFloat(p.selected_by_percent) < 12 && parseFloat(p.form) >= 4.5)
     .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
