@@ -33,7 +33,7 @@ function makeFaqData(p: PlayerNames) {
   {
     id: "quality",
     question: "Does how I word my question actually matter?",
-    answer: "It does, yeah. ChatFPL is scanning data across 700+ players at any given moment - so a vague question like 'Who's good this week?' gives it a lot of ground to cover and the answer will reflect that. But ask 'Who are three differential forwards under £8m with good fixtures in GW27?' and it can zero straight in. Think of it like briefing a scout - the more context you give, the better the intel you get back.",
+    answer: "It does, yeah. ChatFPL pulls from the full FPL dataset but focuses on the top relevant players for your specific question - so a vague question like 'Who's good this week?' gives it a lot of ground to cover and the answer will reflect that. But ask 'Who are three differential forwards under £8m with good fixtures in GW27?' and it can zero straight in. Think of it like briefing a scout - the more context you give, the better the intel you get back.",
   },
   {
     id: "phrasing",
