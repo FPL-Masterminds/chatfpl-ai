@@ -1,163 +1,243 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Header } from "@/components/header"
-import { Button } from "@/components/ui/button"
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { DevHeader } from "@/components/dev-header"
+import { Reveal } from "@/components/scroll-reveal"
 import { Database } from "lucide-react"
+
+export const metadata = {
+  title: "About — ChatFPL",
+  description: "ChatFPL is your AI-powered Fantasy Premier League assistant, built by managers for managers.",
+}
 
 export default function AboutPage() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
+    <div className="flex min-h-screen flex-col bg-black">
 
-      <main className="flex-1 px-4 py-24">
+      {/* Grid pattern */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"
+        style={{
+          backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
+
+      {/* Radial green glow */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background: "radial-gradient(ellipse 70% 50% at 50% 40%, rgba(0,255,135,0.07) 0%, transparent 70%)",
+        }}
+      />
+
+      <DevHeader />
+
+      <main className="relative z-10 flex-1 px-4 pt-28 pb-20">
         <div className="container mx-auto max-w-4xl">
-          {/* Hero Section */}
-          <div className="mb-16 text-center">
-            <h1 
-              className="mb-6 text-balance text-4xl font-bold uppercase"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
-            >
-              <span style={{ color: 'white' }}>About Chat</span>
-              <span style={{ color: '#00FFFF' }}>FPL </span>
-              <span style={{ color: '#00FF86' }}>AI</span>
+
+          {/* Hero */}
+          <Reveal className="text-center mb-16">
+            <h1 className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
+              <span className="text-white">About </span>
+              <span
+                className="text-transparent bg-clip-text"
+                style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
+              >
+                ChatFPL
+              </span>
             </h1>
-            <p className="mx-auto max-w-3xl text-lg font-semibold" style={{ color: '#4B5563' }}>
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
               Your AI-powered Fantasy Premier League assistant - built by managers, for managers.
             </p>
-          </div>
+          </Reveal>
 
           {/* Introduction */}
-          <section className="mb-16 space-y-4">
-            <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
-              ChatFPL AI helps Fantasy Premier League players make sharper, faster, and more informed decisions. It blends <strong>real-time FPL data</strong> with <strong>advanced AI insights</strong> to deliver instant, personalized advice that keeps you one step ahead of the competition.
+          <Reveal delay={0.1} className="mb-16 space-y-5 max-w-3xl mx-auto">
+            <p className="text-base text-gray-300 leading-relaxed">
+              ChatFPL helps Fantasy Premier League players make sharper, faster, and more informed decisions. It blends{" "}
+              <span className="text-[#00FF87] font-medium">real-time FPL data</span> with{" "}
+              <span className="text-[#00FF87] font-medium">advanced AI insights</span> to deliver instant, personalised advice that keeps you one step ahead of the competition.
             </p>
-            <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
-              We created ChatFPL AI so every manager - casual or seasoned - can access the kind of tactical insight and data-driven analysis that was once only available to experts. We combine the power of artificial intelligence with real-time FPL data to provide instant, personalized advice that helps you climb the rankings.
+            <p className="text-base text-gray-300 leading-relaxed">
+              We created ChatFPL so every manager - casual or seasoned - can access the kind of tactical insight and data-driven analysis that was once only available to experts. We combine the power of artificial intelligence with real-time FPL data to provide instant, personalised advice that helps you climb the rankings.
             </p>
-            <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
-              Created by FPL obsessives who live the game every week. ChatFPL AI evolves through feedback, strategy discussions, and real-world testing from the community itself.
+            <p className="text-base text-gray-300 leading-relaxed">
+              Created by FPL obsessives who live the game every week. ChatFPL evolves through feedback, strategy discussions, and real-world testing from the community itself.
             </p>
-          </section>
+          </Reveal>
 
           {/* How It Works */}
           <section className="mb-16">
-            <h3 
-              className="mb-4 text-center text-4xl font-bold uppercase"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
-            >
-              <span style={{ color: 'white' }}>How </span>
-              <span style={{ color: '#00FFFF' }}>It </span>
-              <span style={{ color: '#00FF86' }}>Works</span>
-            </h3>
-            <p className="mb-8 text-center text-lg font-semibold" style={{ color: '#4B5563' }}>
-              Real-time insights, powered by AI
-            </p>
-            <div className="grid gap-6 md:grid-cols-3">
-              {/* Live Data Feed Card */}
-              <Card className="border-0 bg-white shadow-md">
-                <CardHeader className="text-center">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#00FF86' }}>
-                    <Database className="h-8 w-8" style={{ color: '#2E0032' }} />
-                  </div>
-                  <CardTitle className="text-xl mb-2">Live Data Feed</CardTitle>
-                  <CardDescription className="text-sm leading-relaxed">
-                    We connect directly to up-to-the-minute player statistics, fixture difficulty, player availability, performance and transfer trends.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
+            <Reveal className="text-center mb-10">
+              <h2 className="mb-3 text-[32px] font-bold leading-[1.1] tracking-tighter lg:text-5xl">
+                <span className="text-white">How </span>
+                <span
+                  className="text-transparent bg-clip-text"
+                  style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
+                >
+                  It Works
+                </span>
+              </h2>
+              <p className="text-lg text-gray-300">Real-time insights, powered by AI</p>
+            </Reveal>
 
-              {/* AI-Driven Insights Card */}
-              <Card className="border-0 bg-white shadow-md">
-                <CardHeader className="text-center">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#2E0032' }}>
-                    <Image 
-                      src="/AI_Driven Insights.png"
-                      alt="AI-Driven Insights"
-                      width={64}
-                      height={64}
-                      className="h-16 w-16"
-                    />
-                  </div>
-                  <CardTitle className="text-xl mb-2">AI-Driven Insights</CardTitle>
-                  <CardDescription className="text-sm leading-relaxed">
-                    Our AI generates context-rich, actionable recommendations and insights for your FPL squad, not just raw numbers and figures.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
+            <div className="grid gap-5 md:grid-cols-3">
 
-              {/* Instant Answers Card */}
-              <Card className="border-0 bg-white shadow-md">
-                <CardHeader className="text-center">
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: '#00FFFF' }}>
-                    <Image 
-                      src="/Instant_Answers.png"
-                      alt="Instant Answers"
-                      width={64}
-                      height={64}
-                      className="h-16 w-16"
-                    />
+              {/* Live Data Feed */}
+              <Reveal delay={0.1}>
+                <div
+                  className="relative rounded-2xl p-[1px] h-full"
+                  style={{
+                    background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.06),#02efff,rgba(255,255,255,0.06),#00FF87)",
+                    backgroundSize: "220% 220%",
+                    animation: "glow_scroll 7s linear infinite",
+                  }}
+                >
+                  <div className="bg-[#080808] rounded-2xl p-7 h-full flex flex-col items-center text-center">
+                    <div
+                      className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl"
+                      style={{ background: "rgba(0,255,135,0.1)", border: "1px solid rgba(0,255,135,0.2)" }}
+                    >
+                      <Database className="h-6 w-6 text-[#00FF87]" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-3">Live Data Feed</h3>
+                    <p className="text-sm text-gray-400 leading-relaxed">
+                      Connected directly to up-to-the-minute player statistics, fixture difficulty, player availability, performance and transfer trends.
+                    </p>
                   </div>
-                  <CardTitle className="text-xl mb-2">Instant Answers</CardTitle>
-                  <CardDescription className="text-sm leading-relaxed">
-                    Ask anything in plain English and get an instant response. No spreadsheets, no scraping, just straight-to-the-point analysis.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
+                </div>
+              </Reveal>
+
+              {/* AI-Driven Insights */}
+              <Reveal delay={0.2}>
+                <div
+                  className="relative rounded-2xl p-[1px] h-full"
+                  style={{
+                    background: "linear-gradient(90deg,#02efff,rgba(255,255,255,0.06),#00FF87,rgba(255,255,255,0.06),#02efff)",
+                    backgroundSize: "220% 220%",
+                    animation: "glow_scroll 9s linear infinite",
+                  }}
+                >
+                  <div className="bg-[#080808] rounded-2xl p-7 h-full flex flex-col items-center text-center">
+                    <div
+                      className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl overflow-hidden"
+                      style={{ background: "rgba(0,255,135,0.1)", border: "1px solid rgba(0,255,135,0.2)" }}
+                    >
+                      <Image
+                        src="/AI_Driven Insights.png"
+                        alt="AI-Driven Insights"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 object-contain"
+                      />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-3">AI-Driven Insights</h3>
+                    <p className="text-sm text-gray-400 leading-relaxed">
+                      Context-rich, actionable recommendations for your FPL squad - not just raw numbers and figures.
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* Instant Answers */}
+              <Reveal delay={0.3}>
+                <div
+                  className="relative rounded-2xl p-[1px] h-full"
+                  style={{
+                    background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.06),#02efff,rgba(255,255,255,0.06),#00FF87)",
+                    backgroundSize: "220% 220%",
+                    animation: "glow_scroll 11s linear infinite",
+                  }}
+                >
+                  <div className="bg-[#080808] rounded-2xl p-7 h-full flex flex-col items-center text-center">
+                    <div
+                      className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl overflow-hidden"
+                      style={{ background: "rgba(0,255,135,0.1)", border: "1px solid rgba(0,255,135,0.2)" }}
+                    >
+                      <Image
+                        src="/Instant_Answers.png"
+                        alt="Instant Answers"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 object-contain"
+                      />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-3">Instant Answers</h3>
+                    <p className="text-sm text-gray-400 leading-relaxed">
+                      Ask anything in plain English and get an instant response. No spreadsheets, no scraping - straight-to-the-point analysis.
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+
             </div>
           </section>
 
-          {/* Why ChatFPL AI Section */}
-          <section className="mb-16">
-            <h2 
-              className="mb-4 text-center text-4xl font-bold uppercase"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
+          {/* Why ChatFPL */}
+          <Reveal delay={0.1} className="mb-16">
+            <div
+              className="relative rounded-2xl p-[1px]"
+              style={{
+                background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.06),#02efff,rgba(255,255,255,0.06),#00FF87)",
+                backgroundSize: "220% 220%",
+                animation: "glow_scroll 8s linear infinite",
               }}
             >
-              <span style={{ color: 'white' }}>Why Chat</span>
-              <span style={{ color: '#00FFFF' }}>FPL </span>
-              <span style={{ color: '#00FF86' }}>AI?</span>
-            </h2>
-            <p className="mb-6 text-center text-lg font-semibold" style={{ color: '#4B5563' }}>
-              Fantasy Premier League changes fast
-            </p>
-            <p className="mb-4 text-sm leading-relaxed" style={{ color: '#4B5563' }}>
-              Fixtures shift, players explode, data evolves. ChatFPL AI gives you the power to react in seconds, not hours, using real insights, not guesswork.
-            </p>
-            <p className="text-sm leading-relaxed" style={{ color: '#4B5563' }}>
-              Whether you're setting your captain, planning transfers, or analysing upcoming fixtures, ChatFPL AI is your always-on tactical partner, built to help you climb the ranks and enjoy the game even more.
-            </p>
-          </section>
+              <div className="bg-[#080808] rounded-2xl p-8 md:p-10">
+                <h2 className="mb-3 text-[32px] font-bold leading-[1.1] tracking-tighter lg:text-5xl text-center">
+                  <span className="text-white">Why </span>
+                  <span
+                    className="text-transparent bg-clip-text"
+                    style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
+                  >
+                    ChatFPL?
+                  </span>
+                </h2>
+                <p className="mb-6 text-center text-lg text-gray-300">Fantasy Premier League changes fast</p>
+                <div className="space-y-4 max-w-2xl mx-auto">
+                  <p className="text-base text-gray-300 leading-relaxed">
+                    Fixtures shift, players explode, data evolves. ChatFPL gives you the power to react in seconds, not hours, using real insights - not guesswork.
+                  </p>
+                  <p className="text-base text-gray-300 leading-relaxed">
+                    Whether you're setting your captain, planning transfers, or analysing upcoming fixtures, ChatFPL is your always-on tactical partner, built to help you climb the ranks and enjoy the game even more.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
 
-          {/* CTA Section */}
-          <section className="text-center">
-            <p className="mb-6 text-lg font-semibold" style={{ color: '#4B5563' }}>
-              Stop overthinking. Start winning. Let ChatFPL AI analyse your squad, fixtures, and form in seconds, so you make the right move every time.
+          {/* CTA */}
+          <Reveal delay={0.1} className="text-center">
+            <p className="mb-8 text-lg text-gray-300 max-w-xl mx-auto leading-relaxed">
+              Stop overthinking. Start winning. Let ChatFPL analyse your squad, fixtures, and form in seconds - so you make the right move every time.
             </p>
-            <Link href="/signup">
-              <Button 
-                size="lg"
-                className="font-semibold"
-                style={{ 
-                  backgroundColor: '#00FF86',
-                  color: '#2E0032'
-                }}
+            <div
+              className="inline-block rounded-full p-[4px] transition-all duration-300 hover:scale-105"
+              style={{
+                background: "rgba(0,0,0,0.55)",
+                border: "1px solid rgba(255,255,255,0.14)",
+                boxShadow: "0 0 40px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
+              }}
+            >
+              <Link
+                href="/signup"
+                className="relative block overflow-hidden rounded-full px-10 py-4 font-bold text-lg text-[#08020E]"
+                style={{ background: "linear-gradient(to right, #00FF87, #00FFFF)" }}
               >
+                <span
+                  className="pointer-events-none absolute inset-0 rounded-full"
+                  style={{
+                    background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
+                    backgroundSize: "200% 100%",
+                    animation: "shimmer 2.4s linear infinite",
+                  }}
+                />
                 Start your 20-message free trial today
-              </Button>
-            </Link>
-          </section>
+              </Link>
+            </div>
+            <p className="mt-4 text-sm text-white/40">Free trial - no credit card required</p>
+          </Reveal>
+
         </div>
       </main>
     </div>
