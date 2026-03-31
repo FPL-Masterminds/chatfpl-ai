@@ -203,9 +203,8 @@ export function ConversationalAbout() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-between gap-4"
+            className="flex justify-center"
           >
-            <p className="text-white/50 text-sm">Ready to try it yourself?</p>
             <div
               className="inline-block rounded-full p-[3px] transition-all duration-300 hover:scale-105"
               style={{
