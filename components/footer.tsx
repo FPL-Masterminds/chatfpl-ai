@@ -44,31 +44,23 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-sm font-semibold text-white">Product</h3>
             <ul className="space-y-3">
-              <li>
-                <Link href="/" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  🏠 Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  ℹ️ About
-                </Link>
-              </li>
-              <li>
-                <Link href="/playbook" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  📖 The Playbook
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  📧 Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  ❓ FAQ
-                </Link>
-              </li>
+              {[
+                { href: "/",         label: "Home"        },
+                { href: "/about",    label: "About"       },
+                { href: "/playbook", label: "The Playbook"},
+                { href: "/contact",  label: "Contact Us"  },
+                { href: "/faq",      label: "FAQ"         },
+              ].map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87] group">
+                    <span
+                      className="h-2 w-2 rounded-full shrink-0 animate-pulse"
+                      style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
+                    />
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -116,16 +108,20 @@ export function Footer() {
           <div>
             <h3 className="mb-4 text-sm font-semibold text-white">Legal</h3>
             <ul className="space-y-3">
-              <li>
-                <Link href="/privacy" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  🔒 Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
-                  📄 Terms of Service
-                </Link>
-              </li>
+              {[
+                { href: "/privacy", label: "Privacy Policy"   },
+                { href: "/terms",   label: "Terms of Service" },
+              ].map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
+                    <span
+                      className="h-2 w-2 rounded-full shrink-0 animate-pulse"
+                      style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
+                    />
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
