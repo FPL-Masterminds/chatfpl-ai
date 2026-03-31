@@ -122,11 +122,11 @@ export async function GET() {
     .slice(0, 5)
     .map(toPlayer)
 
-  // Top 3 by position (for WhyChatFPL section) — no form gate, pure season points
+  // Top 3 by position (for WhyChatFPL section) — sorted by last gameweek points
   const topByPos = (type: number) =>
     [...active]
-      .filter((p: any) => p.element_type === type)
-      .sort((a: any, b: any) => b.total_points - a.total_points)
+      .filter((p: any) => p.element_type === type && p.event_points > 0)
+      .sort((a: any, b: any) => b.event_points - a.event_points)
       .slice(0, 3)
       .map(toPlayer)
 
