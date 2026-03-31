@@ -1,7 +1,5 @@
 import { ConversationalFAQ } from "@/components/conversational-faq"
 import { DevHeader } from "@/components/dev-header"
-import Link from "next/link"
-
 export const metadata = {
   title: "FAQ — ChatFPL",
   description: "Got questions about ChatFPL? Ask them right here.",
@@ -63,13 +61,6 @@ export default function FAQPage() {
         </div>
 
         {/* Back link */}
-        <Link
-          href="/devlandingpage"
-          className="mt-8 text-sm text-white/30 hover:text-white/60 transition-colors"
-        >
-          ← Back to ChatFPL
-        </Link>
-
       </main>
     </div>
   )
