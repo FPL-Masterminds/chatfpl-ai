@@ -10,6 +10,7 @@ import PlayerCarousel from "@/components/player-carousel"
 import { QueryCarousel } from "@/components/query-carousel"
 import { WhyChatFPL } from "@/components/why-chatfpl"
 import { PricingSlider } from "@/components/pricing-slider"
+import { DeadlineCTA } from "@/components/deadline-cta"
 import { Reveal } from "@/components/scroll-reveal"
 import { 
   TrendingUp, 
@@ -170,6 +171,9 @@ export default function DevLandingPage() {
 
       {/* Pricing Section */}
       <PricingSlider />
+
+      {/* Deadline Countdown CTA */}
+      <DeadlineCTA />
 
       {/* HIDDEN BELOW — kept for reference only */}
       {false && <div className="grid gap-6 md:grid-cols-3">
