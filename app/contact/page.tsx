@@ -1,118 +1,363 @@
 "use client"
 
-import { useState } from "react"
-import { Header } from "@/components/header"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { useState, useRef, useEffect, KeyboardEvent } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { DevHeader } from "@/components/dev-header"
+import { Send } from "lucide-react"
+
+type Step = "name" | "email" | "message" | "confirm" | "done"
+
+type ChatMessage = {
+  id: string
+  role: "user" | "assistant"
+  text: string
+}
+
+const SPRING = { type: "spring" as const, stiffness: 120, damping: 20 }
+
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-1.5 px-1 py-1">
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="w-2 h-2 rounded-full"
+          style={{ background: "rgba(0,255,200,0.6)" }}
+          animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
+          transition={{ duration: 1, repeat: Infinity, delay: i * 0.18 }}
+        />
+      ))}
+    </div>
+  )
+}
+
+const PLACEHOLDERS: Record<Step, string> = {
+  name: "Your name...",
+  email: "your@email.com",
+  message: "Your message...",
+  confirm: "",
+  done: "",
+}
 
 export default function ContactPage() {
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle")
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { id: "welcome", role: "assistant", text: "Hey - got a question, a bug to report, or just something to say? We read every message." },
+  ])
+  const [step, setStep] = useState<Step>("name")
+  const [typing, setTyping] = useState(false)
+  const [inputVal, setInputVal] = useState("")
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [message, setMessage] = useState("")
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "error">("idle")
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setStatus("submitting")
+  // Auto-scroll on new content
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })
+  }, [messages, typing])
 
-    const form = e.currentTarget
-    const formData = new FormData(form)
+  // Kick off the first bot question after mount
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setTyping(true)
+      setTimeout(() => {
+        setTyping(false)
+        setMessages((p) => [...p, { id: "ask-name", role: "assistant", text: "What's your name?" }])
+        inputRef.current?.focus()
+      }, 900)
+    }, 600)
+    return () => clearTimeout(t)
+  }, [])
 
-    try {
-      const response = await fetch("https://formspree.io/f/mwpwpolb", {
-        method: "POST",
-        body: formData,
-        headers: {
-          Accept: "application/json",
-        },
-      })
+  function botSay(text: string, id: string, then?: () => void) {
+    setTyping(true)
+    setTimeout(() => {
+      setTyping(false)
+      setMessages((p) => [...p, { id, role: "assistant", text }])
+      then?.()
+    }, 1000)
+  }
 
-      if (response.ok) {
-        setStatus("success")
-        form.reset()
-      } else {
-        setStatus("error")
+  function handleSend() {
+    const val = inputVal.trim()
+    if (!val || typing) return
+    setInputVal("")
+
+    if (step === "name") {
+      setName(val)
+      setMessages((p) => [...p, { id: "u-name", role: "user", text: val }])
+      setStep("email")
+      botSay(`Good to meet you, ${val}. What's your email address?`, "ask-email", () => inputRef.current?.focus())
+    } else if (step === "email") {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        botSay("That doesn't look like a valid email - try again.", "invalid-email")
+        return
       }
-    } catch (error) {
-      setStatus("error")
+      setEmail(val)
+      setMessages((p) => [...p, { id: "u-email", role: "user", text: val }])
+      setStep("message")
+      botSay("Got it. What would you like to say?", "ask-message", () => inputRef.current?.focus())
+    } else if (step === "message") {
+      setMessage(val)
+      setMessages((p) => [...p, { id: "u-message", role: "user", text: val }])
+      setStep("confirm")
+      botSay("Got it - hit Send and I'll pass that on.", "ask-confirm")
     }
   }
 
+  function handleKey(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") handleSend()
+  }
+
+  async function handleConfirm() {
+    setSubmitStatus("submitting")
+    const fd = new FormData()
+    fd.append("name", name)
+    fd.append("email", email)
+    fd.append("message", message)
+    try {
+      const res = await fetch("https://formspree.io/f/mwpwpolb", {
+        method: "POST",
+        body: fd,
+        headers: { Accept: "application/json" },
+      })
+      if (res.ok) {
+        setStep("done")
+        setSubmitStatus("idle")
+        botSay(`Done - message sent. We'll come back to you at ${email} shortly.`, "success")
+      } else {
+        setSubmitStatus("error")
+        botSay("Something went wrong on our end. Try again or email us directly at support@chatfpl.ai", "send-error")
+        setStep("confirm")
+      }
+    } catch {
+      setSubmitStatus("error")
+      botSay("Something went wrong. You can email us directly at support@chatfpl.ai", "send-error")
+      setStep("confirm")
+    }
+  }
+
+  function handleStartOver() {
+    setMessages([
+      { id: "welcome-2", role: "assistant", text: "No problem - let's start again. What's your name?" },
+    ])
+    setName("")
+    setEmail("")
+    setMessage("")
+    setInputVal("")
+    setStep("name")
+    setSubmitStatus("idle")
+    inputRef.current?.focus()
+  }
+
+  const showInput = step === "name" || step === "email" || step === "message"
+  const showConfirm = step === "confirm"
+  const showDone = step === "done"
+
   return (
-    <div className="flex flex-col">
-      <Header />
+    <div className="flex min-h-screen flex-col bg-black contact-root">
+      <style>{`
+        .contact-root ::-webkit-scrollbar { width: 4px; height: 4px; }
+        .contact-root ::-webkit-scrollbar-track { background: transparent; }
+        .contact-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
+        .contact-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
+      `}</style>
 
-      <main className="flex-1 px-4 py-24">
-        <div className="container mx-auto max-w-3xl">
-          <div className="mb-6 text-center">
-            <h1 
-              className="mb-6 text-balance text-4xl font-bold uppercase"
-              style={{ 
-                fontFamily: "'Futura Maxi CG', sans-serif",
-                WebkitTextStroke: '6px #2E0032',
-                paintOrder: 'stroke fill'
-              }}
+      {/* Grid pattern */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"
+        style={{
+          backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
+
+      {/* Radial green glow */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background: "radial-gradient(ellipse 70% 50% at 50% 60%, rgba(0,255,135,0.07) 0%, transparent 70%)",
+        }}
+      />
+
+      <DevHeader />
+
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-start px-4 pt-28 pb-12">
+
+        {/* Heading */}
+        <div className="text-center mb-10 max-w-4xl">
+          <h1 className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
+            <span className="text-white">Get </span>
+            <span
+              className="text-transparent bg-clip-text"
+              style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
             >
-              <span style={{ color: 'white' }}>Get </span>
-              <span style={{ color: '#00FFFF' }}>In </span>
-              <span style={{ color: '#00FF86' }}>Touch</span>
-            </h1>
-            <p className="mx-auto max-w-3xl text-lg font-semibold" style={{ color: '#4B5563' }}>
-              Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-            </p>
-          </div>
+              In Touch
+            </span>
+          </h1>
+          <p className="text-lg text-gray-300">We usually respond within a few hours.</p>
+        </div>
 
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              {status === "success" && (
-                <div className="mb-4 rounded-md bg-accent/10 p-3 text-sm text-accent">
-                  Thank you! Your message has been sent successfully. We'll get back to you soon.
-                </div>
-              )}
-              {status === "error" && (
-                <div className="mb-4 rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                  Something went wrong. Please try again or email us directly at support@chatfpl.ai
-                </div>
-              )}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="first-name">First Name</Label>
-                    <Input id="first-name" name="firstName" placeholder="Your first name" required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last-name">Last Name</Label>
-                    <Input id="last-name" name="lastName" placeholder="Your last name" required />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" placeholder="you@example.com" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" name="subject" placeholder="How can we help?" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea
-                    id="message"
-                    name="message"
-                    placeholder="Tell us more about your inquiry..."
-                    rows={6}
-                    required
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
-                  disabled={status === "submitting"}
-                >
-                  {status === "submitting" ? "Sending..." : "Send Message"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+        {/* Chat window */}
+        <div
+          className="w-full max-w-6xl flex flex-col"
+          style={{ height: "clamp(520px, 72vh, 780px)" }}
+        >
+          <div className="flex flex-col h-full">
+
+            {/* Messages */}
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-4 min-h-0">
+              <AnimatePresence initial={false}>
+                {messages.map((msg) => (
+                  <motion.div
+                    key={msg.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.92, y: 12 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={SPRING}
+                    className={`flex items-end gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    {msg.role === "assistant" && (
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-black text-[10px] shrink-0 mb-0.5">
+                        CF
+                      </div>
+                    )}
+                    <div
+                      className={`max-w-[80%] rounded-[20px] px-4 py-3 text-sm leading-relaxed ${
+                        msg.role === "user"
+                          ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-medium rounded-br-sm"
+                          : "border border-white/8 bg-black/30 text-white/85 rounded-bl-sm"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                  </motion.div>
+                ))}
+
+                {typing && (
+                  <motion.div
+                    key="typing"
+                    layout
+                    initial={{ opacity: 0, scale: 0.92, y: 12 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={SPRING}
+                    className="flex items-end gap-3 justify-start"
+                  >
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-black text-[10px] shrink-0">
+                      CF
+                    </div>
+                    <div className="rounded-[20px] rounded-bl-sm border border-white/8 bg-black/30 px-4 py-3">
+                      <TypingDots />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Bottom bar */}
+            <div className="px-4 md:px-6 pb-6 pt-3 border-t border-white/6">
+              <AnimatePresence mode="wait">
+
+                {showInput && (
+                  <motion.div
+                    key="input"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center gap-3"
+                  >
+                    <input
+                      ref={inputRef}
+                      type={step === "email" ? "email" : "text"}
+                      value={inputVal}
+                      onChange={(e) => setInputVal(e.target.value)}
+                      onKeyDown={handleKey}
+                      placeholder={PLACEHOLDERS[step]}
+                      disabled={typing}
+                      className="flex-1 rounded-full px-5 py-3 text-sm text-white placeholder-white/25 outline-none transition-all duration-200 disabled:opacity-40"
+                      style={{
+                        background: "rgba(255,255,255,0.05)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                      }}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(0,255,200,0.35)")}
+                      onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
+                    />
+                    <button
+                      onClick={handleSend}
+                      disabled={!inputVal.trim() || typing}
+                      className="h-11 w-11 rounded-full flex items-center justify-center shrink-0 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105"
+                      style={{
+                        background: "linear-gradient(to right, #00FF87, #00FFFF)",
+                      }}
+                    >
+                      <Send className="h-4 w-4 text-black" />
+                    </button>
+                  </motion.div>
+                )}
+
+                {showConfirm && (
+                  <motion.div
+                    key="confirm"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex flex-col sm:flex-row items-center gap-3"
+                  >
+                    <div
+                      className="inline-block rounded-full p-[3px] transition-all duration-300 hover:scale-105"
+                      style={{
+                        background: "rgba(0,0,0,0.55)",
+                        border: "1px solid rgba(255,255,255,0.14)",
+                        boxShadow: "0 0 30px rgba(0,255,135,0.25), inset 0 1px 0 rgba(255,255,255,0.18)",
+                      }}
+                    >
+                      <button
+                        onClick={handleConfirm}
+                        disabled={submitStatus === "submitting"}
+                        className="relative block overflow-hidden rounded-full px-8 py-3 font-bold text-sm text-[#08020E] disabled:opacity-60"
+                        style={{ background: "linear-gradient(to right, #00FF87, #00FFFF)" }}
+                      >
+                        <span
+                          className="pointer-events-none absolute inset-0 rounded-full"
+                          style={{
+                            background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
+                            backgroundSize: "200% 100%",
+                            animation: "shimmer 2.4s linear infinite",
+                          }}
+                        />
+                        {submitStatus === "submitting" ? "Sending..." : "Send message"}
+                      </button>
+                    </div>
+                    <button
+                      onClick={handleStartOver}
+                      className="text-sm text-white/30 hover:text-white/60 transition-colors"
+                    >
+                      Start over
+                    </button>
+                  </motion.div>
+                )}
+
+                {showDone && (
+                  <motion.div
+                    key="done"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex justify-center"
+                  >
+                    <p className="text-white/30 text-sm">Message sent - we will be in touch.</p>
+                  </motion.div>
+                )}
+
+              </AnimatePresence>
+            </div>
+
+          </div>
         </div>
       </main>
     </div>
