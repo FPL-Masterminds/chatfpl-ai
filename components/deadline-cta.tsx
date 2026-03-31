@@ -160,7 +160,7 @@ export function DeadlineCTA() {
           className="text-lg text-gray-300 max-w-xl mx-auto mb-10"
         >
           {remaining
-            ? "Every hour you wait, someone else gets the edge. Sort your squad before the whistle."
+            ? "Ready When You Are."
             : "The season's done. But the managers who finish top next year are already thinking. Don't start on the back foot."
           }
         </motion.p>
