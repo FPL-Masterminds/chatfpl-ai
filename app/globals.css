@@ -152,6 +152,12 @@
   transform: translateY(0);
 }
 
+/* Button shimmer sweep */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* Animated scrolling border glow (used on stat pills) */
 @keyframes glow_scroll {
   0%   { background-position: 0% 50%; }

@@ -207,7 +207,6 @@ export function DeadlineCTA() {
                   animation: "shimmer 2.4s linear infinite",
                 }}
               />
-              <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
               Secure My Advantage
             </Link>
           </div>

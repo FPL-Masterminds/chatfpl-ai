@@ -131,9 +131,10 @@ export default function DevLandingPage() {
               >
                 <Link
                   href="/signup"
-                  className="block rounded-full px-10 py-4 font-bold text-lg text-[#08020E]"
+                  className="relative block overflow-hidden rounded-full px-10 py-4 font-bold text-lg text-[#08020E]"
                   style={{ background: 'linear-gradient(to right, #00FF87, #00FFFF)' }}
                 >
+                  <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
                   Start Chatting for Free
                 </Link>
               </div>

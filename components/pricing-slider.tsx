@@ -132,7 +132,7 @@ function PlanCard({ plan, active }: { plan: typeof PLANS[0]; active: boolean }) 
 
         <Link
           href={plan.ctaHref}
-          className="block w-full text-center py-3 rounded-full font-bold text-sm transition-all duration-300 hover:-translate-y-0.5"
+          className="relative block overflow-hidden w-full text-center py-3 rounded-full font-bold text-sm transition-all duration-300 hover:-translate-y-0.5"
           style={
             plan.ctaStyle === "filled"
               ? { background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#000" }
@@ -141,6 +141,9 @@ function PlanCard({ plan, active }: { plan: typeof PLANS[0]; active: boolean }) 
               : { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.15)" }
           }
         >
+          {plan.ctaStyle === "filled" && (
+            <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
+          )}
           {plan.cta}
         </Link>
       </div>
