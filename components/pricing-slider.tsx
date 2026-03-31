@@ -180,7 +180,7 @@ export function PricingSlider() {
 
         {/* Heading */}
         <div className="text-center mb-14">
-          <h2 className="font-bold leading-[1.1] tracking-tighter mb-4" style={{ fontSize: "clamp(28px,4.5vw,52px)" }}>
+          <h2 className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
             <span className="text-white">Simple </span>
             <span
               className="text-transparent bg-clip-text"

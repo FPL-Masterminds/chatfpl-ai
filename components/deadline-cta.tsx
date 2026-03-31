@@ -38,10 +38,7 @@ function Unit({ value, label, urgent, speed }: { value: string; label: string; u
     >
     <div
       className="flex flex-col items-center justify-center rounded-2xl px-4 py-4 sm:px-6 sm:py-5 min-w-[72px] sm:min-w-[90px]"
-      style={{
-        background: "rgba(0,0,0,0.7)",
-        backdropFilter: "blur(12px)",
-      }}
+      style={{ background: "#08100c" }}
     >
       <AnimatePresence mode="popLayout">
         <motion.span
@@ -123,7 +120,7 @@ export function DeadlineCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="font-bold leading-[1.1] tracking-tighter mb-4 text-[36px] lg:text-5xl whitespace-nowrap"
+          className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl whitespace-nowrap"
         >
           {remaining ? (
             <>
@@ -132,7 +129,7 @@ export function DeadlineCTA() {
                 className="text-transparent bg-clip-text"
                 style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
               >
-                Deadline is Closing.
+                Deadline is Closing
               </span>
             </>
           ) : (

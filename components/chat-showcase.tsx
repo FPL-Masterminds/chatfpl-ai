@@ -738,12 +738,13 @@ export function ChatShowcase() {
           >
             <Link
               href="/signup"
-              className="block px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-black font-bold text-base"
+              className="relative block overflow-hidden px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-black font-bold text-base"
             >
+              <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
               Start Chatting for Free →
             </Link>
           </div>
-          <p className="mt-3 text-xs text-white/25">Free trial · No credit card required</p>
+          <p className="mt-3 text-xs text-white/60">Free trial · No credit card required</p>
         </div>
       </div>
     </section>
