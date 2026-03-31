@@ -4,11 +4,9 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 
-const DEADLINE = new Date("2026-04-10T18:30:00Z")
-const GW = 32
-
-function calcRemaining() {
-  const diff = DEADLINE.getTime() - Date.now()
+function calcRemaining(deadline: Date | null) {
+  if (!deadline) return null
+  const diff = deadline.getTime() - Date.now()
   if (diff <= 0) return null
   const total = Math.floor(diff / 1000)
   return {
@@ -16,7 +14,7 @@ function calcRemaining() {
     hours:   Math.floor((total % 86400) / 3600),
     minutes: Math.floor((total % 3600) / 60),
     seconds: total % 60,
-    urgent:  diff < 86400000, // < 24 hours
+    urgent:  diff < 86400000,
   }
 }
 
@@ -66,12 +64,28 @@ function Unit({ value, label, urgent, speed }: { value: string; label: string; u
 }
 
 export function DeadlineCTA() {
-  const [remaining, setRemaining] = useState(calcRemaining)
+  const [gw, setGw] = useState<number | null>(null)
+  const [deadline, setDeadline] = useState<Date | null>(null)
+  const [remaining, setRemaining] = useState<ReturnType<typeof calcRemaining>>(null)
 
+  // Fetch next deadline from FPL API (via our route)
   useEffect(() => {
-    const id = setInterval(() => setRemaining(calcRemaining()), 1000)
-    return () => clearInterval(id)
+    fetch("/api/next-deadline")
+      .then((r) => r.json())
+      .then(({ gw, deadline }: { gw: number | null; deadline: string | null }) => {
+        setGw(gw)
+        setDeadline(deadline ? new Date(deadline) : null)
+      })
+      .catch(() => {})
   }, [])
+
+  // Tick every second once we have a deadline
+  useEffect(() => {
+    if (!deadline) return
+    setRemaining(calcRemaining(deadline))
+    const id = setInterval(() => setRemaining(calcRemaining(deadline)), 1000)
+    return () => clearInterval(id)
+  }, [deadline])
 
   const urgent = remaining?.urgent ?? false
 
@@ -124,7 +138,7 @@ export function DeadlineCTA() {
         >
           {remaining ? (
             <>
-              <span className="text-white">The Gameweek {GW} </span>
+              <span className="text-white">{gw ? `The Gameweek ${gw} ` : "The Next "}</span>
               <span
                 className="text-transparent bg-clip-text"
                 style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
