@@ -1,9 +1,20 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
-const FAQ_DATA = [
+type PlayerNames = { fwd1: string; fwd2: string; mid1: string; mid2: string; mid3: string }
+
+const FALLBACK_NAMES: PlayerNames = {
+  fwd1: "Haaland",
+  fwd2: "Watkins",
+  mid1: "Palmer",
+  mid2: "Mbeumo",
+  mid3: "Saka",
+}
+
+function makeFaqData(p: PlayerNames) {
+  return [
   {
     id: "what",
     question: "What is ChatFPL?",
@@ -47,7 +58,7 @@ const FAQ_DATA = [
   {
     id: "transfers",
     question: "How do I ask about transfers?",
-    answer: "Use words like transfer, replace, or bring in. 'Who should I replace Watkins with if he's injured?' or 'Best transfer targets under £7m for the next three gameweeks' both work really well. The AI needs a bit of context - just saying 'Who should I buy?' leaves it guessing what you already have and what you need.",
+    answer: `Use words like transfer, replace, or bring in. 'Who should I replace ${p.fwd2} with if he's injured?' or 'Best transfer targets under £7m for the next three gameweeks' both work really well. ChatFPL needs a bit of context - just saying 'Who should I buy?' leaves it guessing what you already have and what you need.`,
   },
   {
     id: "position",
@@ -57,7 +68,7 @@ const FAQ_DATA = [
   {
     id: "compare",
     question: "Can I compare players against each other?",
-    answer: "Absolutely - comparisons are one of its strongest features. Stick to two to four players though. 'Haaland vs Isak for the next four fixtures' or 'Palmer, Mbeumo, or Salah for captaincy this week?' will get you a proper breakdown with context. Asking it to compare ten players at once is too wide and the results suffer for it.",
+    answer: `Absolutely - comparisons are one of its strongest features. Stick to two to four players though. '${p.fwd1} vs ${p.fwd2} for the next four fixtures' or '${p.mid1}, ${p.mid2}, or ${p.fwd1} for captaincy this week?' will get you a proper breakdown with context. Asking it to compare ten players at once is too wide and the results suffer for it.`,
   },
   {
     id: "combine",
@@ -72,12 +83,12 @@ const FAQ_DATA = [
   {
     id: "examples",
     question: "Can you give me some example questions that work well?",
-    answer: "Here are a few that hit the sweet spot:\n\n• 'Who is the best captain pick for GW22?'\n• 'Give me three differentials under £7m with good fixtures'\n• 'Who should I replace Saka with if he's injured?'\n• 'Compare Haaland vs Isak for the next five gameweeks'\n• 'Best cheap defenders with a strong fixture run'\n• 'Should I use my wildcard before or after GW24?'\n\nShort, specific, and focused. That's the formula.",
+    answer: `Here are a few that hit the sweet spot:\n\n• 'Who is the best captain pick this gameweek?'\n• 'Give me three differentials under £7m with good fixtures'\n• 'Who should I replace ${p.mid3} with if he's injured?'\n• 'Compare ${p.fwd1} vs ${p.fwd2} for the next five gameweeks'\n• 'Best cheap defenders with a strong fixture run'\n• 'Should I use my wildcard now or wait?'\n\nShort, specific, and focused. That's the formula.`,
   },
   {
     id: "followup",
     question: "Can I ask follow-up questions in the same chat?",
-    answer: "Yes - conversations are contextual, so you can build on previous answers. After asking about Salah's stats, you can immediately follow with 'Should I captain him?' or 'Compare him with Son Heung-min' and it knows exactly what you mean. Each follow-up uses one message.",
+    answer: `Yes - conversations are contextual, so you can build on previous answers. After asking about ${p.mid1}'s stats, you can immediately follow with 'Should I captain him?' or 'Compare him with ${p.mid2}' and it knows exactly what you mean. Each follow-up uses one message.`,
   },
   {
     id: "data",
@@ -127,9 +138,10 @@ const FAQ_DATA = [
   {
     id: "length",
     question: "Is there a limit to how long my questions can be?",
-    answer: "No hard limit, but shorter and more focused always gets better results. If you have three things to ask, ask them as three separate questions rather than one big block. The AI responds better to clarity than volume.",
+    answer: "No hard limit, but shorter and more focused always gets better results. If you have three things to ask, ask them as three separate questions rather than one big block. ChatFPL responds better to clarity than volume.",
   },
-]
+]}
+
 
 type ChatMessage = {
   id: string
@@ -160,13 +172,23 @@ export function ConversationalFAQ() {
     {
       id: "welcome",
       role: "assistant",
-      text: "Hey — got questions about ChatFPL? Click any of the questions below and I'll answer them right here.",
+      text: "Hey - got questions about ChatFPL? Click any of the questions below and I'll answer them right here.",
     },
   ])
   const [typing, setTyping] = useState(false)
   const [asked, setAsked] = useState<Set<string>>(new Set())
   const [showAll, setShowAll] = useState(false)
+  const [playerNames, setPlayerNames] = useState<PlayerNames>(FALLBACK_NAMES)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    fetch("/api/top-players")
+      .then((r) => r.json())
+      .then((data) => setPlayerNames({ ...FALLBACK_NAMES, ...data }))
+      .catch(() => {})
+  }, [])
+
+  const FAQ_DATA = useMemo(() => makeFaqData(playerNames), [playerNames])
 
   useEffect(() => {
     const container = scrollRef.current
@@ -174,7 +196,7 @@ export function ConversationalFAQ() {
     container.scrollTo({ top: container.scrollHeight, behavior: "smooth" })
   }, [messages, typing])
 
-  function ask(item: typeof FAQ_DATA[0]) {
+  function ask(item: ReturnType<typeof makeFaqData>[0]) {
     if (asked.has(item.id) || typing) return
     setAsked((prev) => new Set([...prev, item.id]))
     setShowAll(false) // collapse back to one-at-a-time after answering
