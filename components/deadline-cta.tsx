@@ -95,25 +95,20 @@ export function DeadlineCTA() {
 
       <div className="relative mx-auto max-w-4xl text-center">
 
-        {/* Urgent pill */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-widest"
-          style={{
-            borderColor: urgent ? "rgba(255,60,60,0.4)" : "rgba(0,255,135,0.3)",
-            color: urgent ? "#ff6666" : "#00FF87",
-            background: urgent ? "rgba(255,0,0,0.06)" : "rgba(0,255,135,0.06)",
-          }}
-        >
-          <span
-            className="h-1.5 w-1.5 rounded-full animate-pulse"
-            style={{ background: urgent ? "#ff4444" : "#00FF87" }}
-          />
-          {urgent ? "Less than 24 hours remaining" : `Gameweek ${GW} Deadline`}
-        </motion.div>
+        {/* Urgent pill — only shown when < 24 hours */}
+        {urgent && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-widest"
+            style={{ borderColor: "rgba(255,60,60,0.4)", color: "#ff6666", background: "rgba(255,0,0,0.06)" }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "#ff4444" }} />
+            Less than 24 hours remaining
+          </motion.div>
+        )}
 
         {/* Headline */}
         <motion.h2
@@ -121,7 +116,7 @@ export function DeadlineCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="font-bold leading-[1.1] tracking-tighter mb-4 text-[36px] lg:text-6xl"
+          className="font-bold leading-[1.1] tracking-tighter mb-4 text-[36px] lg:text-5xl whitespace-nowrap"
         >
           {remaining ? (
             <>
@@ -210,7 +205,7 @@ export function DeadlineCTA() {
               Secure My Advantage
             </Link>
           </div>
-          <p className="mt-3 text-xs text-white/30">Free trial · No credit card required</p>
+          <p className="mt-3 text-xs text-white/60">Free trial · No credit card required</p>
         </motion.div>
 
       </div>
