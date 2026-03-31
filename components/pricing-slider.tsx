@@ -4,6 +4,7 @@ import { useState, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { AnimatedGlow } from "@/components/animated-glow"
+import { Reveal } from "@/components/scroll-reveal"
 
 const PLANS = [
   {
@@ -194,7 +195,7 @@ export function PricingSlider() {
       <div className="relative mx-auto max-w-6xl">
 
         {/* Heading */}
-        <div className="text-center mb-14">
+        <Reveal className="text-center mb-14">
           <h2 className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
             <span className="text-white">Simple </span>
             <span
@@ -205,10 +206,10 @@ export function PricingSlider() {
             </span>
           </h2>
           <p className="text-white/45 text-base max-w-xl mx-auto whitespace-nowrap">Choose the plan that fits your FPL ambitions. Slide to explore.</p>
-        </div>
+        </Reveal>
 
         {/* Slider */}
-        <div className="max-w-lg mx-auto mb-12 px-2">
+        <Reveal delay={0.1} className="max-w-lg mx-auto mb-12 px-2">
           {/* Step labels */}
           <div className="flex justify-between mb-3">
             {SLIDER_LABELS.map((lbl, i) => (
@@ -263,10 +264,10 @@ export function PricingSlider() {
               }}
             />
           </div>
-        </div>
+        </Reveal>
 
         {/* Desktop — three cards */}
-        <div className="hidden md:grid grid-cols-3 gap-5">
+        <Reveal delay={0.2} className="hidden md:grid grid-cols-3 gap-5">
           {PLANS.map((p) => (
             <div key={p.id} onClick={() => handleStep(p.index)} className="cursor-pointer">
               <PlanCard plan={p} active={active === p.index} />
@@ -275,7 +276,7 @@ export function PricingSlider() {
         </div>
 
         {/* Mobile — single card with slide transition */}
-        <div className="md:hidden overflow-hidden">
+        <Reveal delay={0.2} className="md:hidden overflow-hidden">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={plan.id}
@@ -303,7 +304,7 @@ export function PricingSlider() {
               />
             ))}
           </div>
-        </div>
+        </Reveal>
 
       </div>
     </section>
