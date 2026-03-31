@@ -734,7 +734,7 @@ export function ChatShowcase() {
 
         {/* Description */}
         <p
-          className="text-center text-sm text-white/40"
+          className="text-center text-sm text-white"
           style={{ ...fi("0.6s"), opacity: inView ? (visible ? undefined : 0) : 0 }}
         >
           {tabDef.description}
