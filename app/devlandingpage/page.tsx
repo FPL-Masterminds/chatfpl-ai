@@ -28,14 +28,6 @@ export const metadata = {
 export default function DevLandingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-black">
-      {/* Grid pattern — fixed behind everything, green glow varies per section */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.022]"
-        style={{
-          backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
       <DevHeader />
 
       {/* Hero Section */}

@@ -102,14 +102,6 @@ export function DeadlineCTA() {
         }}
       />
 
-      {/* Subtle grid */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.025]"
-        style={{
-          backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
 
       <div className="relative mx-auto max-w-4xl text-center">
 

@@ -162,8 +162,11 @@ export function QueryCarousel() {
       onMouseEnter={() => { pausedRef.current = true }}
       onMouseLeave={() => { pausedRef.current = false }}
     >
-      {/* Ambient background */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_20%_50%,rgba(0,255,135,0.06),transparent),radial-gradient(ellipse_60%_50%_at_80%_50%,rgba(0,210,255,0.06),transparent)]" />
+      {/* Grid + green spotlight — centre-right */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 65% 55% at 82% 50%, rgba(0,255,135,0.12) 0%, transparent 65%)" }} />
+        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
+      </div>
 
       <div className="relative mx-auto max-w-6xl">
 

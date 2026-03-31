@@ -174,7 +174,11 @@ export function PricingSlider() {
 
   return (
     <section className="relative bg-black px-4 py-24 overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_45%_50%_at_92%_50%,rgba(0,210,255,0.05),transparent),radial-gradient(ellipse_35%_40%_at_8%_50%,rgba(0,255,135,0.05),transparent)]" />
+      {/* Grid + green spotlight — bottom-left */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 65% 55% at 20% 72%, rgba(0,255,135,0.12) 0%, transparent 65%)" }} />
+        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
+      </div>
 
       <div className="relative mx-auto max-w-6xl">
 
