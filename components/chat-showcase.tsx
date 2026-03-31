@@ -725,7 +725,7 @@ export function ChatShowcase() {
                   className="relative rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-[11px] sm:text-sm font-medium transition-all duration-300 focus:outline-none"
                   style={{ border: "1.5px solid transparent" }}
                 >
-                  <span className="text-white/38 hover:text-white/60 transition-colors">{t.label}</span>
+                  <span className="text-white hover:text-white transition-colors">{t.label}</span>
                 </button>
               )
             })}
