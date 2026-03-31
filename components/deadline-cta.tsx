@@ -209,7 +209,7 @@ export function DeadlineCTA() {
                   animation: "shimmer 2.4s linear infinite",
                 }}
               />
-              {remaining ? "Get the Edge - Free" : "Get a Head Start - Free"}
+              {remaining ? "Start Your Free Trial Now" : "Start Your Free Trial Now"}
             </Link>
           </div>
           <p className="mt-3 text-xs text-white/60">Free trial · No credit card required</p>
