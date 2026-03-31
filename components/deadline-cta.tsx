@@ -44,7 +44,7 @@ function Unit({ value, label, urgent }: { value: string; label: string; urgent: 
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 8 }}
           transition={{ duration: 0.2 }}
-          className="font-mono font-bold tabular-nums leading-none"
+          className="font-bold tracking-tight tabular-nums leading-none"
           style={{
             fontSize: "clamp(28px,5vw,48px)",
             color: urgent ? "#ff4444" : "#00FF87",
