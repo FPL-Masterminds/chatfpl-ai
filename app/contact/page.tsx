@@ -268,7 +268,7 @@ export default function ContactPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.2 }}
-                    className="rounded-[20px] border border-white/10 bg-white/[0.03] p-3 flex items-end gap-3"
+                    className="rounded-[20px] border border-white/10 bg-white/[0.03] p-3 flex items-center gap-3"
                   >
                     <input
                       ref={inputRef}
@@ -278,7 +278,7 @@ export default function ContactPage() {
                       onKeyDown={handleKey}
                       placeholder={PLACEHOLDERS[step]}
                       disabled={typing}
-                      className="flex-1 bg-transparent text-white placeholder:text-white/35 outline-none text-sm leading-6 min-h-[36px] pt-1 disabled:opacity-40"
+                      className="flex-1 bg-transparent text-white placeholder:text-white/35 outline-none text-sm disabled:opacity-40"
                     />
                     <button
                       onClick={handleSend}
