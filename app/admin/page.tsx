@@ -476,7 +476,8 @@ export default function AdminPage() {
               <p className="text-sm text-white mb-4">Link your public FPL Team ID so ChatFPL can reference your squad, rank, and mini-league data in conversations.</p>
               <form onSubmit={handleSaveFplTeam} className="flex items-center gap-3">
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   min="1"
                   placeholder="e.g. 1234567"
                   value={fplTeamInput}
@@ -499,7 +500,7 @@ export default function AdminPage() {
               )}
               <p className="mt-3 text-xs text-white/60">
                 Your Team ID appears in your FPL URL:{" "}
-                <span className="font-mono text-white/70">fantasy.premierleague.com/entry/<strong>XXXXXXX</strong>/event/...</span>{" "}
+                <span className="text-white/70">fantasy.premierleague.com/entry/<strong>XXXXXXX</strong>/event/...</span>{" "}
                 -{" "}
                 <a href="https://fantasy.premierleague.com/" target="_blank" rel="noopener noreferrer" className="text-[#00FF87]/70 hover:text-[#00FF87] underline underline-offset-2">
                   Open FPL
