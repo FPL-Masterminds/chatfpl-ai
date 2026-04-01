@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 
 function calcRemaining(deadline: Date | null) {
   if (!deadline) return null
@@ -27,9 +28,7 @@ function Unit({ value, label, urgent, speed }: { value: string; label: string; u
     <div
       className="rounded-2xl p-px"
       style={{
-        background: urgent
-          ? "linear-gradient(90deg,#ff4444,rgba(255,255,255,0.1),#ff8888,rgba(255,255,255,0.1),#ff4444)"
-          : "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+        background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
         backgroundSize: "220% 220%",
         animation: `glow_scroll ${speed}s linear infinite`,
       }}
@@ -48,13 +47,9 @@ function Unit({ value, label, urgent, speed }: { value: string; label: string; u
           className="font-bold tracking-tight tabular-nums leading-none text-transparent bg-clip-text"
           style={{
             fontSize: "clamp(28px,5vw,48px)",
-            backgroundImage: urgent
-              ? "linear-gradient(to right,#ff4444,#ff8888)"
-              : "linear-gradient(to right,#00FF87,#00FFFF)",
+            backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)",
             WebkitBackgroundClip: "text",
-            filter: urgent
-              ? "drop-shadow(0 0 8px rgba(255,60,60,0.5))"
-              : "drop-shadow(0 0 8px rgba(0,255,135,0.4))",
+            filter: "drop-shadow(0 0 8px rgba(0,255,135,0.4))",
           }}
         >
           {value}
@@ -67,6 +62,8 @@ function Unit({ value, label, urgent, speed }: { value: string; label: string; u
 }
 
 export function DeadlineCTA() {
+  const { data: session } = useSession()
+  const ctaHref = session?.user ? "/chat" : "/signup"
   const [gw, setGw] = useState<number | null>(null)
   const [deadline, setDeadline] = useState<Date | null>(null)
   const [remaining, setRemaining] = useState<ReturnType<typeof calcRemaining>>(null)
@@ -205,7 +202,7 @@ export function DeadlineCTA() {
             }}
           >
             <Link
-              href="/signup"
+              href={ctaHref}
               className="relative block overflow-hidden rounded-full px-10 py-4 font-bold text-lg text-[#08020E]"
               style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
             >

@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import { auth } from "@/lib/auth"
 import { DevHeader } from "@/components/dev-header"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 import { Button } from "@/components/ui/button"
@@ -25,7 +26,9 @@ export const metadata = {
   description: "Ask live FPL questions and get instant AI answers powered by real stats. Dominate your mini-league with data-driven insights.",
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth()
+  const ctaHref = session?.user ? "/chat" : "/signup"
   return (
     <div className="flex min-h-screen flex-col bg-black">
       <DevHeader />
@@ -69,7 +72,7 @@ export default function HomePage() {
                   }}
                 />
               <Link
-                href="/signup"
+                href={ctaHref}
                 className="relative inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:brightness-110"
                 style={{
                   background: 'rgba(255,255,255,0.08)',
@@ -122,7 +125,7 @@ export default function HomePage() {
                 }}
               >
                 <Link
-                  href="/signup"
+                  href={ctaHref}
                   className="relative block overflow-hidden rounded-full px-10 py-4 font-bold text-lg text-[#08020E]"
                   style={{ background: 'linear-gradient(to right, #00FF87, #00FFFF)' }}
                 >

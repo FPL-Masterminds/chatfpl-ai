@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
+import { useSession } from "next-auth/react"
 import { AnimatedGlow } from "@/components/animated-glow"
 import Image from "next/image"
 import Link from "next/link"
@@ -80,6 +81,8 @@ function renderText(text: string) {
 }
 
 export function ChatShowcase() {
+  const { data: session } = useSession()
+  const ctaHref = session?.user ? "/chat" : "/signup"
   const [activeTab, setActiveTab]   = useState(0)
   const [visible, setVisible]       = useState(true)
   const [inView, setInView]         = useState(false)
@@ -751,7 +754,7 @@ export function ChatShowcase() {
             }}
           >
             <Link
-              href="/signup"
+              href={ctaHref}
               className="relative block overflow-hidden px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-black font-bold text-base"
             >
               <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />

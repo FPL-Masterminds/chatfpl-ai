@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
+import { useSession } from "next-auth/react"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 import { AnimatedGlow } from "@/components/animated-glow"
 
@@ -87,6 +88,8 @@ const FALLBACK: Player[] = [
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function QueryCarousel() {
+  const { data: session } = useSession()
+  const ctaHref = session?.user ? "/chat" : "/signup"
   const [players, setPlayers] = useState<Player[]>(FALLBACK)
   const [idx, setIdx]         = useState(0)
   const [photoSrc, setPhotoSrc] = useState<string | null>(null)
@@ -436,7 +439,7 @@ export function QueryCarousel() {
           transition={{ ...REVEAL, delay: 0.25 }}
         >
           <Link
-            href="/signup"
+            href={ctaHref}
             className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
             style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
           >
