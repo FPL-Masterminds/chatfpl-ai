@@ -99,7 +99,7 @@ function GreenBtn({ onClick, disabled, children, className = "" }: {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-xl px-4 py-2.5 text-sm font-semibold text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98] ${className}`}
+      className={`rounded-full px-5 py-2 text-sm font-bold text-black transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 active:scale-[0.98] ${className}`}
       style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}
     >
       {children}
@@ -114,7 +114,7 @@ function GhostBtn({ onClick, disabled, children, className = "" }: {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white/70 hover:text-white hover:bg-white/[0.07] transition-all disabled:opacity-40 disabled:cursor-not-allowed ${className}`}
+      className={`rounded-full px-5 py-2 text-sm font-semibold text-[#00FF87] border border-[#00FF87]/50 bg-[#00FF87]/10 hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-black hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${className}`}
     >
       {children}
     </button>
@@ -393,20 +393,52 @@ export default function AdminPage() {
         </div>
 
         {/* Tab bar */}
-        <div className="flex gap-1 border-b border-white/8 overflow-x-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id as typeof activeTab); if (tab.id === "archive") fetchArchivedConversations() }}
-              className={`px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-all border-b-2 -mb-px ${
-                activeTab === tab.id
-                  ? "border-[#00FF87] text-[#00FF87]"
-                  : "border-transparent text-white/40 hover:text-white"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div
+          className="flex gap-2 flex-wrap"
+          style={{
+            padding: "6px 8px",
+            borderRadius: "9999px",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            width: "fit-content",
+          }}
+        >
+          {TABS.map((tab) => {
+            const active = activeTab === tab.id
+            return active ? (
+              <div
+                key={tab.id}
+                style={{
+                  padding: "1.5px",
+                  borderRadius: "9999px",
+                  background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+                  backgroundSize: "200% 200%",
+                  animation: "glow_scroll 3.5s linear infinite",
+                }}
+              >
+                <button
+                  onClick={() => { setActiveTab(tab.id as typeof activeTab); if (tab.id === "archive") fetchArchivedConversations() }}
+                  className="rounded-full px-4 py-1.5 text-sm font-semibold focus:outline-none whitespace-nowrap"
+                  style={{ background: "rgba(0,0,0,0.9)", display: "block" }}
+                >
+                  <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                    {tab.label}
+                  </span>
+                </button>
+              </div>
+            ) : (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id as typeof activeTab); if (tab.id === "archive") fetchArchivedConversations() }}
+                className="rounded-full px-4 py-1.5 text-sm font-semibold text-white hover:text-white transition-all whitespace-nowrap focus:outline-none"
+                style={{ border: "1.5px solid transparent" }}
+              >
+                {tab.label}
+              </button>
+            )
+          })}
         </div>
 
         {/* ── My Account Tab ── */}
