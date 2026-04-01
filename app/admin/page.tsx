@@ -357,7 +357,10 @@ export default function AdminPage() {
 
         {/* Page heading */}
         <div>
-          <h1 className="text-2xl font-bold text-white">Account Dashboard</h1>
+          <h1 className="text-2xl font-bold leading-tight">
+            <span className="text-white">Account </span>
+            <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>Dashboard</span>
+          </h1>
           <p className="text-sm text-white/60 mt-1">Manage your ChatFPL subscription, usage, and settings</p>
         </div>
 
