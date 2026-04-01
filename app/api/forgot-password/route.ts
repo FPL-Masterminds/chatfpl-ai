@@ -5,9 +5,8 @@ import crypto from "crypto";
 import { normalizeEmail } from "@/lib/email-utils";
 import { wrapEmailContent } from "@/lib/email-templates";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const { email } = await request.json();
 
