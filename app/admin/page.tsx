@@ -496,11 +496,11 @@ export default function AdminPage() {
                 </p>
               )}
               {!fplFeedback && data.user.fpl_team_id && (
-                <p className="mt-2 text-xs text-white/70">Currently saved: Team ID <span className="font-semibold text-white font-sans">{data.user.fpl_team_id}</span></p>
+                <p className="mt-2 text-xs text-white/70">Currently saved: Team ID <span className="font-semibold text-white" style={{ fontFamily: "inherit" }}>{data.user.fpl_team_id}</span></p>
               )}
               <p className="mt-3 text-xs text-white/60">
                 Your Team ID appears in your FPL URL:{" "}
-                <span className="text-white/70">fantasy.premierleague.com/entry/<strong>XXXXXXX</strong>/event/...</span>{" "}
+                <span className="text-white/70" style={{ fontFamily: "inherit" }}>fantasy.premierleague.com/entry/<strong>XXXXXXX</strong>/event/...</span>{" "}
                 -{" "}
                 <a href="https://fantasy.premierleague.com/" target="_blank" rel="noopener noreferrer" className="text-[#00FF87]/70 hover:text-[#00FF87] underline underline-offset-2">
                   Open FPL
