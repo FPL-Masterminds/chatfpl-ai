@@ -303,25 +303,10 @@ export default function AdminPage() {
   // ── Loading ──
   if (loading) return (
     <div className="fixed inset-0 flex items-center justify-center bg-black">
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
-        }}
-      />
-      <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 70% at 50% 50%, rgba(0,255,135,0.12) 0%, transparent 70%)" }} />
-      <div className="relative flex flex-col items-center gap-4">
-        <div className="flex gap-1.5">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="h-2.5 w-2.5 animate-bounce rounded-full bg-[#00FF87]"
-              style={{ animationDelay: `${i * -0.15}s` }}
-            />
-          ))}
-        </div>
-        <p className="text-sm text-white/40">Loading your account...</p>
+      <div className="flex gap-1">
+        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
+        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
+        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-400" />
       </div>
     </div>
   )
@@ -329,14 +314,7 @@ export default function AdminPage() {
   // ── Error ──
   if (error || !data) return (
     <div className="fixed inset-0 flex items-center justify-center bg-black px-4">
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
-        }}
-      />
-      <div className="relative rounded-2xl border border-red-500/30 bg-white/[0.04] p-8 max-w-sm w-full text-center space-y-4">
+      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-8 max-w-sm w-full text-center space-y-4">
         <p className="text-white font-semibold">{error || "Failed to load account data"}</p>
         <GreenBtn onClick={() => router.push("/login")} className="w-full">Back to Login</GreenBtn>
       </div>

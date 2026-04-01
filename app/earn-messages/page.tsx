@@ -233,11 +233,12 @@ export default function EarnMessagesPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className="flex flex-1 items-center justify-center pt-16">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-[#00FF87]"></div>
-        </main>
+      <div className="fixed inset-0 flex items-center justify-center bg-black">
+        <div className="flex gap-1">
+          <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
+          <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
+          <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-400" />
+        </div>
       </div>
     )
   }

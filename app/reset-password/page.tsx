@@ -180,8 +180,10 @@ export default function ResetPasswordPage() {
         <main className="flex flex-1 items-center justify-center px-4 py-24">
           <Card className="w-full max-w-md border-border/50 bg-card/50 backdrop-blur-sm">
             <CardContent className="p-8 text-center">
-              <div className="flex justify-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-[#00FF87]"></div>
+              <div className="flex justify-center gap-1">
+                <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
+                <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
+                <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-400" />
               </div>
             </CardContent>
           </Card>

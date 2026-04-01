@@ -339,13 +339,10 @@ export default function DashboardPage() {
 
   if (status === "loading") return (
     <div className="fixed inset-0 flex items-center justify-center bg-black">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex gap-1.5">
-          <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.3s]" />
-          <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.15s]" />
-          <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-400" />
-        </div>
-        <p className="text-white/40 text-sm">Loading your FPL dashboard...</p>
+      <div className="flex gap-1">
+        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
+        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
+        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-400" />
       </div>
     </div>
   )
