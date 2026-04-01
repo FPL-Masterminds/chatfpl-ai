@@ -126,16 +126,16 @@ export function DeadlineCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl whitespace-nowrap"
+          className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl"
         >
           {remaining ? (
             <>
-              <span className="text-white">{gw ? `The Gameweek ${gw} ` : "The Next "}</span>
+              <span className="text-white">Gameweek </span>
               <span
                 className="text-transparent bg-clip-text"
                 style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
               >
-                Deadline is Closing
+                {gw ?? "Next"}
               </span>
             </>
           ) : (

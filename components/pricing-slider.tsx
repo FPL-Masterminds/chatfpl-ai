@@ -95,7 +95,6 @@ function PlanCard({ plan, active }: { plan: typeof PLANS[0]; active: boolean }) 
           ? `linear-gradient(135deg,${plan.accent},rgba(255,255,255,0.1),${plan.accent})`
           : "linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))",
         boxShadow: active ? `0 0 40px ${plan.accentGlow}, 0 0 80px ${plan.accentGlow}` : "none",
-        transform: active ? "scale(1.04)" : "scale(1)",
       }}
     >
       <div
@@ -276,7 +275,7 @@ export function PricingSlider() {
         </Reveal>
 
         {/* Mobile — single card with slide transition */}
-        <Reveal delay={0.2} className="md:hidden overflow-hidden">
+        <Reveal delay={0.2} className="md:hidden overflow-hidden px-1">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={plan.id}

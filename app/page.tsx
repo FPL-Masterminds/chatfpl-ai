@@ -12,7 +12,6 @@ import { WhyChatFPL } from "@/components/why-chatfpl"
 import { PricingSlider } from "@/components/pricing-slider"
 import { DeadlineCTA } from "@/components/deadline-cta"
 import { Reveal } from "@/components/scroll-reveal"
-import { Footer } from "@/components/footer"
 import { 
   TrendingUp, 
   Zap,
@@ -168,8 +167,6 @@ export default function HomePage() {
 
       {/* Deadline Countdown CTA */}
       <DeadlineCTA />
-
-      <Footer />
     </div>
   )
 }

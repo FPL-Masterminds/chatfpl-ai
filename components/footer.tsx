@@ -31,13 +31,15 @@ export function Footer() {
       <div className="relative container mx-auto px-4 py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="space-y-4">
-            <Image 
-              src="/ChatFPL_AI_Logo.png" 
-              alt="ChatFPL AI" 
-              width={48} 
-              height={48}
-              className="h-8 w-auto md:h-12"
-            />
+            <Link href="/">
+              <Image 
+                src="/ChatFPL_AI_Logo.png" 
+                alt="ChatFPL AI" 
+                width={48} 
+                height={48}
+                className="h-8 w-auto md:h-12"
+              />
+            </Link>
             <p className="text-sm text-gray-300">AI-powered Fantasy Premier League assistant for smarter decisions.</p>
           </div>
 
