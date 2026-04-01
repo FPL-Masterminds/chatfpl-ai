@@ -924,12 +924,28 @@ export default function AdminPage() {
       {/* Result Modal */}
       {resultModal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className={`w-full max-w-sm rounded-2xl border p-6 space-y-4 bg-[#080808] ${resultModal.success ? "border-emerald-400/30" : "border-red-400/30"}`}>
-            <p className={`font-semibold ${resultModal.success ? "text-emerald-300" : "text-red-400"}`}>
-              {resultModal.success ? "✓ Success" : "✕ Error"}
-            </p>
-              <p className="text-sm text-white">{resultModal.message}</p>
-            <GreenBtn onClick={() => setResultModal({ show: false, success: false, message: "" })} className="w-full">OK</GreenBtn>
+          <div
+            className="w-full max-w-sm rounded-2xl p-[1.5px]"
+            style={{
+              background: "linear-gradient(135deg,#00FF87,#00CFFF,#00FF87)",
+              backgroundSize: "200% 200%",
+              animation: "glow_scroll 3s linear infinite",
+            }}
+          >
+            <div className="rounded-2xl bg-[#080808] p-6 space-y-4">
+              <p
+                className="font-semibold text-base"
+                style={{ background: "linear-gradient(to right,#00FF87,#00CFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
+              >
+                {resultModal.success ? "✓ Success" : "Unexpected Response"}
+              </p>
+              <p className="text-sm text-white">
+                {resultModal.success
+                  ? resultModal.message
+                  : `${resultModal.message}${resultModal.message.endsWith(".") ? "" : "."} Please contact support if this continues.`}
+              </p>
+              <GreenBtn onClick={() => setResultModal({ show: false, success: false, message: "" })} className="w-full">OK</GreenBtn>
+            </div>
           </div>
         </div>
       )}
