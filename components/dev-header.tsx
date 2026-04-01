@@ -37,6 +37,9 @@ export function DevHeader() {
                 <span className="text-sm font-medium text-white">
                   Welcome {session?.user?.name?.split(" ")[0] || "User"}
                 </span>
+                <Link href="/dashboard" className="block px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
+                  Dashboard
+                </Link>
                 <Link href="/admin" className="block px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
                   {accountLabel}
                 </Link>
@@ -100,6 +103,13 @@ export function DevHeader() {
                   className="text-base font-semibold text-[#00FF87] hover:text-[#00FF87]/80 transition-colors"
                 >
                   ChatFPL AI
+                </Link>
+                <Link
+                  href="/dashboard"
+                  onClick={closeMobileMenu}
+                  className="text-base font-semibold text-white hover:text-[#00FF87] transition-colors"
+                >
+                  Dashboard
                 </Link>
                 <Link
                   href="/admin"

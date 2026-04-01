@@ -7,7 +7,7 @@ export function ConditionalFooter() {
   const pathname = usePathname()
   
   // Don't show footer on app-like pages
-  const noFooter = ["/chat", "/devchat", "/admin", "/dashboard"]
+  const noFooter = ["/chat", "/devchat", "/dashboard"]
   if (noFooter.includes(pathname)) {
     return null
   }
