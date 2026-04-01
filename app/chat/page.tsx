@@ -58,8 +58,8 @@ const ACCENT: Record<string, { value: string; border: string; bg: string; dot: s
   emerald: { value: "text-emerald-300", border: "border-emerald-400/20", bg: "bg-emerald-400/8", dot: "bg-emerald-400" },
   red:     { value: "text-red-400",     border: "border-red-400/20",     bg: "bg-red-400/8",     dot: "bg-red-400"     },
   cyan:    { value: "text-cyan-300",    border: "border-cyan-400/20",    bg: "bg-cyan-400/8",    dot: "bg-cyan-400"    },
-  yellow:  { value: "text-yellow-300",  border: "border-yellow-400/20",  bg: "bg-yellow-400/8",  dot: "bg-yellow-400"  },
-  purple:  { value: "text-purple-300",  border: "border-purple-400/20",  bg: "bg-purple-400/8",  dot: "bg-purple-400"  },
+  yellow:  { value: "text-emerald-300", border: "border-emerald-400/20", bg: "bg-emerald-400/8", dot: "bg-emerald-400" },
+  purple:  { value: "text-cyan-300",    border: "border-cyan-400/20",    bg: "bg-cyan-400/8",    dot: "bg-cyan-400"    },
 }
 
 function TeamBadge({ code, name }: { code: number; name: string }) {
@@ -371,7 +371,9 @@ export default function ChatPage() {
         {/* ─── Left Sidebar ─── */}
         <aside className="w-[280px] shrink-0 border-r border-white/10 bg-white/[0.04] backdrop-blur-2xl p-5 hidden lg:flex lg:flex-col">
           <div className="mb-8">
-            <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={140} height={40} className="h-9 w-auto" />
+            <Link href="/">
+              <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={140} height={40} className="h-9 w-auto" />
+            </Link>
           </div>
 
           <button
@@ -454,7 +456,7 @@ export default function ChatPage() {
 
             {/* Mobile header */}
             <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-white/10 bg-black/60 backdrop-blur-xl shrink-0 z-10">
-              <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={100} height={28} className="h-7 w-auto" />
+              <Link href="/"><Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL AI" width={100} height={28} className="h-7 w-auto" /></Link>
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={startNewChat}
@@ -636,7 +638,7 @@ export default function ChatPage() {
             </div>
 
             <div className="rounded-[22px] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-4 shrink-0">
-              <div className="text-[10px] uppercase tracking-[0.22em] text-white/40 mb-3">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-white mb-3">
                 {insights?.gameweek || "Next Gameweek"} deadline
               </div>
               <div className="grid grid-cols-4 gap-2">
@@ -670,12 +672,16 @@ export default function ChatPage() {
                   )}
                 </div>
                 <div className="mt-3 flex gap-1">
-                  {insights.injuries.slice(0, Math.min(8, insights.injuries.length)).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-0.5 flex-1 rounded-full transition-all duration-500 ${i === newsIndex ? "bg-red-400" : "bg-white/15"}`}
-                    />
-                  ))}
+                  {(() => {
+                    const dotCount = Math.min(8, insights.injuries.length)
+                    const activeDot = newsIndex % dotCount
+                    return Array.from({ length: dotCount }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`h-0.5 flex-1 rounded-full transition-all duration-500 ${i === activeDot ? "bg-red-400" : "bg-white/15"}`}
+                      />
+                    ))
+                  })()}
                 </div>
               </div>
             )}
@@ -812,7 +818,7 @@ export default function ChatPage() {
             </div>
 
             <div className="rounded-[20px] border border-white/10 bg-white/[0.04] p-4 shrink-0">
-              <div className="text-[10px] uppercase tracking-[0.22em] text-white/40 mb-3">
+              <div className="text-[10px] uppercase tracking-[0.22em] text-white mb-3">
                 {insights?.gameweek || "Next Gameweek"} deadline
               </div>
               <div className="grid grid-cols-4 gap-2">
@@ -844,9 +850,13 @@ export default function ChatPage() {
                   )}
                 </div>
                 <div className="mt-3 flex gap-1">
-                  {insights.injuries.slice(0, Math.min(8, insights.injuries.length)).map((_, i) => (
-                    <div key={i} className={`h-0.5 flex-1 rounded-full transition-all duration-500 ${i === newsIndex ? "bg-red-400" : "bg-white/15"}`} />
-                  ))}
+                  {(() => {
+                    const dotCount = Math.min(8, insights.injuries.length)
+                    const activeDot = newsIndex % dotCount
+                    return Array.from({ length: dotCount }).map((_, i) => (
+                      <div key={i} className={`h-0.5 flex-1 rounded-full transition-all duration-500 ${i === activeDot ? "bg-red-400" : "bg-white/15"}`} />
+                    ))
+                  })()}
                 </div>
               </div>
             )}
