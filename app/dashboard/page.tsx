@@ -305,7 +305,7 @@ function GateScreen({ title, body, cta, href }: { title: string; body: string; c
         <p className="text-sm text-white/50 leading-relaxed">{body}</p>
         <div className="flex flex-col gap-3">
           <Link href={href} className="rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 px-6 py-2.5 text-sm font-semibold text-black hover:brightness-110 transition-all">{cta}</Link>
-          <Link href="/devchat" className="text-sm text-white/40 hover:text-white transition-colors">Back to chat</Link>
+          <Link href="/chat" className="text-sm text-white/40 hover:text-white transition-colors">Back to chat</Link>
         </div>
       </div>
     </div>
@@ -317,7 +317,7 @@ function GateScreen({ title, body, cta, href }: { title: string; body: string; c
 export default function DashboardPage() {
   const router = useRouter()
   const [data, setData] = useState<DashboardData | null>(null)
-  const [status, setStatus] = useState<"loading" | "upgrade" | "no_team" | "error" | "ready">("loading")
+  const [status, setStatus] = useState<"loading" | "no_team" | "error" | "ready">("loading")
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
@@ -326,7 +326,6 @@ export default function DashboardPage() {
         const accountRes = await fetch("/api/account")
         if (!accountRes.ok) { router.replace("/login"); return }
         const res = await fetch("/api/dashboard")
-        if (res.status === 403) { setStatus("upgrade"); return }
         if (res.status === 400) { setStatus("no_team"); return }
         if (!res.ok) { setStatus("error"); return }
         setData(await res.json())
@@ -347,7 +346,6 @@ export default function DashboardPage() {
     </div>
   )
 
-  if (status === "upgrade") return <GateScreen title="Premium Feature" body="The FPL Dashboard is available on Premium and above. Upgrade to unlock live squad analytics, rank tracking, and mini-league standings." cta="View Plans" href="/pricing" />
   if (status === "no_team") return <GateScreen title="Link Your FPL Team" body="To use the dashboard, save your public FPL Team ID in account settings. It takes 10 seconds." cta="Go to Settings" href="/admin" />
   if (status === "error" || !data) return <GateScreen title="Something went wrong" body="We couldn't load your FPL data. The FPL API may be temporarily unavailable — try again in a moment." cta="Retry" href="/dashboard" />
 
@@ -381,7 +379,7 @@ export default function DashboardPage() {
         {/* ── Header ── */}
         <div className="flex items-center justify-between" style={fade(0)}>
           <div className="flex items-center gap-4">
-            <Link href="/devchat" className="flex items-center gap-1.5 text-white/40 hover:text-white text-sm transition-colors">
+            <Link href="/chat" className="flex items-center gap-1.5 text-white/40 hover:text-white text-sm transition-colors">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
               Chat
             </Link>

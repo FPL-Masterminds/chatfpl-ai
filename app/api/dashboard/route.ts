@@ -15,11 +15,6 @@ export async function GET() {
 
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const plan = user.subscriptions[0]?.plan?.toLowerCase() || "free";
-  if (!["premium", "elite", "vip", "admin"].includes(plan)) {
-    return NextResponse.json({ error: "upgrade_required" }, { status: 403 });
-  }
-
   if (!user.fpl_team_id) {
     return NextResponse.json({ error: "no_team_id" }, { status: 400 });
   }
