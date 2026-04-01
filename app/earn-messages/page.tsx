@@ -447,7 +447,7 @@ export default function EarnMessagesPage() {
           {/* T&Cs */}
           <DarkPanel>
             <p className="text-[10px] uppercase tracking-[0.22em] text-emerald-400/70 mb-3">Terms & Conditions</p>
-            <ul className="space-y-1.5 text-xs text-white/45 leading-relaxed">
+            <ul className="space-y-1.5 text-xs text-white leading-relaxed">
               <li>Social rewards (X, Reddit, Facebook) can only be claimed once per account - 5 messages each</li>
               <li>Review reward can be claimed once per account - 5 or 10 messages depending on type</li>
               <li>Referral rewards: maximum 3 referrals per account, 5 messages each</li>
@@ -455,7 +455,7 @@ export default function EarnMessagesPage() {
               <li>Social shares and reviews require admin verification within 24-48 hours</li>
               <li>Referral rewards are granted automatically after the referred user verifies their email</li>
               <li>Lifetime cap: 50 bonus messages total per account</li>
-              <li className="text-amber-400/70">Bonus messages expire on your renewal date - use them before then</li>
+              <li>Bonus messages expire on your renewal date - use them before then</li>
               <li>Rewards are only available for Free tier users</li>
             </ul>
           </DarkPanel>
