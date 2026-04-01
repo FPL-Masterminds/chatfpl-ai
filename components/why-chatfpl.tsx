@@ -289,7 +289,7 @@ export function WhyChatFPL() {
             animate={headingInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h2 className="font-bold leading-[1.1] tracking-tighter mb-4 text-[36px] lg:text-6xl">
+            <h2 className="font-bold leading-[1.1] tracking-tighter mb-4 text-[36px] lg:text-6xl lg:whitespace-nowrap">
               <span className="text-white">The Edge </span>
               <span
                 className="text-transparent bg-clip-text"
