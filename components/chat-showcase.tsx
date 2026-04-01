@@ -642,8 +642,8 @@ export function ChatShowcase() {
             </div>
 
             {/* Most Selected */}
-            <div className="rounded-[16px] border border-purple-400/20 bg-purple-400/[0.04] p-3 shrink-0">
-              <div className="text-[9px] uppercase tracking-[0.18em] text-purple-300/80 mb-2">Most Selected</div>
+            <div className="rounded-[16px] border border-emerald-400/20 bg-emerald-400/[0.04] p-3 shrink-0">
+              <div className="text-[9px] uppercase tracking-[0.18em] text-emerald-300/80 mb-2">Most Selected</div>
               <div className="space-y-1.5">
                 {(players?.mostSelected ?? [] as EdgePlayer[]).map((p, i) => (
                   <div key={i} className="flex items-center gap-2 rounded-xl border border-white/[0.05] bg-black/20 px-2 py-1.5">
@@ -654,15 +654,15 @@ export function ChatShowcase() {
                       <div className="text-[11px] font-medium text-white truncate">{p.name}</div>
                       <div className="text-[9px] text-white/35">{p.team}</div>
                     </div>
-                    <span className="text-[11px] font-bold text-purple-300 shrink-0">{p.value}</span>
+                    <span className="text-[11px] font-bold text-emerald-300 shrink-0">{p.value}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Most Bonus Points */}
-            <div className="rounded-[16px] border border-amber-400/20 bg-amber-400/[0.04] p-3 shrink-0">
-              <div className="text-[9px] uppercase tracking-[0.18em] text-amber-300/80 mb-2">Most Bonus Points</div>
+            <div className="rounded-[16px] border border-cyan-400/20 bg-cyan-400/[0.04] p-3 shrink-0">
+              <div className="text-[9px] uppercase tracking-[0.18em] text-cyan-300/80 mb-2">Most Bonus Points</div>
               <div className="space-y-1.5">
                 {(players?.mostBonus ?? [] as EdgePlayer[]).map((p, i) => (
                   <div key={i} className="flex items-center gap-2 rounded-xl border border-white/[0.05] bg-black/20 px-2 py-1.5">
@@ -673,7 +673,7 @@ export function ChatShowcase() {
                       <div className="text-[11px] font-medium text-white truncate">{p.name}</div>
                       <div className="text-[9px] text-white/35">{p.team}</div>
                     </div>
-                    <span className="text-[11px] font-bold text-amber-300 shrink-0">{p.value}</span>
+                    <span className="text-[11px] font-bold text-cyan-300 shrink-0">{p.value}</span>
                   </div>
                 ))}
               </div>
