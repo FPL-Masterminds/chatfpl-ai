@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, KeyboardEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { signIn } from "next-auth/react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Send, Eye, EyeOff } from "lucide-react"

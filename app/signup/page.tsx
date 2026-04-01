@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, KeyboardEvent, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Send, Eye, EyeOff } from "lucide-react"
 
