@@ -6,10 +6,13 @@ import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
 import { Menu, X } from "lucide-react"
 
+const ADMIN_EMAIL = "johnmcdermott1979@gmail.com"
+
 export function DevHeader() {
   const { data: session, status } = useSession()
   const isLoggedIn = status === "authenticated"
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const accountLabel = session?.user?.email === ADMIN_EMAIL ? "Admin" : "Account"
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
 
@@ -35,7 +38,7 @@ export function DevHeader() {
                   Welcome {session?.user?.name?.split(" ")[0] || "User"}
                 </span>
                 <Link href="/admin" className="block px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
-                  Dashboard
+                  {accountLabel}
                 </Link>
                 <button 
                   onClick={() => signOut({ callbackUrl: "/login" })}
@@ -103,7 +106,7 @@ export function DevHeader() {
                   onClick={closeMobileMenu}
                   className="text-base font-semibold text-white hover:text-[#00FF87] transition-colors"
                 >
-                  Dashboard
+                  {accountLabel}
                 </Link>
               </nav>
               <div className="pt-4 mt-auto">
