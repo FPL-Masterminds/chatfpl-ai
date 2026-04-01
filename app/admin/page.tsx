@@ -82,14 +82,14 @@ interface TopUser {
 
 function DarkCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-2xl border border-white/8 bg-white/[0.04] p-5 ${className}`}>
+    <div className={`rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5 ${className}`}>
       {children}
     </div>
   )
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 mb-3">{children}</p>
+  return <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-3">{children}</p>
 }
 
 function GreenBtn({ onClick, disabled, children, className = "" }: {
@@ -320,7 +320,7 @@ export default function AdminPage() {
           backgroundSize: "40px 40px",
         }}
       />
-      <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,255,135,0.06) 0%, transparent 70%)" }} />
+      <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 70% at 50% 50%, rgba(0,255,135,0.12) 0%, transparent 70%)" }} />
       <div className="relative flex flex-col items-center gap-4">
         <div className="flex gap-1.5">
           {[0, 1, 2].map((i) => (
@@ -379,7 +379,7 @@ export default function AdminPage() {
       />
       <div
         className="pointer-events-none fixed inset-0 z-0"
-        style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,255,135,0.06) 0%, transparent 60%)" }}
+        style={{ background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,255,135,0.13) 0%, transparent 65%)" }}
       />
 
       <DevHeader />
@@ -389,7 +389,7 @@ export default function AdminPage() {
         {/* Page heading */}
         <div>
           <h1 className="text-2xl font-bold text-white">Account Dashboard</h1>
-          <p className="text-sm text-white/40 mt-1">Manage your ChatFPL subscription, usage, and settings</p>
+          <p className="text-sm text-white/60 mt-1">Manage your ChatFPL subscription, usage, and settings</p>
         </div>
 
         {/* Tab bar */}
@@ -418,8 +418,8 @@ export default function AdminPage() {
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                   <p className="text-xl font-bold text-white">{data.user.name}</p>
-                  <p className="text-sm text-white/40 mt-0.5">{data.user.email}</p>
-                  <p className="text-xs text-white/30 mt-1">Member since {formatDate(data.user.created_at)}</p>
+                  <p className="text-sm text-white mt-0.5">{data.user.email}</p>
+                  <p className="text-xs text-white/50 mt-1">Member since {formatDate(data.user.created_at)}</p>
                 </div>
                 <span className={`text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${
                   data.user.role === "admin"
@@ -456,7 +456,7 @@ export default function AdminPage() {
             {/* FPL Settings */}
             <DarkCard>
               <SectionLabel>FPL Settings</SectionLabel>
-              <p className="text-sm text-white/50 mb-4">Link your public FPL Team ID so ChatFPL can reference your squad, rank, and mini-league data in conversations.</p>
+              <p className="text-sm text-white mb-4">Link your public FPL Team ID so ChatFPL can reference your squad, rank, and mini-league data in conversations.</p>
               <form onSubmit={handleSaveFplTeam} className="flex items-center gap-3">
                 <input
                   type="number"
@@ -474,15 +474,15 @@ export default function AdminPage() {
               {fplFeedback && (
                 <p className={`mt-2 text-sm ${fplFeedback.type === "success" ? "text-emerald-400" : "text-red-400"}`}>
                   {fplFeedback.type === "success" ? "✓" : "✕"} {fplFeedback.text}
-                  {fplVerifiedName && <span className="ml-1 text-white/60">- <span className="font-semibold text-white">{fplVerifiedName}</span></span>}
+                  {fplVerifiedName && <span className="ml-1 text-white"> - <span className="font-semibold">{fplVerifiedName}</span></span>}
                 </p>
               )}
               {!fplFeedback && data.user.fpl_team_id && (
-                <p className="mt-2 text-xs text-white/30">Currently saved: Team ID <span className="font-semibold text-white/60">{data.user.fpl_team_id}</span></p>
+                <p className="mt-2 text-xs text-white/70">Currently saved: Team ID <span className="font-semibold text-white">{data.user.fpl_team_id}</span></p>
               )}
-              <p className="mt-3 text-xs text-white/25">
+              <p className="mt-3 text-xs text-white/60">
                 Your Team ID appears in your FPL URL:{" "}
-                <span className="font-mono text-white/35">fantasy.premierleague.com/entry/<strong>XXXXXXX</strong>/event/...</span>{" "}
+                <span className="font-mono text-white/70">fantasy.premierleague.com/entry/<strong>XXXXXXX</strong>/event/...</span>{" "}
                 -{" "}
                 <a href="https://fantasy.premierleague.com/" target="_blank" rel="noopener noreferrer" className="text-[#00FF87]/70 hover:text-[#00FF87] underline underline-offset-2">
                   Open FPL
@@ -497,27 +497,27 @@ export default function AdminPage() {
                 <SectionLabel>Subscription Status</SectionLabel>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs text-white/40 mb-0.5">Current Plan</p>
+                    <p className="text-xs text-emerald-400/70 mb-0.5 uppercase tracking-widest">Current Plan</p>
                     <p className={`text-2xl font-bold ${planColor(data.subscription.plan)}`}>{data.subscription.plan}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${data.subscription.status === "active" ? "bg-emerald-400" : "bg-red-400"}`} />
-                    <span className="text-sm text-white/60 capitalize">{data.subscription.status}</span>
+                    <span className="text-sm text-white capitalize">{data.subscription.status}</span>
                   </div>
                   {data.subscription.cancel_at_period_end && data.subscription.current_period_end && (
                     <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-3">
                       <p className="text-xs font-semibold text-yellow-300">Subscription Cancelled</p>
-                      <p className="mt-1 text-xs text-yellow-300/60">Access continues until {formatDate(data.subscription.current_period_end)}.</p>
+                      <p className="mt-1 text-xs text-yellow-200">Access continues until {formatDate(data.subscription.current_period_end)}.</p>
                     </div>
                   )}
                   {!isFree && (
                     <div>
-                      <p className="text-xs text-white/40 mb-0.5">Renewal Date</p>
-                      <p className="text-sm text-white/70">{formatDate(data.subscription.current_period_end)}</p>
+                      <p className="text-xs text-emerald-400/70 mb-0.5 uppercase tracking-widest">Renewal Date</p>
+                      <p className="text-sm text-white">{formatDate(data.subscription.current_period_end)}</p>
                     </div>
                   )}
                   <div>
-                    <p className="text-xs text-white/40 mb-0.5">Messages Remaining</p>
+                    <p className="text-xs text-emerald-400/70 mb-0.5 uppercase tracking-widest">Messages Remaining</p>
                     <p className="text-3xl font-bold text-[#00FF87]">{messagesRemaining.toLocaleString()}</p>
                   </div>
                 </div>
@@ -529,8 +529,8 @@ export default function AdminPage() {
                 <div className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs text-white/40">{isFree ? "Trial Messages" : "Monthly Messages"}</p>
-                      <p className="text-xs text-white/40">{data.usage.messages_used} / {data.usage.messages_limit.toLocaleString()}</p>
+                    <p className="text-xs text-white">{isFree ? "Trial Messages" : "Monthly Messages"}</p>
+                    <p className="text-xs text-white">{data.usage.messages_used} / {data.usage.messages_limit.toLocaleString()}</p>
                     </div>
                     <div className="h-2 rounded-full bg-white/[0.08] overflow-hidden">
                       <div
@@ -542,14 +542,14 @@ export default function AdminPage() {
                       />
                     </div>
                   </div>
-                  <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/[0.05] px-4 py-3 text-center text-sm text-white/70">
+                  <div className="rounded-xl border border-emerald-400/15 bg-emerald-400/[0.05] px-4 py-3 text-center text-sm text-white">
                     You've used <span className="font-bold text-[#00FF87]">{data.usage.messages_used}</span> of{" "}
                     <span className="font-bold text-[#00FF87]">{data.usage.messages_limit.toLocaleString()}</span>{" "}
                     {isFree ? "trial messages" : "messages this month"}
                   </div>
                   {isFree && data.usage.messages_limit > 5 && data.subscription.current_period_end && (
                     <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.05] px-4 py-3">
-                      <p className="text-xs text-yellow-300/80 text-center">
+                      <p className="text-xs text-yellow-200 text-center">
                         Bonus messages expire on <span className="font-semibold">{formatDate(data.subscription.current_period_end)}</span>. Use them or lose them! Your 20 trial messages never reset.
                       </p>
                     </div>
@@ -562,7 +562,7 @@ export default function AdminPage() {
             {isFree && (
               <DarkCard>
                 <SectionLabel>Earn Bonus Messages</SectionLabel>
-                <p className="text-sm text-white/50 mb-4">Share ChatFPL AI and earn extra messages!</p>
+                <p className="text-sm text-white mb-4">Share ChatFPL AI and earn extra messages!</p>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {[
                     {
@@ -607,12 +607,12 @@ export default function AdminPage() {
                           </div>
                           <span className="text-[10px] font-bold text-black px-2 py-0.5 rounded-full" style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}>+5 msgs</span>
                         </div>
-                        <p className="text-xs text-white/40">{item.sub}</p>
+                        <p className="text-xs text-white/70">{item.sub}</p>
                       </div>
                     </Link>
                   ))}
                 </div>
-                <div className="mt-4 rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3 text-center text-xs text-white/40">
+                <div className="mt-4 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.04] px-4 py-3 text-center text-xs text-white">
                   Complete all social sharing tasks to earn bonus messages.
                 </div>
               </DarkCard>
@@ -624,16 +624,16 @@ export default function AdminPage() {
         {activeTab === "archive" && (
           <DarkCard>
             <SectionLabel>Archived Conversations</SectionLabel>
-            <p className="text-sm text-white/40 mb-4">Conversations you've archived from the chat. Unarchive to restore them to your sidebar.</p>
+            <p className="text-sm text-white mb-4">Conversations you've archived from the chat. Unarchive to restore them to your sidebar.</p>
             {archiveLoading ? (
               <div className="py-12 text-center">
                 <div className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-white/10 border-t-[#00FF87]" />
-                <p className="mt-3 text-sm text-white/30">Loading archive...</p>
+                <p className="mt-3 text-sm text-white/60">Loading archive...</p>
               </div>
             ) : archivedConversations.length === 0 ? (
               <div className="rounded-xl border border-dashed border-white/10 py-14 text-center">
-                <p className="text-white/40 font-medium">No archived conversations</p>
-                <p className="text-xs text-white/25 mt-1">Right-click any conversation in the chat to archive it.</p>
+                <p className="text-white font-medium">No archived conversations</p>
+                <p className="text-xs text-white/50 mt-1">Right-click any conversation in the chat to archive it.</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -645,7 +645,7 @@ export default function AdminPage() {
                     <div key={conv.id} className="flex items-start justify-between gap-4 rounded-xl border border-white/8 bg-white/[0.03] p-4">
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-sm text-white truncate">{preview}</p>
-                        <p className="text-xs text-white/30 mt-0.5">{date} · {msgCount} message{msgCount !== 1 ? "s" : ""}</p>
+                        <p className="text-xs text-white/60 mt-0.5">{date} · {msgCount} message{msgCount !== 1 ? "s" : ""}</p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <GhostBtn onClick={() => handleUnarchive(conv.id)} className="text-xs px-3 py-1.5 text-emerald-400 border-emerald-400/20">Unarchive</GhostBtn>
@@ -665,7 +665,7 @@ export default function AdminPage() {
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <div>
                 <SectionLabel>Pending Reward Claims</SectionLabel>
-                <p className="text-sm text-white/40">Verify user social shares and referrals</p>
+                <p className="text-sm text-white">Verify user social shares and referrals</p>
               </div>
               {pendingClaims.length > 0 && (
                 <span className="text-xs font-bold text-black px-2.5 py-1 rounded-full" style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}>
@@ -679,7 +679,7 @@ export default function AdminPage() {
               </div>
             ) : pendingClaims.length === 0 ? (
               <div className="rounded-xl border border-dashed border-white/10 py-10 text-center">
-                <p className="text-white/40">No pending claims</p>
+                <p className="text-white">No pending claims</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -687,8 +687,8 @@ export default function AdminPage() {
                   <div key={claim.id} className="rounded-xl border border-white/8 bg-white/[0.03] p-4 space-y-3">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div>
-                        <p className="font-semibold text-white">{claim.user_name || claim.user_email}</p>
-                        <p className="text-sm text-white/40">{claim.user_email}</p>
+                    <p className="font-semibold text-white">{claim.user_name || claim.user_email}</p>
+                      <p className="text-sm text-white/70">{claim.user_email}</p>
                         <p className="text-sm text-[#00FF87] font-semibold mt-1">
                           {claim.action_type.charAt(0).toUpperCase() + claim.action_type.slice(1)} - {claim.reward_messages} messages
                         </p>
@@ -697,14 +697,14 @@ export default function AdminPage() {
                     </div>
                     {claim.action_type === "review" && claim.metadata && (
                       <div className="rounded-xl border border-yellow-400/15 bg-yellow-400/[0.05] p-3 space-y-2">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-yellow-300/60">Review Preview</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-yellow-300">Review Preview</p>
                         <div className="flex gap-0.5">
                           {[1,2,3,4,5].map((s) => (
                             <span key={s} className={s <= (claim.metadata?.rating || 5) ? "text-yellow-300" : "text-white/20"}>★</span>
                           ))}
                         </div>
                         {claim.metadata.description && <p className="text-sm font-semibold text-white">{claim.metadata.description}</p>}
-                        {claim.metadata.reviewText && <p className="text-sm text-white/60 italic">"{claim.metadata.reviewText}"</p>}
+                        {claim.metadata.reviewText && <p className="text-sm text-white italic">"{claim.metadata.reviewText}"</p>}
                         <div className="flex gap-2 flex-wrap">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${claim.metadata.reviewType === "xpost" ? "bg-white/10 text-white" : "bg-yellow-400/20 text-yellow-300"}`}>
                             {claim.metadata.reviewType === "xpost" ? "X Post" : "Written Review"}
@@ -755,7 +755,7 @@ export default function AdminPage() {
             {/* Grant VIP */}
             <DarkCard>
               <SectionLabel>Grant VIP Access</SectionLabel>
-              <p className="text-sm text-white/40 mb-4">Give friends and family 100 free messages per month.</p>
+              <p className="text-sm text-white mb-4">Give friends and family 100 free messages per month.</p>
               <form className="space-y-3" onSubmit={handleMakeVIP}>
                 <input
                   type="email"
@@ -832,7 +832,7 @@ export default function AdminPage() {
                 <GhostBtn onClick={() => downloadCSV("customer-events.csv", [["Event Type","Title","Detail","Timestamp"], ...customerEvents.map((e) => [e.type,e.title,e.detail,e.timestamp])])} disabled={customerEvents.length === 0} className="w-full text-xs">Export Events CSV</GhostBtn>
                 <GhostBtn onClick={() => downloadCSV("daily-stats.csv", [["Date","Messages","Signups","Paid"], ...dailyStats.map((d) => [d.date,String(d.messages),String(d.signups),String(d.paid)])])} disabled={dailyStats.length === 0} className="w-full text-xs">Export Daily Stats CSV</GhostBtn>
                 <div className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-widest text-white/30">Range totals</p>
+                  <p className="text-[10px] uppercase tracking-widest text-emerald-400/70">Range totals</p>
                   <p className="text-sm font-semibold text-white mt-0.5">
                     {dailyStats.reduce((a,d) => a+d.messages,0)} msgs · {dailyStats.reduce((a,d) => a+d.signups,0)} signups · {dailyStats.reduce((a,d) => a+d.paid,0)} paid
                   </p>
@@ -841,7 +841,7 @@ export default function AdminPage() {
 
               {/* Top users table */}
               <div className="rounded-xl border border-white/8 overflow-hidden mb-4">
-                <div className="grid grid-cols-3 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+                <div className="grid grid-cols-3 bg-emerald-400/[0.06] px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-emerald-400/70">
                   <span>User</span><span className="text-center">Messages</span><span className="text-right">Type</span>
                 </div>
                 <div className="max-h-48 overflow-y-auto">
@@ -849,9 +849,9 @@ export default function AdminPage() {
                     <p className="px-3 py-3 text-sm text-white/30">No message activity yet in this range.</p>
                   ) : topUsers.map((u, i) => (
                     <div key={u.userId} className="grid grid-cols-3 border-t border-white/5 px-3 py-2 text-sm">
-                      <span className="text-white/70">{i+1}. {u.name} <span className="text-xs text-white/30">({u.email})</span></span>
+                      <span className="text-white">{i+1}. {u.name} <span className="text-xs text-white/60">({u.email})</span></span>
                       <span className="text-center font-semibold text-[#00FF87]">{u.messages}</span>
-                      <span className="text-right text-xs text-white/30">Top user</span>
+                      <span className="text-right text-xs text-white/50">Top user</span>
                     </div>
                   ))}
                 </div>
@@ -859,7 +859,7 @@ export default function AdminPage() {
 
               {/* Daily stats table */}
               <div className="rounded-xl border border-white/8 overflow-hidden mb-4">
-                <div className="grid grid-cols-4 bg-white/[0.04] px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+                <div className="grid grid-cols-4 bg-emerald-400/[0.06] px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-emerald-400/70">
                   <span>Date</span><span className="text-center">Messages</span><span className="text-center">Signups</span><span className="text-center">Paid</span>
                 </div>
                 <div className="max-h-52 overflow-y-auto">
@@ -867,10 +867,10 @@ export default function AdminPage() {
                     <p className="px-3 py-3 text-sm text-white/30">No daily activity for this filter.</p>
                   ) : dailyStats.map((s) => (
                     <div key={s.date} className="grid grid-cols-4 border-t border-white/5 px-3 py-2 text-sm">
-                      <span className="text-white/60">{new Date(s.date).toLocaleDateString("en-GB")}</span>
+                      <span className="text-white">{new Date(s.date).toLocaleDateString("en-GB")}</span>
                       <span className="text-center font-semibold text-[#00FF87]">{s.messages}</span>
-                      <span className="text-center text-white/60">{s.signups}</span>
-                      <span className="text-center text-white/60">{s.paid}</span>
+                      <span className="text-center text-white">{s.signups}</span>
+                      <span className="text-center text-white">{s.paid}</span>
                     </div>
                   ))}
                 </div>
@@ -894,7 +894,7 @@ export default function AdminPage() {
                         </div>
                         <p className="text-xs text-white/30">{new Date(event.timestamp).toLocaleString("en-GB")}</p>
                       </div>
-                      <p className="mt-1 text-sm text-white/50">{event.detail}</p>
+                      <p className="mt-1 text-sm text-white">{event.detail}</p>
                     </div>
                   ))}
                 </div>
@@ -911,7 +911,7 @@ export default function AdminPage() {
             <p className={`font-semibold ${resultModal.success ? "text-emerald-300" : "text-red-400"}`}>
               {resultModal.success ? "✓ Success" : "✕ Error"}
             </p>
-            <p className="text-sm text-white/60">{resultModal.message}</p>
+              <p className="text-sm text-white">{resultModal.message}</p>
             <GreenBtn onClick={() => setResultModal({ show: false, success: false, message: "" })} className="w-full">OK</GreenBtn>
           </div>
         </div>
