@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, KeyboardEvent, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { Send, Eye, EyeOff } from "lucide-react"
 
@@ -21,8 +20,8 @@ const SPRING = { type: "spring" as const, stiffness: 120, damping: 20 }
 function TypingDots() {
   return (
     <div className="flex items-end gap-2">
-      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#00FF87] to-[#00CFFF] flex items-center justify-center shrink-0">
-        <Image src="/ChatFPL_AI_Logo.png" alt="CF" width={16} height={16} className="w-4 h-4 object-contain" />
+      <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#00FF87] to-[#00CFFF] flex items-center justify-center shrink-0 text-black font-black text-[9px]">
+        CF
       </div>
       <div className="rounded-2xl rounded-bl-sm bg-white/[0.07] border border-white/[0.08] px-4 py-3">
         <div className="flex gap-1 items-center h-4">
@@ -250,14 +249,8 @@ function SignupForm() {
                   className={`flex items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
                 >
                   {msg.role === "assistant" && (
-                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#00FF87] to-[#00CFFF] flex items-center justify-center shrink-0">
-                      <Image
-                        src="/ChatFPL_AI_Logo.png"
-                        alt="CF"
-                        width={16}
-                        height={16}
-                        className="w-4 h-4 object-contain"
-                      />
+                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#00FF87] to-[#00CFFF] flex items-center justify-center shrink-0 text-black font-black text-[9px]">
+                      CF
                     </div>
                   )}
                   <div
@@ -294,7 +287,7 @@ function SignupForm() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
                   transition={{ duration: 0.2 }}
-                  className="flex items-center gap-2 rounded-[20px] border border-white/10 bg-white/[0.03] px-4 py-2.5"
+                  className="flex items-center gap-2 rounded-[20px] border border-white/10 px-4 py-2.5" style={{ background: "#101010" }}
                 >
                   <input
                     ref={inputRef}
@@ -306,7 +299,7 @@ function SignupForm() {
                       step === "name"
                         ? "Your full name..."
                         : step === "email"
-                        ? "your@email.com"
+                        ? "name@example.com"
                         : step === "password"
                         ? "At least 8 characters..."
                         : "Same password again..."
