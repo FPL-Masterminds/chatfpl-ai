@@ -626,17 +626,6 @@ export default function ChatPage() {
           {/* ─── Right Sidebar — Gameweek Edge ─── */}
           <aside className="w-[320px] xl:w-[340px] shrink-0 p-4 hidden xl:flex xl:flex-col gap-3 overflow-y-auto">
 
-            <div className="flex items-center justify-between px-1 shrink-0">
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.22em] text-white/40">Live FPL</div>
-                <h2 className="text-lg font-semibold mt-0.5 text-white">Gameweek Edge</h2>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/8 px-3 py-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] text-emerald-300">Live</span>
-              </div>
-            </div>
-
             <div className="rounded-[22px] border border-white/10 bg-white/[0.04] backdrop-blur-xl p-4 shrink-0">
               <div className="text-[10px] uppercase tracking-[0.22em] text-white mb-3">
                 {insights?.gameweek || "Next Gameweek"} deadline
@@ -807,11 +796,7 @@ export default function ChatPage() {
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setMobileEdgeOpen(false)} />
           <div className="absolute right-0 top-0 bottom-0 w-[300px] bg-[#080808] border-l border-white/10 flex flex-col p-4 overflow-y-auto gap-3">
 
-            <div className="flex items-center justify-between shrink-0">
-              <div>
-                <div className="text-[10px] uppercase tracking-[0.22em] text-white/40">Live FPL</div>
-                <h2 className="text-base font-semibold text-white">Gameweek Edge</h2>
-              </div>
+            <div className="flex items-center justify-end shrink-0">
               <button onClick={() => setMobileEdgeOpen(false)} className="h-8 w-8 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.07] transition-all">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
