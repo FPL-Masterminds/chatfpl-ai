@@ -299,7 +299,7 @@ export function WhyChatFPL() {
                   WebkitBackgroundClip: "text",
                 }}
               >
-                Smart Managers Have
+                Smart FPL Managers Have
               </span>
             </h2>
           </motion.div>
