@@ -230,13 +230,13 @@ export default function NotFound() {
         {/* Heading */}
         <div className="text-center mb-10 max-w-4xl">
           <h1 className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl">
+            <span className="text-white">404 </span>
             <span
               className="text-transparent bg-clip-text"
               style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
             >
-              404
+              - Page Not Found
             </span>
-            <span className="text-white"> - Page Not Found</span>
           </h1>
           <p className="text-lg text-gray-300">
             This one&apos;s gone. But let&apos;s get you back on track.
