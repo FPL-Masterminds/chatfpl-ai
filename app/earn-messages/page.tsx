@@ -360,8 +360,8 @@ export default function EarnMessagesPage() {
               {userData?.totalEarned ?? 0}
               <span className="text-2xl font-semibold text-white/40 ml-2">of 50</span>
             </p>
-            <p className="mt-2 text-xs text-white/40">Lifetime cap of 50 bonus messages ensures fair usage for all free users</p>
-            <p className="mt-2 text-xs text-amber-400/70 font-medium">Bonus messages expire on your renewal date - use them before then</p>
+            <p className="mt-2 text-xs text-white">Lifetime cap of 50 bonus messages ensures fair usage for all free users</p>
+            <p className="mt-2 text-xs text-white">Bonus messages expire on your renewal date - use them before then</p>
           </DarkPanel>
 
           {/* Reward cards */}
