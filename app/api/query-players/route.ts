@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 
-export const revalidate = 3600;
+export const revalidate = 900; // 15 minutes
 
 export async function GET() {
   try {
     const res = await fetch("https://fantasy.premierleague.com/api/bootstrap-static/", {
       headers: { "User-Agent": "ChatFPL/1.0" },
-      next: { revalidate: 3600 },
+      next: { revalidate: 900 },
     });
 
     if (!res.ok) throw new Error("FPL API unavailable");
@@ -20,31 +20,71 @@ export async function GET() {
     const posMap: Record<number, string> = {};
     (data.element_types ?? []).forEach((pt: any) => { posMap[pt.id] = pt.singular_name_short; });
 
-    // Top 6 by ownership — played 200+ mins, available, decent form
-    const players = (data.elements ?? [])
-      .filter((p: any) => p.minutes > 200 && p.status === "a")
-      .sort((a: any, b: any) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent))
-      .slice(0, 6)
-      .map((p: any) => ({
-        id: p.id,
-        code: p.code,
-        name: p.web_name,
-        full_name: `${p.first_name} ${p.second_name}`,
-        team: teamMap[p.team] ?? "",
-        pos: posMap[p.element_type] ?? "",
-        price: (p.now_cost / 10).toFixed(1),
-        ownership: p.selected_by_percent,
-        form: p.form,
-        ep_next: p.ep_next,
-        goals: p.goals_scored,
-        assists: p.assists,
-        total_points: p.total_points,
-        photo_url: `https://resources.premierleague.com/premierleague25/photos/players/250x250/${p.code}.png`,
-        photo_fallback: `https://resources.premierleague.com/premierleague25/photos/players/110x140/${p.code}.png`,
-        badge_url: `https://resources.premierleague.com/premierleague/badges/70/t${teamCodeMap[p.team]}.png`,
-        news: p.news ?? "",
-      }));
+    const active = (data.elements ?? []).filter(
+      (p: any) => p.minutes > 200 && p.status !== "u" && p.status !== "s"
+    );
 
+    const toPlayer = (p: any) => ({
+      id: p.id,
+      code: p.code,
+      name: p.web_name,
+      full_name: `${p.first_name} ${p.second_name}`,
+      team: teamMap[p.team] ?? "",
+      pos: posMap[p.element_type] ?? "",
+      price: (p.now_cost / 10).toFixed(1),
+      ownership: p.selected_by_percent,
+      form: p.form,
+      ep_next: p.ep_next ?? "0.0",
+      goals: p.goals_scored,
+      assists: p.assists,
+      total_points: p.total_points,
+      photo_url: `https://resources.premierleague.com/premierleague25/photos/players/250x250/${p.code}.png`,
+      photo_fallback: `https://resources.premierleague.com/premierleague25/photos/players/110x140/${p.code}.png`,
+      badge_url: `https://resources.premierleague.com/premierleague/badges/70/t${teamCodeMap[p.team]}.png`,
+      news: p.news ?? "",
+    });
+
+    // Pool 1: Top form (form >= 5.0)
+    const topForm = [...active]
+      .filter((p: any) => parseFloat(p.form) >= 5.0)
+      .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
+      .slice(0, 5);
+
+    // Pool 2: Top points with decent form
+    const topPts = [...active]
+      .filter((p: any) => parseFloat(p.form) >= 4.0)
+      .sort((a: any, b: any) => b.total_points - a.total_points)
+      .slice(0, 5);
+
+    // Pool 3: Differentials (low owned, high form)
+    const differentials = [...active]
+      .filter((p: any) => parseFloat(p.selected_by_percent) < 15 && parseFloat(p.form) >= 4.0)
+      .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
+      .slice(0, 4);
+
+    // Pool 4: Price risers
+    const risers = [...active]
+      .filter((p: any) => p.cost_change_event > 0 && parseFloat(p.form) >= 3.0)
+      .sort((a: any, b: any) => b.cost_change_event - a.cost_change_event)
+      .slice(0, 3);
+
+    // Merge pools, deduplicate, cap at 8
+    const seen = new Set<number>();
+    const merged: any[] = [];
+    for (const p of [...topForm.slice(0,2), ...topPts.slice(0,2), ...differentials.slice(0,2), ...risers.slice(0,2), ...topForm, ...topPts]) {
+      if (!seen.has(p.id) && merged.length < 8) {
+        seen.add(p.id);
+        merged.push(p);
+      }
+    }
+
+    // Shuffle so order varies between requests
+    for (let i = merged.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [merged[i], merged[j]] = [merged[j], merged[i]];
+    }
+
+    const players = merged.map(toPlayer);
     return NextResponse.json({ players });
   } catch (err) {
     console.error("query-players error:", err);
