@@ -45,13 +45,16 @@ function Unit({ value, label, urgent, speed }: { value: string; label: string; u
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 8 }}
           transition={{ duration: 0.2 }}
-          className="font-bold tracking-tight tabular-nums leading-none"
+          className="font-bold tracking-tight tabular-nums leading-none text-transparent bg-clip-text"
           style={{
             fontSize: "clamp(28px,5vw,48px)",
-            color: urgent ? "#ff4444" : "#00FF87",
-            textShadow: urgent
-              ? "0 0 20px rgba(255,60,60,0.6)"
-              : "0 0 20px rgba(0,255,135,0.5)",
+            backgroundImage: urgent
+              ? "linear-gradient(to right,#ff4444,#ff8888)"
+              : "linear-gradient(to right,#00FF87,#00FFFF)",
+            WebkitBackgroundClip: "text",
+            filter: urgent
+              ? "drop-shadow(0 0 8px rgba(255,60,60,0.5))"
+              : "drop-shadow(0 0 8px rgba(0,255,135,0.4))",
           }}
         >
           {value}
