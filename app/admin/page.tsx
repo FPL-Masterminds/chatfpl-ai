@@ -300,16 +300,6 @@ export default function AdminPage() {
     return new Date(dateString).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
   }
 
-  const planColor = (plan: string) => {
-    switch (plan.toLowerCase()) {
-      case "admin": return "text-purple-300"
-      case "vip": return "text-yellow-300"
-      case "elite": return "text-cyan-300"
-      case "premium": return "text-emerald-300"
-      default: return "text-white/60"
-    }
-  }
-
   // ── Loading ──
   if (loading) return (
     <div className="fixed inset-0 flex items-center justify-center bg-black">
@@ -453,15 +443,10 @@ export default function AdminPage() {
                   <p className="text-sm text-white mt-0.5">{data.user.email}</p>
                   <p className="text-xs text-white/50 mt-1">Member since {formatDate(data.user.created_at)}</p>
                 </div>
-                <span className={`text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${
-                  data.user.role === "admin"
-                    ? "border-purple-400/30 bg-purple-400/10 text-purple-300"
-                    : data.subscription.plan.toLowerCase() === "vip"
-                    ? "border-yellow-400/30 bg-yellow-400/10 text-yellow-300"
-                    : data.subscription.plan.toLowerCase() !== "free"
-                    ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                    : "border-white/10 bg-white/[0.04] text-white/50"
-                }`}>
+                <span
+                  className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full text-black"
+                  style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}
+                >
                   {data.subscription.plan}
                 </span>
               </div>
@@ -499,7 +484,7 @@ export default function AdminPage() {
                   disabled={fplTeamSaving}
                   className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-white/25 focus:border-[#00FF87]/50 focus:outline-none disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
-                <GreenBtn disabled={fplTeamSaving} className="shrink-0">
+                <GreenBtn disabled={fplTeamSaving} className="shrink-0 px-6">
                   {fplTeamSaving ? "Saving..." : "Save"}
                 </GreenBtn>
               </form>
@@ -510,7 +495,7 @@ export default function AdminPage() {
                 </p>
               )}
               {!fplFeedback && data.user.fpl_team_id && (
-                <p className="mt-2 text-xs text-white/70">Currently saved: Team ID <span className="font-semibold text-white">{data.user.fpl_team_id}</span></p>
+                <p className="mt-2 text-xs text-white/70">Currently saved: Team ID <span className="font-semibold text-white font-sans">{data.user.fpl_team_id}</span></p>
               )}
               <p className="mt-3 text-xs text-white/60">
                 Your Team ID appears in your FPL URL:{" "}
@@ -530,7 +515,7 @@ export default function AdminPage() {
                 <div className="space-y-3">
                   <div>
                     <p className="text-xs text-emerald-400/70 mb-0.5 uppercase tracking-widest">Current Plan</p>
-                    <p className={`text-2xl font-bold ${planColor(data.subscription.plan)}`}>{data.subscription.plan}</p>
+                    <p className="text-3xl font-bold text-[#00FF87]">{data.subscription.plan}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${data.subscription.status === "active" ? "bg-emerald-400" : "bg-red-400"}`} />
