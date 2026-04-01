@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { signOut } from "next-auth/react"
 import { DevHeader } from "@/components/dev-header"
+import { Footer } from "@/components/footer"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -899,6 +900,8 @@ export default function AdminPage() {
           </div>
         )}
       </main>
+
+      <Footer />
 
       {/* Result Modal */}
       {resultModal.show && (
