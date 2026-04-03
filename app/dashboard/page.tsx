@@ -196,14 +196,14 @@ const POS_ORDER: Record<string, number> = { GKP: 0, DEF: 1, MID: 2, FWD: 3 }
 function PhotoThumb({ src, name }: { src: string; name: string }) {
   const [ok, setOk] = useState(true)
   if (!ok || !src) return (
-    <div style={{ height: 80, width: 72, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.05)" }}>
+    <div style={{ height: 52, width: 44, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, color: "rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.05)", margin: "0 auto" }}>
       {name.slice(0, 2).toUpperCase()}
     </div>
   )
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={name} onError={() => setOk(false)}
-      style={{ height: 80, width: 72, objectFit: "contain", objectPosition: "center", display: "block" }} />
+      style={{ height: 52, width: 44, objectFit: "contain", objectPosition: "center", display: "block", margin: "0 auto" }} />
   )
 }
 
@@ -228,7 +228,7 @@ function SquadRow({ p, bench, sortKey }: { p: SquadPlayer; bench: boolean; sortK
   return (
     <tr className={`border-b border-white/[0.04] transition-all duration-150 hover:bg-emerald-400/[0.03] group ${rowOpacity} ${p.is_captain ? "bg-emerald-400/[0.04]" : ""}`}>
       {/* Photo — sticky so it stays visible when scrolling horizontally */}
-      <td style={{ position: "sticky", left: 0, zIndex: 5, background: p.is_captain ? "rgba(0,255,135,0.06)" : "#0d0d0d", width: 80, minWidth: 80, padding: 0, textAlign: "center", verticalAlign: "middle" }}>
+      <td style={{ position: "sticky", left: 0, zIndex: 5, background: p.is_captain ? "rgba(0,255,135,0.06)" : "#0d0d0d", width: 64, minWidth: 64, padding: "6px 4px", textAlign: "center", verticalAlign: "middle" }}>
         <PhotoThumb src={p.photo_url} name={p.name} />
       </td>
 
