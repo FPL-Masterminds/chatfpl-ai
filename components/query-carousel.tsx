@@ -298,17 +298,16 @@ export function QueryCarousel() {
               </span>
             </div>
 
-            {/* Fixed-height content zone */}
-            <div className="overflow-hidden shrink-0" style={{ height: "280px" }}>
-              <AnimatePresence mode="popLayout">
+            {/* Fixed-height content zone — position:relative so absolute children are contained */}
+            <div className="relative overflow-hidden shrink-0" style={{ height: "280px" }}>
+              <AnimatePresence mode="wait">
                 <motion.div
                   key={`q-${idx}`}
-                  className="h-full overflow-hidden"
+                  className="absolute inset-0 overflow-hidden"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.35, ease: "easeInOut" }}
-                  style={{ willChange: "opacity" }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
                 >
                   <p
                     className="text-white leading-relaxed mb-6"
@@ -334,16 +333,25 @@ export function QueryCarousel() {
               </AnimatePresence>
             </div>
 
-            {/* Bottom row — pinned by justify-between on parent, never moves */}
+            {/* Bottom row — also fades on player change so it doesn't snap while content cross-fades */}
             <div className="flex items-center justify-between pt-5 shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-              <div className="flex items-center gap-3">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`bottom-${idx}`}
+                  className="flex items-center gap-3"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.badge_url} alt={p.team} className="h-8 w-8 object-contain shrink-0" />
                 <div>
                   <p className="font-bold text-white text-base leading-tight">{p.name}</p>
                   <p className="text-white/40 text-sm">{p.team}</p>
                 </div>
-              </div>
+                </motion.div>
+              </AnimatePresence>
 
               <div className="flex items-center gap-2">
                 <div className="relative rounded-full inline-flex">
