@@ -117,15 +117,25 @@ function StatCard({ label, value, sub, delay = 0, loaded, raw }: {
   const displayed = useCountUp(value, loaded, 1400)
   return (
     <div
-      className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5 flex flex-col gap-1 hover:scale-[1.02] transition-all duration-300 hover:border-emerald-400/30"
-      style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(16px)", transition: `opacity 0.5s ${delay}ms, transform 0.5s ${delay}ms` }}
+      className="rounded-2xl hover:scale-[1.02] transition-transform duration-300"
+      style={{
+        opacity: loaded ? 1 : 0,
+        transform: loaded ? "translateY(0)" : "translateY(16px)",
+        transition: `opacity 0.5s ${delay}ms, transform 0.5s ${delay}ms`,
+        padding: "1px",
+        background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+        backgroundSize: "220% 220%",
+        animation: "glow_scroll 5s linear infinite",
+      }}
     >
-      <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70">{label}</p>
-      <p className="text-3xl font-bold text-transparent bg-clip-text"
-        style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
-        {raw ?? fmt(displayed)}
-      </p>
-      {sub && <p className="text-xs text-white/40">{sub}</p>}
+      <div className="rounded-2xl bg-[#080808] p-5 flex flex-col gap-1 h-full">
+        <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70">{label}</p>
+        <p className="text-3xl font-bold text-transparent bg-clip-text"
+          style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+          {raw ?? fmt(displayed)}
+        </p>
+        {sub && <p className="text-xs text-white/40">{sub}</p>}
+      </div>
     </div>
   )
 }
@@ -690,7 +700,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Vertical tab command center */}
-        <div className="rounded-3xl border border-emerald-400/15 bg-white/[0.02] overflow-hidden" style={fade(200)}>
+        <div className="rounded-3xl" style={{ ...fade(200), padding: "1px", background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)", backgroundSize: "220% 220%", animation: "glow_scroll 7s linear infinite" }}>
+        <div className="rounded-3xl bg-[#080808] overflow-hidden">
           <div className="flex flex-col lg:flex-row">
 
             {/* ── Left sidebar ── */}
@@ -750,6 +761,7 @@ export default function DashboardPage() {
             </div>
 
           </div>
+        </div>
         </div>
 
         <p className="text-center text-[10px] text-white/20 pb-2">
