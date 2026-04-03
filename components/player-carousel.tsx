@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import type { ShowcasePlayer } from "@/app/api/showcase-players/route"
 import { Reveal } from "@/components/scroll-reveal"
 
@@ -51,9 +51,7 @@ export default function PlayerCarousel() {
   const [players, setPlayers]         = useState<ShowcasePlayer[]>(FALLBACK)
   const [center, setCenter]           = useState(0)
   const [isDragging, setIsDragging]   = useState(false)
-  const [twText, setTwText]           = useState("")      // typewriter display text
-  const [twFading, setTwFading]       = useState(false)   // fade-out before advancing
-  const [twDone, setTwDone]           = useState(false)   // typing complete — hide cursor
+  const [visible, setVisible]         = useState(true)    // fade state for reason text
   const dragStartX = useRef<number>(0)
 
   // Fetch live players — sample from 4 pools for variety, then shuffle
@@ -93,40 +91,15 @@ export default function PlayerCarousel() {
 
   const total = players.length
 
-  // ── Typewriter effect drives auto-rotation ────────────────────────────────
+  // ── Auto-rotation: show text for ~6s, fade out, advance ──────────────────
   useEffect(() => {
     if (!players.length) return
-    const reason = playerReason(players[center])
-    setTwText("")
-    setTwFading(false)
-    setTwDone(false)
-
-    let charIdx = 0
-    let advanceTimeout: ReturnType<typeof setTimeout> | undefined
-    let fadeTimeout:    ReturnType<typeof setTimeout> | undefined
-
-    const typeInterval = setInterval(() => {
-      charIdx++
-      setTwText(reason.slice(0, charIdx))
-      if (charIdx >= reason.length) {
-        clearInterval(typeInterval)
-        setTwDone(true)
-        // Pause 2 s so the user can read, then fade out and advance
-        advanceTimeout = setTimeout(() => {
-          setTwFading(true)
-          fadeTimeout = setTimeout(() => {
-            setCenter(c => (c + 1 + players.length) % players.length)
-          }, 400)
-        }, 2000)
-      }
-    }, 28)
-
-    return () => {
-      clearInterval(typeInterval)
-      if (advanceTimeout) clearTimeout(advanceTimeout)
-      if (fadeTimeout)    clearTimeout(fadeTimeout)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setVisible(true)
+    const fadeOut = setTimeout(() => setVisible(false), 5600)
+    const advance = setTimeout(() => {
+      setCenter(c => (c + 1 + players.length) % players.length)
+    }, 6200)
+    return () => { clearTimeout(fadeOut); clearTimeout(advance) }
   }, [center, players])
 
   // Manual navigation — just update center; typewriter effect restarts automatically
@@ -368,24 +341,29 @@ export default function PlayerCarousel() {
       </div>
       </Reveal>
 
-      {/* ── Typewriter reason — no pill background, plain centred text ───────── */}
+      {/* ── Player reason — fixed height so dot pill never moves ────────────── */}
       <Reveal delay={0.2}>
-      <div
-        className="relative z-10 mt-5 flex justify-center items-center gap-2.5 px-6"
-        style={{ opacity: twFading ? 0 : 1, transition: "opacity 0.4s ease" }}
-      >
-        {/* Glowing green orb */}
-        <span
-          className="h-2 w-2 rounded-full shrink-0 animate-pulse"
-          style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
-        />
-        {/* Typewriter text + blinking cursor */}
-          <span className="text-[13px] text-white/75 font-medium leading-snug md:whitespace-nowrap">
-          {twText}
-          {!twDone && twText.length > 0 && (
-            <span className="inline-block w-px h-3.5 bg-emerald-400 ml-0.5 animate-pulse align-middle" />
+      <div className="relative z-10 mt-5 px-6" style={{ height: "28px" }}>
+        <AnimatePresence mode="wait">
+          {visible && (
+            <motion.div
+              key={`reason-${center}`}
+              className="flex justify-center items-center gap-2.5"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+            >
+              <span
+                className="h-2 w-2 rounded-full shrink-0 animate-pulse"
+                style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
+              />
+              <span className="text-[13px] text-white/75 font-medium leading-snug md:whitespace-nowrap">
+                {playerReason(players[center])}
+              </span>
+            </motion.div>
           )}
-        </span>
+        </AnimatePresence>
       </div>
       </Reveal>
 
