@@ -226,9 +226,9 @@ function SquadRow({ p, bench, sortKey }: { p: SquadPlayer; bench: boolean; sortK
   const rowOpacity = bench ? "opacity-50 hover:opacity-80" : ""
 
   return (
-    <tr className={`border-b border-white/[0.04] transition-all duration-150 hover:bg-emerald-400/[0.03] group ${rowOpacity} ${p.is_captain ? "bg-emerald-400/[0.04]" : ""}`}>
+    <tr className={`border-b border-white/[0.04] transition-all duration-150 group ${rowOpacity}`} style={{ background: p.is_captain ? "rgba(0,255,135,0.05)" : "transparent" }}>
       {/* Photo — sticky so it stays visible when scrolling horizontally */}
-      <td style={{ position: "sticky", left: 0, zIndex: 5, background: p.is_captain ? "rgba(0,255,135,0.06)" : "#0d0d0d", width: 64, minWidth: 64, padding: "6px 4px", textAlign: "center", verticalAlign: "middle" }}>
+      <td style={{ position: "sticky", left: 0, zIndex: 5, background: p.is_captain ? "rgba(0,255,135,0.05)" : "rgb(8,8,8)", width: 64, minWidth: 64, padding: "6px 4px", textAlign: "center", verticalAlign: "middle" }}>
         <PhotoThumb src={p.photo_url} name={p.name} />
       </td>
 
@@ -391,7 +391,7 @@ function SquadPanel({ data }: { data: DashboardData }) {
                   className={`py-4 px-3 text-[10px] uppercase tracking-[0.18em] font-semibold select-none ${i === 0 ? "pl-3" : ""} ${col.key ? "cursor-pointer hover:text-emerald-400 transition-colors" : "text-white"} ${sortKey === col.key ? "text-emerald-400" : "text-white"}`}
                   title={col.title}
                   onClick={() => col.key && toggleSort(col.key)}
-                  style={i === 0 ? { position: "sticky", left: 0, zIndex: 10, background: "#0d0d0d", width: 80, minWidth: 80 } : undefined}
+                  style={i === 0 ? { position: "sticky", left: 0, zIndex: 10, background: "rgb(8,8,8)", width: 64, minWidth: 64 } : undefined}
                 >
                   {col.label}
                   {sortKey === col.key && <span className="ml-0.5">{sortDir === "desc" ? "↓" : "↑"}</span>}
