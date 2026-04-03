@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSession } from "next-auth/react"
@@ -93,9 +93,7 @@ export function QueryCarousel() {
   const [players, setPlayers] = useState<Player[]>(FALLBACK)
   const [idx, setIdx]         = useState(0)
   const [photoSrc, setPhotoSrc] = useState<string | null>(null)
-  const [displayedQ, setDisplayedQ] = useState("")
   const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const typingRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pausedRef  = useRef(false)
   const playersRef = useRef(players)
 
@@ -140,25 +138,10 @@ export function QueryCarousel() {
   const question = TEMPLATES[idx % TEMPLATES.length]?.(p) ?? TEMPLATES[0](p)
   const stats    = STAT_LABELS[idx % STAT_LABELS.length]?.(p) ?? STAT_LABELS[0](p)
 
-  // Typewriter — starts after the fade-in completes (350ms delay)
-  useEffect(() => {
-    if (typingRef.current) clearTimeout(typingRef.current)
-    setDisplayedQ("")
-    let i = 0
-    const type = () => {
-      i++
-      setDisplayedQ(question.slice(0, i))
-      if (i < question.length) typingRef.current = setTimeout(type, 22)
-    }
-    typingRef.current = setTimeout(type, 380)
-    return () => { if (typingRef.current) clearTimeout(typingRef.current) }
-  }, [question])
-
-  const isTyping = displayedQ.length < question.length
-  const highlightedQuestion = question.replace(
+  const highlightedQuestion = useMemo(() => question.replace(
     p.name,
     `<span style="background:linear-gradient(to right,#00ff85,#00ffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">${p.name}</span>`
-  )
+  ), [question, p.name])
 
   return (
     <section
@@ -331,14 +314,7 @@ export function QueryCarousel() {
                     className="text-white leading-relaxed mb-6"
                     style={{ fontSize: "clamp(16px,1.6vw,20px)", fontWeight: 500, minHeight: "100px" }}
                   >
-                    {isTyping ? (
-                      <>
-                        {displayedQ}
-                        <span className="animate-pulse font-thin opacity-60">|</span>
-                      </>
-                    ) : (
-                      <span dangerouslySetInnerHTML={{ __html: highlightedQuestion }} />
-                    )}
+                    <span dangerouslySetInnerHTML={{ __html: highlightedQuestion }} />
                   </p>
 
                   {/* Stat pills */}
