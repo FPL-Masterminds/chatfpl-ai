@@ -505,9 +505,9 @@ export default function AdminPage() {
                     <span className="text-sm text-white capitalize">{data.subscription.status}</span>
                   </div>
                   {data.subscription.cancel_at_period_end && data.subscription.current_period_end && (
-                    <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] p-3">
-                      <p className="text-xs font-semibold text-yellow-300">Subscription Cancelled</p>
-                      <p className="mt-1 text-xs text-yellow-200">Access continues until {formatDate(data.subscription.current_period_end)}.</p>
+                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.05] p-3">
+                      <p className="text-xs font-semibold text-white">Subscription Cancelled</p>
+                      <p className="mt-1 text-xs text-white/60">Access continues until {formatDate(data.subscription.current_period_end)}.</p>
                     </div>
                   )}
                   {!isFree && (
@@ -548,10 +548,12 @@ export default function AdminPage() {
                     {isFree ? "trial messages" : "messages this month"}
                   </div>
                   {isFree && data.usage.messages_limit > 5 && data.subscription.current_period_end && (
-                    <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/[0.05] px-4 py-3">
-                      <p className="text-xs text-yellow-200 text-center">
-                        Bonus messages expire on <span className="font-semibold">{formatDate(data.subscription.current_period_end)}</span>. Use them or lose them! Your 20 trial messages never reset.
-                      </p>
+                    <div className="rounded-xl p-[1px]" style={{ background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)", backgroundSize: "220% 220%", animation: "glow_scroll 5s linear infinite" }}>
+                      <div className="rounded-xl bg-[#080808] px-4 py-3">
+                        <p className="text-xs text-white text-center">
+                          Bonus messages expire on <span className="font-semibold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>{formatDate(data.subscription.current_period_end)}</span>. Use them or lose them! Your 20 trial messages never reset.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -696,17 +698,17 @@ export default function AdminPage() {
                       <p className="text-xs text-white/30">{new Date(claim.created_at).toLocaleDateString()}</p>
                     </div>
                     {claim.action_type === "review" && claim.metadata && (
-                      <div className="rounded-xl border border-yellow-400/15 bg-yellow-400/[0.05] p-3 space-y-2">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-yellow-300">Review Preview</p>
+                      <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-3 space-y-2">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-white">Review Preview</p>
                         <div className="flex gap-0.5">
                           {[1,2,3,4,5].map((s) => (
-                            <span key={s} className={s <= (claim.metadata?.rating || 5) ? "text-yellow-300" : "text-white/20"}>★</span>
+                            <span key={s} className={s <= (claim.metadata?.rating || 5) ? "text-emerald-400" : "text-white/20"}>★</span>
                           ))}
                         </div>
                         {claim.metadata.description && <p className="text-sm font-semibold text-white">{claim.metadata.description}</p>}
                         {claim.metadata.reviewText && <p className="text-sm text-white italic">"{claim.metadata.reviewText}"</p>}
                         <div className="flex gap-2 flex-wrap">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${claim.metadata.reviewType === "xpost" ? "bg-white/10 text-white" : "bg-yellow-400/20 text-yellow-300"}`}>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white">
                             {claim.metadata.reviewType === "xpost" ? "X Post" : "Written Review"}
                           </span>
                           {claim.metadata.xConsent && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/15 text-emerald-300">Homepage Consent</span>}
