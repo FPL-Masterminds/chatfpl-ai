@@ -329,7 +329,7 @@ export function QueryCarousel() {
                 >
                   <p
                     className="text-white leading-relaxed mb-6"
-                    style={{ fontSize: "clamp(16px,1.6vw,20px)", fontWeight: 500 }}
+                    style={{ fontSize: "clamp(16px,1.6vw,20px)", fontWeight: 500, minHeight: "100px" }}
                   >
                     {isTyping ? (
                       <>
