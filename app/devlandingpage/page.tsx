@@ -24,16 +24,12 @@ import {
 
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
 
-export const metadata = {
-  title: "Dev Landing Page - ChatFPL AI",
-  description: "Test landing page for new design",
-}
-
 export default async function DevLandingPage() {
   const session = await auth()
   if (!session?.user?.email || session.user.email !== ALLOWED_EMAIL) {
     redirect("/login")
   }
+  const ctaHref = "/signup"
 
   return (
     <div className="flex min-h-screen flex-col bg-black">
@@ -78,7 +74,7 @@ export default async function DevLandingPage() {
                   }}
                 />
               <Link
-                href="/signup"
+                href={ctaHref}
                 className="relative inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:brightness-110"
                 style={{
                   background: 'rgba(255,255,255,0.08)',
@@ -131,7 +127,7 @@ export default async function DevLandingPage() {
                 }}
               >
                 <Link
-                  href="/signup"
+                  href={ctaHref}
                   className="relative block overflow-hidden rounded-full px-10 py-4 font-bold text-lg text-[#08020E]"
                   style={{ background: 'linear-gradient(to right, #00FF87, #00FFFF)' }}
                 >
@@ -176,169 +172,6 @@ export default async function DevLandingPage() {
 
       {/* Deadline Countdown CTA */}
       <DeadlineCTA />
-
-      {/* HIDDEN BELOW — kept for reference only */}
-      {false && <div className="grid gap-6 md:grid-cols-3">
-            {/* Free Trial */}
-            <Reveal delay={0.1}>
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#A855F7] h-full">
-              <CardHeader>
-                <CardTitle className="text-2xl text-white">Free Trial</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-white">£0</span>
-                  <span className="text-gray-400">/month</span>
-                </div>
-                <CardDescription className="mt-2 text-gray-400">
-                  Perfect for trying out ChatFPL AI
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#A855F7]">
-                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-300">20 free messages</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#A855F7]">
-                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-300">Live FPL data access</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#A855F7]">
-                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-300">Limited support</span>
-                  </div>
-                </div>
-                <Link 
-                  href="/signup"
-                  className="block w-full px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold text-center hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  Get Started
-                </Link>
-              </CardContent>
-            </Card>
-            </Reveal>
-
-            {/* Premium - Most Popular */}
-            <Reveal delay={0.2}>
-            <Card className="relative border-[#00FF87] bg-black shadow-xl shadow-[#00FF87]/20 h-full">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <Badge className="bg-[#00FF87] text-gray-900 font-bold px-4 py-1">
-                  MOST POPULAR
-                </Badge>
-              </div>
-              <CardHeader>
-                <CardTitle className="text-2xl text-white">Premium</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-white">£7.99</span>
-                  <span className="text-gray-400">/month</span>
-                </div>
-                <CardDescription className="mt-2 text-gray-400">
-                  For serious FPL managers
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FF86]">
-                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-300">100 messages per month</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FF86]">
-                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-300">Live FPL data access</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FF86]">
-                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-300">Priority support</span>
-                  </div>
-                </div>
-                <Link 
-                  href="/signup"
-                  className="block w-full px-6 py-3 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1a0e24] font-bold text-center transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
-                >
-                  Subscribe
-                </Link>
-              </CardContent>
-            </Card>
-            </Reveal>
-
-            {/* Elite */}
-            <Reveal delay={0.3}>
-            <Card className="border-gray-700 bg-black transition-all hover:border-[#00FFFF] h-full">
-              <CardHeader>
-                <CardTitle className="text-2xl text-white">Elite</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold text-white">£14.99</span>
-                  <span className="text-gray-400">/month</span>
-                </div>
-                <CardDescription className="mt-2 text-gray-400">
-                  For elite FPL competitors
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FFFF]">
-                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-300">500 messages per month</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FFFF]">
-                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-300">Live FPL data access</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center h-5 w-5 rounded-full bg-[#00FFFF]">
-                      <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-300">Priority support</span>
-                  </div>
-                </div>
-                <Link 
-                  href="/signup"
-                  className="block w-full px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold text-center hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  Subscribe
-                </Link>
-              </CardContent>
-            </Card>
-            </Reveal>
-          </div>}
-
     </div>
   )
 }
-
-
-
-
