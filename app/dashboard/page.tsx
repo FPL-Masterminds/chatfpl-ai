@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 import { DevHeader } from "@/components/dev-header"
 import { Footer } from "@/components/footer"
 import {
-  ResponsiveContainer, ComposedChart, Bar, Line,
+  ResponsiveContainer, ComposedChart, AreaChart, Area, Bar, Line,
   XAxis, YAxis, Tooltip, CartesianGrid, LineChart,
 } from "recharts"
 
@@ -52,7 +53,6 @@ interface DashboardData {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CHIP_ICONS: Record<string, string> = { wildcard: "♻", freehit: "🎯", "3xc": "3×", bboost: "🚀" }
-const POS_ORDER: Record<string, number> = { GKP: 0, DEF: 1, MID: 2, FWD: 3 }
 
 const DIFF_COLORS: Record<number, string> = {
   1: "#00FF87", 2: "#86efac", 3: "#fde68a", 4: "#fb923c", 5: "#ef4444",
@@ -64,6 +64,13 @@ const POS_STYLE: Record<string, { border: string; glow: string; label: string }>
   MID: { border: "#00FF87", glow: "rgba(0,255,135,0.18)", label: "#00FF87" },
   FWD: { border: "#f97316", glow: "rgba(249,115,22,0.18)", label: "#fdba74" },
 }
+
+const TABS = [
+  { id: "squad",       label: "Your Squad",    desc: "Starting XI, bench & next fixtures",          dot: "#00FF87" },
+  { id: "performance", label: "Performance",   desc: "GW chart, rank journey & season heatmap",     dot: "#00FFFF" },
+  { id: "transfers",   label: "Transfer Log",  desc: "Every move you've made this season",          dot: "#00FF87" },
+  { id: "league",      label: "Mini-League",   desc: "Live standings & chip status",                dot: "#00FFFF" },
+]
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -89,6 +96,7 @@ function BadgeImg({ code, name }: { code: number; name: string }) {
   const [ok, setOk] = useState(true)
   if (!code || !ok) return <span className="text-[9px] text-white/40">{name.slice(0, 3)}</span>
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img src={`https://resources.premierleague.com/premierleague/badges/70/t${code}.png`}
       alt={name} className="h-4 w-4 object-contain shrink-0" onError={() => setOk(false)} />
   )
@@ -98,28 +106,6 @@ function RankArrow({ rank, lastRank }: { rank: number; lastRank: number }) {
   if (!lastRank || rank === lastRank) return <span className="text-white/20 text-[10px]">–</span>
   if (rank < lastRank) return <span className="text-emerald-400 text-[10px]">▲</span>
   return <span className="text-red-400 text-[10px]">▼</span>
-}
-
-function ChartTooltip({ active, payload, label }: any) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="rounded-xl border border-white/10 bg-[#0d1117] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 text-white/40">GW{label}</p>
-      {payload.map((p: any) => (
-        <p key={p.dataKey} style={{ color: p.color }} className="font-semibold">{p.name}: {p.value}</p>
-      ))}
-    </div>
-  )
-}
-
-function RankTooltip({ active, payload, label }: any) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="rounded-xl border border-white/10 bg-[#0d1117] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 text-white/40">GW{label}</p>
-      <p className="font-semibold" style={{ color: "#00FF87" }}>Rank: {fmt(payload[0]?.value ?? 0)}</p>
-    </div>
-  )
 }
 
 // ─── Stat Card ───────────────────────────────────────────────────────────────
@@ -135,13 +121,35 @@ function StatCard({ label, value, sub, delay = 0, loaded, raw }: {
       style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(16px)", transition: `opacity 0.5s ${delay}ms, transform 0.5s ${delay}ms` }}
     >
       <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70">{label}</p>
-      <p
-        className="text-3xl font-bold text-transparent bg-clip-text"
-        style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
-      >
+      <p className="text-3xl font-bold text-transparent bg-clip-text"
+        style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
         {raw ?? fmt(displayed)}
       </p>
       {sub && <p className="text-xs text-white/40">{sub}</p>}
+    </div>
+  )
+}
+
+// ─── Chart Tooltips ───────────────────────────────────────────────────────────
+
+function ChartTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="rounded-xl border border-emerald-400/20 bg-[#0a0a0a] px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 text-white/40">GW{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.dataKey} style={{ color: p.color }} className="font-semibold">{p.name}: {p.value}</p>
+      ))}
+    </div>
+  )
+}
+
+function RankTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="rounded-xl border border-emerald-400/20 bg-[#0a0a0a] px-3 py-2 text-xs shadow-xl">
+      <p className="mb-1 text-white/40">GW{label}</p>
+      <p className="font-semibold" style={{ color: "#00FF87" }}>Rank: {fmt(payload[0]?.value ?? 0)}</p>
     </div>
   )
 }
@@ -180,7 +188,7 @@ function PlayerCard({ p, bench }: { p: SquadPlayer; bench: boolean }) {
   const isVC = p.is_vice_captain
 
   return (
-    <div className={`flex flex-col gap-1.5 ${bench ? "w-[110px] sm:w-[130px]" : "w-[115px] sm:w-[145px] lg:w-[160px]"}`}>
+    <div className={`flex flex-col gap-1.5 ${bench ? "w-[110px] sm:w-[130px]" : "w-[115px] sm:w-[145px] lg:w-[155px]"}`}>
       <div
         className="relative rounded-2xl overflow-hidden flex flex-col transition-all duration-200 hover:scale-[1.04] hover:z-10 cursor-default"
         style={{
@@ -199,72 +207,35 @@ function PlayerCard({ p, bench }: { p: SquadPlayer; bench: boolean }) {
               : `0 6px 28px ${ps.glow}, 0 8px 32px rgba(0,0,0,0.5)`,
         }}
       >
-        {/* Top accent stripe */}
-        <div
-          className="h-[3px] w-full shrink-0"
-          style={{ background: bench ? "rgba(255,255,255,0.07)" : `linear-gradient(90deg,transparent,${ps.border},transparent)` }}
-        />
-
-        {/* Team badge + captain/injury badge */}
+        <div className="h-[3px] w-full shrink-0"
+          style={{ background: bench ? "rgba(255,255,255,0.07)" : `linear-gradient(90deg,transparent,${ps.border},transparent)` }} />
         <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-20 pointer-events-none">
           <BadgeImg code={p.team_code} name={p.team_short} />
-          {isCap && (
-            <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-emerald-400 text-[10px] font-black text-black shadow-[0_0_10px_rgba(0,255,135,0.7)]">C</span>
-          )}
-          {isVC && (
-            <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-cyan-400 text-[10px] font-black text-black shadow-[0_0_8px_rgba(34,211,238,0.5)]">V</span>
-          )}
-          {injured && !isCap && !isVC && (
-            <span className="flex h-[20px] w-[20px] items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white">!</span>
-          )}
+          {isCap && <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-emerald-400 text-[10px] font-black text-black shadow-[0_0_10px_rgba(0,255,135,0.7)]">C</span>}
+          {isVC && <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-cyan-400 text-[10px] font-black text-black shadow-[0_0_8px_rgba(34,211,238,0.5)]">V</span>}
+          {injured && !isCap && !isVC && <span className="flex h-[20px] w-[20px] items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white">!</span>}
         </div>
-
-        {/* Photo */}
         <div className={`relative w-full ${bench ? "h-[118px]" : "h-[148px] sm:h-[160px]"}`}>
           {photoOk ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={p.photo_url}
-              alt={p.name}
+            <img src={p.photo_url} alt={p.name}
               className="absolute inset-0 w-full h-full object-cover object-top"
-              style={{
-                filter: bench
-                  ? "brightness(0.55) saturate(0.5)"
-                  : "brightness(0.95) saturate(1.08) contrast(1.03)",
-              }}
-              onError={() => setPhotoOk(false)}
-            />
+              style={{ filter: bench ? "brightness(0.55) saturate(0.5)" : "brightness(0.95) saturate(1.08) contrast(1.03)" }}
+              onError={() => setPhotoOk(false)} />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span
-                className="text-4xl font-black"
-                style={{ color: bench ? "rgba(255,255,255,0.1)" : `${ps.border}33` }}
-              >
+              <span className="text-4xl font-black" style={{ color: bench ? "rgba(255,255,255,0.1)" : `${ps.border}33` }}>
                 {p.name.slice(0, 2).toUpperCase()}
               </span>
             </div>
           )}
-          {/* Gradient fade photo → card body */}
-          <div
-            className="absolute bottom-0 left-0 right-0 pointer-events-none"
-            style={{
-              height: "56px",
-              background: bench
-                ? "linear-gradient(to bottom,transparent,rgba(4,4,8,0.96))"
-                : `linear-gradient(to bottom,transparent,rgba(6,6,12,0.98))`,
-            }}
-          />
+          <div className="absolute bottom-0 left-0 right-0 pointer-events-none"
+            style={{ height: "56px", background: bench ? "linear-gradient(to bottom,transparent,rgba(4,4,8,0.96))" : "linear-gradient(to bottom,transparent,rgba(6,6,12,0.98))" }} />
         </div>
-
-        {/* Info block */}
         <div className="px-2 pb-2.5 -mt-1.5">
-          <p className={`font-bold text-white truncate leading-tight ${bench ? "text-[10px]" : "text-xs sm:text-[13px]"}`}>
-            {p.name}
-          </p>
+          <p className={`font-bold text-white truncate leading-tight ${bench ? "text-[10px]" : "text-xs sm:text-[13px]"}`}>{p.name}</p>
           <div className="flex items-center justify-between mt-1 gap-1">
-            <span className={`font-bold uppercase tracking-wide ${bench ? "text-[8px]" : "text-[9px]"}`} style={{ color: bench ? "rgba(255,255,255,0.25)" : ps.label }}>
-              {p.pos}
-            </span>
+            <span className={`font-bold uppercase tracking-wide ${bench ? "text-[8px]" : "text-[9px]"}`} style={{ color: bench ? "rgba(255,255,255,0.25)" : ps.label }}>{p.pos}</span>
             <div className="flex items-center gap-0.5">
               <span className={`text-white/50 ${bench ? "text-[8px]" : "text-[9px]"}`}>£{p.price.toFixed(1)}m</span>
               {priceUp && <span className="text-[8px] font-bold text-emerald-400">▲</span>}
@@ -275,24 +246,15 @@ function PlayerCard({ p, bench }: { p: SquadPlayer; bench: boolean }) {
             <span className={`font-semibold ${bench ? "text-[9px] text-white/50" : "text-[11px] text-white/80"}`}>
               {p.points}<span className="text-white/30 font-normal text-[8px]"> pts</span>
             </span>
-            {p.ep_next > 0 && (
-              <span className={`text-emerald-400/80 ${bench ? "text-[7px]" : "text-[8px]"}`}>
-                xP {p.ep_next.toFixed(1)}
-              </span>
-            )}
+            {p.ep_next > 0 && <span className={`text-emerald-400/80 ${bench ? "text-[7px]" : "text-[8px]"}`}>xP {p.ep_next.toFixed(1)}</span>}
           </div>
         </div>
       </div>
-
-      {/* Fixture pills below card */}
       {p.next_fixtures.length > 0 && (
         <div className="flex gap-1 justify-center flex-wrap">
           {p.next_fixtures.slice(0, 3).map((f, i) => (
-            <span
-              key={i}
-              className={`font-bold rounded leading-none ${bench ? "text-[7px] px-1 py-0.5" : "text-[8px] px-1.5 py-0.5"}`}
-              style={{ color: "#000", backgroundColor: DIFF_COLORS[f.difficulty] ?? "#888" }}
-            >
+            <span key={i} className={`font-bold rounded leading-none ${bench ? "text-[7px] px-1 py-0.5" : "text-[8px] px-1.5 py-0.5"}`}
+              style={{ color: "#000", backgroundColor: DIFF_COLORS[f.difficulty] ?? "#888" }}>
               {f.opponent}{!f.home ? "(A)" : ""}
             </span>
           ))}
@@ -307,16 +269,264 @@ function PlayerCard({ p, bench }: { p: SquadPlayer; bench: boolean }) {
 function GateScreen({ title, body, cta, href }: { title: string; body: string; cta: string; href: string }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black px-6">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,200,0.10),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(122,92,255,0.10),transparent_40%)]" />
+      <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% -5%, rgba(0,255,135,0.13), transparent)" }} />
       <div className="relative max-w-sm text-center space-y-5">
         <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL" width={120} height={34} className="mx-auto h-8 w-auto opacity-70" />
         <h2 className="text-xl font-bold text-white">{title}</h2>
         <p className="text-sm text-white/50 leading-relaxed">{body}</p>
         <div className="flex flex-col gap-3">
-          <Link href={href} className="rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 px-6 py-2.5 text-sm font-semibold text-black hover:brightness-110 transition-all">{cta}</Link>
+          <Link href={href} className="rounded-xl bg-gradient-to-r from-[#00FF87] to-[#00FFFF] px-6 py-2.5 text-sm font-semibold text-black hover:brightness-110 transition-all">{cta}</Link>
           <Link href="/chat" className="text-sm text-white/40 hover:text-white transition-colors">Back to chat</Link>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── Tab Content Panels ───────────────────────────────────────────────────────
+
+function SquadPanel({ data }: { data: DashboardData }) {
+  const starters = data.squad.filter((p) => p.slot <= 11)
+  const bench = data.squad.filter((p) => p.slot > 11).sort((a, b) => a.slot - b.slot)
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <p className="text-sm font-semibold text-white">Your Squad — {data.current_gw_name}</p>
+          <p className="text-xs text-white/40 mt-0.5">Fixture colours: <span style={{ color: DIFF_COLORS[1] }}>easy</span> → <span style={{ color: DIFF_COLORS[5] }}>hard</span></p>
+        </div>
+        <div className="flex gap-4 text-xs text-white/40 flex-wrap">
+          <span>Bench: {data.points_on_bench}pts</span>
+          {data.gw_transfers > 0 && (
+            <span className={data.gw_transfer_cost > 0 ? "text-red-400" : "text-white/40"}>
+              {data.gw_transfers} transfer{data.gw_transfers !== 1 ? "s" : ""}
+              {data.gw_transfer_cost > 0 ? ` (-${data.gw_transfer_cost}pts)` : ""}
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="space-y-6">
+        {(["GKP", "DEF", "MID", "FWD"] as const).map((pos) => {
+          const row = starters.filter((p) => p.pos === pos)
+          if (!row.length) return null
+          const ps = POS_STYLE[pos]
+          const label: Record<string, string> = { GKP: "GK", DEF: "DEF", MID: "MID", FWD: "FWD" }
+          return (
+            <div key={pos}>
+              <p className="text-center text-[9px] font-bold uppercase tracking-[0.25em] mb-3" style={{ color: `${ps.border}60` }}>{label[pos]}</p>
+              <div className="flex items-start justify-center gap-2 sm:gap-3 flex-wrap">
+                {row.map((p) => <PlayerCard key={p.slot} p={p} bench={false} />)}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <div className="flex items-center gap-3 mt-2">
+        <div className="flex-1 h-px bg-white/[0.06]" />
+        <p className="text-[10px] uppercase tracking-[0.2em] text-white/25">Bench</p>
+        <div className="flex-1 h-px bg-white/[0.06]" />
+      </div>
+      <div className="flex items-start justify-center gap-2 sm:gap-3 flex-wrap">
+        {bench.map((p) => <PlayerCard key={p.slot} p={p} bench={true} />)}
+      </div>
+    </div>
+  )
+}
+
+function PerformancePanel({ data }: { data: DashboardData }) {
+  const rankData = data.gw_history.filter((g) => g.rank > 0)
+  return (
+    <div className="space-y-6">
+      {/* GW Points area chart */}
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold text-white">Gameweek Points</p>
+            <p className="text-xs text-white/40">Your score vs overall average each week</p>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-white/40">
+            <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-3 rounded" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }} />You</span>
+            <span className="flex items-center gap-1.5"><span className="inline-block h-px w-3 bg-white/30" />Avg</span>
+          </div>
+        </div>
+        <ResponsiveContainer width="100%" height={200}>
+          <ComposedChart data={data.gw_history} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#00FF87" stopOpacity={0.85} />
+                <stop offset="100%" stopColor="#00FFFF" stopOpacity={0.4} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+            <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false} />
+            <Tooltip content={<ChartTooltip />} />
+            <Bar dataKey="pts" name="Your pts" fill="url(#barGrad)" radius={[4, 4, 0, 0]} maxBarSize={18} animationBegin={200} animationDuration={1000} />
+            <Line dataKey="avg" name="GW avg" stroke="rgba(255,255,255,0.25)" dot={false} strokeWidth={1.5} animationBegin={500} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Rank Journey */}
+      <div>
+        <div className="mb-3">
+          <p className="text-sm font-semibold text-white">Overall Rank Journey</p>
+          <p className="text-xs text-white/40">Week-by-week rank — lower is better</p>
+        </div>
+        <ResponsiveContainer width="100%" height={160}>
+          <AreaChart data={rankData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="rankGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#00FF87" stopOpacity={0.2} />
+                <stop offset="100%" stopColor="#00FF87" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+            <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false} />
+            <YAxis reversed tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false}
+              tickFormatter={(v) => v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
+            <Tooltip content={<RankTooltip />} />
+            <Area dataKey="rank" name="Rank" stroke="#00FF87" strokeWidth={2} fill="url(#rankGrad)"
+              dot={{ fill: "#00FF87", r: 2, strokeWidth: 0 }} activeDot={{ r: 4, fill: "#00FFFF" }}
+              animationBegin={200} animationDuration={1200} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Heatmap */}
+      <div>
+        <div className="mb-3">
+          <p className="text-sm font-semibold text-white">Season Heatmap</p>
+          <p className="text-xs text-white/40">GW scores colour-coded vs average</p>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {data.gw_history.map((g) => <HeatmapCell key={g.gw} pts={g.pts} avg={g.avg} />)}
+        </div>
+        <div className="mt-3 flex items-center gap-3 flex-wrap">
+          {[
+            { color: "#00FF87", label: "1.5× avg" }, { color: "#34d399", label: "Above avg" },
+            { color: "#fbbf24", label: "Near avg" }, { color: "#f97316", label: "Below avg" },
+            { color: "#ef4444", label: "Low" },
+          ].map((l) => (
+            <div key={l.label} className="flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: l.color }} />
+              <span className="text-[9px] text-white/40">{l.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TransfersPanel({ data }: { data: DashboardData }) {
+  const transfersByGW: Record<number, Transfer[]> = {}
+  data.recent_transfers.forEach((t) => {
+    if (!transfersByGW[t.event]) transfersByGW[t.event] = []
+    transfersByGW[t.event].push(t)
+  })
+  const transferGWs = Object.keys(transfersByGW).map(Number).sort((a, b) => b - a)
+
+  if (!transferGWs.length) return (
+    <div className="flex items-center justify-center h-48 text-white/30 text-sm">No transfers recorded yet.</div>
+  )
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="text-sm font-semibold text-white">Transfer History</p>
+        <p className="text-xs text-white/40 mt-0.5">{data.total_transfers} total transfers this season</p>
+      </div>
+      {transferGWs.map((gw) => (
+        <div key={gw}>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/60 mb-2">Gameweek {gw}</p>
+          <div className="space-y-2">
+            {transfersByGW[gw].map((t, i) => (
+              <div key={i} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+                {/* Out */}
+                <div className="flex items-center gap-2 min-w-0">
+                  <BadgeImg code={t.out_team_code} name={t.out_team_short} />
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-red-400 truncate">{t.out_name}</p>
+                    <p className="text-[9px] text-white/30">{t.out_pos} · £{t.out_price.toFixed(1)}m</p>
+                  </div>
+                </div>
+                {/* Arrow */}
+                <div className="flex flex-col items-center gap-0.5 shrink-0">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <path d="M5 12h14M13 6l6 6-6 6" stroke="url(#arrowGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <defs><linearGradient id="arrowGrad" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#00FF87" /><stop offset="1" stopColor="#00FFFF" /></linearGradient></defs>
+                  </svg>
+                  <span className="text-[8px] text-white/20">
+                    {t.in_price > t.out_price ? <span className="text-red-400">+£{(t.in_price - t.out_price).toFixed(1)}m</span>
+                      : t.in_price < t.out_price ? <span className="text-emerald-400">-£{(t.out_price - t.in_price).toFixed(1)}m</span>
+                      : "="}
+                  </span>
+                </div>
+                {/* In */}
+                <div className="flex items-center gap-2 min-w-0 justify-end text-right">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-emerald-400 truncate">{t.in_name}</p>
+                    <p className="text-[9px] text-white/30">{t.in_pos} · £{t.in_price.toFixed(1)}m</p>
+                  </div>
+                  <BadgeImg code={t.in_team_code} name={t.in_team_short} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function LeaguePanel({ data }: { data: DashboardData }) {
+  return (
+    <div className="space-y-5">
+      {/* Chips */}
+      <div>
+        <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-3">Chip Status</p>
+        <div className="grid grid-cols-2 gap-2">
+          {data.chips.map((chip) => (
+            <div key={chip.key} className={`rounded-xl border px-3 py-2.5 flex items-center gap-2.5 transition-all ${chip.available ? "border-emerald-400/30 bg-emerald-400/[0.08] shadow-[0_0_12px_rgba(0,255,135,0.08)]" : "border-white/5 bg-white/[0.02] opacity-40"}`}>
+              <span className="text-base leading-none">{CHIP_ICONS[chip.key] ?? "●"}</span>
+              <div className="min-w-0 flex-1">
+                <p className={`text-xs font-semibold truncate ${chip.available ? "text-white" : "text-white/50"}`}>{chip.name}</p>
+                <p className="text-[9px] text-white/30">{chip.available ? "Available" : `Used GW${chip.event}`}</p>
+              </div>
+              {chip.available && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse" />}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Mini-league */}
+      {data.league_standings.length > 0 && (
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-1">Mini-League</p>
+          {data.league_name && <p className="text-xs text-white/50 mb-3 truncate">{data.league_name}</p>}
+          <div className="space-y-1">
+            {data.league_standings.map((row) => (
+              <div key={row.entry_id}
+                className={`rounded-xl px-3 py-2.5 flex items-center gap-2 text-xs transition-all ${row.is_user ? "border border-emerald-400/30 bg-emerald-400/[0.08]" : "border border-transparent hover:bg-white/[0.03]"}`}>
+                <span className="w-5 text-white/30 text-[10px] font-mono shrink-0">{row.rank}</span>
+                <RankArrow rank={row.rank} lastRank={row.last_rank} />
+                <div className="flex-1 min-w-0">
+                  <p className={`truncate font-medium text-[11px] ${row.is_user ? "text-emerald-300" : "text-white/80"}`}>{row.team}</p>
+                  <p className="text-[9px] text-white/25 truncate">{row.manager}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className={`font-bold text-[12px] ${row.is_user ? "text-transparent bg-clip-text" : "text-white"}`}
+                    style={row.is_user ? { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" } : {}}>
+                    {fmt(row.total)}
+                  </p>
+                  <p className="text-[9px] text-white/35">GW:{row.gw_pts}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -328,6 +538,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [status, setStatus] = useState<"loading" | "no_team" | "error" | "ready">("loading")
   const [loaded, setLoaded] = useState(false)
+  const [activeTab, setActiveTab] = useState("squad")
 
   useEffect(() => {
     const load = async () => {
@@ -358,20 +569,6 @@ export default function DashboardPage() {
   if (status === "no_team") return <GateScreen title="Link Your FPL Team" body="To use the dashboard, save your public FPL Team ID in account settings. It takes 10 seconds." cta="Go to Settings" href="/admin" />
   if (status === "error" || !data) return <GateScreen title="Something went wrong" body="We couldn't load your FPL data. The FPL API may be temporarily unavailable — try again in a moment." cta="Retry" href="/dashboard" />
 
-  const starters = data.squad.filter((p) => p.slot <= 11)
-  const bench = data.squad.filter((p) => p.slot > 11).sort((a, b) => a.slot - b.slot)
-
-  // Group transfers by GW
-  const transfersByGW: Record<number, Transfer[]> = {}
-  data.recent_transfers.forEach((t) => {
-    if (!transfersByGW[t.event]) transfersByGW[t.event] = []
-    transfersByGW[t.event].push(t)
-  })
-  const transferGWs = Object.keys(transfersByGW).map(Number).sort((a, b) => b - a)
-
-  // Rank chart data — invert so higher on chart = better rank
-  const rankData = data.gw_history.filter((g) => g.rank > 0)
-
   const fade = (delay: number) => ({
     opacity: loaded ? 1 : 0,
     transform: loaded ? "translateY(0)" : "translateY(18px)",
@@ -380,254 +577,107 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
-      {/* Site grid */}
-      <div className="pointer-events-none fixed inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
-      {/* Green radial glow */}
-      <div className="pointer-events-none fixed inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% -5%, rgba(0,255,135,0.13), transparent)" }} />
+      {/* Grid */}
+      <div className="pointer-events-none fixed inset-0 opacity-[0.04]"
+        style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
+      {/* Green glow */}
+      <div className="pointer-events-none fixed inset-0"
+        style={{ background: "radial-gradient(ellipse 70% 50% at 50% -5%, rgba(0,255,135,0.13), transparent)" }} />
 
       <DevHeader />
 
       <div className="relative mx-auto max-w-7xl w-full px-4 pt-28 pb-10 space-y-6 flex-1">
 
-        {/* ── Page heading ── */}
+        {/* Page heading */}
         <div className="text-center" style={fade(0)}>
           <h1 className="text-[36px] lg:text-6xl font-bold leading-[1.1] tracking-tighter">
             <span className="text-white">ChatFPL </span>
-            <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>Dashboard</span>
+            <span className="text-transparent bg-clip-text"
+              style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
+              Dashboard
+            </span>
           </h1>
           <p className="text-white/50 text-base mt-3 max-w-xl mx-auto">
             {data.team_name} · {data.manager_name} · {data.current_gw_name}
           </p>
         </div>
 
-        {/* ── 4 Stat Tiles ── */}
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <StatCard label="GW Points" value={data.gw_points} sub={data.gw_rank ? `Rank: ${fmt(data.gw_rank)}` : undefined} delay={0} loaded={loaded} />
-          <StatCard label="Overall Points" value={data.overall_points} sub={data.active_chip ? `${data.active_chip} active` : undefined} delay={80} loaded={loaded} />
-          <StatCard label="Overall Rank" value={data.overall_rank} delay={160} loaded={loaded} />
-          <StatCard label="Team Value" value={0} raw={`£${data.team_value.toFixed(1)}m`} sub={`Bank: £${data.bank.toFixed(1)}m`} delay={240} loaded={loaded} />
+        {/* 4 Stat tiles — always visible */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4" style={fade(80)}>
+          <StatCard label="GW Points"      value={data.gw_points}       sub={data.gw_rank ? `Rank: ${fmt(data.gw_rank)}` : undefined}          delay={0}   loaded={loaded} />
+          <StatCard label="Overall Points" value={data.overall_points}   sub={data.active_chip ? `${data.active_chip} active` : undefined}      delay={60}  loaded={loaded} />
+          <StatCard label="Overall Rank"   value={data.overall_rank}                                                                             delay={120} loaded={loaded} />
+          <StatCard label="Team Value"     value={0} raw={`£${data.team_value.toFixed(1)}m`} sub={`Bank: £${data.bank.toFixed(1)}m`}           delay={180} loaded={loaded} />
         </div>
 
-        {/* ── GW Chart + Chips + League ── */}
-        <div className="grid gap-4 lg:grid-cols-5">
+        {/* Vertical tab command center */}
+        <div className="rounded-3xl border border-emerald-400/15 bg-white/[0.02] overflow-hidden" style={fade(200)}>
+          <div className="flex flex-col lg:flex-row">
 
-          {/* GW Points chart */}
-          <div className="lg:col-span-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(300)}>
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-white">Gameweek Points</p>
-                <p className="text-xs text-white/40">Your score vs overall average each week</p>
-              </div>
-              <div className="flex items-center gap-4 text-xs text-white/40">
-                <span className="flex items-center gap-1"><span className="inline-block h-2 w-3 rounded bg-emerald-400/70" />You</span>
-                <span className="flex items-center gap-1"><span className="inline-block h-px w-3 bg-white/30" />Avg</span>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={200}>
-              <ComposedChart data={data.gw_history} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false} />
-                <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="pts" name="Your pts" fill="rgba(0,255,135,0.55)" radius={[3, 3, 0, 0]} animationBegin={400} animationDuration={1200} />
-                <Line dataKey="avg" name="GW avg" stroke="rgba(255,255,255,0.3)" dot={false} strokeWidth={1.5} animationBegin={700} />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Right: Chips + League */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            {/* Chips */}
-            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4" style={fade(350)}>
-              <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-3">Chips</p>
-              <div className="grid grid-cols-2 gap-2">
-                {data.chips.map((chip) => (
-                  <div key={chip.key} className={`rounded-xl border px-3 py-2 flex items-center gap-2 transition-all ${chip.available ? "border-emerald-400/30 bg-emerald-400/[0.08] shadow-[0_0_12px_rgba(0,255,135,0.10)]" : "border-white/5 bg-white/[0.02] opacity-40"}`}>
-                    <span className="text-base leading-none">{CHIP_ICONS[chip.key] ?? "●"}</span>
-                    <div className="min-w-0">
-                      <p className={`text-xs font-semibold truncate ${chip.available ? "text-white" : "text-white/50"}`}>{chip.name}</p>
-                      <p className="text-[9px] text-white/30">{chip.available ? "Available" : `GW${chip.event}`}</p>
+            {/* ── Left sidebar ── */}
+            <div className="relative lg:w-64 shrink-0 border-b lg:border-b-0 lg:border-r border-emerald-400/10 p-3 lg:p-4">
+              {/* Mobile: horizontal scroll */}
+              <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible pb-1 lg:pb-0">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className="relative flex-shrink-0 lg:flex-shrink text-left p-3 lg:p-4 rounded-2xl transition-all duration-200 hover:scale-[1.01] group"
+                  >
+                    {activeTab === tab.id && (
+                      <motion.div
+                        layoutId="tab-bg"
+                        className="absolute inset-0 rounded-2xl border border-emerald-400/25"
+                        style={{ background: "rgba(0,255,135,0.07)" }}
+                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                      />
+                    )}
+                    <div className="relative flex items-start gap-2.5">
+                      <span
+                        className="h-2 w-2 rounded-full mt-1 shrink-0 transition-all duration-300"
+                        style={{
+                          background: activeTab === tab.id ? tab.dot : "rgba(255,255,255,0.15)",
+                          boxShadow: activeTab === tab.id ? `0 0 8px ${tab.dot}` : "none",
+                        }}
+                      />
+                      <div className="min-w-0">
+                        <p className={`font-semibold text-sm transition-colors ${activeTab === tab.id ? "text-white" : "text-white/50 group-hover:text-white/80"}`}>
+                          {tab.label}
+                        </p>
+                        <p className="text-[11px] text-white/30 mt-0.5 leading-tight hidden lg:block">{tab.desc}</p>
+                      </div>
                     </div>
-                    {chip.available && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse" />}
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Mini-league */}
-            {data.league_standings.length > 0 && (
-              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4 flex-1" style={fade(400)}>
-                <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-1">Mini-League</p>
-                {data.league_name && <p className="text-xs text-white/50 mb-2 truncate">{data.league_name}</p>}
-                <div className="space-y-0.5 overflow-y-auto max-h-[240px] pr-0.5">
-                  {data.league_standings.map((row) => (
-                    <div key={row.entry_id} className={`rounded-lg px-2 py-1.5 flex items-center gap-1.5 text-xs transition-all ${row.is_user ? "border border-emerald-400/30 bg-emerald-400/[0.08]" : "border border-transparent"}`}>
-                      <span className="w-4 text-white/30 text-[10px] font-mono shrink-0">{row.rank}</span>
-                      <RankArrow rank={row.rank} lastRank={row.last_rank} />
-                      <div className="flex-1 min-w-0">
-                        <p className={`truncate font-medium text-[11px] ${row.is_user ? "text-emerald-300" : "text-white/80"}`}>{row.team}</p>
-                        <p className="text-[9px] text-white/25 truncate">{row.manager}</p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="font-semibold text-[11px] text-white">{fmt(row.total)}</p>
-                        <p className="text-[9px] text-white/35">GW:{row.gw_pts}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* ── Right content area ── */}
+            <div className="flex-1 p-5 lg:p-7 min-h-[500px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {activeTab === "squad"       && <SquadPanel       data={data} />}
+                  {activeTab === "performance" && <PerformancePanel  data={data} />}
+                  {activeTab === "transfers"   && <TransfersPanel    data={data} />}
+                  {activeTab === "league"      && <LeaguePanel       data={data} />}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
           </div>
         </div>
 
-        {/* ── Rank Journey + Season Heatmap ── */}
-        <div className="grid gap-4 lg:grid-cols-5">
-
-          {/* Rank chart */}
-          <div className="lg:col-span-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(450)}>
-            <div className="mb-4">
-              <p className="text-sm font-semibold text-white">Overall Rank Journey</p>
-              <p className="text-xs text-white/40">Week-by-week rank — lower is better</p>
-            </div>
-            <ResponsiveContainer width="100%" height={180}>
-              <LineChart data={rankData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false} />
-                <YAxis reversed tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false}
-                  tickFormatter={(v) => v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
-                <Tooltip content={<RankTooltip />} />
-                <Line dataKey="rank" name="Rank" stroke="#00FF87" strokeWidth={2} dot={{ fill: "#00FF87", r: 2 }} activeDot={{ r: 4 }} animationBegin={200} animationDuration={1400} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Season heatmap */}
-          <div className="lg:col-span-2 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(500)}>
-            <div className="mb-4">
-              <p className="text-sm font-semibold text-white">Season Heatmap</p>
-              <p className="text-xs text-white/40">GW scores colour-coded vs average</p>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {data.gw_history.map((g) => (
-                <HeatmapCell key={g.gw} pts={g.pts} avg={g.avg} />
-              ))}
-            </div>
-            <div className="mt-4 flex items-center gap-3 flex-wrap">
-              {[
-                { color: "#00FF87", label: "1.5× avg" },
-                { color: "#34d399", label: "Above avg" },
-                { color: "#fbbf24", label: "Near avg" },
-                { color: "#f97316", label: "Below avg" },
-                { color: "#ef4444", label: "Low" },
-              ].map((l) => (
-                <div key={l.label} className="flex items-center gap-1">
-                  <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: l.color }} />
-                  <span className="text-[9px] text-white/40">{l.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Transfer History ── */}
-        {transferGWs.length > 0 && (
-          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(550)}>
-            <div className="mb-4">
-              <p className="text-sm font-semibold text-white">Transfer History</p>
-              <p className="text-xs text-white/40">{data.total_transfers} total transfers this season</p>
-            </div>
-            <div className="space-y-4">
-              {transferGWs.slice(0, 6).map((gw) => (
-                <div key={gw}>
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/30 mb-2">GW{gw}</p>
-                  <div className="space-y-1.5">
-                    {transfersByGW[gw].map((t, i) => (
-                      <div key={i} className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2">
-                        {/* Out */}
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                          <BadgeImg code={t.out_team_code} name={t.out_team_short} />
-                          <div className="min-w-0">
-                            <p className="text-xs font-medium text-red-400 truncate">{t.out_name}</p>
-                            <p className="text-[9px] text-white/30">{t.out_pos} · £{t.out_price.toFixed(1)}m</p>
-                          </div>
-                        </div>
-                        {/* Arrow */}
-                        <div className="flex flex-col items-center shrink-0">
-                          <svg className="h-4 w-4 text-white/20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                        </div>
-                        {/* In */}
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end text-right">
-                          <div className="min-w-0">
-                            <p className="text-xs font-medium text-emerald-400 truncate">{t.in_name}</p>
-                            <p className="text-[9px] text-white/30">{t.in_pos} · £{t.in_price.toFixed(1)}m</p>
-                          </div>
-                          <BadgeImg code={t.in_team_code} name={t.in_team_short} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Squad ── */}
-        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(600)}>
-          <div className="mb-4 flex items-center justify-between flex-wrap gap-2">
-            <div>
-              <p className="text-sm font-semibold text-white">Your Squad — {data.current_gw_name}</p>
-              <p className="text-xs text-white/40 mt-0.5">Fixtures colour: <span style={{ color: DIFF_COLORS[1] }}>easy</span> → <span style={{ color: DIFF_COLORS[5] }}>hard</span></p>
-            </div>
-            <div className="flex gap-4 text-xs text-white/40 flex-wrap">
-              <span>Bench: {data.points_on_bench}pts</span>
-              {data.gw_transfers > 0 && (
-                <span className={data.gw_transfer_cost > 0 ? "text-red-400" : "text-white/40"}>
-                  {data.gw_transfers} transfer{data.gw_transfers !== 1 ? "s" : ""}
-                  {data.gw_transfer_cost > 0 ? ` (-${data.gw_transfer_cost}pts)` : ""}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Starters — 4 position rows */}
-          <div className="space-y-6">
-            {(["GKP", "DEF", "MID", "FWD"] as const).map((pos) => {
-              const row = starters.filter((p) => p.pos === pos)
-              if (!row.length) return null
-              const label: Record<string, string> = { GKP: "GK", DEF: "DEF", MID: "MID", FWD: "FWD" }
-              const ps = POS_STYLE[pos]
-              return (
-                <div key={pos}>
-                  <p
-                    className="text-center text-[9px] font-bold uppercase tracking-[0.25em] mb-3"
-                    style={{ color: `${ps.border}60` }}
-                  >
-                    {label[pos]}
-                  </p>
-                  <div className="flex items-start justify-center gap-2 sm:gap-3 flex-wrap">
-                    {row.map((p) => <PlayerCard key={p.slot} p={p} bench={false} />)}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Bench */}
-          <div className="flex items-center gap-3 mt-8 mb-5">
-            <div className="flex-1 h-px bg-white/[0.06]" />
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/25">Bench</p>
-            <div className="flex-1 h-px bg-white/[0.06]" />
-          </div>
-          <div className="flex items-start justify-center gap-2 sm:gap-3 flex-wrap">
-            {bench.map((p) => <PlayerCard key={p.slot} p={p} bench={true} />)}
-          </div>
-        </div>
-
-        <p className="text-center text-[10px] text-white/20 pb-4">
+        <p className="text-center text-[10px] text-white/20 pb-2">
           Live data via the FPL public API · Refreshes each page load
         </p>
       </div>
+
       <Footer />
     </div>
   )
