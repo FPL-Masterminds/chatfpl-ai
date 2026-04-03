@@ -364,7 +364,7 @@ function SquadPanel({ data }: { data: DashboardData }) {
       {/* Meta row */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
-          <p className="text-sm font-semibold text-white">Your Squad — {data.current_gw_name}</p>
+          <p className="text-sm font-semibold text-white">Your Squad - {data.current_gw_name}</p>
           <p className="text-xs text-white/40 mt-0.5">
             Fixtures: <span style={{ color: DIFF_COLORS[1] }}>easy</span> → <span style={{ color: DIFF_COLORS[5] }}>hard</span>
             &nbsp;·&nbsp;Click column headers to sort
