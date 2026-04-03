@@ -785,18 +785,19 @@ export default function AdminPage() {
               <SectionLabel>System Analytics</SectionLabel>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {[
-                  { label: "Total Users", value: analytics?.totalUsers, accent: "#00FF87" },
-                  { label: "Active Subscriptions", value: analytics?.activeSubscriptions, accent: "#00CFFF" },
-                  { label: "Messages Today", value: analytics?.messagesToday, accent: "#a78bfa" },
-                  { label: "All Time Messages", value: analytics?.allTimeMessages, accent: "#fbbf24" },
-                ].map((stat) => (
-                  <div key={stat.label} className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
-                    <p className="text-[10px] uppercase tracking-[0.16em] text-white/35 mb-1">{stat.label}</p>
-                    <p className="text-2xl font-bold" style={{ color: stat.accent }}>
-                      {analyticsLoading ? "..." : (stat.value?.toLocaleString() ?? "0")}
-                    </p>
+                  "Total Users", "Active Subscriptions", "Messages Today", "All Time Messages"
+                ].map((label, i) => {
+                  const values = [analytics?.totalUsers, analytics?.activeSubscriptions, analytics?.messagesToday, analytics?.allTimeMessages]
+                  return (
+                  <div key={label} className="rounded-xl p-[1px]" style={{ background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)", backgroundSize: "220% 220%", animation: `glow_scroll ${4 + i * 0.7}s linear infinite` }}>
+                    <div className="rounded-xl bg-[#080808] p-4 h-full">
+                      <p className="text-[10px] uppercase tracking-[0.16em] text-white mb-1">{label}</p>
+                      <p className="text-2xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                        {analyticsLoading ? "..." : (values[i]?.toLocaleString() ?? "0")}
+                      </p>
+                    </div>
                   </div>
-                ))}
+                )})}
               </div>
             </DarkCard>
 
