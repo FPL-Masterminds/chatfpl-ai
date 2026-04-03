@@ -2,7 +2,7 @@ import { ConversationalPrivacy } from "@/components/conversational-privacy"
 import { DevHeader } from "@/components/dev-header"
 
 export const metadata = {
-  title: "Privacy Policy — ChatFPL",
+  title: "Privacy Policy — ChatFPL.ai",
   description: "How ChatFPL collects, stores, and protects your data.",
 }
 

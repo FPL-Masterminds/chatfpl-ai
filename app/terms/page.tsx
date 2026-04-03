@@ -2,7 +2,7 @@ import { ConversationalTerms } from "@/components/conversational-terms"
 import { DevHeader } from "@/components/dev-header"
 
 export const metadata = {
-  title: "Terms of Service — ChatFPL",
+  title: "Terms of Service — ChatFPL.ai",
   description: "The rules and guidelines for using ChatFPL.",
 }
 

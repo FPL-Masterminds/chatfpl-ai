@@ -22,7 +22,7 @@ import {
 } from "lucide-react"
 
 export const metadata = {
-  title: "ChatFPL AI - Your Fantasy Premier League AI Assistant",
+  title: "ChatFPL.ai - Your Fantasy Premier League AI Assistant",
   description: "Ask live FPL questions and get instant AI answers powered by real stats. Dominate your mini-league with data-driven insights.",
 }
 

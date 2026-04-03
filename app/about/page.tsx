@@ -2,7 +2,7 @@ import { ConversationalAbout } from "@/components/conversational-about"
 import { DevHeader } from "@/components/dev-header"
 
 export const metadata = {
-  title: "About — ChatFPL",
+  title: "About — ChatFPL.ai",
   description: "Find out what ChatFPL is, how it works, and why FPL managers use it.",
 }
 

@@ -1,7 +1,7 @@
 import { ConversationalFAQ } from "@/components/conversational-faq"
 import { DevHeader } from "@/components/dev-header"
 export const metadata = {
-  title: "FAQ — ChatFPL",
+  title: "FAQ — ChatFPL.ai",
   description: "Got questions about ChatFPL? Ask them right here.",
 }
 
