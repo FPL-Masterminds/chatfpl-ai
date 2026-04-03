@@ -191,10 +191,9 @@ function PhotoThumb({ src, name }: { src: string; name: string }) {
     </div>
   )
   return (
-    // eslint-disable-next-line @next/next/no-img-element
+      // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={name} onError={() => setOk(false)}
-      className="h-10 w-10 rounded-xl object-cover object-top shrink-0"
-      style={{ filter: "brightness(0.95) saturate(1.05)" }} />
+      className="h-12 w-10 object-contain object-bottom shrink-0" />
   )
 }
 
@@ -207,7 +206,7 @@ const COL_HEADERS: { key: SortKey | null; label: string; title?: string }[] = [
   { key: "form",            label: "FORM",   title: "Rolling form score" },
   { key: "ep_next",         label: "xP",     title: "Expected points next GW" },
   { key: "points",          label: "GW PTS", title: "Points scored this gameweek" },
-  { key: "transfers_in_gw", label: "XFERS ↕",title: "GW transfers in / out" },
+  { key: "transfers_in_gw", label: "TRANSFERS", title: "GW transfers in / out" },
   { key: null,              label: "FIXTURES",title: "Next 3 fixtures (colour = difficulty)" },
 ]
 
@@ -225,10 +224,7 @@ function SquadRow({ p, bench, sortKey }: { p: SquadPlayer; bench: boolean; sortK
 
       {/* Position */}
       <td className="py-2 px-2 w-16">
-        <span className="inline-block rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
-          style={{ color: ps.label, background: `${ps.border}18`, border: `1px solid ${ps.border}30` }}>
-          {p.pos}
-        </span>
+        <span className="text-xs font-bold text-white">{p.pos}</span>
       </td>
 
       {/* Player name + badges */}
@@ -663,12 +659,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
-      {/* Grid */}
-      <div className="pointer-events-none fixed inset-0 opacity-[0.04]"
-        style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
       {/* Green glow */}
       <div className="pointer-events-none fixed inset-0"
-        style={{ background: "radial-gradient(ellipse 70% 50% at 50% -5%, rgba(0,255,135,0.13), transparent)" }} />
+        style={{ background: "radial-gradient(ellipse 70% 50% at 50% -5%, rgba(0,255,135,0.10), transparent)" }} />
 
       <DevHeader />
 
@@ -683,7 +676,7 @@ export default function DashboardPage() {
               Dashboard
             </span>
           </h1>
-          <p className="text-white/50 text-base mt-3 max-w-xl mx-auto">
+          <p className="text-white text-base mt-3 max-w-xl mx-auto">
             {data.team_name} · {data.manager_name} · {data.current_gw_name}
           </p>
         </div>
