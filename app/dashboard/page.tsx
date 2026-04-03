@@ -196,14 +196,14 @@ const POS_ORDER: Record<string, number> = { GKP: 0, DEF: 1, MID: 2, FWD: 3 }
 function PhotoThumb({ src, name }: { src: string; name: string }) {
   const [ok, setOk] = useState(true)
   if (!ok || !src) return (
-    <div className="h-10 w-10 rounded-xl flex items-center justify-center text-[11px] font-black text-white/30 bg-white/[0.05] shrink-0">
+    <div className="h-16 w-12 flex items-center justify-center text-[11px] font-black text-white/30 bg-white/[0.05] shrink-0">
       {name.slice(0, 2).toUpperCase()}
     </div>
   )
   return (
-      // eslint-disable-next-line @next/next/no-img-element
+    // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={name} onError={() => setOk(false)}
-      className="h-12 w-10 object-contain object-bottom shrink-0" />
+      className="h-16 w-12 object-contain object-bottom shrink-0" />
   )
 }
 
@@ -227,8 +227,8 @@ function SquadRow({ p, bench, sortKey }: { p: SquadPlayer; bench: boolean; sortK
 
   return (
     <tr className={`border-b border-white/[0.04] transition-all duration-150 hover:bg-emerald-400/[0.03] group ${rowOpacity} ${p.is_captain ? "bg-emerald-400/[0.04]" : ""}`}>
-      {/* Photo */}
-      <td className="py-2 pl-3 pr-2 w-12">
+      {/* Photo — sticky so it stays visible when scrolling horizontally */}
+      <td className="py-1 pl-3 pr-2 w-14" style={{ position: "sticky", left: 0, zIndex: 5, background: p.is_captain ? "rgba(0,255,135,0.06)" : "#0d0d0d" }}>
         <PhotoThumb src={p.photo_url} name={p.name} />
       </td>
 
@@ -391,6 +391,7 @@ function SquadPanel({ data }: { data: DashboardData }) {
                   className={`py-2.5 px-2 text-[9px] uppercase tracking-[0.18em] font-medium select-none ${i === 0 ? "pl-3" : ""} ${col.key ? "cursor-pointer hover:text-emerald-400 transition-colors" : "text-white/30"} ${sortKey === col.key ? "text-emerald-400" : "text-white/30"}`}
                   title={col.title}
                   onClick={() => col.key && toggleSort(col.key)}
+                  style={i === 0 ? { position: "sticky", left: 0, zIndex: 10, background: "#0d0d0d" } : undefined}
                 >
                   {col.label}
                   {sortKey === col.key && <span className="ml-0.5">{sortDir === "desc" ? "↓" : "↑"}</span>}
