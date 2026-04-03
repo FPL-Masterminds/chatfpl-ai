@@ -37,12 +37,16 @@ export function DevHeader() {
                 <span className="text-sm font-medium text-white">
                   Welcome {session?.user?.name?.split(" ")[0] || "User"}
                 </span>
-                <Link href="/dashboard" className="block px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
-                  Dashboard
-                </Link>
-                <Link href="/admin" className="block px-4 py-2 rounded-full bg-[#00FF87]/10 text-[#00FF87] border border-[#00FF87]/50 text-sm font-semibold hover:bg-gradient-to-r hover:from-[#00FF87] hover:to-[#00FFFF] hover:text-[#1A0E24] hover:border-transparent hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5 transition-all duration-300">
-                  {accountLabel}
-                </Link>
+                <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
+                  <Link href="/dashboard" className="block rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
+                    <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Dashboard</span>
+                  </Link>
+                </div>
+                <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4.8s linear infinite" }}>
+                  <Link href="/admin" className="block rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
+                    <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{accountLabel}</span>
+                  </Link>
+                </div>
                 <button 
                   onClick={() => signOut({ callbackUrl: "/login" })}
                   className="px-5 py-2 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1A0E24] text-sm font-bold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] transition-all duration-300 hover:-translate-y-0.5"
@@ -104,20 +108,16 @@ export function DevHeader() {
                 >
                   ChatFPL AI
                 </Link>
-                <Link
-                  href="/dashboard"
-                  onClick={closeMobileMenu}
-                  className="text-base font-semibold text-white hover:text-[#00FF87] transition-colors"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/admin"
-                  onClick={closeMobileMenu}
-                  className="text-base font-semibold text-white hover:text-[#00FF87] transition-colors"
-                >
-                  {accountLabel}
-                </Link>
+                <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite", display: "inline-block" }}>
+                  <Link href="/dashboard" onClick={closeMobileMenu} className="block rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
+                    <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Dashboard</span>
+                  </Link>
+                </div>
+                <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4.8s linear infinite", display: "inline-block" }}>
+                  <Link href="/admin" onClick={closeMobileMenu} className="block rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
+                    <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{accountLabel}</span>
+                  </Link>
+                </div>
               </nav>
               <div className="pt-4 mt-auto">
                 <button
