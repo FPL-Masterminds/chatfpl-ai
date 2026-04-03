@@ -523,48 +523,84 @@ function TransfersPanel({ data }: { data: DashboardData }) {
     <div className="flex items-center justify-center h-48 text-white/30 text-sm">No transfers recorded yet.</div>
   )
 
+  // Summary stats
+  const allTransfers = data.recent_transfers
+  const netSpend = allTransfers.reduce((acc, t) => acc + (t.in_price - t.out_price), 0)
+  const posCounts: Record<string, number> = {}
+  allTransfers.forEach((t) => { posCounts[t.in_pos] = (posCounts[t.in_pos] ?? 0) + 1 })
+  const mostBought = Object.entries(posCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "–"
+
   return (
     <div className="space-y-5">
       <div>
         <p className="text-sm font-semibold text-white">Transfer History</p>
         <p className="text-xs text-white/40 mt-0.5">{data.total_transfers} total transfers this season</p>
       </div>
+
+      {/* Summary strip */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: "Total Transfers", value: String(data.total_transfers) },
+          { label: "Net Spend", value: netSpend >= 0 ? `+£${netSpend.toFixed(1)}m` : `-£${Math.abs(netSpend).toFixed(1)}m`, color: netSpend > 0 ? "#ef4444" : "#00FF87" },
+          { label: "Most Bought", value: mostBought },
+        ].map((s) => (
+          <div key={s.label} className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 text-center">
+            <p className="text-[9px] uppercase tracking-[0.18em] text-emerald-400/60 mb-1">{s.label}</p>
+            <p className="text-lg font-bold" style={{ color: s.color ?? "#fff" }}>{s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Transfer cards — 2 per row */}
       {transferGWs.map((gw) => (
         <div key={gw}>
           <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/60 mb-2">Gameweek {gw}</p>
-          <div className="space-y-2">
-            {transfersByGW[gw].map((t, i) => (
-              <div key={i} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-                {/* Out */}
-                <div className="flex items-center gap-2 min-w-0">
-                  <BadgeImg code={t.out_team_code} name={t.out_team_short} />
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-red-400 truncate">{t.out_name}</p>
-                    <p className="text-[9px] text-white/30">{t.out_pos} · £{t.out_price.toFixed(1)}m</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {transfersByGW[gw].map((t, i) => {
+              const delta = t.in_price - t.out_price
+              return (
+                <div key={i} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+                  <div className="grid grid-cols-[1fr_56px_1fr]">
+                    {/* OUT */}
+                    <div className="px-4 py-3.5 bg-red-500/[0.04]">
+                      <p className="text-[9px] uppercase tracking-[0.15em] text-red-400/60 mb-1.5">Out</p>
+                      <div className="flex items-center gap-2">
+                        <BadgeImg code={t.out_team_code} name={t.out_team_short} />
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-red-300 truncate leading-tight">{t.out_name}</p>
+                          <p className="text-[10px] text-white/30 mt-0.5">{t.out_pos} · £{t.out_price.toFixed(1)}m</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Arrow + delta */}
+                    <div className="flex flex-col items-center justify-center gap-1 border-x border-white/[0.05] bg-white/[0.01]">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="url(#tGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <defs><linearGradient id="tGrad" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#00FF87" /><stop offset="1" stopColor="#00FFFF" /></linearGradient></defs>
+                      </svg>
+                      {delta !== 0 && (
+                        <span className={`text-[9px] font-bold ${delta > 0 ? "text-red-400" : "text-emerald-400"}`}>
+                          {delta > 0 ? `+£${delta.toFixed(1)}m` : `-£${Math.abs(delta).toFixed(1)}m`}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* IN */}
+                    <div className="px-4 py-3.5 bg-emerald-500/[0.04]">
+                      <p className="text-[9px] uppercase tracking-[0.15em] text-emerald-400/60 mb-1.5 text-right">In</p>
+                      <div className="flex items-center gap-2 justify-end">
+                        <div className="min-w-0 text-right">
+                          <p className="text-sm font-bold text-emerald-300 truncate leading-tight">{t.in_name}</p>
+                          <p className="text-[10px] text-white/30 mt-0.5">{t.in_pos} · £{t.in_price.toFixed(1)}m</p>
+                        </div>
+                        <BadgeImg code={t.in_team_code} name={t.in_team_short} />
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {/* Arrow */}
-                <div className="flex flex-col items-center gap-0.5 shrink-0">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <path d="M5 12h14M13 6l6 6-6 6" stroke="url(#arrowGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <defs><linearGradient id="arrowGrad" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#00FF87" /><stop offset="1" stopColor="#00FFFF" /></linearGradient></defs>
-                  </svg>
-                  <span className="text-[8px] text-white/20">
-                    {t.in_price > t.out_price ? <span className="text-red-400">+£{(t.in_price - t.out_price).toFixed(1)}m</span>
-                      : t.in_price < t.out_price ? <span className="text-emerald-400">-£{(t.out_price - t.in_price).toFixed(1)}m</span>
-                      : "="}
-                  </span>
-                </div>
-                {/* In */}
-                <div className="flex items-center gap-2 min-w-0 justify-end text-right">
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-emerald-400 truncate">{t.in_name}</p>
-                    <p className="text-[9px] text-white/30">{t.in_pos} · £{t.in_price.toFixed(1)}m</p>
-                  </div>
-                  <BadgeImg code={t.in_team_code} name={t.in_team_short} />
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       ))}
