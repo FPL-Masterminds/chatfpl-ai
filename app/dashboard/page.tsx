@@ -226,9 +226,9 @@ function SquadRow({ p, bench, sortKey }: { p: SquadPlayer; bench: boolean; sortK
   const rowOpacity = bench ? "opacity-50 hover:opacity-80" : ""
 
   return (
-    <tr className={`border-b border-white/[0.04] transition-all duration-150 group ${rowOpacity}`} style={{ background: p.is_captain ? "rgba(0,255,135,0.05)" : "transparent" }}>
+    <tr className={`border-b border-white/[0.04] transition-all duration-150 group ${rowOpacity}`}>
       {/* Photo — sticky so it stays visible when scrolling horizontally */}
-      <td style={{ position: "sticky", left: 0, zIndex: 5, background: p.is_captain ? "rgba(0,255,135,0.05)" : "rgb(8,8,8)", width: 64, minWidth: 64, padding: "6px 4px", textAlign: "center", verticalAlign: "middle" }}>
+      <td style={{ position: "sticky", left: 0, zIndex: 5, background: "rgb(8,8,8)", width: 64, minWidth: 64, padding: "6px 4px", textAlign: "center", verticalAlign: "middle" }}>
         <PhotoThumb src={p.photo_url} name={p.name} />
       </td>
 
