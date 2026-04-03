@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       </div>
 
       <p style="color: #999; font-size: 12px; margin-top: 30px;">
-        This is an automated notification from ChatFPL AI.ai. Log into your admin dashboard to approve or reject this claim.
+        This is an automated notification from ChatFPL.ai. Log into your admin dashboard to approve or reject this claim.
       </p>
     `;
 

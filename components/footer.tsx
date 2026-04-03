@@ -5,7 +5,7 @@ import { AnimatedGlow } from "@/components/animated-glow"
 
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-black border-t border-white/[0.06]">
+    <footer className="relative overflow-hidden bg-black">
       {/* Grid + animated green glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <AnimatedGlow
@@ -127,11 +127,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-white/[0.06] pt-8">
+        <div className="mt-12 pt-8">
           <p className="mb-4 text-center text-xs text-white/40 leading-relaxed">
             ChatFPL AI offers live Fantasy Premier League statistics and intelligent analysis to help guide your decisions. Although results may vary, our data-driven insights are built to enhance your strategy and performance across every gameweek.
           </p>
-          <p className="text-center text-xs text-white/40">&copy; 2025 ChatFPL AI.ai. All rights reserved.</p>
+          <p className="text-center text-xs text-white/40">&copy; 2025 ChatFPL.ai. All rights reserved.</p>
         </div>
       </div>
     </footer>
