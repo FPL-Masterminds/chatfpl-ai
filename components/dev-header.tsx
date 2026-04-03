@@ -101,13 +101,11 @@ export function DevHeader() {
                 </p>
               </div>
               <nav className="flex flex-col space-y-4">
-                <Link
-                  href="/chat"
-                  onClick={closeMobileMenu}
-                  className="text-base font-semibold text-[#00FF87] hover:text-[#00FF87]/80 transition-colors"
-                >
-                  ChatFPL AI
-                </Link>
+                <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 3.5s linear infinite", display: "inline-block" }}>
+                  <Link href="/chat" onClick={closeMobileMenu} className="block rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
+                    <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ChatFPL AI</span>
+                  </Link>
+                </div>
                 <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite", display: "inline-block" }}>
                   <Link href="/dashboard" onClick={closeMobileMenu} className="block rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
                     <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Dashboard</span>
