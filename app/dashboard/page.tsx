@@ -215,7 +215,7 @@ const COL_HEADERS: { key: SortKey | null; label: string; title?: string }[] = [
   { key: "price",           label: "PRICE"   },
   { key: "form",            label: "FORM",   title: "Rolling form score" },
   { key: "ep_next",         label: "xP",     title: "Expected points next GW" },
-  { key: "points",          label: "GW PTS", title: "Points scored this gameweek" },
+  { key: "points",          label: "POINTS", title: "Points scored this gameweek" },
   { key: "transfers_in_gw", label: "TRANSFERS", title: "GW transfers in / out" },
   { key: null,              label: "FIXTURES",title: "Next 3 fixtures (colour = difficulty)" },
 ]
