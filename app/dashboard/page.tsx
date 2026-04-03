@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import { DevHeader } from "@/components/dev-header"
+import { Footer } from "@/components/footer"
 import {
   ResponsiveContainer, ComposedChart, Bar, Line,
   XAxis, YAxis, Tooltip, CartesianGrid, LineChart,
@@ -115,23 +117,30 @@ function RankTooltip({ active, payload, label }: any) {
   return (
     <div className="rounded-xl border border-white/10 bg-[#0d1117] px-3 py-2 text-xs shadow-xl">
       <p className="mb-1 text-white/40">GW{label}</p>
-      <p className="text-purple-300 font-semibold">Rank: {fmt(payload[0]?.value ?? 0)}</p>
+      <p className="font-semibold" style={{ color: "#00FF87" }}>Rank: {fmt(payload[0]?.value ?? 0)}</p>
     </div>
   )
 }
 
 // ─── Stat Card ───────────────────────────────────────────────────────────────
 
-function StatCard({ label, value, sub, accent = "#00FF87", delay = 0, loaded, raw }: {
-  label: string; value: number; sub?: string; accent?: string
+function StatCard({ label, value, sub, delay = 0, loaded, raw }: {
+  label: string; value: number; sub?: string
   delay?: number; loaded: boolean; raw?: string
 }) {
   const displayed = useCountUp(value, loaded, 1400)
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-5 flex flex-col gap-1 hover:scale-[1.02] transition-all duration-300 hover:border-white/15"
-      style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(16px)", transition: `opacity 0.5s ${delay}ms, transform 0.5s ${delay}ms` }}>
-      <p className="text-[10px] uppercase tracking-[0.18em] text-white/40">{label}</p>
-      <p className="text-3xl font-bold" style={{ color: accent }}>{raw ?? fmt(displayed)}</p>
+    <div
+      className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5 flex flex-col gap-1 hover:scale-[1.02] transition-all duration-300 hover:border-emerald-400/30"
+      style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(16px)", transition: `opacity 0.5s ${delay}ms, transform 0.5s ${delay}ms` }}
+    >
+      <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70">{label}</p>
+      <p
+        className="text-3xl font-bold text-transparent bg-clip-text"
+        style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
+      >
+        {raw ?? fmt(displayed)}
+      </p>
       {sub && <p className="text-xs text-white/40">{sub}</p>}
     </div>
   )
@@ -370,41 +379,40 @@ export default function DashboardPage() {
   })
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,200,0.09),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(122,92,255,0.09),transparent_30%)]" />
-      <div className="pointer-events-none fixed inset-0 opacity-[0.025] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] bg-[size:48px_48px]" />
+    <div className="min-h-screen bg-black text-white flex flex-col">
+      {/* Site grid */}
+      <div className="pointer-events-none fixed inset-0 opacity-[0.04]" style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
+      {/* Green radial glow */}
+      <div className="pointer-events-none fixed inset-0" style={{ background: "radial-gradient(ellipse 70% 50% at 50% -5%, rgba(0,255,135,0.13), transparent)" }} />
 
-      <div className="relative mx-auto max-w-7xl px-4 py-6 space-y-5">
+      <DevHeader />
 
-        {/* ── Header ── */}
-        <div className="flex items-center justify-between" style={fade(0)}>
-          <div className="flex items-center gap-4">
-            <Link href="/chat" className="flex items-center gap-1.5 text-white/40 hover:text-white text-sm transition-colors">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-              Chat
-            </Link>
-            <div className="h-4 w-px bg-white/10" />
-            <Image src="/ChatFPL_AI_Logo.png" alt="ChatFPL" width={100} height={28} className="h-6 w-auto" />
-          </div>
-          <div className="text-right">
-            <p className="text-base font-bold text-white">{data.team_name}</p>
-            <p className="text-xs text-white/40">{data.manager_name} · {data.current_gw_name}</p>
-          </div>
+      <div className="relative mx-auto max-w-7xl w-full px-4 pt-28 pb-10 space-y-6 flex-1">
+
+        {/* ── Page heading ── */}
+        <div className="text-center" style={fade(0)}>
+          <h1 className="text-[36px] lg:text-6xl font-bold leading-[1.1] tracking-tighter">
+            <span className="text-white">ChatFPL </span>
+            <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>Dashboard</span>
+          </h1>
+          <p className="text-white/50 text-base mt-3 max-w-xl mx-auto">
+            {data.team_name} · {data.manager_name} · {data.current_gw_name}
+          </p>
         </div>
 
         {/* ── 4 Stat Tiles ── */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <StatCard label="GW Points" value={data.gw_points} sub={data.gw_rank ? `Rank: ${fmt(data.gw_rank)}` : undefined} accent="#00FF87" delay={0} loaded={loaded} />
-          <StatCard label="Overall Points" value={data.overall_points} sub={data.active_chip ? `${data.active_chip} active` : undefined} accent="#22d3ee" delay={80} loaded={loaded} />
-          <StatCard label="Overall Rank" value={data.overall_rank} accent="#a78bfa" delay={160} loaded={loaded} />
-          <StatCard label="Team Value" value={0} raw={`£${data.team_value.toFixed(1)}m`} sub={`Bank: £${data.bank.toFixed(1)}m`} accent="#fbbf24" delay={240} loaded={loaded} />
+          <StatCard label="GW Points" value={data.gw_points} sub={data.gw_rank ? `Rank: ${fmt(data.gw_rank)}` : undefined} delay={0} loaded={loaded} />
+          <StatCard label="Overall Points" value={data.overall_points} sub={data.active_chip ? `${data.active_chip} active` : undefined} delay={80} loaded={loaded} />
+          <StatCard label="Overall Rank" value={data.overall_rank} delay={160} loaded={loaded} />
+          <StatCard label="Team Value" value={0} raw={`£${data.team_value.toFixed(1)}m`} sub={`Bank: £${data.bank.toFixed(1)}m`} delay={240} loaded={loaded} />
         </div>
 
         {/* ── GW Chart + Chips + League ── */}
         <div className="grid gap-4 lg:grid-cols-5">
 
           {/* GW Points chart */}
-          <div className="lg:col-span-3 rounded-2xl border border-white/8 bg-white/[0.03] p-5" style={fade(300)}>
+          <div className="lg:col-span-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(300)}>
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-white">Gameweek Points</p>
@@ -430,8 +438,8 @@ export default function DashboardPage() {
           {/* Right: Chips + League */}
           <div className="lg:col-span-2 flex flex-col gap-4">
             {/* Chips */}
-            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4" style={fade(350)}>
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 mb-3">Chips</p>
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4" style={fade(350)}>
+              <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-3">Chips</p>
               <div className="grid grid-cols-2 gap-2">
                 {data.chips.map((chip) => (
                   <div key={chip.key} className={`rounded-xl border px-3 py-2 flex items-center gap-2 transition-all ${chip.available ? "border-emerald-400/30 bg-emerald-400/[0.08] shadow-[0_0_12px_rgba(0,255,135,0.10)]" : "border-white/5 bg-white/[0.02] opacity-40"}`}>
@@ -448,8 +456,8 @@ export default function DashboardPage() {
 
             {/* Mini-league */}
             {data.league_standings.length > 0 && (
-              <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4 flex-1" style={fade(400)}>
-                <p className="text-[10px] uppercase tracking-[0.18em] text-white/40 mb-1">Mini-League</p>
+              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4 flex-1" style={fade(400)}>
+                <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-1">Mini-League</p>
                 {data.league_name && <p className="text-xs text-white/50 mb-2 truncate">{data.league_name}</p>}
                 <div className="space-y-0.5 overflow-y-auto max-h-[240px] pr-0.5">
                   {data.league_standings.map((row) => (
@@ -476,7 +484,7 @@ export default function DashboardPage() {
         <div className="grid gap-4 lg:grid-cols-5">
 
           {/* Rank chart */}
-          <div className="lg:col-span-3 rounded-2xl border border-white/8 bg-white/[0.03] p-5" style={fade(450)}>
+          <div className="lg:col-span-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(450)}>
             <div className="mb-4">
               <p className="text-sm font-semibold text-white">Overall Rank Journey</p>
               <p className="text-xs text-white/40">Week-by-week rank — lower is better</p>
@@ -488,13 +496,13 @@ export default function DashboardPage() {
                 <YAxis reversed tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false}
                   tickFormatter={(v) => v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
                 <Tooltip content={<RankTooltip />} />
-                <Line dataKey="rank" name="Rank" stroke="#a78bfa" strokeWidth={2} dot={{ fill: "#a78bfa", r: 2 }} activeDot={{ r: 4 }} animationBegin={200} animationDuration={1400} />
+                <Line dataKey="rank" name="Rank" stroke="#00FF87" strokeWidth={2} dot={{ fill: "#00FF87", r: 2 }} activeDot={{ r: 4 }} animationBegin={200} animationDuration={1400} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           {/* Season heatmap */}
-          <div className="lg:col-span-2 rounded-2xl border border-white/8 bg-white/[0.03] p-5" style={fade(500)}>
+          <div className="lg:col-span-2 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(500)}>
             <div className="mb-4">
               <p className="text-sm font-semibold text-white">Season Heatmap</p>
               <p className="text-xs text-white/40">GW scores colour-coded vs average</p>
@@ -523,7 +531,7 @@ export default function DashboardPage() {
 
         {/* ── Transfer History ── */}
         {transferGWs.length > 0 && (
-          <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5" style={fade(550)}>
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(550)}>
             <div className="mb-4">
               <p className="text-sm font-semibold text-white">Transfer History</p>
               <p className="text-xs text-white/40">{data.total_transfers} total transfers this season</p>
@@ -565,7 +573,7 @@ export default function DashboardPage() {
         )}
 
         {/* ── Squad ── */}
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5" style={fade(600)}>
+        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5" style={fade(600)}>
           <div className="mb-4 flex items-center justify-between flex-wrap gap-2">
             <div>
               <p className="text-sm font-semibold text-white">Your Squad — {data.current_gw_name}</p>
@@ -620,6 +628,7 @@ export default function DashboardPage() {
           Live data via the FPL public API · Refreshes each page load
         </p>
       </div>
+      <Footer />
     </div>
   )
 }
