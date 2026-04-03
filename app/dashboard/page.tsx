@@ -129,7 +129,7 @@ function StatCard({ label, value, sub, delay = 0, loaded, raw }: {
       }}
     >
       <div className="rounded-2xl bg-[#080808] p-5 flex flex-col gap-1 h-full">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70">{label}</p>
+        <p className="text-[10px] uppercase tracking-[0.18em] text-white">{label}</p>
         <p className="text-3xl font-bold text-transparent bg-clip-text"
           style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
           {raw ?? fmt(displayed)}
@@ -388,7 +388,7 @@ function SquadPanel({ data }: { data: DashboardData }) {
             <tr className="border-b border-white/[0.06] bg-white/[0.02]">
               {COL_HEADERS.map((col, i) => (
                 <th key={i}
-                  className={`py-2.5 px-2 text-[9px] uppercase tracking-[0.18em] font-medium select-none ${i === 0 ? "pl-3" : ""} ${col.key ? "cursor-pointer hover:text-emerald-400 transition-colors" : "text-white/30"} ${sortKey === col.key ? "text-emerald-400" : "text-white/30"}`}
+                  className={`py-4 px-3 text-[10px] uppercase tracking-[0.18em] font-semibold select-none ${i === 0 ? "pl-3" : ""} ${col.key ? "cursor-pointer hover:text-emerald-400 transition-colors" : "text-white"} ${sortKey === col.key ? "text-emerald-400" : "text-white"}`}
                   title={col.title}
                   onClick={() => col.key && toggleSort(col.key)}
                   style={i === 0 ? { position: "sticky", left: 0, zIndex: 10, background: "#0d0d0d", width: 80, minWidth: 80 } : undefined}
