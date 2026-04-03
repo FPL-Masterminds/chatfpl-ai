@@ -176,91 +176,135 @@ function HeatmapCell({ pts, avg }: { pts: number; avg: number }) {
   )
 }
 
-// ─── Player Card ─────────────────────────────────────────────────────────────
+// ─── Squad Stats Grid ─────────────────────────────────────────────────────────
 
-function PlayerCard({ p, bench }: { p: SquadPlayer; bench: boolean }) {
-  const [photoOk, setPhotoOk] = useState(true)
+type SortKey = "name" | "pos" | "price" | "form" | "ep_next" | "points" | "transfers_in_gw"
+type SortDir = "asc" | "desc"
+
+const POS_ORDER: Record<string, number> = { GKP: 0, DEF: 1, MID: 2, FWD: 3 }
+
+function PhotoThumb({ src, name }: { src: string; name: string }) {
+  const [ok, setOk] = useState(true)
+  if (!ok || !src) return (
+    <div className="h-10 w-10 rounded-xl flex items-center justify-center text-[11px] font-black text-white/30 bg-white/[0.05] shrink-0">
+      {name.slice(0, 2).toUpperCase()}
+    </div>
+  )
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt={name} onError={() => setOk(false)}
+      className="h-10 w-10 rounded-xl object-cover object-top shrink-0"
+      style={{ filter: "brightness(0.95) saturate(1.05)" }} />
+  )
+}
+
+const COL_HEADERS: { key: SortKey | null; label: string; title?: string }[] = [
+  { key: null,              label: ""        },
+  { key: "pos",             label: "POS"     },
+  { key: "name",            label: "PLAYER"  },
+  { key: null,              label: "TEAM"    },
+  { key: "price",           label: "PRICE"   },
+  { key: "form",            label: "FORM",   title: "Rolling form score" },
+  { key: "ep_next",         label: "xP",     title: "Expected points next GW" },
+  { key: "points",          label: "GW PTS", title: "Points scored this gameweek" },
+  { key: "transfers_in_gw", label: "XFERS ↕",title: "GW transfers in / out" },
+  { key: null,              label: "FIXTURES",title: "Next 3 fixtures (colour = difficulty)" },
+]
+
+function SquadRow({ p, bench, sortKey }: { p: SquadPlayer; bench: boolean; sortKey: SortKey | null }) {
   const ps = POS_STYLE[p.pos] ?? POS_STYLE.MID
   const injured = p.chance < 75
-  const priceUp = p.cost_change_event > 0
-  const priceDown = p.cost_change_event < 0
-  const isCap = p.is_captain
-  const isVC = p.is_vice_captain
+  const rowOpacity = bench ? "opacity-50 hover:opacity-80" : ""
 
   return (
-    <div className={`flex flex-col gap-1.5 ${bench ? "w-[110px] sm:w-[130px]" : "w-[115px] sm:w-[145px] lg:w-[155px]"}`}>
-      <div
-        className="relative rounded-2xl overflow-hidden flex flex-col transition-all duration-200 hover:scale-[1.04] hover:z-10 cursor-default"
-        style={{
-          background: bench
-            ? "linear-gradient(170deg,rgba(255,255,255,0.03),rgba(0,0,0,0.6))"
-            : `linear-gradient(170deg,${ps.glow} 0%,rgba(8,8,14,0.97) 55%)`,
-          border: injured
-            ? "1px solid rgba(239,68,68,0.55)"
-            : isCap
-              ? "1px solid rgba(0,255,135,0.55)"
-              : `1px solid ${ps.border}28`,
-          boxShadow: isCap
-            ? `0 0 28px rgba(0,255,135,0.18), 0 8px 32px rgba(0,0,0,0.5)`
-            : bench
-              ? "0 4px 16px rgba(0,0,0,0.4)"
-              : `0 6px 28px ${ps.glow}, 0 8px 32px rgba(0,0,0,0.5)`,
-        }}
-      >
-        <div className="h-[3px] w-full shrink-0"
-          style={{ background: bench ? "rgba(255,255,255,0.07)" : `linear-gradient(90deg,transparent,${ps.border},transparent)` }} />
-        <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-20 pointer-events-none">
-          <BadgeImg code={p.team_code} name={p.team_short} />
-          {isCap && <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-emerald-400 text-[10px] font-black text-black shadow-[0_0_10px_rgba(0,255,135,0.7)]">C</span>}
-          {isVC && <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-cyan-400 text-[10px] font-black text-black shadow-[0_0_8px_rgba(34,211,238,0.5)]">V</span>}
-          {injured && !isCap && !isVC && <span className="flex h-[20px] w-[20px] items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white">!</span>}
-        </div>
-        <div className={`relative w-full ${bench ? "h-[118px]" : "h-[148px] sm:h-[160px]"}`}>
-          {photoOk ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={p.photo_url} alt={p.name}
-              className="absolute inset-0 w-full h-full object-cover object-top"
-              style={{ filter: bench ? "brightness(0.55) saturate(0.5)" : "brightness(0.95) saturate(1.08) contrast(1.03)" }}
-              onError={() => setPhotoOk(false)} />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-4xl font-black" style={{ color: bench ? "rgba(255,255,255,0.1)" : `${ps.border}33` }}>
-                {p.name.slice(0, 2).toUpperCase()}
-              </span>
-            </div>
+    <tr className={`border-b border-white/[0.04] transition-all duration-150 hover:bg-emerald-400/[0.03] group ${rowOpacity} ${p.is_captain ? "bg-emerald-400/[0.04]" : ""}`}>
+      {/* Photo */}
+      <td className="py-2 pl-3 pr-2 w-12">
+        <PhotoThumb src={p.photo_url} name={p.name} />
+      </td>
+
+      {/* Position */}
+      <td className="py-2 px-2 w-16">
+        <span className="inline-block rounded-md px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+          style={{ color: ps.label, background: `${ps.border}18`, border: `1px solid ${ps.border}30` }}>
+          {p.pos}
+        </span>
+      </td>
+
+      {/* Player name + badges */}
+      <td className="py-2 px-2">
+        <div className="flex items-center gap-1.5">
+          <span className={`text-sm font-semibold truncate max-w-[120px] ${bench ? "text-white/50" : "text-white"}`}>{p.name}</span>
+          {p.is_captain && (
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-400 text-[8px] font-black text-black shrink-0">C</span>
           )}
-          <div className="absolute bottom-0 left-0 right-0 pointer-events-none"
-            style={{ height: "56px", background: bench ? "linear-gradient(to bottom,transparent,rgba(4,4,8,0.96))" : "linear-gradient(to bottom,transparent,rgba(6,6,12,0.98))" }} />
+          {p.is_vice_captain && (
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-cyan-400 text-[8px] font-black text-black shrink-0">V</span>
+          )}
+          {injured && (
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white shrink-0" title={p.news}>!</span>
+          )}
         </div>
-        <div className="px-2 pb-2.5 -mt-1.5">
-          <p className={`font-bold text-white truncate leading-tight ${bench ? "text-[10px]" : "text-xs sm:text-[13px]"}`}>{p.name}</p>
-          <div className="flex items-center justify-between mt-1 gap-1">
-            <span className={`font-bold uppercase tracking-wide ${bench ? "text-[8px]" : "text-[9px]"}`} style={{ color: bench ? "rgba(255,255,255,0.25)" : ps.label }}>{p.pos}</span>
-            <div className="flex items-center gap-0.5">
-              <span className={`text-white/50 ${bench ? "text-[8px]" : "text-[9px]"}`}>£{p.price.toFixed(1)}m</span>
-              {priceUp && <span className="text-[8px] font-bold text-emerald-400">▲</span>}
-              {priceDown && <span className="text-[8px] font-bold text-red-400">▼</span>}
-            </div>
-          </div>
-          <div className="flex items-center justify-between mt-1">
-            <span className={`font-semibold ${bench ? "text-[9px] text-white/50" : "text-[11px] text-white/80"}`}>
-              {p.points}<span className="text-white/30 font-normal text-[8px]"> pts</span>
-            </span>
-            {p.ep_next > 0 && <span className={`text-emerald-400/80 ${bench ? "text-[7px]" : "text-[8px]"}`}>xP {p.ep_next.toFixed(1)}</span>}
-          </div>
+      </td>
+
+      {/* Team */}
+      <td className="py-2 px-2 w-20">
+        <div className="flex items-center gap-1.5">
+          <BadgeImg code={p.team_code} name={p.team_short} />
+          <span className="text-xs text-white/40">{p.team_short}</span>
         </div>
-      </div>
-      {p.next_fixtures.length > 0 && (
-        <div className="flex gap-1 justify-center flex-wrap">
+      </td>
+
+      {/* Price */}
+      <td className="py-2 px-2 w-20 tabular-nums">
+        <div className="flex items-center gap-1">
+          <span className={`text-xs font-medium ${bench ? "text-white/40" : "text-white/80"}`}>£{p.price.toFixed(1)}m</span>
+          {p.cost_change_event > 0 && <span className="text-[9px] font-bold text-emerald-400">▲</span>}
+          {p.cost_change_event < 0 && <span className="text-[9px] font-bold text-red-400">▼</span>}
+        </div>
+      </td>
+
+      {/* Form */}
+      <td className="py-2 px-2 w-16 tabular-nums text-center">
+        <span className={`text-xs font-semibold ${Number(p.form) >= 7 ? "text-emerald-400" : Number(p.form) >= 4 ? "text-white/70" : "text-white/40"}`}>
+          {p.form}
+        </span>
+      </td>
+
+      {/* xP */}
+      <td className="py-2 px-2 w-16 tabular-nums text-center">
+        <span className="text-xs font-semibold text-transparent bg-clip-text"
+          style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+          {p.ep_next > 0 ? p.ep_next.toFixed(1) : "–"}
+        </span>
+      </td>
+
+      {/* GW Points */}
+      <td className="py-2 px-2 w-20 tabular-nums text-center">
+        <span className={`text-sm font-bold ${bench ? "text-white/30" : "text-white"}`}>{p.points}</span>
+      </td>
+
+      {/* Transfers in/out */}
+      <td className="py-2 px-2 w-24 tabular-nums">
+        <div className="flex items-center gap-1 justify-center">
+          <span className="text-[10px] text-emerald-400/70">+{p.transfers_in_gw.toLocaleString()}</span>
+          <span className="text-white/20 text-[9px]">/</span>
+          <span className="text-[10px] text-red-400/70">-{p.transfers_out_gw.toLocaleString()}</span>
+        </div>
+      </td>
+
+      {/* Next fixtures */}
+      <td className="py-2 pl-2 pr-3">
+        <div className="flex gap-1 flex-wrap">
           {p.next_fixtures.slice(0, 3).map((f, i) => (
-            <span key={i} className={`font-bold rounded leading-none ${bench ? "text-[7px] px-1 py-0.5" : "text-[8px] px-1.5 py-0.5"}`}
+            <span key={i} className="rounded px-1.5 py-0.5 text-[8px] font-bold leading-none whitespace-nowrap"
               style={{ color: "#000", backgroundColor: DIFF_COLORS[f.difficulty] ?? "#888" }}>
               {f.opponent}{!f.home ? "(A)" : ""}
             </span>
           ))}
         </div>
-      )}
-    </div>
+      </td>
+    </tr>
   )
 }
 
@@ -286,17 +330,42 @@ function GateScreen({ title, body, cta, href }: { title: string; body: string; c
 // ─── Tab Content Panels ───────────────────────────────────────────────────────
 
 function SquadPanel({ data }: { data: DashboardData }) {
+  const [sortKey, setSortKey] = useState<SortKey | null>(null)
+  const [sortDir, setSortDir] = useState<SortDir>("desc")
+
   const starters = data.squad.filter((p) => p.slot <= 11)
-  const bench = data.squad.filter((p) => p.slot > 11).sort((a, b) => a.slot - b.slot)
+  const bench    = data.squad.filter((p) => p.slot > 11).sort((a, b) => a.slot - b.slot)
+
+  function sorted(list: SquadPlayer[]) {
+    if (!sortKey) return [...list].sort((a, b) => POS_ORDER[a.pos] - POS_ORDER[b.pos] || a.slot - b.slot)
+    return [...list].sort((a, b) => {
+      const av = a[sortKey] as number
+      const bv = b[sortKey] as number
+      return sortDir === "desc" ? bv - av : av - bv
+    })
+  }
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) setSortDir(d => d === "desc" ? "asc" : "desc")
+    else { setSortKey(key); setSortDir("desc") }
+  }
+
+  const sortedStarters = sorted(starters)
+  const sortedBench    = sorted(bench)
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* Meta row */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <p className="text-sm font-semibold text-white">Your Squad — {data.current_gw_name}</p>
-          <p className="text-xs text-white/40 mt-0.5">Fixture colours: <span style={{ color: DIFF_COLORS[1] }}>easy</span> → <span style={{ color: DIFF_COLORS[5] }}>hard</span></p>
+          <p className="text-xs text-white/40 mt-0.5">
+            Fixtures: <span style={{ color: DIFF_COLORS[1] }}>easy</span> → <span style={{ color: DIFF_COLORS[5] }}>hard</span>
+            &nbsp;·&nbsp;Click column headers to sort
+          </p>
         </div>
-        <div className="flex gap-4 text-xs text-white/40 flex-wrap">
-          <span>Bench: {data.points_on_bench}pts</span>
+        <div className="flex gap-3 text-xs flex-wrap">
+          <span className="text-white/40">Bench: <span className="text-white">{data.points_on_bench}pts</span></span>
           {data.gw_transfers > 0 && (
             <span className={data.gw_transfer_cost > 0 ? "text-red-400" : "text-white/40"}>
               {data.gw_transfers} transfer{data.gw_transfers !== 1 ? "s" : ""}
@@ -305,29 +374,46 @@ function SquadPanel({ data }: { data: DashboardData }) {
           )}
         </div>
       </div>
-      <div className="space-y-6">
-        {(["GKP", "DEF", "MID", "FWD"] as const).map((pos) => {
-          const row = starters.filter((p) => p.pos === pos)
-          if (!row.length) return null
-          const ps = POS_STYLE[pos]
-          const label: Record<string, string> = { GKP: "GK", DEF: "DEF", MID: "MID", FWD: "FWD" }
-          return (
-            <div key={pos}>
-              <p className="text-center text-[9px] font-bold uppercase tracking-[0.25em] mb-3" style={{ color: `${ps.border}60` }}>{label[pos]}</p>
-              <div className="flex items-start justify-center gap-2 sm:gap-3 flex-wrap">
-                {row.map((p) => <PlayerCard key={p.slot} p={p} bench={false} />)}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      <div className="flex items-center gap-3 mt-2">
-        <div className="flex-1 h-px bg-white/[0.06]" />
-        <p className="text-[10px] uppercase tracking-[0.2em] text-white/25">Bench</p>
-        <div className="flex-1 h-px bg-white/[0.06]" />
-      </div>
-      <div className="flex items-start justify-center gap-2 sm:gap-3 flex-wrap">
-        {bench.map((p) => <PlayerCard key={p.slot} p={p} bench={true} />)}
+
+      {/* Table */}
+      <div className="overflow-x-auto rounded-2xl border border-white/[0.06]">
+        <table className="w-full border-collapse text-left min-w-[700px]">
+          <thead>
+            <tr className="border-b border-white/[0.06] bg-white/[0.02]">
+              {COL_HEADERS.map((col, i) => (
+                <th key={i}
+                  className={`py-2.5 px-2 text-[9px] uppercase tracking-[0.18em] font-medium select-none ${i === 0 ? "pl-3" : ""} ${col.key ? "cursor-pointer hover:text-emerald-400 transition-colors" : "text-white/30"} ${sortKey === col.key ? "text-emerald-400" : "text-white/30"}`}
+                  title={col.title}
+                  onClick={() => col.key && toggleSort(col.key)}
+                >
+                  {col.label}
+                  {sortKey === col.key && <span className="ml-0.5">{sortDir === "desc" ? "↓" : "↑"}</span>}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {sortedStarters.map((p) => (
+              <SquadRow key={p.slot} p={p} bench={false} sortKey={sortKey} />
+            ))}
+
+            {/* Bench divider */}
+            <tr>
+              <td colSpan={10} className="py-1.5 px-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-px bg-white/[0.05]" />
+                  <span className="text-[9px] uppercase tracking-[0.2em] text-white/20">Bench</span>
+                  <div className="flex-1 h-px bg-white/[0.05]" />
+                </div>
+              </td>
+            </tr>
+
+            {sortedBench.map((p) => (
+              <SquadRow key={p.slot} p={p} bench={true} sortKey={sortKey} />
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   )
