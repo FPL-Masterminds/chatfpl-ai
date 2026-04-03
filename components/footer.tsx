@@ -131,7 +131,7 @@ export function Footer() {
           <p className="mb-4 text-center text-xs text-white/40 leading-relaxed">
             ChatFPL AI offers live Fantasy Premier League statistics and intelligent analysis to help guide your decisions. Although results may vary, our data-driven insights are built to enhance your strategy and performance across every gameweek.
           </p>
-          <p className="text-center text-xs text-white/40">&copy; 2025 ChatFPL.ai. All rights reserved.</p>
+          <p className="text-center text-xs text-white/40">&copy; {new Date().getFullYear()} ChatFPL.ai. All rights reserved.</p>
         </div>
       </div>
     </footer>
