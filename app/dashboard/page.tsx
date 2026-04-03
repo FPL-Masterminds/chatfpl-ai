@@ -743,13 +743,13 @@ export default function DashboardPage() {
 
             {/* ── Left sidebar ── */}
             <div className="relative lg:w-64 shrink-0 border-b lg:border-b-0 lg:border-r border-emerald-400/10 p-3 lg:p-4">
-              {/* Mobile: horizontal scroll */}
-              <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible pb-1 lg:pb-0">
+              {/* Mobile: 2-col grid. Desktop: vertical list */}
+              <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-1 lg:gap-1">
                 {TABS.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className="relative flex-shrink-0 lg:flex-shrink text-left p-3 lg:p-4 rounded-2xl transition-all duration-200 hover:scale-[1.01] group"
+                    className="relative text-left p-3 lg:p-4 rounded-2xl transition-all duration-200 hover:scale-[1.01] group"
                   >
                     {activeTab === tab.id && (
                       <motion.div
@@ -768,7 +768,7 @@ export default function DashboardPage() {
                         }}
                       />
                       <div className="min-w-0">
-                        <p className={`font-semibold text-sm transition-colors ${activeTab === tab.id ? "text-white" : "text-white/50 group-hover:text-white/80"}`}>
+                        <p className={`font-semibold text-sm transition-colors leading-tight ${activeTab === tab.id ? "text-white" : "text-white/50 group-hover:text-white/80"}`}>
                           {tab.label}
                         </p>
                         <p className="text-[11px] text-white/30 mt-0.5 leading-tight hidden lg:block">{tab.desc}</p>
