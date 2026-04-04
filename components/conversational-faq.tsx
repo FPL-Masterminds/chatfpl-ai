@@ -17,13 +17,13 @@ function makeFaqData(p: PlayerNames) {
   return [
   {
     id: "what",
-    question: "What is ChatFPL?",
-    answer: "ChatFPL is your personal Fantasy Premier League analyst. It's powered by live FPL data and trained to answer anything from captain picks to chip timing to transfer targets - instantly, without you having to trawl through Twitter or Reddit. Just ask, and it answers.",
+    question: "What is ChatFPL AI?",
+    answer: "ChatFPL AI is your personal Fantasy Premier League analyst. It's powered by live FPL data and trained to answer anything from captain picks to chip timing to transfer targets - instantly, without you having to trawl through Twitter or Reddit. Just ask, and it answers.",
   },
   {
     id: "fplid",
     question: "Can it actually look at my own team?",
-    answer: "Yes - and this is honestly one of the most powerful things it does. Drop your FPL Manager ID into the chat (you'll find it in the URL on your FPL profile page) and ChatFPL will pull in your squad, your budget, your chip status, and your captain history. From that point, every answer is tailored to you. Ask 'Who should I transfer out?' or 'Who's my best captain option this week?' and it responds knowing exactly who you have, what you can afford, and where your weak spots are. It's like having a scout who's already done their homework on your team.",
+    answer: "Yes - and this is honestly one of the most powerful things it does. Drop your FPL Manager ID into the chat (you'll find it in the URL on your FPL profile page) and ChatFPL AI will pull in your squad, your budget, your chip status, and your captain history. From that point, every answer is tailored to you. Ask 'Who should I transfer out?' or 'Who's my best captain option this week?' and it responds knowing exactly who you have, what you can afford, and where your weak spots are. It's like having a scout who's already done their homework on your team.",
   },
   {
     id: "questions",
@@ -33,7 +33,7 @@ function makeFaqData(p: PlayerNames) {
   {
     id: "quality",
     question: "Does how I word my question actually matter?",
-    answer: "It does, yeah. ChatFPL pulls from the full FPL dataset but focuses on the top relevant players for your specific question - so a vague question like 'Who's good this week?' gives it a lot of ground to cover and the answer will reflect that. But ask 'Who are three differential forwards under £8m with good fixtures in GW27?' and it can zero straight in. Think of it like briefing a scout - the more context you give, the better the intel you get back.",
+    answer: "It does, yeah. ChatFPL AI pulls from the full FPL dataset but focuses on the top relevant players for your specific question - so a vague question like 'Who's good this week?' gives it a lot of ground to cover and the answer will reflect that. But ask 'Who are three differential forwards under £8m with good fixtures in GW27?' and it can zero straight in. Think of it like briefing a scout - the more context you give, the better the intel you get back.",
   },
   {
     id: "phrasing",
@@ -58,7 +58,7 @@ function makeFaqData(p: PlayerNames) {
   {
     id: "transfers",
     question: "How do I ask about transfers?",
-    answer: `Use words like transfer, replace, or bring in. 'Who should I replace ${p.fwd2} with if he's injured?' or 'Best transfer targets under £7m for the next three gameweeks' both work really well. ChatFPL needs a bit of context - just saying 'Who should I buy?' leaves it guessing what you already have and what you need.`,
+    answer: `Use words like transfer, replace, or bring in. 'Who should I replace ${p.fwd2} with if he's injured?' or 'Best transfer targets under £7m for the next three gameweeks' both work really well. ChatFPL AI needs a bit of context - just saying 'Who should I buy?' leaves it guessing what you already have and what you need.`,
   },
   {
     id: "position",
@@ -98,7 +98,7 @@ function makeFaqData(p: PlayerNames) {
   {
     id: "gameweeks",
     question: "Can I use it right before a deadline?",
-    answer: "That's exactly when it's most useful. ChatFPL is available 24/7, including during live gameweeks. Last-minute captain call, injury news, fixture swing you hadn't clocked - ask it anything right up to the deadline. It doesn't sleep.",
+    answer: "That's exactly when it's most useful. ChatFPL AI is available 24/7, including during live gameweeks. Last-minute captain call, injury news, fixture swing you hadn't clocked - ask it anything right up to the deadline. It doesn't sleep.",
   },
   {
     id: "free",
@@ -108,7 +108,7 @@ function makeFaqData(p: PlayerNames) {
   {
     id: "earn",
     question: "How do I earn extra free messages?",
-    answer: "Share ChatFPL on X, Facebook, or Reddit, or leave a review, and each completed task adds bonus messages to your account - up to a lifetime cap of 50. Your dashboard shows what's available.",
+    answer: "Share ChatFPL AI on X, Facebook, or Reddit, or leave a review, and each completed task adds bonus messages to your account - up to a lifetime cap of 50. Your dashboard shows what's available.",
   },
   {
     id: "rollover",
@@ -133,12 +133,12 @@ function makeFaqData(p: PlayerNames) {
   {
     id: "guarantee",
     question: "Will it guarantee I climb the rankings?",
-    answer: "No tool can guarantee that - FPL has too much unpredictability built in. What ChatFPL does is give you a genuine information edge: form data, fixture difficulty, expected stats, ownership trends. You still make the calls. But you'll be making them with better information than most of your mini-league.",
+    answer: "No tool can guarantee that - FPL has too much unpredictability built in. What ChatFPL AI does is give you a genuine information edge: form data, fixture difficulty, expected stats, ownership trends. You still make the calls. But you'll be making them with better information than most of your mini-league.",
   },
   {
     id: "length",
     question: "Is there a limit to how long my questions can be?",
-    answer: "No hard limit, but shorter and more focused always gets better results. If you have three things to ask, ask them as three separate questions rather than one big block. ChatFPL responds better to clarity than volume.",
+    answer: "No hard limit, but shorter and more focused always gets better results. If you have three things to ask, ask them as three separate questions rather than one big block. ChatFPL AI responds better to clarity than volume.",
   },
 ]}
 
@@ -172,7 +172,7 @@ export function ConversationalFAQ() {
     {
       id: "welcome",
       role: "assistant",
-      text: "Hey - got questions about ChatFPL? Click any of the questions below and I'll answer them right here.",
+      text: "Hey - got questions about ChatFPL AI? Click any of the questions below and I'll answer them right here.",
     },
   ])
   const [typing, setTyping] = useState(false)

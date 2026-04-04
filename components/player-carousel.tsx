@@ -151,7 +151,7 @@ export default function PlayerCarousel() {
           </span>
         </h2>
         <p className="mt-4 text-base text-white/55 max-w-xl mx-auto" style={{ fontWeight: 400, lineHeight: 1.65 }}>
-          Live form, price, and points data. Ask ChatFPL exactly why these players are worth your attention.
+          Live form, price, and points data. Ask ChatFPL AI exactly why these players are worth your attention.
         </p>
       </Reveal>
 

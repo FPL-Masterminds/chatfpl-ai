@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion"
 const TERMS_DATA = [
   {
     id: "accept",
-    question: "What am I agreeing to by using ChatFPL?",
-    answer: "By using ChatFPL, you're agreeing to use the service as it's intended - for FPL advice and analysis - and not to do anything that would damage or abuse it. That's pretty much it. If anything in the full terms is unclear, get in touch and we'll explain.",
+    question: "What am I agreeing to by using ChatFPL AI?",
+    answer: "By using ChatFPL AI, you're agreeing to use the service as it's intended - for FPL advice and analysis - and not to do anything that would damage or abuse it. That's pretty much it. If anything in the full terms is unclear, get in touch and we'll explain.",
   },
   {
     id: "limits",
@@ -17,7 +17,7 @@ const TERMS_DATA = [
   {
     id: "rewards",
     question: "What's the bonus messages rewards program?",
-    answer: "Free users can earn extra messages by sharing ChatFPL on X, Reddit, or Facebook (5 messages each, claimable once per platform), leaving a review (5-10 messages), or referring a friend (5 messages each, up to 3 referrals). There's a lifetime cap of 50 bonus messages across all rewards. We verify claims manually for social and review rewards - referral rewards are granted automatically when the referred user verifies their email.",
+    answer: "Free users can earn extra messages by sharing ChatFPL AI on X, Reddit, or Facebook (5 messages each, claimable once per platform), leaving a review (5-10 messages), or referring a friend (5 messages each, up to 3 referrals). There's a lifetime cap of 50 bonus messages across all rewards. We verify claims manually for social and review rewards - referral rewards are granted automatically when the referred user verifies their email.",
   },
   {
     id: "rewards-rules",
@@ -36,13 +36,13 @@ const TERMS_DATA = [
   },
   {
     id: "guarantee",
-    question: "Can ChatFPL guarantee FPL results?",
-    answer: "No - and we'd be lying if we claimed otherwise. ChatFPL gives you better information than most - form data, fixture difficulty, ownership trends, expected stats. But football is unpredictable and FPL decisions are ultimately yours. We're not liable if a captain blank wrecks your week.",
+    question: "Can ChatFPL AI guarantee FPL results?",
+    answer: "No - and we'd be lying if we claimed otherwise. ChatFPL AI gives you better information than most - form data, fixture difficulty, ownership trends, expected stats. But football is unpredictable and FPL decisions are ultimately yours. We're not liable if a captain blank wrecks your week.",
   },
   {
     id: "changes",
     question: "What if the terms change?",
-    answer: "We can update them any time. If it's a significant change, we'll tell you by email or through the service. Keep using ChatFPL after that and you're accepting the updated terms.",
+    answer: "We can update them any time. If it's a significant change, we'll tell you by email or through the service. Keep using ChatFPL AI after that and you're accepting the updated terms.",
   },
   {
     id: "contact",

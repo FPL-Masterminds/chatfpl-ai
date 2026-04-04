@@ -3,7 +3,7 @@ import { DevHeader } from "@/components/dev-header"
 
 export const metadata = {
   title: "Terms of Service — ChatFPL.ai",
-  description: "The rules and guidelines for using ChatFPL.",
+  description: "The rules and guidelines for using ChatFPL AI.",
 }
 
 export default function TermsPage() {

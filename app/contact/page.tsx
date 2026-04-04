@@ -363,7 +363,7 @@ export default function ContactPage() {
                             animation: "shimmer 2.4s linear infinite",
                           }}
                         />
-                        Back to ChatFPL
+                        Back to ChatFPL AI
                       </a>
                     </div>
                   </motion.div>

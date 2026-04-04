@@ -7,13 +7,13 @@ import { motion, AnimatePresence } from "framer-motion"
 const ABOUT_DATA = [
   {
     id: "what",
-    question: "What is ChatFPL?",
-    answer: "ChatFPL is your personal Fantasy Premier League analyst. Ask it anything - captain picks, transfer targets, fixture analysis, chip timing, differentials - and it gives you an instant, data-driven answer. No spreadsheets, no trawling through Reddit. Just ask, and it answers.",
+    question: "What is ChatFPL AI?",
+    answer: "ChatFPL AI is your personal Fantasy Premier League analyst. Ask it anything - captain picks, transfer targets, fixture analysis, chip timing, differentials - and it gives you an instant, data-driven answer. No spreadsheets, no trawling through Reddit. Just ask, and it answers.",
   },
   {
     id: "myteam",
     question: "Can it actually look at my team?",
-    answer: "Yes - and this is one of the best things it does. Drop your FPL Manager ID into the chat and ChatFPL pulls in your squad, your budget, your chip status, and your captain history. Every answer from that point is built around your team specifically. Ask 'Who should I transfer out?' and it knows exactly who you have, what you can afford, and where your weak spots are.",
+    answer: "Yes - and this is one of the best things it does. Drop your FPL Manager ID into the chat and ChatFPL AI pulls in your squad, your budget, your chip status, and your captain history. Every answer from that point is built around your team specifically. Ask 'Who should I transfer out?' and it knows exactly who you have, what you can afford, and where your weak spots are.",
   },
   {
     id: "data",
@@ -23,7 +23,7 @@ const ABOUT_DATA = [
   {
     id: "who",
     question: "Who's it built for?",
-    answer: "Anyone who plays FPL - from someone who sets their team once a week to obsessives who track every press conference. If you've ever sat staring at your transfers page not knowing what to do, ChatFPL is the thing you were missing. It was built by FPL managers, tested by FPL managers, and shaped by the same community that plays the game every week.",
+    answer: "Anyone who plays FPL - from someone who sets their team once a week to obsessives who track every press conference. If you've ever sat staring at your transfers page not knowing what to do, ChatFPL AI is the thing you were missing. It was built by FPL managers, tested by FPL managers, and shaped by the same community that plays the game every week.",
   },
   {
     id: "how",
@@ -33,7 +33,7 @@ const ABOUT_DATA = [
   {
     id: "free",
     question: "Can I try it for free?",
-    answer: "Yes. The Free plan gives you 20 messages - no credit card required. Enough to put it through its paces properly. Premium is £7.99/month for 100 messages and Elite is £14.99/month for 500. You can also earn extra free messages by sharing ChatFPL on social media.",
+    answer: "Yes. The Free plan gives you 20 messages - no credit card required. Enough to put it through its paces properly. Premium is £7.99/month for 100 messages and Elite is £14.99/month for 500. You can also earn extra free messages by sharing ChatFPL AI on social media.",
   },
 ]
 
@@ -66,7 +66,7 @@ export function ConversationalAbout() {
     {
       id: "welcome",
       role: "assistant",
-      text: "Hey - want to know more about ChatFPL? Click any question below and I'll answer it right here.",
+      text: "Hey - want to know more about ChatFPL AI? Click any question below and I'll answer it right here.",
     },
   ])
   const [typing, setTyping] = useState(false)

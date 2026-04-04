@@ -3,7 +3,7 @@ import { DevHeader } from "@/components/dev-header"
 
 export const metadata = {
   title: "Privacy Policy — ChatFPL.ai",
-  description: "How ChatFPL collects, stores, and protects your data.",
+  description: "How ChatFPL AI collects, stores, and protects your data.",
 }
 
 export default function PrivacyPage() {

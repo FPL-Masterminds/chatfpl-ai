@@ -7,7 +7,7 @@ const PRIVACY_DATA = [
   {
     id: "collect",
     question: "What data do you collect about me?",
-    answer: "When you sign up, we collect your name, email, and payment info - processed securely through Stripe. We also store your chat conversations. That's what allows ChatFPL to remember context across messages and track your usage against your plan limit. Same as any AI platform - without it, the whole thing stops working.",
+    answer: "When you sign up, we collect your name, email, and payment info - processed securely through Stripe. We also store your chat conversations. That's what allows ChatFPL AI to remember context across messages and track your usage against your plan limit. Same as any AI platform - without it, the whole thing stops working.",
   },
   {
     id: "sell",
@@ -17,7 +17,7 @@ const PRIVACY_DATA = [
   {
     id: "conversations",
     question: "Why do you store my conversations?",
-    answer: "Two reasons. First, it lets ChatFPL maintain context - so you can ask a follow-up and it knows what you're referring to. Second, we track message counts against your plan limit. We may also look at conversations if you report a technical issue, purely to diagnose the problem. Your messages are never used for anything else.",
+    answer: "Two reasons. First, it lets ChatFPL AI maintain context - so you can ask a follow-up and it knows what you're referring to. Second, we track message counts against your plan limit. We may also look at conversations if you report a technical issue, purely to diagnose the problem. Your messages are never used for anything else.",
   },
   {
     id: "security",

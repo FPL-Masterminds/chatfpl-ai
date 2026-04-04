@@ -367,7 +367,7 @@ export default function AdminPage() {
             <span className="text-white">Account </span>
             <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>Admin</span>
           </h1>
-          <p className="text-base text-white/50 mt-3 text-center">Manage your ChatFPL subscription, usage, and settings</p>
+          <p className="text-base text-white/50 mt-3 text-center">Manage your ChatFPL AI subscription, usage, and settings</p>
         </div>
 
         {/* Tab bar */}
@@ -461,7 +461,7 @@ export default function AdminPage() {
             {/* FPL Settings */}
             <DarkCard>
               <SectionLabel>FPL Settings</SectionLabel>
-              <p className="text-sm text-white mb-4">Link your public FPL Team ID so ChatFPL can reference your squad, rank, and mini-league data in conversations.</p>
+              <p className="text-sm text-white mb-4">Link your public FPL Team ID so ChatFPL AI can reference your squad, rank, and mini-league data in conversations.</p>
               <form onSubmit={handleSaveFplTeam} className="flex items-center gap-3">
                 <input
                   type="text"

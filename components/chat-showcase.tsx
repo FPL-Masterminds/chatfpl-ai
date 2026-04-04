@@ -509,7 +509,7 @@ export function ChatShowcase() {
                     <div className="h-8 w-8 rounded-full flex items-center justify-center text-black font-black text-[10px] shrink-0"
                       style={{ background: "linear-gradient(135deg,#00FFFF,#00FF87)" }}>AI</div>
                     <div>
-                      <div className="text-sm font-semibold text-white">ChatFPL</div>
+                          <div className="text-sm font-semibold text-white">ChatFPL AI</div>
                       <div className="text-[11px] text-white/40">live</div>
                     </div>
                   </div>

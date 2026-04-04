@@ -179,7 +179,7 @@ export function QueryCarousel() {
               className="font-bold leading-[1.1] tracking-tighter"
               style={{ fontSize: "clamp(28px,4.5vw,52px)" }}
             >
-              <span className="text-white">Ask ChatFPL About </span>
+              <span className="text-white">Ask ChatFPL AI About </span>
               <span
                 className="text-transparent bg-clip-text"
                 style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}

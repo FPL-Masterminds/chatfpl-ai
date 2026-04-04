@@ -138,7 +138,7 @@ const REWARDS = [
   {
     id: "twitter",
     label: "Post on X",
-    desc: "Share ChatFPL on X (Twitter) and earn 5 free messages.",
+    desc: "Share ChatFPL AI on X (Twitter) and earn 5 free messages.",
     reward: "+5 messages",
     icon: (
       <svg className="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -149,14 +149,14 @@ const REWARDS = [
   {
     id: "reddit",
     label: "Post on Reddit",
-    desc: "Share ChatFPL on Reddit and earn 5 free messages.",
+    desc: "Share ChatFPL AI on Reddit and earn 5 free messages.",
     reward: "+5 messages",
     icon: <Image src="/Reddit.png" alt="Reddit" width={28} height={28} className="h-7 w-7" />,
   },
   {
     id: "facebook",
     label: "Post on Facebook",
-    desc: "Share ChatFPL on Facebook and earn 5 free messages.",
+    desc: "Share ChatFPL AI on Facebook and earn 5 free messages.",
     reward: "+5 messages",
     icon: (
       <svg className="h-7 w-7 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24">
@@ -349,7 +349,7 @@ export default function EarnMessagesPage() {
               </span>
             </h1>
             <p className="text-white/50 text-base max-w-lg mx-auto">
-              Share ChatFPL with others and earn bonus messages to keep your edge going.
+              Share ChatFPL AI with others and earn bonus messages to keep your edge going.
             </p>
           </div>
 
@@ -525,7 +525,7 @@ export default function EarnMessagesPage() {
                   </div>
                   <div>
                     <label className={labelCls}>Your Review (max 280 chars)</label>
-                    <textarea placeholder="Share your experience with ChatFPL..."
+                    <textarea placeholder="Share your experience with ChatFPL AI..."
                       value={writtenReview} onChange={(e) => setWrittenReview(e.target.value)}
                       maxLength={280} rows={4} disabled={submitting}
                       className={inputCls + " resize-none"} />
@@ -559,7 +559,7 @@ export default function EarnMessagesPage() {
                       onChange={(e) => setXConsentGiven(e.target.checked)} disabled={submitting}
                       className="mt-0.5 accent-emerald-400" />
                     <span className="text-xs text-white/60 leading-relaxed">
-                      I consent to ChatFPL using my X post content and profile photo on the homepage testimonials (10 messages reward)
+                      I consent to ChatFPL AI using my X post content and profile photo on the homepage testimonials (10 messages reward)
                     </span>
                   </label>
                 </div>

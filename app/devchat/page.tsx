@@ -563,7 +563,7 @@ export default function DevChatPage() {
                       <div className="flex items-center gap-3 mb-4">
                         <div className="h-8 w-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>
                         <div>
-                          <div className="text-sm font-semibold text-white">ChatFPL</div>
+                          <div className="text-sm font-semibold text-white">ChatFPL AI</div>
                           <div className="text-[11px] text-white/40">{message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
                         </div>
                       </div>
@@ -631,7 +631,7 @@ export default function DevChatPage() {
                     <span>Send</span>
                   </button>
                 </div>
-                <p className="text-center text-[10px] text-white/60 mt-2">ChatFPL can make mistakes. Verify important information.</p>
+                <p className="text-center text-[10px] text-white/60 mt-2">ChatFPL AI can make mistakes. Verify important information.</p>
               </div>
             </div>
           </section>

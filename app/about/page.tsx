@@ -3,7 +3,7 @@ import { DevHeader } from "@/components/dev-header"
 
 export const metadata = {
   title: "About — ChatFPL.ai",
-  description: "Find out what ChatFPL is, how it works, and why FPL managers use it.",
+  description: "Find out what ChatFPL AI is, how it works, and why FPL managers use it.",
 }
 
 export default function AboutPage() {
@@ -45,11 +45,11 @@ export default function AboutPage() {
               className="text-transparent bg-clip-text"
               style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
             >
-              ChatFPL
+              ChatFPL AI
             </span>
           </h1>
           <p className="text-lg text-gray-300">
-            Click a question and find out what ChatFPL is all about.
+            Click a question and find out what ChatFPL AI is all about.
           </p>
         </div>
 

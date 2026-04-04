@@ -2,7 +2,7 @@ import { ConversationalFAQ } from "@/components/conversational-faq"
 import { DevHeader } from "@/components/dev-header"
 export const metadata = {
   title: "FAQ — ChatFPL.ai",
-  description: "Got questions about ChatFPL? Ask them right here.",
+  description: "Got questions about ChatFPL AI? Ask them right here.",
 }
 
 export default function FAQPage() {
