@@ -176,8 +176,7 @@ export function QueryCarousel() {
             transition={REVEAL}
           >
             <h2
-              className="font-bold leading-[1.1] tracking-tighter"
-              style={{ fontSize: "clamp(28px,4.5vw,52px)" }}
+              className="font-bold leading-[1.1] tracking-tighter text-[36px] lg:text-6xl"
             >
               <span className="text-white">Ask ChatFPL AI About </span>
               <span
