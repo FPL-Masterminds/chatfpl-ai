@@ -34,10 +34,6 @@ export function DevHeader() {
           <div className="hidden items-center gap-3 md:flex">
             {isLoggedIn ? (
               <>
-                <span className="text-sm font-medium text-white/60">
-                  {session?.user?.name?.split(" ")[0] || "User"}
-                </span>
-
                 {/* Icon-only pill: Dashboard */}
                 <div className="group relative" style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
                   <Link href="/dashboard" className="flex items-center justify-center rounded-full w-9 h-9" style={{ background: "rgba(0,0,0,0.9)" }}>
