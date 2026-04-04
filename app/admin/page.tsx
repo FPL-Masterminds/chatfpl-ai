@@ -503,12 +503,8 @@ export default function AdminPage() {
                 <SectionLabel>Subscription Status</SectionLabel>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs text-emerald-400/70 mb-0.5 uppercase tracking-widest">Current Plan</p>
-                    <p className="text-3xl font-bold text-[#00FF87]">{data.subscription.plan}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`h-2 w-2 rounded-full ${data.subscription.status === "active" ? "bg-emerald-400" : "bg-red-400"}`} />
-                    <span className="text-sm text-white capitalize">{data.subscription.status}</span>
+                    <p className="text-xs text-white mb-0.5 uppercase tracking-widest">Current Plan</p>
+                    <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>{data.subscription.plan}</p>
                   </div>
                   {data.subscription.cancel_at_period_end && data.subscription.current_period_end && (
                     <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.05] p-3">
@@ -518,13 +514,13 @@ export default function AdminPage() {
                   )}
                   {!isFree && (
                     <div>
-                      <p className="text-xs text-emerald-400/70 mb-0.5 uppercase tracking-widest">Renewal Date</p>
-                      <p className="text-sm text-white">{formatDate(data.subscription.current_period_end)}</p>
+                      <p className="text-xs text-white mb-0.5 uppercase tracking-widest">Renewal Date</p>
+                      <p className="text-sm font-semibold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>{formatDate(data.subscription.current_period_end)}</p>
                     </div>
                   )}
                   <div>
-                    <p className="text-xs text-emerald-400/70 mb-0.5 uppercase tracking-widest">Messages Remaining</p>
-                    <p className="text-3xl font-bold text-[#00FF87]">{messagesRemaining.toLocaleString()}</p>
+                    <p className="text-xs text-white mb-0.5 uppercase tracking-widest">Messages Remaining</p>
+                    <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>{messagesRemaining.toLocaleString()}</p>
                   </div>
                 </div>
               </DarkCard>
