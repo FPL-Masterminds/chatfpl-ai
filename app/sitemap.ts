@@ -4,12 +4,18 @@ import path from 'path'
 
 const baseUrl = 'https://www.chatfpl.ai'
 
-// Routes to exclude from sitemap
+// Routes to exclude from sitemap (private, dev, or utility pages)
 const excludedRoutes = [
   '/api',
   '/admin',
   '/account',
   '/earn-messages',
+  '/devlandingpage',
+  '/devchat',
+  '/dashboard',
+  '/verify-email',
+  '/reset-password',
+  '/forgot-password',
 ]
 
 // Function to recursively find all page routes
