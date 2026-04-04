@@ -55,7 +55,7 @@ function Unit({ value, label, urgent, speed }: { value: string; label: string; u
           {value}
         </motion.span>
       </AnimatePresence>
-      <span className="mt-1.5 text-[10px] uppercase tracking-widest text-white/35">{label}</span>
+      <span className="mt-1.5 text-[10px] uppercase tracking-widest text-white">{label}</span>
     </div>
     </div>
   )
