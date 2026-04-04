@@ -515,7 +515,7 @@ export default function AdminPage() {
                   {!isFree && (
                     <div>
                       <p className="text-xs text-white mb-0.5 uppercase tracking-widest">Renewal Date</p>
-                      <p className="text-sm font-semibold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>{formatDate(data.subscription.current_period_end)}</p>
+                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>{formatDate(data.subscription.current_period_end)}</p>
                     </div>
                   )}
                   <div>
