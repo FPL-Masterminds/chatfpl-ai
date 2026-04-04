@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
-import { Menu, X } from "lucide-react"
+import { Menu, X, LayoutDashboard, ShieldCheck, MessageSquareText } from "lucide-react"
 
 const ADMIN_EMAIL = "johnmcdermott1979@gmail.com"
 
@@ -31,22 +31,37 @@ export function DevHeader() {
           </Link>
 
           {/* Desktop Actions */}
-          <div className="hidden items-center gap-4 md:flex">
+          <div className="hidden items-center gap-3 md:flex">
             {isLoggedIn ? (
               <>
-                <span className="text-sm font-medium text-white">
-                  Welcome {session?.user?.name?.split(" ")[0] || "User"}
+                <span className="text-sm font-medium text-white/60">
+                  {session?.user?.name?.split(" ")[0] || "User"}
                 </span>
-                <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
-                  <Link href="/dashboard" className="block rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
-                    <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Dashboard</span>
+
+                {/* Icon-only pill: Dashboard */}
+                <div className="group relative" style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
+                  <Link href="/dashboard" className="flex items-center justify-center rounded-full w-9 h-9" style={{ background: "rgba(0,0,0,0.9)" }}>
+                    <LayoutDashboard className="w-4 h-4" style={{ color: "#00FF87" }} />
+                  </Link>
+                  <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded-md bg-black/90 border border-white/10 text-[11px] text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">Dashboard</span>
+                </div>
+
+                {/* Icon-only pill: Admin/Account */}
+                <div className="group relative" style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4.8s linear infinite" }}>
+                  <Link href="/admin" className="flex items-center justify-center rounded-full w-9 h-9" style={{ background: "rgba(0,0,0,0.9)" }}>
+                    <ShieldCheck className="w-4 h-4" style={{ color: "#00FFFF" }} />
+                  </Link>
+                  <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded-md bg-black/90 border border-white/10 text-[11px] text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">{accountLabel}</span>
+                </div>
+
+                {/* ChatFPL AI - full pill */}
+                <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 3.5s linear infinite" }}>
+                  <Link href="/chat" className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
+                    <MessageSquareText className="w-3.5 h-3.5 shrink-0" style={{ color: "#00FF87" }} />
+                    <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>ChatFPL AI</span>
                   </Link>
                 </div>
-                <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4.8s linear infinite" }}>
-                  <Link href="/admin" className="block rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
-                    <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{accountLabel}</span>
-                  </Link>
-                </div>
+
                 <button 
                   onClick={() => signOut({ callbackUrl: "/login" })}
                   className="px-5 py-2 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-[#1A0E24] text-sm font-bold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] transition-all duration-300 hover:-translate-y-0.5"
