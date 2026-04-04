@@ -337,7 +337,13 @@ export default function AdminPage() {
   ] as const
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white admin-root">
+      <style>{`
+        .admin-root ::-webkit-scrollbar { width: 4px; height: 4px; }
+        .admin-root ::-webkit-scrollbar-track { background: transparent; }
+        .admin-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
+        .admin-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
+      `}</style>
       {/* Background */}
       <div
         className="pointer-events-none fixed inset-0 z-0"
@@ -791,7 +797,7 @@ export default function AdminPage() {
                 ].map((label, i) => {
                   const values = [analytics?.totalUsers, analytics?.activeSubscriptions, analytics?.messagesToday, analytics?.allTimeMessages]
                   return (
-                  <div key={label} className="rounded-xl p-[1px]" style={{ background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)", backgroundSize: "220% 220%", animation: `glow_scroll ${4 + i * 0.7}s linear infinite` }}>
+                  <div key={label} className="rounded-xl p-[1px]" style={{ background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)", backgroundSize: "220% 220%", animation: `glow_scroll ${[3.5, 5.5, 4.2, 7][i]}s linear infinite` }}>
                     <div className="rounded-xl bg-[#080808] p-4 h-full">
                       <p className="text-[10px] uppercase tracking-[0.16em] text-white mb-1">{label}</p>
                       <p className="text-2xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
