@@ -294,7 +294,7 @@ export function QueryCarousel() {
                 className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest"
                 style={{ background: "rgba(0,255,135,0.1)", color: "#00FF87", border: "1px solid rgba(0,255,135,0.25)" }}
               >
-                Ask ChatFPL this
+                Ask ChatFPL AI
               </span>
             </div>
 
