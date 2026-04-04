@@ -204,7 +204,7 @@ export function PricingSlider() {
               Transparent Pricing
             </span>
           </h2>
-          <p className="text-white/45 text-base max-w-xl mx-auto whitespace-nowrap">Choose the plan that fits your FPL ambitions. Slide to explore.</p>
+          <p className="text-white/45 text-base max-w-xl mx-auto text-center px-4 sm:whitespace-nowrap">Choose the plan that fits your FPL ambitions. Slide to explore.</p>
         </Reveal>
 
         {/* Slider */}
