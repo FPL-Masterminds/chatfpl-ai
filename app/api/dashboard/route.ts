@@ -219,6 +219,7 @@ export async function GET() {
       transferTargets[pos].push({
         id: p.id,
         name: p.web_name,
+        code: p.code,
         team_id: p.team,
         team_short: teamMap[p.team]?.short_name ?? "",
         team_code: teamMap[p.team]?.code ?? 0,

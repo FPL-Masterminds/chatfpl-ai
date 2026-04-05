@@ -33,7 +33,7 @@ interface Transfer {
 }
 
 interface TransferTarget {
-  id: number; name: string; team_id: number; team_short: string; team_code: number
+  id: number; name: string; code: number; team_id: number; team_short: string; team_code: number
   pos: string; price: number; ep_next: number; form: number
   transfers_in_gw: number; selected_by: number
 }
@@ -585,14 +585,17 @@ function TransfersPanel({ data }: { data: DashboardData }) {
         <div className="text-right">
           <p className="text-xs text-white/70">Available budget</p>
           <p className="text-sm font-bold text-transparent bg-clip-text" style={gradStyle}>
-            £{bank.toFixed(1)}m ITB
+            £{bank.toFixed(1)}m
           </p>
         </div>
       </div>
 
       {/* Suggestion cards */}
       <div className="space-y-3">
-        {suggestions.map((s, i) => (
+        {suggestions.map((s, i) => {
+          const outPhotoUrl = s.out.photo_url
+          const inPhotoUrl = `https://resources.premierleague.com/premierleague25/photos/players/110x140/${s.in.code}.png`
+          return (
           <div key={i} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] overflow-hidden">
             {/* xPts gain banner */}
             <div className="flex items-center justify-between px-5 py-2.5 border-b border-emerald-400/10">
@@ -608,16 +611,23 @@ function TransfersPanel({ data }: { data: DashboardData }) {
             </div>
 
             {/* OUT → IN */}
-            <div className="grid grid-cols-[1fr_52px_1fr]">
+            <div className="grid grid-cols-[1fr_44px_1fr]">
               {/* OUT */}
-              <div className="px-4 py-4">
-                <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-2">Transfer out</p>
-                <div className="flex items-center gap-2.5">
-                  <BadgeImg code={s.out.team_code} name={s.out.team_short} />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{s.out.name}</p>
-                    <p className="text-xs text-white/70 mt-0.5">{s.out.pos} · £{s.out.price.toFixed(1)}m · {s.out.ep_next} xPts</p>
-                  </div>
+              <div className="px-4 pt-3 pb-4 flex gap-3 items-center">
+                <div className="relative shrink-0 w-14 h-16 overflow-hidden rounded-lg bg-white/[0.04]">
+                  <Image
+                    src={outPhotoUrl}
+                    alt={s.out.name}
+                    fill
+                    className="object-cover object-top"
+                    unoptimized
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-1">Transfer out</p>
+                  <p className="text-sm font-semibold text-white truncate leading-tight">{s.out.name}</p>
+                  <p className="text-xs text-white/70 mt-1">{s.out.pos} · £{s.out.price.toFixed(1)}m</p>
+                  <p className="text-xs text-white/70">{s.out.ep_next} xPts next GW</p>
                 </div>
               </div>
 
@@ -630,26 +640,34 @@ function TransfersPanel({ data }: { data: DashboardData }) {
               </div>
 
               {/* IN */}
-              <div className="px-4 py-4">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">Transfer in</p>
-                  {s.costDelta !== 0 && (
-                    <span className={`text-[9px] font-bold ${s.costDelta > 0 ? "text-red-400" : "text-emerald-400"}`}>
-                      {s.costDelta > 0 ? `costs £${s.costDelta.toFixed(1)}m` : `saves £${Math.abs(s.costDelta).toFixed(1)}m`}
-                    </span>
-                  )}
+              <div className="px-4 pt-3 pb-4 flex gap-3 items-center">
+                <div className="relative shrink-0 w-14 h-16 overflow-hidden rounded-lg bg-white/[0.04]">
+                  <Image
+                    src={inPhotoUrl}
+                    alt={s.in.name}
+                    fill
+                    className="object-cover object-top"
+                    unoptimized
+                  />
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <BadgeImg code={s.in.team_code} name={s.in.team_short} />
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-transparent bg-clip-text truncate" style={gradStyle}>{s.in.name}</p>
-                    <p className="text-xs text-white/70 mt-0.5">{s.in.pos} · £{s.in.price.toFixed(1)}m · {s.in.ep_next} xPts</p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">Transfer in</p>
+                    {s.costDelta !== 0 && (
+                      <span className="text-[9px] font-semibold text-white/70">
+                        {s.costDelta > 0 ? `costs £${s.costDelta.toFixed(1)}m` : `saves £${Math.abs(s.costDelta).toFixed(1)}m`}
+                      </span>
+                    )}
                   </div>
+                  <p className="text-sm font-semibold text-transparent bg-clip-text truncate leading-tight" style={gradStyle}>{s.in.name}</p>
+                  <p className="text-xs text-white/70 mt-1">{s.in.pos} · £{s.in.price.toFixed(1)}m</p>
+                  <p className="text-xs text-white/70">{s.in.ep_next} xPts next GW</p>
                 </div>
               </div>
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       <p className="text-[10px] text-white/70">
