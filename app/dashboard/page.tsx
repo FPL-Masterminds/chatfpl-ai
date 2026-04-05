@@ -971,10 +971,10 @@ export default function DashboardPage() {
         {/* Page heading */}
         <div className="text-center" style={fade(0)}>
           <h1 className="text-[36px] lg:text-6xl font-bold leading-[1.1] tracking-tighter">
-            <span className="text-white">ChatFPL </span>
+            <span className="text-white">ChatFPL AI </span>
             <span className="text-transparent bg-clip-text"
               style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
-              AI Dashboard
+              Dashboard
             </span>
           </h1>
           <p className="text-white/70 text-base mt-3 max-w-xl mx-auto">
