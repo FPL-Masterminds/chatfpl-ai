@@ -879,7 +879,7 @@ function LeaguePanel({ data }: { data: DashboardData }) {
           {/* Win Probability */}
           {standings.length > 0 && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold mb-1">Win Probability</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold mb-1">{data.league_name ? `${data.league_name} Mini-League Win Probability` : "Mini-League Win Probability"}</p>
               <p className="text-xs font-semibold mb-4 text-transparent bg-clip-text"
                 style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
                 Based on {remainingGws} remaining GWs
