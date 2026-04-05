@@ -27,11 +27,11 @@ async function getPageData() {
       posMap[et.id] = et.singular_name_short
     })
 
-    // Current / next gameweek
-    const currentGW =
-      (bootstrap.events ?? []).find((e: any) => e.is_current)?.id ??
-      (bootstrap.events ?? []).find((e: any) => e.is_next)?.id ??
-      32
+    // Always use the NEXT (upcoming) gameweek for fixtures and display
+    const events = bootstrap.events ?? []
+    const nextGW =
+      events.find((e: any) => e.is_next)?.id ??
+      (events.find((e: any) => e.is_current)?.id ?? 31) + 1
 
     // Haaland element
     const hEl = (bootstrap.elements ?? []).find((p: any) => p.code === HAALAND_CODE)
@@ -39,9 +39,9 @@ async function getPageData() {
 
     const hTeam = teamMap[hEl.team]
 
-    // Fixtures for the current GW
+    // Fixtures for the NEXT GW
     const fixturesRes = await fetch(
-      `https://fantasy.premierleague.com/api/fixtures/?event=${currentGW}`,
+      `https://fantasy.premierleague.com/api/fixtures/?event=${nextGW}`,
       { headers: { "User-Agent": "ChatFPL/1.0" }, next: { revalidate: 900 } }
     )
     const fixtures = fixturesRes.ok ? await fixturesRes.json() : []
@@ -114,7 +114,7 @@ async function getPageData() {
     ]
 
     return {
-      gw: currentGW,
+      gw: nextGW,
       player: hPlayer,
       opponent,
       isHome,
