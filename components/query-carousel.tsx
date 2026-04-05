@@ -18,59 +18,81 @@ interface Player {
 
 // ─── Query templates ─────────────────────────────────────────────────────────
 
-const TEMPLATES = [
-  (p: Player) =>
-    `How many points is ${p.name} predicted to score for ${p.team} this gameweek - and why?`,
-  (p: Player) =>
-    `${p.name} is ${p.ownership}% owned. Is he still worth it or has the price peaked?`,
-  (p: Player) =>
-    `My captain is ${p.name} - xP ${p.ep_next} for ${p.team}. Am I making the right call?`,
-  (p: Player) =>
-    `${p.name}: ${p.goals} goals, ${p.assists} assists at £${p.price}m. Is that value for money?`,
-  (p: Player) =>
-    `I want to bring in ${p.name} - form ${p.form}. Walk me through his next three fixtures.`,
-  (p: Player) =>
-    `Compare ${p.name}'s stats with the top alternatives at £${p.price}m. Worth the switch?`,
+// Each template has a guard: it only fires if the player meets minimum criteria
+const TEMPLATES: { guard: (p: Player) => boolean; text: (p: Player) => string; stats: (p: Player) => { label: string; value: string }[] }[] = [
+  {
+    // Best for anyone in form
+    guard: () => true,
+    text:  (p) => `How many points is ${p.name} predicted to score for ${p.team} this gameweek — and why?`,
+    stats: (p) => [
+      { label: "xP Next GW", value: p.ep_next },
+      { label: "Form",       value: p.form },
+      { label: "Owned by",   value: `${p.ownership}%` },
+      { label: "Price",      value: `£${p.price}m` },
+    ],
+  },
+  {
+    // Captain question — only for high ep_next players
+    guard: (p) => parseFloat(p.ep_next) >= 6,
+    text:  (p) => `I'm thinking of captaining ${p.name} this week — ${p.ep_next} xP for ${p.team}. Is it the right call?`,
+    stats: (p) => [
+      { label: "xP Next GW", value: p.ep_next },
+      { label: "Form",       value: p.form },
+      { label: "Owned by",   value: `${p.ownership}%` },
+      { label: "Club",       value: p.team },
+    ],
+  },
+  {
+    // Ownership question — only meaningful if >10% owned
+    guard: (p) => parseFloat(p.ownership) >= 10,
+    text:  (p) => `${p.name} is owned by ${p.ownership}% of FPL managers. Is he still worth bringing in?`,
+    stats: (p) => [
+      { label: "Ownership",  value: `${p.ownership}%` },
+      { label: "Price",      value: `£${p.price}m` },
+      { label: "Total pts",  value: String(p.total_points) },
+      { label: "Form",       value: p.form },
+    ],
+  },
+  {
+    // Goal/assist value — only for productive players
+    guard: (p) => p.goals + p.assists >= 5,
+    text:  (p) => `${p.name} has ${p.goals} goals and ${p.assists} assists at £${p.price}m. Is that genuine value?`,
+    stats: (p) => [
+      { label: "Goals",      value: String(p.goals) },
+      { label: "Assists",    value: String(p.assists) },
+      { label: "Price",      value: `£${p.price}m` },
+      { label: "Total pts",  value: String(p.total_points) },
+    ],
+  },
+  {
+    // Differential angle — only for <20% owned
+    guard: (p) => parseFloat(p.ownership) < 20,
+    text:  (p) => `${p.name} is only ${p.ownership}% owned but in great form. Is he worth the differential?`,
+    stats: (p) => [
+      { label: "Form",       value: p.form },
+      { label: "Owned by",   value: `${p.ownership}%` },
+      { label: "xP Next GW", value: p.ep_next },
+      { label: "Price",      value: `£${p.price}m` },
+    ],
+  },
+  {
+    // Fixture walk-through — always valid
+    guard: () => true,
+    text:  (p) => `I want to bring in ${p.name} for the next few weeks. Walk me through his upcoming fixtures.`,
+    stats: (p) => [
+      { label: "Form",       value: p.form },
+      { label: "xP Next GW", value: p.ep_next },
+      { label: "Price",      value: `£${p.price}m` },
+      { label: "Club",       value: p.team },
+    ],
+  },
 ]
 
-const STAT_LABELS = [
-  (p: Player) => [
-    { label: "xP Next GW", value: p.ep_next },
-    { label: "Form", value: p.form },
-    { label: "Owned by", value: `${p.ownership}%` },
-    { label: "Price", value: `£${p.price}m` },
-  ],
-  (p: Player) => [
-    { label: "Ownership", value: `${p.ownership}%` },
-    { label: "Price", value: `£${p.price}m` },
-    { label: "Total pts", value: String(p.total_points) },
-    { label: "Form", value: p.form },
-  ],
-  (p: Player) => [
-    { label: "xP Next GW", value: p.ep_next },
-    { label: "Form", value: p.form },
-    { label: "Club", value: p.team },
-    { label: "Position", value: p.pos },
-  ],
-  (p: Player) => [
-    { label: "Goals", value: String(p.goals) },
-    { label: "Assists", value: String(p.assists) },
-    { label: "Price", value: `£${p.price}m` },
-    { label: "Total pts", value: String(p.total_points) },
-  ],
-  (p: Player) => [
-    { label: "Form", value: p.form },
-    { label: "xP Next GW", value: p.ep_next },
-    { label: "Ownership", value: `${p.ownership}%` },
-    { label: "Club", value: p.team },
-  ],
-  (p: Player) => [
-    { label: "Price", value: `£${p.price}m` },
-    { label: "Goals", value: String(p.goals) },
-    { label: "Assists", value: String(p.assists) },
-    { label: "Form", value: p.form },
-  ],
-]
+// Pick the most contextually appropriate template for a player
+function pickTemplate(p: Player, seed: number) {
+  const eligible = TEMPLATES.filter(t => t.guard(p))
+  return eligible[seed % eligible.length]
+}
 
 // ─── Shared animation config ──────────────────────────────────────────────────
 
@@ -134,9 +156,10 @@ export function QueryCarousel() {
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [go])
 
-  const p = players[idx]
-  const question = TEMPLATES[idx % TEMPLATES.length]?.(p) ?? TEMPLATES[0](p)
-  const stats    = STAT_LABELS[idx % STAT_LABELS.length]?.(p) ?? STAT_LABELS[0](p)
+  const p        = players[idx]
+  const template = useMemo(() => pickTemplate(p, idx), [p, idx])
+  const question = template.text(p)
+  const stats    = template.stats(p)
 
   const highlightedQuestion = useMemo(() => question.replace(
     p.name,

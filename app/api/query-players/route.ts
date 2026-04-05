@@ -21,7 +21,12 @@ export async function GET() {
     (data.element_types ?? []).forEach((pt: any) => { posMap[pt.id] = pt.singular_name_short; });
 
     const active = (data.elements ?? []).filter(
-      (p: any) => p.minutes > 200 && p.status !== "u" && p.status !== "s"
+      (p: any) =>
+        p.minutes > 300 &&
+        p.status !== "u" &&
+        p.status !== "s" &&
+        p.total_points >= 40 &&
+        parseFloat(p.selected_by_percent) >= 1.0
     );
 
     const toPlayer = (p: any) => ({
@@ -44,27 +49,30 @@ export async function GET() {
       news: p.news ?? "",
     });
 
-    // Pool 1: Top form (form >= 5.0)
+    // Pool 1: Top form (recognisable players in form)
     const topForm = [...active]
-      .filter((p: any) => parseFloat(p.form) >= 5.0)
+      .filter((p: any) => parseFloat(p.form) >= 6.0)
       .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
       .slice(0, 5);
 
-    // Pool 2: Top points with decent form
+    // Pool 2: Top points scorers with decent form
     const topPts = [...active]
-      .filter((p: any) => parseFloat(p.form) >= 4.0)
+      .filter((p: any) => parseFloat(p.form) >= 4.5)
       .sort((a: any, b: any) => b.total_points - a.total_points)
       .slice(0, 5);
 
-    // Pool 3: Differentials (low owned, high form)
+    // Pool 3: Differentials — genuinely interesting picks (1–20% owned, strong form)
     const differentials = [...active]
-      .filter((p: any) => parseFloat(p.selected_by_percent) < 15 && parseFloat(p.form) >= 4.0)
+      .filter((p: any) => {
+        const own = parseFloat(p.selected_by_percent);
+        return own >= 2.0 && own < 20 && parseFloat(p.form) >= 5.5;
+      })
       .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
       .slice(0, 4);
 
-    // Pool 4: Price risers
+    // Pool 4: Price risers — in form and rising
     const risers = [...active]
-      .filter((p: any) => p.cost_change_event > 0 && parseFloat(p.form) >= 3.0)
+      .filter((p: any) => p.cost_change_event > 0 && parseFloat(p.form) >= 5.0)
       .sort((a: any, b: any) => b.cost_change_event - a.cost_change_event)
       .slice(0, 3);
 
