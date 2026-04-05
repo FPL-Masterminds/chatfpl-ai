@@ -771,6 +771,12 @@ function LeaguePanel({ data }: { data: DashboardData }) {
           {/* Closest Rivals */}
           {standings.length > 0 && (() => {
             if (!user) return null
+
+            // Person directly above the user in the table (the one they're chasing)
+            const directTarget = user.rank > 1
+              ? standings.find(s => s.rank === user.rank - 1) ?? null
+              : null
+
             type RivalTemplate = { main: string; sub: string }
             const makeTemplate = (idx: number, m: string, gap: number, isAbove: boolean, chips: string[]): RivalTemplate => {
               const chipStr = chips.length > 0 ? chips.map(c => CHIP_LABELS[c] ?? c.toUpperCase()).join(" + ") : null
@@ -794,35 +800,73 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                 default: return { main: "", sub: "" }
               }
             }
-            const rivals = standings
-              .filter(s => !s.is_user)
+
+            // Build "How to catch" content for the direct target
+            const targetPanel = directTarget ? (() => {
+              const gap = directTarget.total - user.total
+              const ptsPerGw = remainingGws > 0 ? Math.ceil(gap / remainingGws) : gap
+              const chipStr = (directTarget.chips_remaining ?? []).map(c => CHIP_LABELS[c] ?? c.toUpperCase()).join(" + ")
+              const chipNote = chipStr
+                ? `They still have ${chipStr} to play — factor that into how much ground you need to make up.`
+                : `They have no chips left, so what you see in the table is a true reflection of where they stand.`
+              return { gap, ptsPerGw, chipNote }
+            })() : null
+
+            // Remaining rivals (closest 2, excluding the direct target)
+            const otherRivals = standings
+              .filter(s => !s.is_user && (!directTarget || s.entry_id !== directTarget.entry_id))
               .map(s => ({ ...s, gap: Math.abs(s.total - user.total), isAbove: s.total > user.total }))
               .sort((a, b) => a.gap - b.gap)
-              .slice(0, 3)
-            if (!rivals.length) return null
+              .slice(0, 2)
+
             const usedIdx = new Set<number>()
-            const assigned = rivals.map(rival => {
+            const assigned = otherRivals.map(rival => {
               let idx = rival.entry_id % 10
               while (usedIdx.has(idx)) idx = (idx + 1) % 10
               usedIdx.add(idx)
               return idx
             })
+
+            const gradStyle = { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }
+
             return (
               <>
-                {rivals.map((rival, i) => {
+                {/* Direct target "how to catch" panel */}
+                {directTarget && targetPanel && (
+                  <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold truncate pr-2">
+                        {directTarget.team} · {directTarget.manager}
+                      </p>
+                      <span className="text-xs font-semibold shrink-0 text-transparent bg-clip-text" style={gradStyle}>
+                        {winProbs[directTarget.entry_id] ?? 0}% win
+                      </span>
+                    </div>
+                    <p className="text-sm text-white font-medium leading-snug">
+                      You need to out-score {directTarget.manager} by {targetPanel.ptsPerGw}pt{targetPanel.ptsPerGw !== 1 ? "s" : ""} per gameweek on average to close the {targetPanel.gap}pt gap over the remaining {remainingGws} weeks.
+                    </p>
+                    <p className="text-xs font-semibold mt-2 text-transparent bg-clip-text" style={gradStyle}>
+                      {targetPanel.chipNote}
+                    </p>
+                  </div>
+                )}
+
+                {/* 2 closest other rivals */}
+                {otherRivals.map((rival, i) => {
                   const t = makeTemplate(assigned[i], rival.manager, rival.gap, rival.isAbove, rival.chips_remaining ?? [])
                   if (!t.main) return null
                   return (
                     <div key={rival.entry_id} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold">
-                          {rival.isAbove ? `Rank ${rival.rank} · Chasing` : `Rank ${rival.rank} · On Your Tail`}
+                        <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold truncate pr-2">
+                          {rival.team} · {rival.manager}
                         </p>
-                        <span className="text-xs text-white">{winProbs[rival.entry_id] ?? 0}% win</span>
+                        <span className="text-xs font-semibold shrink-0 text-transparent bg-clip-text" style={gradStyle}>
+                          {winProbs[rival.entry_id] ?? 0}% win
+                        </span>
                       </div>
                       <p className="text-sm text-white font-medium leading-snug">{t.main}</p>
-                      <p className="text-xs font-semibold mt-2 text-transparent bg-clip-text"
-                        style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                      <p className="text-xs font-semibold mt-2 text-transparent bg-clip-text" style={gradStyle}>
                         {t.sub}
                       </p>
                     </div>
