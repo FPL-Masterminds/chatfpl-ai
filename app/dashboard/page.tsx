@@ -690,7 +690,7 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                   <div className="flex-1 min-w-0">
                     <p className={`truncate font-semibold text-sm ${row.is_user ? "text-emerald-300" : "text-white"}`}>{row.team}</p>
                     <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                      <span className="text-xs text-white truncate">{row.manager}</span>
+                      <span className="text-xs text-white/70 truncate">{row.manager}</span>
                       {(row.chips_remaining ?? []).map(chip => (
                         <span key={chip} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-400/20 text-emerald-300 leading-none shrink-0">
                           {CHIP_LABELS[chip] ?? chip.toUpperCase()}
@@ -711,7 +711,7 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                       style={row.is_user ? { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" } : {}}>
                       {fmt(row.total)}
                     </p>
-                    <p className="text-xs text-white">GW {row.gw_pts}</p>
+                    <p className="text-xs text-white/70">GW {row.gw_pts}</p>
                   </div>
                 </div>
               ))}
