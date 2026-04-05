@@ -686,8 +686,8 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                   <span className="w-4 text-white/30 text-[10px] font-mono shrink-0">{row.rank}</span>
                   <RankArrow rank={row.rank} lastRank={row.last_rank} />
                   <div className="flex-1 min-w-0">
-                    <p className={`truncate font-medium text-[11px] ${row.is_user ? "text-emerald-300" : "text-white/80"}`}>{row.team}</p>
-                    <p className="text-[9px] text-white/25 truncate">{row.manager}</p>
+                    <p className={`truncate font-medium text-[11px] ${row.is_user ? "text-emerald-300" : "text-white"}`}>{row.team}</p>
+                    <p className="text-[9px] text-white/50 truncate">{row.manager}</p>
                   </div>
                   {/* Win prob bar */}
                   <div className="hidden sm:flex flex-col items-end gap-0.5 w-16 shrink-0">
@@ -695,14 +695,14 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                       <div className="h-full rounded-full transition-all duration-700"
                         style={{ width: `${Math.round(((winProbs[row.entry_id] ?? 0) / maxProb) * 100)}%`, background: "linear-gradient(to right,#00FF87,#00FFFF)" }} />
                     </div>
-                    <p className="text-[8px] text-white/30">{winProbs[row.entry_id] ?? 0}% win</p>
+                    <p className="text-[8px] text-white">{winProbs[row.entry_id] ?? 0}% win</p>
                   </div>
                   <div className="text-right shrink-0 ml-2">
                     <p className={`font-bold text-[12px] ${row.is_user ? "text-transparent bg-clip-text" : "text-white"}`}
                       style={row.is_user ? { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" } : {}}>
                       {fmt(row.total)}
                     </p>
-                    <p className="text-[9px] text-white/35">GW {row.gw_pts}</p>
+                    <p className="text-[9px] text-white">GW {row.gw_pts}</p>
                   </div>
                 </div>
               ))}
@@ -746,8 +746,8 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                   .map(row => (
                     <div key={row.entry_id}>
                       <div className="flex items-center justify-between mb-0.5">
-                        <p className={`text-[9px] truncate max-w-[70%] ${row.is_user ? "text-emerald-300 font-semibold" : "text-white/60"}`}>{row.team}</p>
-                        <p className="text-[9px] text-white/50 shrink-0">{row.prob}%</p>
+                        <p className={`text-[9px] truncate max-w-[70%] ${row.is_user ? "text-emerald-300 font-semibold" : "text-white"}`}>{row.team}</p>
+                        <p className="text-[9px] text-white shrink-0">{row.prob}%</p>
                       </div>
                       <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                         <div className="h-full rounded-full transition-all duration-1000"
