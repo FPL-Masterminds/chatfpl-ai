@@ -758,9 +758,10 @@ function LeaguePanel({ data }: { data: DashboardData }) {
               <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
                 <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold mb-2">Chip Watch</p>
                 <p className="text-sm text-white font-medium leading-snug">
-                  {t.manager} has {chipNames} — {chipAdv}pts of firepower you don&apos;t have.
+                  {t.manager} has {chipNames}: {chipAdv}pts of firepower you don&apos;t have.
                 </p>
-                <p className="text-xs text-white mt-2">
+                <p className="text-xs font-semibold mt-2 text-transparent bg-clip-text"
+                  style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
                   Only {t.total >= user.total ? "level with" : `${user.total - t.total}pts behind`} you. Factor this in.
                 </p>
               </div>
@@ -771,7 +772,10 @@ function LeaguePanel({ data }: { data: DashboardData }) {
           {standings.length > 0 && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
               <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold mb-1">Win Probability</p>
-              <p className="text-xs text-white mb-4">Based on {remainingGws} remaining GWs</p>
+              <p className="text-xs font-semibold mb-4 text-transparent bg-clip-text"
+                style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                Based on {remainingGws} remaining GWs
+              </p>
               <div className="space-y-3">
                 {[...standings]
                   .map(s => ({ ...s, prob: winProbs[s.entry_id] ?? 0 }))
@@ -790,7 +794,10 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                     </div>
                   ))}
               </div>
-              <p className="text-[10px] text-white mt-4">5,000 simulations · chip bonuses included · for entertainment.</p>
+              <p className="text-[10px] font-semibold mt-4 text-transparent bg-clip-text"
+                style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                5,000 simulations · chip bonuses included · for entertainment.
+              </p>
             </div>
           )}
         </div>
