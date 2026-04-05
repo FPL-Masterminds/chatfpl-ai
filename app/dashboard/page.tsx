@@ -835,7 +835,7 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                 {directTarget && targetPanel && (
                   <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold truncate pr-2">
+                      <p className="text-xs uppercase tracking-[0.18em] text-white/70 truncate pr-2">
                         {directTarget.team} · {directTarget.manager}
                       </p>
                       <span className="text-xs font-semibold shrink-0 text-transparent bg-clip-text" style={gradStyle}>
@@ -858,7 +858,7 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                   return (
                     <div key={rival.entry_id} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold truncate pr-2">
+                        <p className="text-xs uppercase tracking-[0.18em] text-white/70 truncate pr-2">
                           {rival.team} · {rival.manager}
                         </p>
                         <span className="text-xs font-semibold shrink-0 text-transparent bg-clip-text" style={gradStyle}>
@@ -974,10 +974,10 @@ export default function DashboardPage() {
             <span className="text-white">ChatFPL </span>
             <span className="text-transparent bg-clip-text"
               style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
-              Dashboard
+              AI Dashboard
             </span>
           </h1>
-          <p className="text-white text-base mt-3 max-w-xl mx-auto">
+          <p className="text-white/70 text-base mt-3 max-w-xl mx-auto">
             {data.team_name} · {data.manager_name} · {data.current_gw_name}
           </p>
         </div>
