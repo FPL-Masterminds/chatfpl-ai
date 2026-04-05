@@ -55,7 +55,6 @@ interface DashboardData {
 
 const CHIP_ICONS: Record<string, string> = { wildcard: "♻", freehit: "🎯", "3xc": "3×", bboost: "🚀" }
 const CHIP_LABELS: Record<string, string> = { "3xc": "TC", bboost: "BB", freehit: "FH", wildcard: "WC" }
-const CHIP_LABELS: Record<string, string> = { "3xc": "TC", bboost: "BB", freehit: "FH", wildcard: "WC" }
 
 const DIFF_COLORS: Record<number, string> = {
   1: "#00FF87", 2: "#86efac", 3: "#fde68a", 4: "#fb923c", 5: "#ef4444",
