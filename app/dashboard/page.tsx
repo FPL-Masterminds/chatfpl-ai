@@ -599,7 +599,7 @@ function TransfersPanel({ data }: { data: DashboardData }) {
           <div key={i} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] overflow-hidden">
             {/* Banner */}
             <div className="flex items-center justify-between px-4 py-2.5 border-b border-emerald-400/10">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white/70">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white">
                 {i === 0 ? "Priority swap" : i === 1 ? "Secondary option" : "Worth considering"}
               </p>
               <div className="flex items-center gap-1.5 shrink-0">
@@ -610,8 +610,13 @@ function TransfersPanel({ data }: { data: DashboardData }) {
 
             {/* OUT row */}
             <div className="flex items-center gap-3 px-4 py-3">
-              <div className="relative shrink-0 w-12 h-14 overflow-hidden rounded-lg bg-white/[0.04]">
-                <Image src={outPhotoUrl} alt={s.out.name} fill className="object-cover object-top" unoptimized />
+              <div className="relative shrink-0 w-12" style={{ height: 56 }}>
+                <Image src={outPhotoUrl} alt={s.out.name} fill className="object-contain object-bottom" unoptimized />
+                <div className="absolute bottom-0 left-0 right-0" style={{
+                  height: 1,
+                  background: "linear-gradient(to right, transparent, rgba(255,255,255,0.5) 30%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.5) 70%, transparent)",
+                  boxShadow: "0 0 6px 2px rgba(255,255,255,0.2)",
+                }} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-0.5">Transfer out</p>
@@ -633,8 +638,13 @@ function TransfersPanel({ data }: { data: DashboardData }) {
 
             {/* IN row */}
             <div className="flex items-center gap-3 px-4 py-3">
-              <div className="relative shrink-0 w-12 h-14 overflow-hidden rounded-lg bg-white/[0.04]">
-                <Image src={inPhotoUrl} alt={s.in.name} fill className="object-cover object-top" unoptimized />
+              <div className="relative shrink-0 w-12" style={{ height: 56 }}>
+                <Image src={inPhotoUrl} alt={s.in.name} fill className="object-contain object-bottom" unoptimized />
+                <div className="absolute bottom-0 left-0 right-0" style={{
+                  height: 1,
+                  background: "linear-gradient(to right, transparent, rgba(255,255,255,0.5) 30%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.5) 70%, transparent)",
+                  boxShadow: "0 0 6px 2px rgba(255,255,255,0.2)",
+                }} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2 mb-0.5">
