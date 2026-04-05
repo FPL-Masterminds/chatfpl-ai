@@ -2,14 +2,11 @@
 
 import Link from "next/link"
 import { useSession } from "next-auth/react"
+import { motion } from "framer-motion"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 
-const POS_COLOR: Record<string, string> = {
-  FWD: "#ef4444",
-  MID: "#22d3ee",
-  DEF: "#4ade80",
-  GKP: "#facc15",
-}
+// Single green pill colour — same as player-carousel
+const PILL_COLOR = "#00FF85"
 
 function badgeUrl(teamCode: number) {
   return `https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`
@@ -19,164 +16,169 @@ function photoUrl(code: number) {
   return `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
 }
 
-interface CardPlayer {
+export interface FplCardPlayer {
   code: number
   name: string
-  team: string
+  club: string       // short name e.g. "MCI"
   teamCode: number
-  pos: string
-  price: string
+  position: string   // "FWD" | "MID" | "DEF" | "GKP"
+  price: string      // e.g. "£14.0m"
   form: string
-  total_points: number
+  totalPts: number
 }
 
-// [far-left, near-left, center, near-right, far-right]
-const CARD_SIZES = [
-  { cardW: 148, cardH: 216, photoW: 88,  photoBottom: 104, opacity: 0.38 },
-  { cardW: 178, cardH: 258, photoW: 108, photoBottom: 124, opacity: 0.68 },
-  { cardW: 218, cardH: 308, photoW: 130, photoBottom: 146, opacity: 1.00 },
-  { cardW: 178, cardH: 258, photoW: 108, photoBottom: 124, opacity: 0.68 },
-  { cardW: 148, cardH: 216, photoW: 88,  photoBottom: 104, opacity: 0.38 },
+// Native card dimensions — identical to player-carousel
+const CARD_W = 220
+const CARD_H = 310
+
+// Scale and opacity per slot [far-left, near-left, center, near-right, far-right]
+const SLOT_CFG = [
+  { scale: 0.66, opacity: 0.35 },
+  { scale: 0.82, opacity: 0.68 },
+  { scale: 1.00, opacity: 1.00 },
+  { scale: 0.82, opacity: 0.68 },
+  { scale: 0.66, opacity: 0.35 },
 ]
 
-function PlayerCard({ player, cfg, isCenter }: { player: CardPlayer; cfg: typeof CARD_SIZES[0]; isCenter: boolean }) {
-  const pillColor = POS_COLOR[player.pos] ?? "#fff"
-
+function PlayerCard({ player, isCenter }: { player: FplCardPlayer; isCenter: boolean }) {
   return (
-    <div
-      style={{
-        position: "relative",
-        width: cfg.cardW,
-        height: cfg.cardH,
-        opacity: cfg.opacity,
-        flexShrink: 0,
-      }}
-    >
-      {/* Floating photo */}
+    // Outer — gives coordinate system; overflow:visible lets photo float above
+    <div style={{ position: "relative", width: CARD_W, height: CARD_H }}>
+
+      {/* Player photo — outside the overflow:hidden card face */}
       <div
-        style={{
-          position: "absolute",
-          bottom: cfg.photoBottom,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: cfg.photoW,
-          zIndex: 10,
-        }}
+        className="absolute left-1/2 -translate-x-1/2"
+        style={{ bottom: 148, width: 130, zIndex: 10 }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={photoUrl(player.code)}
-          alt={player.name}
-          draggable={false}
+        {/* Floating shadow under player feet */}
+        <motion.div
+          className="mx-auto rounded-full"
           style={{
-            width: cfg.photoW,
-            height: "auto",
-            objectFit: "contain",
-            filter: isCenter
-              ? "drop-shadow(0 8px 24px rgba(0,255,133,0.3))"
-              : "drop-shadow(0 4px 8px rgba(0,0,0,0.5))",
+            width: 70, height: 12,
+            background: "radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, transparent 80%)",
+            filter: "blur(4px)", marginBottom: -6,
           }}
+          animate={isCenter ? { scaleX: [1, 0.82, 1], opacity: [0.55, 0.35, 0.55] } : { scaleX: 1, opacity: 0.4 }}
+          transition={isCenter ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : {}}
         />
-        {/* Glow line at foot */}
-        <div
-          style={{
-            height: 1,
-            background: isCenter
-              ? "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)"
-              : "linear-gradient(to right, transparent, rgba(255,255,255,0.3) 30%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0.3) 70%, transparent)",
-            boxShadow: isCenter
-              ? "0 0 8px 2px rgba(255,255,255,0.35)"
-              : "0 0 4px 1px rgba(255,255,255,0.12)",
-          }}
-        />
+
+        {/* Photo with floating animation on center card */}
+        <motion.div
+          animate={isCenter ? { y: [0, -14, 0] } : { y: 0 }}
+          transition={isCenter ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : {}}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photoUrl(player.code)}
+            alt={player.name}
+            draggable={false}
+            style={{
+              width: 130, height: "auto", objectFit: "contain",
+              filter: isCenter
+                ? "drop-shadow(0 8px 20px rgba(0,255,133,0.25))"
+                : "drop-shadow(0 4px 8px rgba(0,0,0,0.5))",
+            }}
+          />
+          {/* Glowing separator line at base of photo */}
+          <div
+            style={{
+              height: 1,
+              background: isCenter
+                ? "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)"
+                : "linear-gradient(to right, transparent, rgba(255,255,255,0.25) 30%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.25) 70%, transparent)",
+              boxShadow: isCenter
+                ? "0 0 8px 2px rgba(255,255,255,0.35)"
+                : "0 0 4px 1px rgba(255,255,255,0.10)",
+            }}
+          />
+        </motion.div>
       </div>
 
-      {/* Card face */}
+      {/* Card face — overflow:hidden clips top strip to border-radius */}
       <div
         style={{
-          position: "absolute",
-          inset: 0,
-          borderRadius: 18,
-          overflow: "hidden",
+          position: "absolute", inset: 0,
+          borderRadius: 20, overflow: "hidden",
           background: isCenter
-            ? "linear-gradient(145deg, rgba(0,20,16,0.96) 0%, rgba(0,10,20,0.98) 100%)"
+            ? "linear-gradient(145deg, rgba(0,20,16,0.95) 0%, rgba(0,10,20,0.98) 100%)"
             : "linear-gradient(145deg, rgba(8,12,18,0.92) 0%, rgba(4,8,14,0.95) 100%)",
           border: isCenter ? "none" : "1px solid rgba(255,255,255,0.06)",
           boxShadow: isCenter
-            ? "0 0 40px rgba(0,255,133,0.15), 0 24px 48px rgba(0,0,0,0.6)"
+            ? "0 0 40px rgba(0,255,133,0.15), 0 24px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)"
             : "0 12px 32px rgba(0,0,0,0.5)",
         }}
       >
-        {/* Gradient top strip */}
-        <div
-          style={{
-            height: 3,
-            background: isCenter
-              ? "linear-gradient(to right, #00ff85, #02efff)"
-              : "transparent",
-          }}
-        />
+        {/* Top accent strip */}
+        <div style={{ height: 3, background: isCenter ? "linear-gradient(to right, #00ff85, #02efff)" : "transparent" }} />
 
-        {/* Stats block at bottom */}
+        {/* Card info */}
         <div
-          className="absolute bottom-0 left-0 right-0 px-3 pb-3 pt-2"
-          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 60%, transparent)" }}
+          className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-3"
+          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 60%, transparent)" }}
         >
           <div className="flex items-center justify-between mb-1">
             <span
-              className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+              className="inline-block rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
               style={{
-                color: pillColor,
-                background: `${pillColor}1a`,
-                border: `1px solid ${pillColor}35`,
+                color: PILL_COLOR,
+                background: `${PILL_COLOR}18`,
+                border: `1px solid ${PILL_COLOR}40`,
               }}
             >
-              {player.pos}
+              {player.position}
             </span>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={badgeUrl(player.teamCode)}
-              alt={player.team}
-              width={20}
-              height={20}
-              style={{ objectFit: "contain" }}
-            />
+            {player.teamCode > 0 && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={badgeUrl(player.teamCode)}
+                alt={player.club}
+                draggable={false}
+                style={{ width: 28, height: 28, objectFit: "contain", opacity: isCenter ? 0.9 : 0.6 }}
+              />
+            )}
           </div>
 
-          <p className="text-white font-bold text-sm leading-tight">{player.name}</p>
-          <p className="text-white/60 text-[10px] mb-2">{player.team}</p>
+          <p className="text-[17px] font-bold leading-[1.1] text-white tracking-tight">{player.name}</p>
+          <p className="text-[11px] text-white/45 font-medium mt-0.5">{player.club}</p>
 
-          <div
-            className="grid grid-cols-3 gap-0 pt-2"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            <div>
-              <p className="text-white font-bold" style={{ fontSize: isCenter ? 13 : 11 }}>{player.total_points}</p>
-              <p className="text-white/50 uppercase tracking-wider" style={{ fontSize: 8 }}>PTS</p>
+          {/* Stats row — exact copy from player-carousel */}
+          <div className="mt-3 flex items-center justify-between">
+            <div className="text-center">
+              <p className="text-[15px] font-bold leading-none" style={{ color: "#00FF85" }}>{player.totalPts}</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Pts</p>
             </div>
-            <div className="text-center" style={{ borderLeft: "1px solid rgba(255,255,255,0.08)", borderRight: "1px solid rgba(255,255,255,0.08)" }}>
-              <p className="font-bold" style={{ fontSize: isCenter ? 13 : 11, color: "#00FF87" }}>{player.form}</p>
-              <p className="text-white/50 uppercase tracking-wider" style={{ fontSize: 8 }}>FORM</p>
+            <div className="h-6 w-px bg-white/10" />
+            <div className="text-center">
+              <p className="text-[15px] font-bold leading-none text-white/90">{player.form}</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Form</p>
             </div>
-            <div className="text-right">
-              <p className="text-white font-bold" style={{ fontSize: isCenter ? 13 : 11 }}>£{player.price}m</p>
-              <p className="text-white/50 uppercase tracking-wider" style={{ fontSize: 8 }}>PRICE</p>
+            <div className="h-6 w-px bg-white/10" />
+            <div className="text-center">
+              <p className="text-[15px] font-bold leading-none text-white/90">{player.price}</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/35">Price</p>
             </div>
           </div>
         </div>
+
+        {isCenter && (
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(0,255,133,0.06) 0%, transparent 65%)" }}
+          />
+        )}
       </div>
 
-      {/* Animated glow border — center card only */}
+      {/* Rotating glow border — center card only */}
       {isCenter && (
         <div
           className="glow-border-mask pointer-events-none absolute inset-0"
           style={{
-            borderRadius: 18,
+            borderRadius: 20,
             padding: "1px",
             background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
             backgroundSize: "220% 220%",
-            animation: "glow_scroll 5.5s linear infinite",
-            zIndex: 5,
+            animation: "glow_scroll 6s linear infinite",
+            zIndex: 6,
           }}
         />
       )}
@@ -184,51 +186,32 @@ function PlayerCard({ player, cfg, isCenter }: { player: CardPlayer; cfg: typeof
   )
 }
 
-interface FplPlayerHeroProps {
-  h1: string
+export interface FplPlayerHeroProps {
+  h1White: string     // "Should I captain Erling Haaland in "
+  h1Gradient: string  // "Fantasy Premier League Gameweek 32?"
   subtitle: string
-  players: CardPlayer[]
+  players: FplCardPlayer[]  // exactly 5, index 2 is the center subject
 }
 
-export function FplPlayerHero({ h1, subtitle, players }: FplPlayerHeroProps) {
+export function FplPlayerHero({ h1White, h1Gradient, subtitle, players }: FplPlayerHeroProps) {
   const { data: session } = useSession()
   const ctaHref = session?.user ? "/chat" : "/signup"
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 py-24">
+    <section className="relative flex flex-col items-center justify-center px-4 py-24" style={{ minHeight: "100svh" }}>
       {/* Video background */}
       <DevHeroVideoBg />
 
-      {/* Dark overlay */}
+      {/* Darker overlay to reduce video prominence */}
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.65) 100%)" }}
-      />
-
-      {/* Grid overlay */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-
-      {/* Rotating glow border */}
-      <div
-        className="glow-border-mask pointer-events-none absolute inset-0"
-        style={{
-          padding: "1px",
-          background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.04),#00FFFF,rgba(255,255,255,0.04),#00FF87)",
-          backgroundSize: "220% 220%",
-          animation: "glow_scroll 8s linear infinite",
-        }}
+        style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0.72) 100%)" }}
       />
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center gap-10 text-center">
+      <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center gap-8 text-center">
 
-        {/* FPL Analysis pill */}
+        {/* FPL pill */}
         <div className="relative inline-flex rounded-full">
           <div
             className="glow-border-mask pointer-events-none absolute inset-0 rounded-full"
@@ -255,32 +238,68 @@ export function FplPlayerHero({ h1, subtitle, players }: FplPlayerHeroProps) {
 
         {/* H1 */}
         <h1
-          className="font-bold leading-[1.1] tracking-tighter text-white"
-          style={{ fontSize: "clamp(24px, 4vw, 52px)", maxWidth: 820 }}
+          className="font-bold leading-[1.1] tracking-tighter"
+          style={{ fontSize: "clamp(22px, 3.8vw, 50px)", maxWidth: 860 }}
         >
-          {h1}
+          <span className="text-white">{h1White}</span>
+          <span
+            className="text-transparent bg-clip-text"
+            style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
+          >
+            {h1Gradient}
+          </span>
         </h1>
 
         {/* Subtitle */}
         <p className="text-white/70 text-base">{subtitle}</p>
 
-        {/* Player cards */}
+        {/* Player card showcase */}
         <div
-          className="flex items-end justify-center gap-3 w-full"
-          style={{ overflow: "visible", paddingTop: 80 }}
+          className="flex items-end justify-center gap-3 w-full select-none"
+          style={{ paddingTop: 200, overflow: "visible" }}
         >
-          {players.map((player, i) => (
-            <div
-              key={player.code}
-              className={i === 0 || i === 4 ? "hidden lg:block" : i === 1 || i === 3 ? "hidden sm:block" : ""}
-            >
-              <PlayerCard
-                player={player}
-                cfg={CARD_SIZES[i]}
-                isCenter={i === 2}
-              />
-            </div>
-          ))}
+          {players.map((player, i) => {
+            const cfg = SLOT_CFG[i]
+            const isCenter = i === 2
+            const wrapperW = Math.round(CARD_W * cfg.scale)
+            const wrapperH = Math.round(CARD_H * cfg.scale)
+
+            return (
+              <div
+                key={player.code}
+                className={
+                  i === 0 || i === 4
+                    ? "hidden xl:block"
+                    : i === 1 || i === 3
+                    ? "hidden sm:block"
+                    : ""
+                }
+                style={{
+                  position: "relative",
+                  width: wrapperW,
+                  height: wrapperH,
+                  flexShrink: 0,
+                  opacity: cfg.opacity,
+                  overflow: "visible",
+                }}
+              >
+                {/* Inner: native size, scaled from bottom-center */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: "50%",
+                    width: CARD_W,
+                    height: CARD_H,
+                    transform: `translateX(-50%) scale(${cfg.scale})`,
+                    transformOrigin: "bottom center",
+                  }}
+                >
+                  <PlayerCard player={player} isCenter={isCenter} />
+                </div>
+              </div>
+            )
+          })}
         </div>
 
         {/* CTA */}

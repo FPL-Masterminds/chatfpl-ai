@@ -69,7 +69,13 @@ export function ConversationalPlayer({ welcome, qaItems }: ConversationalPlayerP
   const visiblePills = showAll ? remaining : remaining.slice(0, 1)
 
   return (
-    <div className="flex flex-col h-full">
+    <div
+      className="flex flex-col h-full rounded-2xl"
+      style={{
+        border: "1px solid rgba(255,255,255,0.06)",
+        background: "rgba(255,255,255,0.02)",
+      }}
+    >
       {/* Chat window */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-4 min-h-0">
         <AnimatePresence initial={false}>
