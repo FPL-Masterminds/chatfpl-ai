@@ -103,7 +103,7 @@ function useCountUp(target: number, trigger: boolean, duration = 1400) {
 
 function BadgeImg({ code, name }: { code: number; name: string }) {
   const [ok, setOk] = useState(true)
-  if (!code || !ok) return <span className="text-[9px] text-white/40">{name.slice(0, 3)}</span>
+  if (!code || !ok) return <span className="text-[9px] text-white/70">{name.slice(0, 3)}</span>
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={`https://resources.premierleague.com/premierleague/badges/70/t${code}.png`}
@@ -143,7 +143,7 @@ function StatCard({ label, value, sub, delay = 0, loaded, raw }: {
           style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
           {raw ?? fmt(displayed)}
         </p>
-        {sub && <p className="text-xs text-white/40">{sub}</p>}
+        {sub && <p className="text-xs text-white/70">{sub}</p>}
       </div>
     </div>
   )
@@ -155,7 +155,7 @@ function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-xl border border-emerald-400/20 bg-[#0a0a0a] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 text-white/40">GW{label}</p>
+      <p className="mb-1 text-white/70">GW{label}</p>
       {payload.map((p: any) => (
         <p key={p.dataKey} style={{ color: p.color }} className="font-semibold">{p.name}: {p.value}</p>
       ))}
@@ -167,7 +167,7 @@ function RankTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-xl border border-emerald-400/20 bg-[#0a0a0a] px-3 py-2 text-xs shadow-xl">
-      <p className="mb-1 text-white/40">GW{label}</p>
+      <p className="mb-1 text-white/70">GW{label}</p>
       <p className="font-semibold" style={{ color: "#00FF87" }}>Rank: {fmt(payload[0]?.value ?? 0)}</p>
     </div>
   )
@@ -266,14 +266,14 @@ function SquadRow({ p, bench, sortKey }: { p: SquadPlayer; bench: boolean; sortK
       <td className="py-2 px-2 w-20">
         <div className="flex items-center gap-1.5">
           <BadgeImg code={p.team_code} name={p.team_short} />
-          <span className="text-xs text-white/40">{p.team_short}</span>
+          <span className="text-xs text-white/70">{p.team_short}</span>
         </div>
       </td>
 
       {/* Price */}
       <td className="py-2 px-2 w-20 tabular-nums">
         <div className="flex items-center gap-1">
-          <span className={`text-xs font-medium ${bench ? "text-white/40" : "text-white/80"}`}>£{p.price.toFixed(1)}m</span>
+          <span className={`text-xs font-medium ${bench ? "text-white/70" : "text-white/80"}`}>£{p.price.toFixed(1)}m</span>
           {p.cost_change_event > 0 && <span className="text-[9px] font-bold text-emerald-400">▲</span>}
           {p.cost_change_event < 0 && <span className="text-[9px] font-bold text-red-400">▼</span>}
         </div>
@@ -296,7 +296,7 @@ function SquadRow({ p, bench, sortKey }: { p: SquadPlayer; bench: boolean; sortK
 
       {/* GW Points */}
       <td className="py-2 px-2 w-20 tabular-nums text-center">
-        <span className={`text-sm font-bold ${bench ? "text-white/30" : "text-white"}`}>{p.points}</span>
+        <span className={`text-sm font-bold ${bench ? "text-white/70" : "text-white"}`}>{p.points}</span>
       </td>
 
       {/* Transfers in/out */}
@@ -335,7 +335,7 @@ function GateScreen({ title, body, cta, href }: { title: string; body: string; c
         <p className="text-sm text-white/50 leading-relaxed">{body}</p>
         <div className="flex flex-col gap-3">
           <Link href={href} className="rounded-xl bg-gradient-to-r from-[#00FF87] to-[#00FFFF] px-6 py-2.5 text-sm font-semibold text-black hover:brightness-110 transition-all">{cta}</Link>
-          <Link href="/chat" className="text-sm text-white/40 hover:text-white transition-colors">Back to chat</Link>
+          <Link href="/chat" className="text-sm text-white/70 hover:text-white transition-colors">Back to chat</Link>
         </div>
       </div>
     </div>
@@ -374,15 +374,15 @@ function SquadPanel({ data }: { data: DashboardData }) {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <p className="text-sm font-semibold text-white">Your Squad - {data.current_gw_name}</p>
-          <p className="text-xs text-white/40 mt-0.5">
+          <p className="text-xs text-white/70 mt-0.5">
             Fixtures: <span style={{ color: DIFF_COLORS[1] }}>easy</span> → <span style={{ color: DIFF_COLORS[5] }}>hard</span>
             &nbsp;·&nbsp;Click column headers to sort
           </p>
         </div>
         <div className="flex gap-3 text-xs flex-wrap">
-          <span className="text-white/40">Bench: <span className="text-white">{data.points_on_bench}pts</span></span>
+          <span className="text-white/70">Bench: <span className="text-white">{data.points_on_bench}pts</span></span>
           {data.gw_transfers > 0 && (
-            <span className={data.gw_transfer_cost > 0 ? "text-red-400" : "text-white/40"}>
+            <span className={data.gw_transfer_cost > 0 ? "text-red-400" : "text-white/70"}>
               {data.gw_transfers} transfer{data.gw_transfers !== 1 ? "s" : ""}
               {data.gw_transfer_cost > 0 ? ` (-${data.gw_transfer_cost}pts)` : ""}
             </span>
@@ -444,11 +444,11 @@ function PerformancePanel({ data }: { data: DashboardData }) {
         <div className="mb-3 flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold text-white">Gameweek Points</p>
-            <p className="text-xs text-white/40">Your score vs overall average each week</p>
+            <p className="text-xs text-white/70">Your score vs overall average each week</p>
           </div>
-          <div className="flex items-center gap-4 text-xs text-white/40">
+          <div className="flex items-center gap-4 text-xs text-white/70">
             <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-3 rounded" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }} />You</span>
-            <span className="flex items-center gap-1.5"><span className="inline-block h-px w-3 bg-white/30" />Avg</span>
+            <span className="flex items-center gap-1.5"><span className="inline-block h-px w-3 bg-white/70" />Avg</span>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={200}>
@@ -460,11 +460,11 @@ function PerformancePanel({ data }: { data: DashboardData }) {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-            <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false} />
-            <YAxis tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false} />
+            <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} tickLine={false} axisLine={false} />
             <Tooltip content={<ChartTooltip />} />
             <Bar dataKey="pts" name="Your pts" fill="url(#barGrad)" radius={[4, 4, 0, 0]} maxBarSize={18} animationBegin={200} animationDuration={1000} />
-            <Line dataKey="avg" name="GW avg" stroke="rgba(255,255,255,0.25)" dot={false} strokeWidth={1.5} animationBegin={500} />
+            <Line dataKey="avg" name="GW avg" stroke="rgba(255,255,255,0.7)" dot={false} strokeWidth={1.5} animationBegin={500} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -473,7 +473,7 @@ function PerformancePanel({ data }: { data: DashboardData }) {
       <div>
         <div className="mb-3">
           <p className="text-sm font-semibold text-white">Overall Rank Journey</p>
-          <p className="text-xs text-white/40">Week-by-week rank — lower is better</p>
+          <p className="text-xs text-white/70">Week-by-week rank — lower is better</p>
         </div>
         <ResponsiveContainer width="100%" height={160}>
           <AreaChart data={rankData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -484,8 +484,8 @@ function PerformancePanel({ data }: { data: DashboardData }) {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-            <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false} />
-            <YAxis reversed tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} tickLine={false} axisLine={false}
+            <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} tickLine={false} axisLine={false} />
+            <YAxis reversed tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} tickLine={false} axisLine={false}
               tickFormatter={(v) => v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
             <Tooltip content={<RankTooltip />} />
             <Area dataKey="rank" name="Rank" stroke="#00FF87" strokeWidth={2} fill="url(#rankGrad)"
@@ -499,7 +499,7 @@ function PerformancePanel({ data }: { data: DashboardData }) {
       <div>
         <div className="mb-3">
           <p className="text-sm font-semibold text-white">Season Heatmap</p>
-          <p className="text-xs text-white/40">GW scores colour-coded vs average</p>
+          <p className="text-xs text-white/70">GW scores colour-coded vs average</p>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {data.gw_history.map((g) => <HeatmapCell key={g.gw} pts={g.pts} avg={g.avg} />)}
@@ -512,7 +512,7 @@ function PerformancePanel({ data }: { data: DashboardData }) {
           ].map((l) => (
             <div key={l.label} className="flex items-center gap-1">
               <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: l.color }} />
-              <span className="text-[9px] text-white/40">{l.label}</span>
+              <span className="text-[9px] text-white/70">{l.label}</span>
             </div>
           ))}
         </div>
