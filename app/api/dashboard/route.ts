@@ -163,17 +163,43 @@ export async function GET() {
         };
       });
 
-    // Mini-league
-    const leagueStandings = (leagueData?.standings?.results ?? []).slice(0, 20).map((s: any) => ({
-      rank: s.rank,
-      last_rank: s.last_rank,
-      manager: s.player_name,
-      team: s.entry_name,
-      entry_id: s.entry,
-      gw_pts: s.event_total,
-      total: s.total,
-      is_user: s.entry === teamId,
-    }));
+    // Mini-league — fetch chip history for each manager in parallel
+    const leagueResults = (leagueData?.standings?.results ?? []).slice(0, 20);
+    const memberHistories = await Promise.all(
+      leagueResults.map((s: any) =>
+        fetch(`https://fantasy.premierleague.com/api/entry/${s.entry}/history/`, { headers: H })
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null)
+      )
+    );
+
+    // Chip bonus values (expected pts each chip adds when optimally used)
+    const CHIP_BONUS: Record<string, number> = { "3xc": 12, bboost: 16, freehit: 12, wildcard: 15 };
+
+    const leagueStandings = leagueResults.map((s: any, i: number) => {
+      const hist = memberHistories[i];
+      const usedChipNames: string[] = (hist?.chips ?? []).map((c: any) => c.name);
+      const wildcardsUsed = usedChipNames.filter((n: string) => n === "wildcard").length;
+      const chipsRemaining = [
+        ...(wildcardsUsed < 2 ? ["wildcard"] : []),
+        ...(!usedChipNames.includes("freehit") ? ["freehit"] : []),
+        ...(!usedChipNames.includes("3xc") ? ["3xc"] : []),
+        ...(!usedChipNames.includes("bboost") ? ["bboost"] : []),
+      ];
+      const chipBonus = chipsRemaining.reduce((sum, c) => sum + (CHIP_BONUS[c] ?? 0), 0);
+      return {
+        rank: s.rank,
+        last_rank: s.last_rank,
+        manager: s.player_name,
+        team: s.entry_name,
+        entry_id: s.entry,
+        gw_pts: s.event_total,
+        total: s.total,
+        is_user: s.entry === teamId,
+        chips_remaining: chipsRemaining,
+        chip_bonus: chipBonus,
+      };
+    });
 
     const h = picksData?.entry_history;
 

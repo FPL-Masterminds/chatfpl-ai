@@ -35,6 +35,7 @@ interface Transfer {
 interface LeagueRow {
   rank: number; last_rank: number; manager: string; team: string
   entry_id: number; gw_pts: number; total: number; is_user: boolean
+  chips_remaining: string[]; chip_bonus: number
 }
 
 interface GWPoint { gw: number; pts: number; avg: number; rank: number; total_pts: number }
@@ -53,6 +54,8 @@ interface DashboardData {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CHIP_ICONS: Record<string, string> = { wildcard: "♻", freehit: "🎯", "3xc": "3×", bboost: "🚀" }
+const CHIP_LABELS: Record<string, string> = { "3xc": "TC", bboost: "BB", freehit: "FH", wildcard: "WC" }
+const CHIP_LABELS: Record<string, string> = { "3xc": "TC", bboost: "BB", freehit: "FH", wildcard: "WC" }
 
 const DIFF_COLORS: Record<number, string> = {
   1: "#00FF87", 2: "#86efac", 3: "#fde68a", 4: "#fb923c", 5: "#ef4444",
@@ -611,9 +614,9 @@ function TransfersPanel({ data }: { data: DashboardData }) {
 
 function simulateWinProb(standings: LeagueRow[], remainingGws: number): Record<number, number> {
   if (!standings.length || remainingGws <= 0) return {}
-  const SIMS = 4000
+  const SIMS = 5000
   const AVG = 50
-  const STD = 18
+  const STD = 13
   const randn = () => {
     let u = 0, v = 0
     while (!u) u = Math.random()
@@ -625,7 +628,7 @@ function simulateWinProb(standings: LeagueRow[], remainingGws: number): Record<n
   for (let i = 0; i < SIMS; i++) {
     let best = -1, bestId = -1
     standings.forEach(s => {
-      let proj = s.total
+      let proj = s.total + (s.chip_bonus ?? 0)
       for (let g = 0; g < remainingGws; g++) proj += Math.max(1, Math.round(AVG + randn() * STD))
       if (proj > best) { best = proj; bestId = s.entry_id }
     })
@@ -687,7 +690,14 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                   <RankArrow rank={row.rank} lastRank={row.last_rank} />
                   <div className="flex-1 min-w-0">
                     <p className={`truncate font-medium text-[11px] ${row.is_user ? "text-emerald-300" : "text-white"}`}>{row.team}</p>
-                    <p className="text-[9px] text-white truncate">{row.manager}</p>
+                    <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                      <span className="text-[9px] text-white truncate">{row.manager}</span>
+                      {(row.chips_remaining ?? []).map(chip => (
+                        <span key={chip} className="text-[7px] font-bold px-1 py-0.5 rounded bg-emerald-400/20 text-emerald-300 leading-none shrink-0">
+                          {CHIP_LABELS[chip] ?? chip.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   {/* Win prob bar */}
                   <div className="hidden sm:flex flex-col items-end gap-0.5 w-16 shrink-0">
@@ -734,6 +744,31 @@ function LeaguePanel({ data }: { data: DashboardData }) {
           </div>
 
           {/* Win Probability chart */}
+          {/* Chip threat callout */}
+          {standings.length > 0 && (() => {
+            const user = standings.find(s => s.is_user)
+            if (!user) return null
+            const threats = standings
+              .filter(s => !s.is_user && s.total >= user.total - 100 && s.chip_bonus > (user.chip_bonus ?? 0))
+              .sort((a, b) => b.total - a.total)
+              .slice(0, 1)
+            if (!threats.length) return null
+            const t = threats[0]
+            const chipAdv = t.chip_bonus - (user.chip_bonus ?? 0)
+            const chipNames = t.chips_remaining.map(c => CHIP_LABELS[c] ?? c.toUpperCase()).join(" + ")
+            return (
+              <div className="rounded-2xl border border-amber-400/30 bg-amber-400/[0.04] p-3">
+                <p className="text-[9px] uppercase tracking-[0.18em] text-amber-300 mb-1">Chip Watch</p>
+                <p className="text-[11px] text-white font-medium leading-snug">
+                  {t.manager} has {chipNames} — {chipAdv}pts of firepower you don&apos;t have.
+                </p>
+                <p className="text-[9px] text-white mt-1">
+                  Only {t.total >= user.total ? "level with" : `${user.total - t.total}pts behind`} you. Factor this in.
+                </p>
+              </div>
+            )
+          })()}
+
           {standings.length > 0 && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
               <p className="text-[10px] uppercase tracking-[0.18em] text-white mb-1">Win Probability</p>
@@ -756,7 +791,7 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                     </div>
                   ))}
               </div>
-              <p className="text-[7px] text-white mt-3">Simulated based on average FPL scoring patterns. For entertainment.</p>
+              <p className="text-[7px] text-white mt-3">5,000 simulations · chip bonuses included · for entertainment.</p>
             </div>
           )}
         </div>
