@@ -660,58 +660,58 @@ function LeaguePanel({ data }: { data: DashboardData }) {
           { label: "GW Points", value: user ? fmt(user.gw_pts) : "—", sub: `GW ${data.current_gw}` },
           { label: "GWs Left", value: remainingGws.toString(), sub: "remaining this season" },
         ].map(({ label, value, sub }) => (
-          <div key={label} className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] px-3 py-3">
-            <p className="text-[9px] uppercase tracking-[0.16em] text-white mb-1">{label}</p>
-            <p className="text-xl font-bold text-transparent bg-clip-text leading-none"
+          <div key={label} className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] px-4 py-3">
+            <p className="text-xs uppercase tracking-[0.16em] text-white mb-1">{label}</p>
+            <p className="text-2xl font-bold text-transparent bg-clip-text leading-none"
               style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
               {value}
             </p>
-            <p className="text-[9px] text-white mt-0.5">{sub}</p>
+            <p className="text-xs text-white mt-1">{sub}</p>
           </div>
         ))}
       </div>
 
-      {/* ── Main two-column ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* ── Main two-column (50/50) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        {/* League standings */}
+        {/* ── League standings ── */}
         {standings.length > 0 && (
-          <div className="lg:col-span-2 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white">{data.league_name ?? "Mini-League"}</p>
-              <p className="text-[9px] text-white">{standings.length} managers</p>
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold">{data.league_name ?? "Mini-League"}</p>
+              <p className="text-xs text-white">{standings.length} managers</p>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {standings.map((row) => (
                 <div key={row.entry_id}
-                  className={`rounded-xl px-3 py-2 flex items-center gap-2 text-xs transition-all ${row.is_user ? "border border-emerald-400/30 bg-emerald-400/[0.06]" : "border border-transparent hover:bg-white/[0.02]"}`}>
-                  <span className="w-4 text-white text-[10px] font-mono shrink-0">{row.rank}</span>
+                  className={`rounded-xl px-3 py-2.5 flex items-center gap-3 transition-all ${row.is_user ? "border border-emerald-400/30 bg-emerald-400/[0.06]" : "border border-transparent hover:bg-white/[0.02]"}`}>
+                  <span className="w-5 text-white text-xs font-mono shrink-0 text-center">{row.rank}</span>
                   <RankArrow rank={row.rank} lastRank={row.last_rank} />
                   <div className="flex-1 min-w-0">
-                    <p className={`truncate font-medium text-[11px] ${row.is_user ? "text-emerald-300" : "text-white"}`}>{row.team}</p>
-                    <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                      <span className="text-[9px] text-white truncate">{row.manager}</span>
+                    <p className={`truncate font-semibold text-sm ${row.is_user ? "text-emerald-300" : "text-white"}`}>{row.team}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                      <span className="text-xs text-white truncate">{row.manager}</span>
                       {(row.chips_remaining ?? []).map(chip => (
-                        <span key={chip} className="text-[7px] font-bold px-1 py-0.5 rounded bg-emerald-400/20 text-emerald-300 leading-none shrink-0">
+                        <span key={chip} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-400/20 text-emerald-300 leading-none shrink-0">
                           {CHIP_LABELS[chip] ?? chip.toUpperCase()}
                         </span>
                       ))}
                     </div>
                   </div>
                   {/* Win prob bar */}
-                  <div className="hidden sm:flex flex-col items-end gap-0.5 w-16 shrink-0">
-                    <div className="w-full h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div className="hidden sm:flex flex-col items-end gap-0.5 w-20 shrink-0">
+                    <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
                       <div className="h-full rounded-full transition-all duration-700"
                         style={{ width: `${Math.round(((winProbs[row.entry_id] ?? 0) / maxProb) * 100)}%`, background: "linear-gradient(to right,#00FF87,#00FFFF)" }} />
                     </div>
-                    <p className="text-[8px] text-white">{winProbs[row.entry_id] ?? 0}% win</p>
+                    <p className="text-[10px] text-white">{winProbs[row.entry_id] ?? 0}% win</p>
                   </div>
-                  <div className="text-right shrink-0 ml-2">
-                    <p className={`font-bold text-[12px] ${row.is_user ? "text-transparent bg-clip-text" : "text-white"}`}
+                  <div className="text-right shrink-0">
+                    <p className={`font-bold text-sm ${row.is_user ? "text-transparent bg-clip-text" : "text-white"}`}
                       style={row.is_user ? { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" } : {}}>
                       {fmt(row.total)}
                     </p>
-                    <p className="text-[9px] text-white">GW {row.gw_pts}</p>
+                    <p className="text-xs text-white">GW {row.gw_pts}</p>
                   </div>
                 </div>
               ))}
@@ -719,31 +719,30 @@ function LeaguePanel({ data }: { data: DashboardData }) {
           </div>
         )}
 
-        {/* Right column: chips + win prob chart */}
+        {/* ── Right column ── */}
         <div className="space-y-4">
 
           {/* Chip Status */}
-          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white">Chip Status</p>
-              <span className="text-[9px] text-white">{chipsAvailable} available</span>
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold">Chip Status</p>
+              <span className="text-xs text-white">{chipsAvailable} available</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {data.chips.map((chip) => (
-                <div key={chip.key} className={`rounded-xl border px-2.5 py-2 flex items-center gap-2 ${chip.available ? "border-emerald-400/30 bg-emerald-400/[0.08]" : "border-white/5 bg-white/[0.02] opacity-40"}`}>
-                  <span className="text-sm leading-none shrink-0">{CHIP_ICONS[chip.key] ?? "●"}</span>
+                <div key={chip.key} className={`rounded-xl border px-3 py-3 flex items-center gap-3 ${chip.available ? "border-emerald-400/30 bg-emerald-400/[0.08]" : "border-white/5 bg-white/[0.02] opacity-40"}`}>
+                  <span className="text-xl leading-none shrink-0">{CHIP_ICONS[chip.key] ?? "●"}</span>
                   <div className="min-w-0">
-                    <p className={`text-[10px] font-semibold truncate leading-tight ${chip.available ? "text-white" : "text-white"}`}>{chip.name}</p>
-                    <p className="text-[8px] text-white leading-tight">{chip.available ? "Available" : `GW${chip.event}`}</p>
+                    <p className="text-sm font-semibold text-white truncate leading-tight">{chip.name}</p>
+                    <p className="text-xs text-white leading-tight mt-0.5">{chip.available ? "Available" : `Used GW${chip.event}`}</p>
                   </div>
-                  {chip.available && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse ml-auto" />}
+                  {chip.available && <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0 animate-pulse ml-auto" />}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Win Probability chart */}
-          {/* Chip threat callout */}
+          {/* Chip Watch callout */}
           {standings.length > 0 && (() => {
             const user = standings.find(s => s.is_user)
             if (!user) return null
@@ -756,41 +755,42 @@ function LeaguePanel({ data }: { data: DashboardData }) {
             const chipAdv = t.chip_bonus - (user.chip_bonus ?? 0)
             const chipNames = t.chips_remaining.map(c => CHIP_LABELS[c] ?? c.toUpperCase()).join(" + ")
             return (
-              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-3">
-                <p className="text-[9px] uppercase tracking-[0.18em] text-white mb-1">Chip Watch</p>
-                <p className="text-[11px] text-white font-medium leading-snug">
+              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
+                <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold mb-2">Chip Watch</p>
+                <p className="text-sm text-white font-medium leading-snug">
                   {t.manager} has {chipNames} — {chipAdv}pts of firepower you don&apos;t have.
                 </p>
-                <p className="text-[9px] text-white mt-1">
+                <p className="text-xs text-white mt-2">
                   Only {t.total >= user.total ? "level with" : `${user.total - t.total}pts behind`} you. Factor this in.
                 </p>
               </div>
             )
           })()}
 
+          {/* Win Probability */}
           {standings.length > 0 && (
-            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-white mb-1">Win Probability</p>
-              <p className="text-[9px] text-white mb-3">Based on {remainingGws} remaining GWs</p>
-              <div className="space-y-2">
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
+              <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold mb-1">Win Probability</p>
+              <p className="text-xs text-white mb-4">Based on {remainingGws} remaining GWs</p>
+              <div className="space-y-3">
                 {[...standings]
                   .map(s => ({ ...s, prob: winProbs[s.entry_id] ?? 0 }))
                   .sort((a, b) => b.prob - a.prob)
                   .slice(0, 6)
                   .map(row => (
                     <div key={row.entry_id}>
-                      <div className="flex items-center justify-between mb-0.5">
-                        <p className={`text-[9px] truncate max-w-[70%] ${row.is_user ? "text-emerald-300 font-semibold" : "text-white"}`}>{row.team}</p>
-                        <p className="text-[9px] text-white shrink-0">{row.prob}%</p>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className={`text-xs truncate max-w-[70%] ${row.is_user ? "text-emerald-300 font-semibold" : "text-white"}`}>{row.team}</p>
+                        <p className="text-xs text-white shrink-0 font-medium">{row.prob}%</p>
                       </div>
-                      <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                      <div className="w-full h-2 rounded-full bg-white/[0.06] overflow-hidden">
                         <div className="h-full rounded-full transition-all duration-1000"
                           style={{ width: `${row.prob}%`, background: row.is_user ? "linear-gradient(to right,#00FF87,#00FFFF)" : "rgba(255,255,255,0.15)" }} />
                       </div>
                     </div>
                   ))}
               </div>
-              <p className="text-[7px] text-white mt-3">5,000 simulations · chip bonuses included · for entertainment.</p>
+              <p className="text-[10px] text-white mt-4">5,000 simulations · chip bonuses included · for entertainment.</p>
             </div>
           )}
         </div>
