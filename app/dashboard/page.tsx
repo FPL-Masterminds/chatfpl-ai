@@ -32,6 +32,12 @@ interface Transfer {
   out_name: string; out_pos: string; out_price: number; out_team_code: number; out_team_short: string
 }
 
+interface TransferTarget {
+  id: number; name: string; team_id: number; team_short: string; team_code: number
+  pos: string; price: number; ep_next: number; form: number
+  transfers_in_gw: number; selected_by: number
+}
+
 interface LeagueRow {
   rank: number; last_rank: number; manager: string; team: string
   entry_id: number; gw_pts: number; total: number; is_user: boolean
@@ -49,6 +55,7 @@ interface DashboardData {
   chips: ChipStatus[]; squad: SquadPlayer[]; gw_history: GWPoint[]
   recent_transfers: Transfer[]
   league_name: string | null; league_standings: LeagueRow[]
+  transfer_targets: Record<string, TransferTarget[]>
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -70,7 +77,7 @@ const POS_STYLE: Record<string, { border: string; glow: string; label: string }>
 const TABS = [
   { id: "squad",       label: "Your Squad",    desc: "Starting XI, bench & next fixtures",          dot: "#00FF87" },
   { id: "performance", label: "Performance",   desc: "GW chart, rank journey & season heatmap",     dot: "#00FFFF" },
-  { id: "transfers",   label: "Transfer Log",  desc: "Every move you've made this season",          dot: "#00FF87" },
+  { id: "transfers",   label: "Transfer Planner", desc: "Suggested swaps based on expected points",    dot: "#00FF87" },
   { id: "league",      label: "Mini-League",   desc: "Live standings & chip status",                dot: "#00FFFF" },
 ]
 
@@ -515,98 +522,139 @@ function PerformancePanel({ data }: { data: DashboardData }) {
 }
 
 function TransfersPanel({ data }: { data: DashboardData }) {
-  const transfersByGW: Record<number, Transfer[]> = {}
-  data.recent_transfers.forEach((t) => {
-    if (!transfersByGW[t.event]) transfersByGW[t.event] = []
-    transfersByGW[t.event].push(t)
-  })
-  const transferGWs = Object.keys(transfersByGW).map(Number).sort((a, b) => b - a)
+  const targets = data.transfer_targets ?? {}
+  const bank = data.bank
 
-  if (!transferGWs.length) return (
-    <div className="flex items-center justify-center h-48 text-white/30 text-sm">No transfers recorded yet.</div>
+  // Starters sorted by ep_next ascending — weakest first
+  const starters = data.squad
+    .filter(p => p.slot <= 11)
+    .sort((a, b) => a.ep_next - b.ep_next)
+
+  // Build suggestions: for each weak starter find the best available swap
+  type Suggestion = { out: typeof starters[0]; in: TransferTarget; epGain: number; costDelta: number }
+  const suggestions: Suggestion[] = []
+  const usedInIds = new Set<number>()
+
+  for (const weak of starters) {
+    if (suggestions.length >= 3) break
+    const budget = parseFloat((weak.price + bank).toFixed(1))
+    // Count clubs already in squad (for 3-per-club rule)
+    const clubCounts: Record<number, number> = {}
+    data.squad.forEach(p => { clubCounts[p.team_id] = (clubCounts[p.team_id] ?? 0) + 1 })
+
+    const candidates = (targets[weak.pos] ?? []).filter(t => {
+      if (usedInIds.has(t.id)) return false
+      if (t.price > budget) return false
+      // If this club is at 3, skip (unless it replaces someone from that club)
+      const existingCount = clubCounts[t.team_id] ?? 0
+      const replacingOwnClub = weak.team_id === t.team_id
+      if (existingCount >= 3 && !replacingOwnClub) return false
+      if (t.ep_next <= weak.ep_next + 0.3) return false // not a meaningful upgrade
+      return true
+    })
+
+    if (!candidates.length) continue
+    const best = candidates[0]
+    usedInIds.add(best.id)
+    suggestions.push({
+      out: weak,
+      in: best,
+      epGain: parseFloat((best.ep_next - weak.ep_next).toFixed(1)),
+      costDelta: parseFloat((best.price - weak.price).toFixed(1)),
+    })
+  }
+
+  const gradStyle = { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }
+  const freeTransfers = data.gw_transfers === 0 ? 1 : 0 // simplified — 1 FT if none used
+
+  if (!suggestions.length) return (
+    <div className="flex flex-col items-center justify-center h-48 gap-2 text-center">
+      <p className="text-white text-sm font-medium">No obvious upgrades found.</p>
+      <p className="text-white/70 text-xs">Your squad looks well-balanced for the next gameweek.</p>
+    </div>
   )
 
-  // Summary stats
-  const allTransfers = data.recent_transfers
-  const netSpend = allTransfers.reduce((acc, t) => acc + (t.in_price - t.out_price), 0)
-  const posCounts: Record<string, number> = {}
-  allTransfers.forEach((t) => { posCounts[t.in_pos] = (posCounts[t.in_pos] ?? 0) + 1 })
-  const mostBought = Object.entries(posCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "–"
-
   return (
-    <div className="space-y-5">
-      <div>
-        <p className="text-sm font-semibold text-white">Transfer History</p>
-        <p className="text-xs text-white/40 mt-0.5">{data.total_transfers} total transfers this season</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-sm font-semibold text-white">Transfer Planner</p>
+          <p className="text-xs text-white/70 mt-0.5">Suggested swaps based on GW{data.current_gw + 1} expected points</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-white/70">Available budget</p>
+          <p className="text-sm font-bold text-transparent bg-clip-text" style={gradStyle}>
+            £{bank.toFixed(1)}m ITB
+          </p>
+        </div>
       </div>
 
-      {/* Summary strip */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: "Total Transfers", value: String(data.total_transfers) },
-          { label: "Net Spend", value: netSpend >= 0 ? `+£${netSpend.toFixed(1)}m` : `-£${Math.abs(netSpend).toFixed(1)}m`, color: netSpend > 0 ? "#ef4444" : "#00FF87" },
-          { label: "Most Bought", value: mostBought },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 text-center">
-            <p className="text-[9px] uppercase tracking-[0.18em] text-emerald-400/60 mb-1">{s.label}</p>
-            <p className="text-lg font-bold" style={{ color: s.color ?? "#fff" }}>{s.value}</p>
+      {/* Suggestion cards */}
+      <div className="space-y-3">
+        {suggestions.map((s, i) => (
+          <div key={i} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] overflow-hidden">
+            {/* xPts gain banner */}
+            <div className="flex items-center justify-between px-5 py-2.5 border-b border-emerald-400/10">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white/70">
+                {i === 0 ? "Priority swap" : i === 1 ? "Secondary option" : "Worth considering"}
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white/70">xPts gain</span>
+                <span className="text-sm font-bold text-transparent bg-clip-text" style={gradStyle}>
+                  +{s.epGain}
+                </span>
+              </div>
+            </div>
+
+            {/* OUT → IN */}
+            <div className="grid grid-cols-[1fr_52px_1fr]">
+              {/* OUT */}
+              <div className="px-4 py-4">
+                <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-2">Transfer out</p>
+                <div className="flex items-center gap-2.5">
+                  <BadgeImg code={s.out.team_code} name={s.out.team_short} />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">{s.out.name}</p>
+                    <p className="text-xs text-white/70 mt-0.5">{s.out.pos} · £{s.out.price.toFixed(1)}m · {s.out.ep_next} xPts</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex items-center justify-center border-x border-emerald-400/10">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke="url(#pGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <defs><linearGradient id="pGrad" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#00FF87" /><stop offset="1" stopColor="#00FFFF" /></linearGradient></defs>
+                </svg>
+              </div>
+
+              {/* IN */}
+              <div className="px-4 py-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">Transfer in</p>
+                  {s.costDelta !== 0 && (
+                    <span className={`text-[9px] font-bold ${s.costDelta > 0 ? "text-red-400" : "text-emerald-400"}`}>
+                      {s.costDelta > 0 ? `costs £${s.costDelta.toFixed(1)}m` : `saves £${Math.abs(s.costDelta).toFixed(1)}m`}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <BadgeImg code={s.in.team_code} name={s.in.team_short} />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-transparent bg-clip-text truncate" style={gradStyle}>{s.in.name}</p>
+                    <p className="text-xs text-white/70 mt-0.5">{s.in.pos} · £{s.in.price.toFixed(1)}m · {s.in.ep_next} xPts</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Transfer cards — 2 per row */}
-      {transferGWs.map((gw) => (
-        <div key={gw}>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/60 mb-2">Gameweek {gw}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {transfersByGW[gw].map((t, i) => {
-              const delta = t.in_price - t.out_price
-              return (
-                <div key={i} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
-                  <div className="grid grid-cols-[1fr_56px_1fr]">
-                    {/* OUT */}
-                    <div className="px-4 py-3.5 bg-red-500/[0.04]">
-                      <p className="text-[9px] uppercase tracking-[0.15em] text-red-400/60 mb-1.5">Out</p>
-                      <div className="flex items-center gap-2">
-                        <BadgeImg code={t.out_team_code} name={t.out_team_short} />
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-red-300 truncate leading-tight">{t.out_name}</p>
-                          <p className="text-[10px] text-white/30 mt-0.5">{t.out_pos} · £{t.out_price.toFixed(1)}m</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Arrow + delta */}
-                    <div className="flex flex-col items-center justify-center gap-1 border-x border-white/[0.05] bg-white/[0.01]">
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24">
-                        <path d="M5 12h14M13 6l6 6-6 6" stroke="url(#tGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <defs><linearGradient id="tGrad" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#00FF87" /><stop offset="1" stopColor="#00FFFF" /></linearGradient></defs>
-                      </svg>
-                      {delta !== 0 && (
-                        <span className={`text-[9px] font-bold ${delta > 0 ? "text-red-400" : "text-emerald-400"}`}>
-                          {delta > 0 ? `+£${delta.toFixed(1)}m` : `-£${Math.abs(delta).toFixed(1)}m`}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* IN */}
-                    <div className="px-4 py-3.5 bg-emerald-500/[0.04]">
-                      <p className="text-[9px] uppercase tracking-[0.15em] text-emerald-400/60 mb-1.5 text-right">In</p>
-                      <div className="flex items-center gap-2 justify-end">
-                        <div className="min-w-0 text-right">
-                          <p className="text-sm font-bold text-emerald-300 truncate leading-tight">{t.in_name}</p>
-                          <p className="text-[10px] text-white/30 mt-0.5">{t.in_pos} · £{t.in_price.toFixed(1)}m</p>
-                        </div>
-                        <BadgeImg code={t.in_team_code} name={t.in_team_short} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      ))}
+      <p className="text-[10px] text-white/70">
+        Based on FPL expected points (ep_next) for GW{data.current_gw + 1}. Does not account for multi-GW planning or chip strategy.
+      </p>
     </div>
   )
 }

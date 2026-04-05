@@ -203,6 +203,39 @@ export async function GET() {
 
     const h = picksData?.entry_history;
 
+    // Transfer targets — top available players by position, ranked by ep_next
+    const squadElementIds = new Set((picksData?.picks ?? []).map((p: any) => p.element));
+    const squadTeamCounts: Record<number, number> = {};
+    (picksData?.picks ?? []).forEach((p: any) => {
+      const el = elementMap[p.element];
+      if (el) squadTeamCounts[el.team] = (squadTeamCounts[el.team] ?? 0) + 1;
+    });
+    const transferTargets: Record<string, any[]> = { GKP: [], DEF: [], MID: [], FWD: [] };
+    (bootstrap.elements ?? []).forEach((p: any) => {
+      if (squadElementIds.has(p.id)) return;
+      if ((p.chance_of_playing_next_round ?? 100) < 50) return;
+      const pos = posMap[p.element_type] ?? "";
+      if (!transferTargets[pos]) return;
+      transferTargets[pos].push({
+        id: p.id,
+        name: p.web_name,
+        team_id: p.team,
+        team_short: teamMap[p.team]?.short_name ?? "",
+        team_code: teamMap[p.team]?.code ?? 0,
+        pos,
+        price: p.now_cost / 10,
+        ep_next: parseFloat(p.ep_next ?? "0"),
+        form: parseFloat(p.form ?? "0"),
+        transfers_in_gw: p.transfers_in_event ?? 0,
+        selected_by: parseFloat(p.selected_by_percent ?? "0"),
+      });
+    });
+    Object.keys(transferTargets).forEach(pos => {
+      transferTargets[pos] = transferTargets[pos]
+        .sort((a, b) => b.ep_next - a.ep_next)
+        .slice(0, 30);
+    });
+
     return NextResponse.json({
       team_name: entry.name,
       manager_name: `${entry.player_first_name ?? ""} ${entry.player_last_name ?? ""}`.trim(),
@@ -225,6 +258,7 @@ export async function GET() {
       recent_transfers: recentTransfers,
       league_name: leagueData?.league?.name ?? null,
       league_standings: leagueStandings,
+      transfer_targets: transferTargets,
     });
   } catch (err) {
     console.error("Dashboard API error:", err);
