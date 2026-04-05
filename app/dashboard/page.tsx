@@ -582,8 +582,8 @@ function TransfersPanel({ data }: { data: DashboardData }) {
           <p className="text-sm font-semibold text-white">Transfer Planner</p>
           <p className="text-xs text-white/70 mt-0.5">Suggested swaps based on GW{data.current_gw + 1} expected points</p>
         </div>
-        <div className="text-right">
-          <p className="text-xs text-white/70">Available budget</p>
+        <div className="text-right shrink-0">
+          <p className="text-xs text-white/70">Budget</p>
           <p className="text-sm font-bold text-transparent bg-clip-text" style={gradStyle}>
             £{bank.toFixed(1)}m
           </p>
@@ -597,72 +597,56 @@ function TransfersPanel({ data }: { data: DashboardData }) {
           const inPhotoUrl = `https://resources.premierleague.com/premierleague25/photos/players/110x140/${s.in.code}.png`
           return (
           <div key={i} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] overflow-hidden">
-            {/* xPts gain banner */}
-            <div className="flex items-center justify-between px-5 py-2.5 border-b border-emerald-400/10">
+            {/* Banner */}
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-emerald-400/10">
               <p className="text-[10px] uppercase tracking-[0.18em] text-white/70">
                 {i === 0 ? "Priority swap" : i === 1 ? "Secondary option" : "Worth considering"}
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <span className="text-xs text-white/70">xPts gain</span>
-                <span className="text-sm font-bold text-transparent bg-clip-text" style={gradStyle}>
-                  +{s.epGain}
-                </span>
+                <span className="text-sm font-bold text-transparent bg-clip-text" style={gradStyle}>+{s.epGain}</span>
               </div>
             </div>
 
-            {/* OUT → IN */}
-            <div className="grid grid-cols-[1fr_44px_1fr]">
-              {/* OUT */}
-              <div className="px-4 pt-3 pb-4 flex gap-3 items-center">
-                <div className="relative shrink-0 w-14 h-16 overflow-hidden rounded-lg bg-white/[0.04]">
-                  <Image
-                    src={outPhotoUrl}
-                    alt={s.out.name}
-                    fill
-                    className="object-cover object-top"
-                    unoptimized
-                  />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-1">Transfer out</p>
-                  <p className="text-sm font-semibold text-white truncate leading-tight">{s.out.name}</p>
-                  <p className="text-xs text-white/70 mt-1">{s.out.pos} · £{s.out.price.toFixed(1)}m</p>
-                  <p className="text-xs text-white/70">{s.out.ep_next} xPts next GW</p>
-                </div>
+            {/* OUT row */}
+            <div className="flex items-center gap-3 px-4 py-3">
+              <div className="relative shrink-0 w-12 h-14 overflow-hidden rounded-lg bg-white/[0.04]">
+                <Image src={outPhotoUrl} alt={s.out.name} fill className="object-cover object-top" unoptimized />
               </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-0.5">Transfer out</p>
+                <p className="text-sm font-semibold text-white truncate">{s.out.name}</p>
+                <p className="text-xs text-white/70 mt-0.5">{s.out.pos} · £{s.out.price.toFixed(1)}m · {s.out.ep_next} xPts</p>
+              </div>
+            </div>
 
-              {/* Arrow */}
-              <div className="flex items-center justify-center border-x border-emerald-400/10">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24">
+            {/* Arrow divider */}
+            <div className="flex items-center gap-3 px-4">
+              <div className="w-12 shrink-0 flex justify-center">
+                <svg className="h-4 w-4 rotate-90" fill="none" viewBox="0 0 24 24">
                   <path d="M5 12h14M13 6l6 6-6 6" stroke="url(#pGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                   <defs><linearGradient id="pGrad" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#00FF87" /><stop offset="1" stopColor="#00FFFF" /></linearGradient></defs>
                 </svg>
               </div>
+              <div className="flex-1 border-t border-emerald-400/10" />
+            </div>
 
-              {/* IN */}
-              <div className="px-4 pt-3 pb-4 flex gap-3 items-center">
-                <div className="relative shrink-0 w-14 h-16 overflow-hidden rounded-lg bg-white/[0.04]">
-                  <Image
-                    src={inPhotoUrl}
-                    alt={s.in.name}
-                    fill
-                    className="object-cover object-top"
-                    unoptimized
-                  />
+            {/* IN row */}
+            <div className="flex items-center gap-3 px-4 py-3">
+              <div className="relative shrink-0 w-12 h-14 overflow-hidden rounded-lg bg-white/[0.04]">
+                <Image src={inPhotoUrl} alt={s.in.name} fill className="object-cover object-top" unoptimized />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-0.5">
+                  <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">Transfer in</p>
+                  {s.costDelta !== 0 && (
+                    <span className="text-[9px] font-semibold text-white/70 shrink-0">
+                      {s.costDelta > 0 ? `costs £${s.costDelta.toFixed(1)}m` : `saves £${Math.abs(s.costDelta).toFixed(1)}m`}
+                    </span>
+                  )}
                 </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">Transfer in</p>
-                    {s.costDelta !== 0 && (
-                      <span className="text-[9px] font-semibold text-white/70">
-                        {s.costDelta > 0 ? `costs £${s.costDelta.toFixed(1)}m` : `saves £${Math.abs(s.costDelta).toFixed(1)}m`}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm font-semibold text-transparent bg-clip-text truncate leading-tight" style={gradStyle}>{s.in.name}</p>
-                  <p className="text-xs text-white/70 mt-1">{s.in.pos} · £{s.in.price.toFixed(1)}m</p>
-                  <p className="text-xs text-white/70">{s.in.ep_next} xPts next GW</p>
-                </div>
+                <p className="text-sm font-semibold text-transparent bg-clip-text truncate" style={gradStyle}>{s.in.name}</p>
+                <p className="text-xs text-white/70 mt-0.5">{s.in.pos} · £{s.in.price.toFixed(1)}m · {s.in.ep_next} xPts</p>
               </div>
             </div>
           </div>
