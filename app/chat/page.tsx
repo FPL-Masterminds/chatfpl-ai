@@ -108,6 +108,10 @@ export default function ChatPage() {
   const [tickerFading, setTickerFading] = useState(false)
   const [tickerPhoto, setTickerPhoto] = useState<string | null>(null)
 
+  type SquadAlert = { type: "injury" | "transfer"; message: string; detail: string | null; count: number } | null
+  const [squadAlert, setSquadAlert] = useState<SquadAlert>(null)
+  const [alertDismissed, setAlertDismissed] = useState(false)
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
@@ -191,6 +195,14 @@ export default function ChatPage() {
       .then((r) => r.json())
       .then((d) => { if (d.tickerFacts?.length) setTickerFacts(d.tickerFacts) })
       .catch(console.error)
+  }, [authorized])
+
+  useEffect(() => {
+    if (!authorized) return
+    fetch("/api/squad-alert")
+      .then((r) => r.json())
+      .then((d) => { if (d.alert) setSquadAlert(d.alert) })
+      .catch(() => {})
   }, [authorized])
 
   // Typewriter ticker
@@ -535,6 +547,27 @@ export default function ChatPage() {
 
               {/* Messages */}
               <div className="chat-messages flex-1 overflow-y-auto p-4 pb-24 md:pb-6 md:p-6 space-y-5">
+
+                {/* Squad Alert */}
+                {squadAlert && !alertDismissed && (
+                  <div className="flex items-start gap-3">
+                    <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg,#00FF87,#00FFFF)" }}>
+                      <span className="text-black font-bold text-xs">CF</span>
+                    </div>
+                    <div className="relative max-w-[82%] rounded-[20px] rounded-tl-sm px-4 py-3 text-sm leading-relaxed border" style={{ background: "rgba(0,255,135,0.06)", borderColor: "rgba(0,255,135,0.2)" }}>
+                      <p className="text-white font-medium">{squadAlert.message}</p>
+                      {squadAlert.detail && (
+                        <p className="text-white/50 text-xs mt-1">{squadAlert.detail}</p>
+                      )}
+                      <button
+                        onClick={() => setAlertDismissed(true)}
+                        className="absolute top-2 right-3 text-white/25 hover:text-white/60 text-xs transition-colors"
+                        aria-label="Dismiss"
+                      >✕</button>
+                    </div>
+                  </div>
+                )}
+
                 {messages.map((message) => (
                   message.role === "user" ? (
                     <div key={message.id} className="flex justify-end">
