@@ -768,6 +768,70 @@ function LeaguePanel({ data }: { data: DashboardData }) {
             )
           })()}
 
+          {/* Closest Rivals */}
+          {standings.length > 0 && (() => {
+            if (!user) return null
+            type RivalTemplate = { main: string; sub: string }
+            const makeTemplate = (idx: number, m: string, gap: number, isAbove: boolean, chips: string[]): RivalTemplate => {
+              const chipStr = chips.length > 0 ? chips.map(c => CHIP_LABELS[c] ?? c.toUpperCase()).join(" + ") : null
+              const chipLines = [
+                chipStr ? `Still holding ${chipStr}.` : `All chips played — no boosts left.`,
+                chipStr ? `${chipStr} still unplayed.` : `No chips left to deploy.`,
+                chipStr ? `They've got ${chipStr} in reserve.` : `Nothing left in the locker.`,
+              ]
+              const cl = chipLines[idx % 3]
+              switch (idx % 10) {
+                case 0: return { main: isAbove ? `${m} has ${gap}pts on you. Reachable, but they're not stood still.` : `${m} is ${gap}pts back. Don't assume that gap holds all season.`, sub: cl }
+                case 1: return { main: isAbove ? `You're ${gap}pts off ${m}. One blank GW for them and you're right back in it.` : `Only ${gap}pts between you and ${m}. One banker captain call away from trouble.`, sub: cl }
+                case 2: return { main: isAbove ? `${m} leads you by ${gap}pts. A differential captain could close that quickly.` : `${m} is ${gap}pts behind — close enough to make your next transfer matter.`, sub: cl }
+                case 3: return { main: isAbove ? `${gap}pts is what stands between you and ${m}. That's one big GW.` : `${m} is just ${gap}pts adrift. FPL punishes complacency.`, sub: cl }
+                case 4: return { main: isAbove ? `${m} is ${gap}pts clear. Stay consistent and that gap is bridgeable.` : `Keep an eye on ${m}. ${gap}pts isn't a buffer — it's barely breathing room.`, sub: cl }
+                case 5: return { main: isAbove ? `You're chasing ${m} by ${gap}pts. Stay consistent and they're catchable.` : `${m} is lurking ${gap}pts behind. One differential and they're on your shoulder.`, sub: cl }
+                case 6: return { main: isAbove ? `${m} sits ${gap}pts ahead. In FPL terms, that's nothing over the run-in.` : `${m} trails by ${gap}pts. That gap disappears faster than a Salah blank.`, sub: cl }
+                case 7: return { main: isAbove ? `${gap}pts separates you from ${m}. A captain swap could wipe that out overnight.` : `${m} is only ${gap}pts off the pace. One bad week hands them your spot.`, sub: cl }
+                case 8: return { main: isAbove ? `${m} has a ${gap}pt cushion on you. Consistent weeks and you'll pull them back.` : `${m} needs just ${gap}pts to take your position. Stay sharp.`, sub: cl }
+                case 9: return { main: isAbove ? `You're ${gap}pts behind ${m}. One big haul changes the whole picture.` : `${m} is hunting you down. ${gap}pts is nothing in this game.`, sub: cl }
+                default: return { main: "", sub: "" }
+              }
+            }
+            const rivals = standings
+              .filter(s => !s.is_user)
+              .map(s => ({ ...s, gap: Math.abs(s.total - user.total), isAbove: s.total > user.total }))
+              .sort((a, b) => a.gap - b.gap)
+              .slice(0, 3)
+            if (!rivals.length) return null
+            const usedIdx = new Set<number>()
+            const assigned = rivals.map(rival => {
+              let idx = rival.entry_id % 10
+              while (usedIdx.has(idx)) idx = (idx + 1) % 10
+              usedIdx.add(idx)
+              return idx
+            })
+            return (
+              <>
+                {rivals.map((rival, i) => {
+                  const t = makeTemplate(assigned[i], rival.manager, rival.gap, rival.isAbove, rival.chips_remaining ?? [])
+                  if (!t.main) return null
+                  return (
+                    <div key={rival.entry_id} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold">
+                          {rival.isAbove ? `Rank ${rival.rank} · Chasing` : `Rank ${rival.rank} · On Your Tail`}
+                        </p>
+                        <span className="text-xs text-white">{winProbs[rival.entry_id] ?? 0}% win</span>
+                      </div>
+                      <p className="text-sm text-white font-medium leading-snug">{t.main}</p>
+                      <p className="text-xs font-semibold mt-2 text-transparent bg-clip-text"
+                        style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                        {t.sub}
+                      </p>
+                    </div>
+                  )
+                })}
+              </>
+            )
+          })()}
+
           {/* Win Probability */}
           {standings.length > 0 && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
