@@ -85,7 +85,12 @@ function getRouteMetadata(route: string) {
     return { priority: 0.6, changeFrequency: 'monthly' as const }
   }
   
-  // All other pages (question/answer pages, etc.)
+  // FPL player pages — high priority, updated each gameweek
+  if (route.startsWith('/fpl/')) {
+    return { priority: 0.85, changeFrequency: 'daily' as const }
+  }
+
+  // All other pages
   return { priority: 0.7, changeFrequency: 'weekly' as const }
 }
 
