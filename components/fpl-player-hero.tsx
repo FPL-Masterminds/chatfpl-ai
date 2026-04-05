@@ -256,7 +256,7 @@ export function FplPlayerHero({ h1White, h1Gradient, subtitle, players }: FplPla
         {/* Player card showcase */}
         <div
           className="flex items-end justify-center gap-3 w-full select-none"
-          style={{ paddingTop: 200, overflow: "visible" }}
+          style={{ paddingTop: 20, overflow: "visible" }}
         >
           {players.map((player, i) => {
             const cfg = SLOT_CFG[i]
