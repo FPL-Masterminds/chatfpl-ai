@@ -664,7 +664,7 @@ function LeaguePanel({ data }: { data: DashboardData }) {
               style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
               {value}
             </p>
-            <p className="text-[9px] text-white/30 mt-0.5">{sub}</p>
+            <p className="text-[9px] text-white mt-0.5">{sub}</p>
           </div>
         ))}
       </div>
@@ -677,17 +677,17 @@ function LeaguePanel({ data }: { data: DashboardData }) {
           <div className="lg:col-span-2 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] uppercase tracking-[0.18em] text-white">{data.league_name ?? "Mini-League"}</p>
-              <p className="text-[9px] text-white/30">{standings.length} managers</p>
+              <p className="text-[9px] text-white">{standings.length} managers</p>
             </div>
             <div className="space-y-1">
               {standings.map((row) => (
                 <div key={row.entry_id}
                   className={`rounded-xl px-3 py-2 flex items-center gap-2 text-xs transition-all ${row.is_user ? "border border-emerald-400/30 bg-emerald-400/[0.06]" : "border border-transparent hover:bg-white/[0.02]"}`}>
-                  <span className="w-4 text-white/30 text-[10px] font-mono shrink-0">{row.rank}</span>
+                  <span className="w-4 text-white text-[10px] font-mono shrink-0">{row.rank}</span>
                   <RankArrow rank={row.rank} lastRank={row.last_rank} />
                   <div className="flex-1 min-w-0">
                     <p className={`truncate font-medium text-[11px] ${row.is_user ? "text-emerald-300" : "text-white"}`}>{row.team}</p>
-                    <p className="text-[9px] text-white/50 truncate">{row.manager}</p>
+                    <p className="text-[9px] text-white truncate">{row.manager}</p>
                   </div>
                   {/* Win prob bar */}
                   <div className="hidden sm:flex flex-col items-end gap-0.5 w-16 shrink-0">
@@ -717,15 +717,15 @@ function LeaguePanel({ data }: { data: DashboardData }) {
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] uppercase tracking-[0.18em] text-white">Chip Status</p>
-              <span className="text-[9px] text-white/30">{chipsAvailable} available</span>
+              <span className="text-[9px] text-white">{chipsAvailable} available</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {data.chips.map((chip) => (
                 <div key={chip.key} className={`rounded-xl border px-2.5 py-2 flex items-center gap-2 ${chip.available ? "border-emerald-400/30 bg-emerald-400/[0.08]" : "border-white/5 bg-white/[0.02] opacity-40"}`}>
                   <span className="text-sm leading-none shrink-0">{CHIP_ICONS[chip.key] ?? "●"}</span>
                   <div className="min-w-0">
-                    <p className={`text-[10px] font-semibold truncate leading-tight ${chip.available ? "text-white" : "text-white/40"}`}>{chip.name}</p>
-                    <p className="text-[8px] text-white/25 leading-tight">{chip.available ? "Available" : `GW${chip.event}`}</p>
+                    <p className={`text-[10px] font-semibold truncate leading-tight ${chip.available ? "text-white" : "text-white"}`}>{chip.name}</p>
+                    <p className="text-[8px] text-white leading-tight">{chip.available ? "Available" : `GW${chip.event}`}</p>
                   </div>
                   {chip.available && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse ml-auto" />}
                 </div>
@@ -737,7 +737,7 @@ function LeaguePanel({ data }: { data: DashboardData }) {
           {standings.length > 0 && (
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
               <p className="text-[10px] uppercase tracking-[0.18em] text-white mb-1">Win Probability</p>
-              <p className="text-[9px] text-white/30 mb-3">Based on {remainingGws} remaining GWs</p>
+              <p className="text-[9px] text-white mb-3">Based on {remainingGws} remaining GWs</p>
               <div className="space-y-2">
                 {[...standings]
                   .map(s => ({ ...s, prob: winProbs[s.entry_id] ?? 0 }))
@@ -756,7 +756,7 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                     </div>
                   ))}
               </div>
-              <p className="text-[7px] text-white/20 mt-3">Simulated based on average FPL scoring patterns. For entertainment.</p>
+              <p className="text-[7px] text-white mt-3">Simulated based on average FPL scoring patterns. For entertainment.</p>
             </div>
           )}
         </div>
@@ -876,7 +876,7 @@ export default function DashboardPage() {
                         <p className={`font-semibold text-sm transition-colors leading-tight ${activeTab === tab.id ? "text-white" : "text-white/50 group-hover:text-white/80"}`}>
                           {tab.label}
                         </p>
-                        <p className="text-[11px] text-white/30 mt-0.5 leading-tight hidden lg:block">{tab.desc}</p>
+                        <p className="text-[11px] text-white mt-0.5 leading-tight hidden lg:block">{tab.desc}</p>
                       </div>
                     </div>
                   </button>
@@ -906,7 +906,7 @@ export default function DashboardPage() {
         </div>
         </div>
 
-        <p className="text-center text-[10px] text-white/20 pb-2">
+        <p className="text-center text-[10px] text-white pb-2">
           Live data via the FPL public API · Refreshes each page load
         </p>
       </div>
