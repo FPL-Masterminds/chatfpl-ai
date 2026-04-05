@@ -1,5 +1,4 @@
 import { DevHeader } from "@/components/dev-header"
-import { Footer } from "@/components/footer"
 import { FplPlayerHero, type FplCardPlayer } from "@/components/fpl-player-hero"
 import { ConversationalPlayer, type PlayerQA } from "@/components/conversational-player"
 import Link from "next/link"
@@ -270,7 +269,6 @@ export default async function HaalandPage() {
         <main className="flex-1 flex items-center justify-center">
           <p className="text-white/70">FPL data is temporarily unavailable. Please try again shortly.</p>
         </main>
-        <Footer />
       </div>
     )
   }
@@ -388,8 +386,6 @@ export default async function HaalandPage() {
         </div>
 
       </main>
-
-      <Footer />
     </div>
   )
 }
