@@ -784,13 +784,13 @@ function LeaguePanel({ data }: { data: DashboardData }) {
                 case 0: return { main: isAbove ? `${m} has ${gap}pts on you. Reachable, but they're not stood still.` : `${m} is ${gap}pts back. Don't assume that gap holds all season.`, sub: cl }
                 case 1: return { main: isAbove ? `You're ${gap}pts off ${m}. One blank GW for them and you're right back in it.` : `Only ${gap}pts between you and ${m}. One banker captain call away from trouble.`, sub: cl }
                 case 2: return { main: isAbove ? `${m} leads you by ${gap}pts. A differential captain could close that quickly.` : `${m} is ${gap}pts behind — close enough to make your next transfer matter.`, sub: cl }
-                case 3: return { main: isAbove ? `${gap}pts is what stands between you and ${m}. That's one big GW.` : `${m} is just ${gap}pts adrift. FPL punishes complacency.`, sub: cl }
+                case 3: return { main: isAbove ? `${gap}pts is what stands between you and ${m}. That's one big GW.` : `${m} is just ${gap}pts adrift. That's well within striking distance over the remaining weeks.`, sub: cl }
                 case 4: return { main: isAbove ? `${m} is ${gap}pts clear. Stay consistent and that gap is bridgeable.` : `Keep an eye on ${m}. ${gap}pts isn't a buffer — it's barely breathing room.`, sub: cl }
                 case 5: return { main: isAbove ? `You're chasing ${m} by ${gap}pts. Stay consistent and they're catchable.` : `${m} is lurking ${gap}pts behind. One differential and they're on your shoulder.`, sub: cl }
-                case 6: return { main: isAbove ? `${m} sits ${gap}pts ahead. In FPL terms, that's nothing over the run-in.` : `${m} trails by ${gap}pts. That gap disappears faster than a Salah blank.`, sub: cl }
+                case 6: return { main: isAbove ? `${m} sits ${gap}pts ahead. Small enough to close, if you can string together a couple of consistent weeks.` : `${m} is ${gap}pts back. That margin is small enough to disappear in a single gameweek.`, sub: cl }
                 case 7: return { main: isAbove ? `${gap}pts separates you from ${m}. A captain swap could wipe that out overnight.` : `${m} is only ${gap}pts off the pace. One bad week hands them your spot.`, sub: cl }
                 case 8: return { main: isAbove ? `${m} has a ${gap}pt cushion on you. Consistent weeks and you'll pull them back.` : `${m} needs just ${gap}pts to take your position. Stay sharp.`, sub: cl }
-                case 9: return { main: isAbove ? `You're ${gap}pts behind ${m}. One big haul changes the whole picture.` : `${m} is hunting you down. ${gap}pts is nothing in this game.`, sub: cl }
+                case 9: return { main: isAbove ? `You're ${gap}pts behind ${m}. One big haul changes the whole picture.` : `${m} is ${gap}pts behind you. A good week from them is all it takes to change the picture.`, sub: cl }
                 default: return { main: "", sub: "" }
               }
             }
