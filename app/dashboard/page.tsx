@@ -609,53 +609,158 @@ function TransfersPanel({ data }: { data: DashboardData }) {
   )
 }
 
+function simulateWinProb(standings: LeagueRow[], remainingGws: number): Record<number, number> {
+  if (!standings.length || remainingGws <= 0) return {}
+  const SIMS = 4000
+  const AVG = 50
+  const STD = 18
+  const randn = () => {
+    let u = 0, v = 0
+    while (!u) u = Math.random()
+    while (!v) v = Math.random()
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
+  }
+  const wins: Record<number, number> = {}
+  standings.forEach(s => { wins[s.entry_id] = 0 })
+  for (let i = 0; i < SIMS; i++) {
+    let best = -1, bestId = -1
+    standings.forEach(s => {
+      let proj = s.total
+      for (let g = 0; g < remainingGws; g++) proj += Math.max(1, Math.round(AVG + randn() * STD))
+      if (proj > best) { best = proj; bestId = s.entry_id }
+    })
+    if (bestId !== -1) wins[bestId]++
+  }
+  const result: Record<number, number> = {}
+  standings.forEach(s => { result[s.entry_id] = Math.round((wins[s.entry_id] / SIMS) * 100) })
+  return result
+}
+
 function LeaguePanel({ data }: { data: DashboardData }) {
+  const standings = data.league_standings
+  const user = standings.find(s => s.is_user)
+  const leader = standings[0]
+  const gapToFirst = user && leader && !user.is_user || (user && leader && user.entry_id !== leader.entry_id)
+    ? leader.total - (user?.total ?? 0) : 0
+  const remainingGws = Math.max(0, 38 - data.current_gw)
+  const winProbs = simulateWinProb(standings, remainingGws)
+  const maxProb = Math.max(...Object.values(winProbs), 1)
+  const chipsAvailable = data.chips.filter(c => c.available).length
+
   return (
-    <div className="space-y-5">
-      {/* Chips */}
-      <div>
-        <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-3">Chip Status</p>
-        <div className="grid grid-cols-2 gap-2">
-          {data.chips.map((chip) => (
-            <div key={chip.key} className={`rounded-xl border px-3 py-2.5 flex items-center gap-2.5 transition-all ${chip.available ? "border-emerald-400/30 bg-emerald-400/[0.08] shadow-[0_0_12px_rgba(0,255,135,0.08)]" : "border-white/5 bg-white/[0.02] opacity-40"}`}>
-              <span className="text-base leading-none">{CHIP_ICONS[chip.key] ?? "●"}</span>
-              <div className="min-w-0 flex-1">
-                <p className={`text-xs font-semibold truncate ${chip.available ? "text-white" : "text-white/50"}`}>{chip.name}</p>
-                <p className="text-[9px] text-white/30">{chip.available ? "Available" : `Used GW${chip.event}`}</p>
-              </div>
-              {chip.available && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse" />}
-            </div>
-          ))}
-        </div>
+    <div className="space-y-4">
+
+      {/* ── Stat strip ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Your Rank", value: user ? `${user.rank}${user.rank === 1 ? "st" : user.rank === 2 ? "nd" : user.rank === 3 ? "rd" : "th"}` : "—", sub: `of ${standings.length}` },
+          { label: "Gap to 1st", value: user?.rank === 1 ? "Leading" : `−${fmt(gapToFirst)}`, sub: "points behind" },
+          { label: "GW Points", value: user ? fmt(user.gw_pts) : "—", sub: `GW ${data.current_gw}` },
+          { label: "GWs Left", value: remainingGws.toString(), sub: "remaining this season" },
+        ].map(({ label, value, sub }) => (
+          <div key={label} className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] px-3 py-3">
+            <p className="text-[9px] uppercase tracking-[0.16em] text-white mb-1">{label}</p>
+            <p className="text-xl font-bold text-transparent bg-clip-text leading-none"
+              style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+              {value}
+            </p>
+            <p className="text-[9px] text-white/30 mt-0.5">{sub}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Mini-league */}
-      {data.league_standings.length > 0 && (
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-1">Mini-League</p>
-          {data.league_name && <p className="text-xs text-white/50 mb-3 truncate">{data.league_name}</p>}
-          <div className="space-y-1">
-            {data.league_standings.map((row) => (
-              <div key={row.entry_id}
-                className={`rounded-xl px-3 py-2.5 flex items-center gap-2 text-xs transition-all ${row.is_user ? "border border-emerald-400/30 bg-emerald-400/[0.08]" : "border border-transparent hover:bg-white/[0.03]"}`}>
-                <span className="w-5 text-white/30 text-[10px] font-mono shrink-0">{row.rank}</span>
-                <RankArrow rank={row.rank} lastRank={row.last_rank} />
-                <div className="flex-1 min-w-0">
-                  <p className={`truncate font-medium text-[11px] ${row.is_user ? "text-emerald-300" : "text-white/80"}`}>{row.team}</p>
-                  <p className="text-[9px] text-white/25 truncate">{row.manager}</p>
+      {/* ── Main two-column ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        {/* League standings */}
+        {standings.length > 0 && (
+          <div className="lg:col-span-2 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white">{data.league_name ?? "Mini-League"}</p>
+              <p className="text-[9px] text-white/30">{standings.length} managers</p>
+            </div>
+            <div className="space-y-1">
+              {standings.map((row) => (
+                <div key={row.entry_id}
+                  className={`rounded-xl px-3 py-2 flex items-center gap-2 text-xs transition-all ${row.is_user ? "border border-emerald-400/30 bg-emerald-400/[0.06]" : "border border-transparent hover:bg-white/[0.02]"}`}>
+                  <span className="w-4 text-white/30 text-[10px] font-mono shrink-0">{row.rank}</span>
+                  <RankArrow rank={row.rank} lastRank={row.last_rank} />
+                  <div className="flex-1 min-w-0">
+                    <p className={`truncate font-medium text-[11px] ${row.is_user ? "text-emerald-300" : "text-white/80"}`}>{row.team}</p>
+                    <p className="text-[9px] text-white/25 truncate">{row.manager}</p>
+                  </div>
+                  {/* Win prob bar */}
+                  <div className="hidden sm:flex flex-col items-end gap-0.5 w-16 shrink-0">
+                    <div className="w-full h-1 rounded-full bg-white/[0.06] overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-700"
+                        style={{ width: `${Math.round(((winProbs[row.entry_id] ?? 0) / maxProb) * 100)}%`, background: "linear-gradient(to right,#00FF87,#00FFFF)" }} />
+                    </div>
+                    <p className="text-[8px] text-white/30">{winProbs[row.entry_id] ?? 0}% win</p>
+                  </div>
+                  <div className="text-right shrink-0 ml-2">
+                    <p className={`font-bold text-[12px] ${row.is_user ? "text-transparent bg-clip-text" : "text-white"}`}
+                      style={row.is_user ? { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" } : {}}>
+                      {fmt(row.total)}
+                    </p>
+                    <p className="text-[9px] text-white/35">GW {row.gw_pts}</p>
+                  </div>
                 </div>
-                <div className="text-right shrink-0">
-                  <p className={`font-bold text-[12px] ${row.is_user ? "text-transparent bg-clip-text" : "text-white"}`}
-                    style={row.is_user ? { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" } : {}}>
-                    {fmt(row.total)}
-                  </p>
-                  <p className="text-[9px] text-white/35">GW:{row.gw_pts}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+        )}
+
+        {/* Right column: chips + win prob chart */}
+        <div className="space-y-4">
+
+          {/* Chip Status */}
+          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white">Chip Status</p>
+              <span className="text-[9px] text-white/30">{chipsAvailable} available</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {data.chips.map((chip) => (
+                <div key={chip.key} className={`rounded-xl border px-2.5 py-2 flex items-center gap-2 ${chip.available ? "border-emerald-400/30 bg-emerald-400/[0.08]" : "border-white/5 bg-white/[0.02] opacity-40"}`}>
+                  <span className="text-sm leading-none shrink-0">{CHIP_ICONS[chip.key] ?? "●"}</span>
+                  <div className="min-w-0">
+                    <p className={`text-[10px] font-semibold truncate leading-tight ${chip.available ? "text-white" : "text-white/40"}`}>{chip.name}</p>
+                    <p className="text-[8px] text-white/25 leading-tight">{chip.available ? "Available" : `GW${chip.event}`}</p>
+                  </div>
+                  {chip.available && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse ml-auto" />}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Win Probability chart */}
+          {standings.length > 0 && (
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-white mb-1">Win Probability</p>
+              <p className="text-[9px] text-white/30 mb-3">Based on {remainingGws} remaining GWs</p>
+              <div className="space-y-2">
+                {[...standings]
+                  .map(s => ({ ...s, prob: winProbs[s.entry_id] ?? 0 }))
+                  .sort((a, b) => b.prob - a.prob)
+                  .slice(0, 6)
+                  .map(row => (
+                    <div key={row.entry_id}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <p className={`text-[9px] truncate max-w-[70%] ${row.is_user ? "text-emerald-300 font-semibold" : "text-white/60"}`}>{row.team}</p>
+                        <p className="text-[9px] text-white/50 shrink-0">{row.prob}%</p>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                        <div className="h-full rounded-full transition-all duration-1000"
+                          style={{ width: `${row.prob}%`, background: row.is_user ? "linear-gradient(to right,#00FF87,#00FFFF)" : "rgba(255,255,255,0.15)" }} />
+                      </div>
+                    </div>
+                  ))}
+              </div>
+              <p className="text-[7px] text-white/20 mt-3">Simulated based on average FPL scoring patterns. For entertainment.</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }
