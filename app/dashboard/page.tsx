@@ -756,8 +756,8 @@ function LeaguePanel({ data }: { data: DashboardData }) {
             const chipAdv = t.chip_bonus - (user.chip_bonus ?? 0)
             const chipNames = t.chips_remaining.map(c => CHIP_LABELS[c] ?? c.toUpperCase()).join(" + ")
             return (
-              <div className="rounded-2xl border border-amber-400/30 bg-amber-400/[0.04] p-3">
-                <p className="text-[9px] uppercase tracking-[0.18em] text-amber-300 mb-1">Chip Watch</p>
+              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-3">
+                <p className="text-[9px] uppercase tracking-[0.18em] text-white mb-1">Chip Watch</p>
                 <p className="text-[11px] text-white font-medium leading-snug">
                   {t.manager} has {chipNames} — {chipAdv}pts of firepower you don&apos;t have.
                 </p>
