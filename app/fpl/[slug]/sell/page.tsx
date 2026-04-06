@@ -6,15 +6,15 @@ import Link from "next/link"
 import Image from "next/image"
 import {
   getPlayerTransferData,
-  buildTransferPageText,
+  buildSellPageText,
   buildSlugLookup,
+  type FixtureGW,
 } from "@/lib/fpl-player-page"
 
-// ISR — revalidate every hour
 export const revalidate = 3600
 export const dynamicParams = true
 
-// ─── Static params — same eligible player set as captain pages ────────────────
+// ─── Static params ────────────────────────────────────────────────────────────
 
 export async function generateStaticParams() {
   try {
@@ -28,7 +28,6 @@ export async function generateStaticParams() {
         p.minutes >= 1000 &&
         parseFloat(p.selected_by_percent ?? "0") >= 1.0
     )
-
     const slugMap = buildSlugLookup(eligible, bootstrap.teams ?? [])
     return Array.from(slugMap.keys()).map((slug) => ({ slug }))
   } catch {
@@ -36,7 +35,7 @@ export async function generateStaticParams() {
   }
 }
 
-// ─── Dynamic metadata ─────────────────────────────────────────────────────────
+// ─── Metadata ────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
   params,
@@ -45,21 +44,21 @@ export async function generateMetadata({
 }) {
   const { slug } = await params
   const data = await getPlayerTransferData(slug)
-  if (!data) return { title: "FPL Transfer Analysis | ChatFPL AI" }
+  if (!data) return { title: "FPL Sell Analysis | ChatFPL AI" }
 
   const { player: p, gw } = data
   return {
-    title: `Should I transfer ${p.displayName} into my FPL team? Gameweek ${gw} | ChatFPL AI`,
-    description: `Transfer analysis for ${p.displayName} in FPL Gameweek ${gw}. Fixture run, form, value, and expected points - everything you need to decide whether to buy ${p.webName} this week.`,
+    title: `Should I sell ${p.displayName} in FPL Gameweek ${gw}? | ChatFPL AI`,
+    description: `Sell or hold ${p.displayName} in FPL GW${gw}? Form, fixture run, ownership risk, price movement, and transfer activity - everything you need to decide whether to sell ${p.webName} this week.`,
     openGraph: {
-      title: `Should I transfer ${p.displayName} in? FPL GW${gw} | ChatFPL AI`,
-      description: `Is ${p.displayName} worth transferring in for Gameweek ${gw}? Live FPL data, fixture run, and full transfer analysis.`,
-      url: `https://www.chatfpl.ai/fpl/${slug}/transfer`,
+      title: `Should I sell ${p.displayName}? FPL GW${gw} | ChatFPL AI`,
+      description: `Data-driven sell analysis for ${p.displayName} in Fantasy Premier League Gameweek ${gw}.`,
+      url: `https://www.chatfpl.ai/fpl/${slug}/sell`,
     },
   }
 }
 
-// ─── FDR dot helper ───────────────────────────────────────────────────────────
+// ─── FDR dots ────────────────────────────────────────────────────────────────
 
 function FdrDots({ fdr }: { fdr: number }) {
   return (
@@ -75,9 +74,78 @@ function FdrDots({ fdr }: { fdr: number }) {
   )
 }
 
+// ─── Fixture run strip (shared visual, same as transfer page) ─────────────────
+
+function FixtureStrip({ fixtureRun }: { fixtureRun: FixtureGW[] }) {
+  return (
+    <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
+      <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-4">Fixture run</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {fixtureRun.map((f) => (
+          <div
+            key={f.gw}
+            className="rounded-2xl px-4 py-4 text-center flex flex-col items-center gap-1"
+            style={
+              f.matches.length === 0
+                ? { border: "1px dashed rgba(255,255,255,0.08)", background: "transparent" }
+                : f.matches.length >= 2
+                ? { border: "1px solid rgba(0,255,135,0.2)", background: "rgba(0,255,135,0.04)" }
+                : { border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }
+            }
+          >
+            <div className="flex items-center gap-1.5">
+              <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">{`GW${f.gw}`}</p>
+              {f.matches.length >= 2 && (
+                <span className="text-[8px] font-black uppercase tracking-wider rounded px-1 py-0.5 text-black" style={{ background: "#00FF87" }}>DGW</span>
+              )}
+            </div>
+            {f.matches.length === 0 ? (
+              <div className="flex flex-col items-center gap-1.5 mt-1">
+                <svg className="h-7 w-7" fill="none" strokeWidth="1.5" viewBox="0 0 24 24" style={{ stroke: "url(#blankGradSell)" }}>
+                  <defs>
+                    <linearGradient id="blankGradSell" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#00FF87" />
+                      <stop offset="100%" stopColor="#00FFFF" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="9" />
+                  <path strokeLinecap="round" d="M9 9l6 6M15 9l-6 6" />
+                </svg>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-white">No fixture</p>
+              </div>
+            ) : f.matches.length >= 2 ? (
+              <div className="flex flex-col gap-2 w-full mt-1">
+                {f.matches.map((m, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-0.5">
+                    {m.opponentCode ? (
+                      <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`} alt={m.opponent} width={28} height={28} className="object-contain" unoptimized />
+                    ) : <div className="h-7 w-7" />}
+                    <p className="text-xs font-bold text-white leading-tight">{m.opponent}</p>
+                    <p className="text-[10px] text-white/50">{m.isHome ? "H" : "A"}</p>
+                    <FdrDots fdr={m.fdr} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                {f.matches[0].opponentCode ? (
+                  <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${f.matches[0].opponentCode}.png`} alt={f.matches[0].opponent} width={36} height={36} className="object-contain" unoptimized />
+                ) : <div className="h-9 w-9" />}
+                <p className="text-sm font-bold text-white leading-tight">{f.matches[0].opponent}</p>
+                <p className="text-[10px] text-white/50">{f.matches[0].isHome ? "Home" : "Away"}</p>
+                <FdrDots fdr={f.matches[0].fdr} />
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function FplTransferPage({
+export default async function FplSellPage({
   params,
 }: {
   params: Promise<{ slug: string }>
@@ -86,12 +154,13 @@ export default async function FplTransferPage({
   const data = await getPlayerTransferData(slug)
   if (!data) notFound()
 
-  const { gw, player, showcasePlayers, relatedPlayers, fixtureRun, ptsPerMillion } = data
+  const { gw, player, showcasePlayers, relatedPlayers, fixtureRun, ptsPerMillion, transfersOutGW } = data
   const {
     verdict, verdictLabel, verdictColor, verdictBullets,
+    ownershipContext, dataDisclaimer,
     caseFor, caseAgainst, caseHeading,
     ctaLeadin, qaItems, welcome,
-  } = buildTransferPageText(data)
+  } = buildSellPageText(data)
 
   return (
     <div className="fpl-player-root flex min-h-screen flex-col bg-black">
@@ -102,7 +171,6 @@ export default async function FplTransferPage({
         .fpl-player-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
       `}</style>
 
-      {/* FAQPage JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -120,13 +188,12 @@ export default async function FplTransferPage({
 
       <DevHeader />
 
-      {/* Hero */}
       <FplPlayerHero
-        h1White={`Should I transfer ${player.displayName} into my `}
-        h1Gradient={`Fantasy Premier League team in Gameweek ${gw}?`}
+        h1White={`Should I sell ${player.displayName} in `}
+        h1Gradient={`Fantasy Premier League Gameweek ${gw}?`}
         subtitle={`Gameweek ${gw} · ${player.club} · ${player.position} · ${player.price}`}
         players={showcasePlayers}
-        badgeLabel="Transfer Analysis"
+        badgeLabel="Sell Analysis"
       />
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">
@@ -140,15 +207,12 @@ export default async function FplTransferPage({
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Form (last 6 GWs)",      value: player.form },
-              { label: `Expected pts, GW${gw}`,  value: String(player.ep_next) },
-              { label: "Pts per million",         value: String(ptsPerMillion) },
-              { label: "Season total",            value: `${player.totalPts} pts` },
+              { label: "Form (last 6 GWs)",        value: player.form },
+              { label: `Expected pts, GW${gw}`,    value: String(player.ep_next) },
+              { label: "Ownership",                value: `${player.ownership}%` },
+              { label: "Selling this GW",          value: transfersOutGW > 1000 ? `${Math.round(transfersOutGW / 1000)}k` : String(transfersOutGW) },
             ].map((s) => (
-              <div
-                key={s.label}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center"
-              >
+              <div key={s.label} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center">
                 <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-1">{s.label}</p>
                 <p
                   className="text-2xl font-bold text-transparent bg-clip-text"
@@ -161,87 +225,7 @@ export default async function FplTransferPage({
           </div>
         </div>
 
-        {/* Fixture run strip */}
-        <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
-          <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-4">Fixture run</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {fixtureRun.map((f) => (
-              <div
-                key={f.gw}
-                className="rounded-2xl px-4 py-4 text-center flex flex-col items-center gap-1"
-                style={
-                  f.matches.length === 0
-                    ? { border: "1px dashed rgba(255,255,255,0.08)", background: "transparent" }
-                    : f.matches.length >= 2
-                    ? { border: "1px solid rgba(0,255,135,0.2)", background: "rgba(0,255,135,0.04)" }
-                    : { border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }
-                }
-              >
-                <div className="flex items-center gap-1.5">
-                  <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">{`GW${f.gw}`}</p>
-                  {f.matches.length >= 2 && (
-                    <span className="text-[8px] font-black uppercase tracking-wider rounded px-1 py-0.5 text-black" style={{ background: "#00FF87" }}>DGW</span>
-                  )}
-                </div>
-
-                {f.matches.length === 0 ? (
-                  <div className="flex flex-col items-center gap-1.5 mt-1">
-                    <svg className="h-7 w-7" fill="none" strokeWidth="1.5" viewBox="0 0 24 24"
-                      style={{ stroke: "url(#blankGrad)" }}>
-                      <defs>
-                        <linearGradient id="blankGrad" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="#00FF87" />
-                          <stop offset="100%" stopColor="#00FFFF" />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="12" cy="12" r="9" />
-                      <path strokeLinecap="round" d="M9 9l6 6M15 9l-6 6" />
-                    </svg>
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-white">No fixture</p>
-                  </div>
-                ) : f.matches.length >= 2 ? (
-                  // Double GW — stack both fixtures
-                  <div className="flex flex-col gap-2 w-full mt-1">
-                    {f.matches.map((m, idx) => (
-                      <div key={idx} className="flex flex-col items-center gap-0.5">
-                        {m.opponentCode ? (
-                          <Image
-                            src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`}
-                            alt={m.opponent}
-                            width={28}
-                            height={28}
-                            className="object-contain"
-                            unoptimized
-                          />
-                        ) : <div className="h-7 w-7" />}
-                        <p className="text-xs font-bold text-white leading-tight">{m.opponent}</p>
-                        <p className="text-[10px] text-white/50">{m.isHome ? "H" : "A"}</p>
-                        <FdrDots fdr={m.fdr} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  // Single fixture
-                  <>
-                    {f.matches[0].opponentCode ? (
-                      <Image
-                        src={`https://resources.premierleague.com/premierleague/badges/70/t${f.matches[0].opponentCode}.png`}
-                        alt={f.matches[0].opponent}
-                        width={36}
-                        height={36}
-                        className="object-contain"
-                        unoptimized
-                      />
-                    ) : <div className="h-9 w-9" />}
-                    <p className="text-sm font-bold text-white leading-tight">{f.matches[0].opponent}</p>
-                    <p className="text-[10px] text-white/50">{f.matches[0].isHome ? "Home" : "Away"}</p>
-                    <FdrDots fdr={f.matches[0].fdr} />
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        <FixtureStrip fixtureRun={fixtureRun} />
 
         {/* Verdict block */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
@@ -262,7 +246,7 @@ export default async function FplTransferPage({
               </span>
               <p className="text-white font-semibold text-base leading-snug">{verdict}</p>
             </div>
-            <ul className="space-y-2">
+            <ul className="space-y-2 mb-5">
               {verdictBullets.map((b) => (
                 <li key={b} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
                   <svg className="mt-0.5 h-4 w-4 shrink-0" style={{ color: verdictColor }} fill="currentColor" viewBox="0 0 20 20">
@@ -272,6 +256,11 @@ export default async function FplTransferPage({
                 </li>
               ))}
             </ul>
+            {/* Ownership context + data disclaimer woven in */}
+            <div className="border-t border-white/[0.06] pt-4 space-y-2">
+              <p className="text-sm text-white/70 leading-relaxed">{ownershipContext}</p>
+              <p className="text-xs text-white/40 leading-relaxed italic">{dataDisclaimer}</p>
+            </div>
           </div>
         </div>
 
@@ -280,7 +269,7 @@ export default async function FplTransferPage({
           <h2 className="text-lg font-bold text-white mb-5">{caseHeading}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
-              <p className="text-[10px] uppercase tracking-[0.18em] font-bold mb-3" style={{ color: "#00FF87" }}>The case for</p>
+              <p className="text-[10px] uppercase tracking-[0.18em] font-bold mb-3" style={{ color: "#00FF87" }}>The case for selling</p>
               <ul className="space-y-2.5">
                 {caseFor.map((b) => (
                   <li key={b} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
@@ -293,7 +282,7 @@ export default async function FplTransferPage({
               </ul>
             </div>
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
-              <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/50 mb-3">The case against</p>
+              <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/50 mb-3">The case for holding</p>
               <ul className="space-y-2.5">
                 {caseAgainst.map((b) => (
                   <li key={b} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
@@ -311,7 +300,7 @@ export default async function FplTransferPage({
         {/* Chat heading */}
         <div className="relative z-10 text-center mb-8 max-w-2xl">
           <h2 className="text-2xl font-bold leading-tight tracking-tight mb-2">
-            <span className="text-white">{player.webName} Transfer Analysis </span>
+            <span className="text-white">{player.webName} Sell Analysis </span>
             <span
               className="text-transparent bg-clip-text"
               style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
@@ -364,26 +353,30 @@ export default async function FplTransferPage({
           </div>
         </div>
 
-        {/* Also analyse — links to transfer pages for similar players */}
+        {/* Also analyse */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mt-16">
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
           <div className="flex flex-wrap justify-center gap-3">
-            {relatedPlayers.map((rp) => (
             <Link
-              href={`/fpl/${slug}/sell`}
+              href={`/fpl/${slug}/transfer`}
               className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
             >
-              Should I sell {player.webName}?
+              Should I transfer {player.webName} in?
+            </Link>
+            <Link
+              href={`/fpl/${slug}`}
+              className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
+            >
+              Should I captain {player.webName}?
             </Link>
             {relatedPlayers.map((rp) => (
               <Link
                 key={rp.slug}
-                href={`/fpl/${rp.slug}/transfer`}
+                href={`/fpl/${rp.slug}/sell`}
                 className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
               >
-                Should I transfer {rp.name}?
+                Should I sell {rp.name}?
               </Link>
-            ))}
             ))}
           </div>
         </div>

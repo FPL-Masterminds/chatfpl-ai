@@ -98,8 +98,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const playerSlugs = await getPlayerSlugs()
   const captainRoutes  = playerSlugs.map((slug) => `/fpl/${slug}`)
   const transferRoutes = playerSlugs.map((slug) => `/fpl/${slug}/transfer`)
+  const sellRoutes     = playerSlugs.map((slug) => `/fpl/${slug}/sell`)
 
-  const allRoutes = [...staticRoutes, ...captainRoutes, ...transferRoutes]
+  const allRoutes = [...staticRoutes, ...captainRoutes, ...transferRoutes, ...sellRoutes]
 
   return allRoutes.map((route) => {
     const meta = getRouteMetadata(route)

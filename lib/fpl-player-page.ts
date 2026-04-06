@@ -470,6 +470,7 @@ export interface PlayerTransferPageData extends PlayerPageData {
   fixtureRun: FixtureGW[]      // next 4 GWs
   ptsPerMillion: number
   transfersInGW: number
+  transfersOutGW: number
   priceChangeGW: number        // cost_change_event (positive = rising)
 }
 
@@ -638,8 +639,9 @@ export async function getPlayerTransferData(
       slug,
       fixtureRun,
       ptsPerMillion,
-      transfersInGW: el.transfers_in_event ?? 0,
-      priceChangeGW: (el.cost_change_event ?? 0) / 10,
+      transfersInGW:  el.transfers_in_event  ?? 0,
+      transfersOutGW: el.transfers_out_event ?? 0,
+      priceChangeGW:  (el.cost_change_event  ?? 0) / 10,
     }
   } catch {
     return null
@@ -874,6 +876,202 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
 
   return {
     verdict, verdictLabel, verdictColor, verdictBullets,
+    caseFor, caseAgainst, caseHeading,
+    ctaLeadin, qaItems, welcome,
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SELL PAGE — text logic (reuses PlayerTransferPageData from getPlayerTransferData)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface SellPageTextResult {
+  verdict: string
+  verdictLabel: string
+  verdictColor: string
+  verdictBullets: string[]
+  ownershipContext: string
+  dataDisclaimer: string
+  caseFor: string[]
+  caseAgainst: string[]
+  caseHeading: string
+  ctaLeadin: string
+  qaItems: PlayerQA[]
+  welcome: string
+}
+
+export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult {
+  const { gw, player: p, fixtureRun, ptsPerMillion, transfersOutGW, priceChangeGW } = d
+  const formVal   = parseFloat(p.form)
+  const allMatches  = fixtureRun.flatMap((f) => f.matches)
+  const easyCount   = allMatches.filter((m) => m.fdr <= 3).length
+  const hardCount   = allMatches.filter((m) => m.fdr >= 4).length
+  const blankGWs    = fixtureRun.filter((f) => f.matches.length === 0)
+  const doubleGWs   = fixtureRun.filter((f) => f.matches.length >= 2)
+  const hasImmediateBlank = fixtureRun[0].matches.length === 0
+  const hasBlankInRun     = blankGWs.length > 0
+  const hasDoubleGW       = doubleGWs.length > 0
+
+  // ─── Verdict logic ──────────────────────────────────────────────────────────
+  const isClearSell =
+    p.chance < 75 ||
+    (formVal < 3 && p.ep_next < 4 && easyCount === 0) ||
+    (hasImmediateBlank && formVal < 4 && easyCount === 0)
+
+  const isConsiderSelling = !isClearSell && (
+    (formVal < 4 && p.ep_next < 5) ||
+    (priceChangeGW < 0 && formVal < 5) ||
+    (hardCount >= 3 && formVal < 5)
+  )
+
+  const isDontSell = !isClearSell && !isConsiderSelling && (
+    (p.ep_next >= 6 && formVal >= 5 && easyCount >= 2) ||
+    hasDoubleGW
+  )
+
+  const verdictLabel =
+    isClearSell         ? "SELL"
+    : isConsiderSelling ? "CONSIDER SELLING"
+    : isDontSell        ? "DON'T SELL"
+    :                     "HOLD"
+
+  const verdict =
+    isClearSell
+      ? `The data this week leans towards selling. ${
+          p.chance < 75
+            ? `${p.webName} is ${p.news || "carrying a fitness concern"}, which alone makes holding him a risk.`
+            : `Form is below what you need from a premium asset, the fixture run is tough, and a significant number of managers have already moved him on.`
+        } Whether it is the right call depends on what you bring in and your current rank position.`
+      : isConsiderSelling
+      ? `There is a case for selling ${p.webName} this week, though it is not clear-cut. The form and fixture picture do not inspire full confidence at this price. The decision comes down to your budget, your replacement target, and where you are sitting in your leagues.`
+      : isDontSell
+      ? `On the data alone, selling ${p.webName} this week looks like the wrong move. ${
+          hasDoubleGW
+            ? `He has a Double Gameweek in GW${doubleGWs[0].gw} - selling before a Double Gameweek is rarely the right call.`
+            : `Expected points are strong, the fixture run is favourable, and the season numbers still justify the price.`
+        }`
+      : `The numbers do not strongly support selling ${p.webName} this week. Form and expected points are reasonable for the price, and the fixture run has workable weeks ahead. That said, only you know your squad balance and what you are trying to achieve.`
+
+  // ─── Verdict bullets ────────────────────────────────────────────────────────
+  const verdictBullets: string[] = [
+    formVal < 3
+      ? `Form: ${p.form} pts/game over the last 6 gameweeks - poor output for a player at this price`
+      : formVal < 5
+      ? `Form: ${p.form} pts/game over the last 6 gameweeks - below the level you want from a premium asset`
+      : `Form: ${p.form} pts/game over the last 6 gameweeks - still producing at a reasonable level`,
+    hasDoubleGW
+      ? `Double Gameweek: ${p.webName} has 2 fixtures in GW${doubleGWs[0].gw} - high ceiling in the short term`
+      : hardCount >= 3
+      ? `Fixture run: ${hardCount} of the next ${allMatches.length} fixtures are rated 4 or above for difficulty`
+      : easyCount >= 2
+      ? `Fixture run: ${easyCount} favourable fixtures in the next 4 gameweeks`
+      : `Fixture run: mixed picture over the next 4 gameweeks`,
+    transfersOutGW > 50000
+      ? `Transfer activity: ${Math.round(transfersOutGW / 1000)}k managers have sold ${p.webName} this gameweek`
+      : priceChangeGW < 0
+      ? `Price: ${p.webName} has dropped £${Math.abs(priceChangeGW).toFixed(1)}m this gameweek`
+      : `Value: ${ptsPerMillion} points per million spent this season`,
+  ]
+
+  // ─── Ownership context (woven into verdict block) ───────────────────────────
+  const ownershipContext =
+    p.ownership >= 40
+      ? `Ownership stands at ${p.ownership}%. More than four in ten FPL managers own ${p.webName}. If he scores heavily and you have sold him, you lose ground on a large portion of the field. If he blanks, you gain on them. This cuts both ways - ownership is a risk parameter, not a reason to hold or sell by itself. Your rank ambition and what you bring in are the deciding factors.`
+      : p.ownership >= 20
+      ? `Ownership stands at ${p.ownership}%. A meaningful share of the game owns ${p.webName}, but selling is not a dramatic differential move at this level. The rank impact of a blank or a big score is real but manageable depending on your league positions.`
+      : `Ownership stands at ${p.ownership}%. At this level, selling is a low-risk differential move in terms of rank impact. The decision is almost entirely about whether your budget works harder elsewhere.`
+
+  const dataDisclaimer = `This page presents the statistics. The decision is yours. For a recommendation based on your specific squad, budget, and remaining gameweeks, ask ChatFPL AI directly.`
+
+  // ─── Case for selling ───────────────────────────────────────────────────────
+  const caseFor: string[] = []
+  const caseAgainst: string[] = []
+
+  if (p.chance < 75) caseFor.push(`Availability: ${p.news || "Fitness doubt"} - a player you cannot rely on to start is worth reconsidering at this price.`)
+  if (formVal < 3) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - poor output that is hard to justify at ${p.price}.`)
+  else if (formVal < 5) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - below the standard you want from a player at this price.`)
+  if (hardCount >= 3) caseFor.push(`Fixture run: ${hardCount} of the next ${allMatches.length} fixtures are rated 4 or above for difficulty. There are cheaper options with better schedules.`)
+  if (hasImmediateBlank) caseFor.push(`Blank Gameweek: ${p.webName} has no fixture in GW${gw}. Holding him this week costs you a week of returns.`)
+  else if (hasBlankInRun && !hasDoubleGW) caseFor.push(`Blank ahead: ${p.webName} has no fixture in GW${blankGWs[0].gw}. Factor that into how many weeks of returns you are actually getting.`)
+  if (priceChangeGW < 0) caseFor.push(`Price falling: ${p.webName} has dropped £${Math.abs(priceChangeGW).toFixed(1)}m this gameweek. Continued selling pressure means delayed action costs you transfer value.`)
+  if (transfersOutGW > 100000) caseFor.push(`Selling pressure: ${Math.round(transfersOutGW / 1000)}k managers have sold ${p.webName} this week. That level of outward movement typically signals a shift in confidence across the game.`)
+  if (ptsPerMillion < 13) caseFor.push(`Value: ${ptsPerMillion} points per million this season - below what you should expect from a player at ${p.price}.`)
+
+  // ─── Case against selling (reasons to hold) ─────────────────────────────────
+  if (hasDoubleGW) caseAgainst.push(`Double Gameweek: ${p.webName} has two fixtures in GW${doubleGWs[0].gw}. Selling before a Double Gameweek is almost always the wrong timing.`)
+  if (p.ep_next >= 6) caseAgainst.push(`Expected points: ${p.ep_next} xPts projected for GW${gw} - among the stronger return expectations in his position this week.`)
+  else if (p.ep_next >= 4) caseAgainst.push(`Expected points: ${p.ep_next} xPts projected for GW${gw} - a reasonable return expectation that does not make selling urgent.`)
+  if (easyCount >= 3) caseAgainst.push(`Fixture run: ${easyCount} favourable fixtures in the next 4 gameweeks. The schedule softens, which typically improves returns.`)
+  else if (easyCount >= 2) caseAgainst.push(`Fixture run: ${easyCount} manageable fixtures ahead. Patience may be rewarded over the coming weeks.`)
+  if (priceChangeGW > 0) caseAgainst.push(`Price rising: ${p.webName} has gained £${priceChangeGW.toFixed(1)}m this gameweek. Selling now means a lower sell price than if you wait.`)
+  if (formVal >= 6) caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - currently one of the better-returning players in the game.`)
+  if (ptsPerMillion >= 16) caseAgainst.push(`Season value: ${ptsPerMillion} points per million this season remains strong. A short run of poor form does not erase that.`)
+
+  if (caseFor.length === 0)     caseFor.push(`${p.webName} is not producing at the level you need from an asset at ${p.price}. The budget could work harder elsewhere.`)
+  if (caseAgainst.length === 0) caseAgainst.push(`${p.webName} remains a viable squad option. The case for selling is not strong enough on current data to make it a priority move.`)
+
+  const caseHeading = isClearSell || isConsiderSelling
+    ? `The case for selling ${p.webName} in GW${gw}`
+    : `Why selling ${p.webName} this week may be premature`
+
+  const ctaLeadin = isClearSell || isConsiderSelling
+    ? `Know what you want to buy but not sure the move adds up for your squad? ChatFPL AI can weigh your full squad and budget and tell you whether the transfer is worth it.`
+    : `Want to know if there is a better option than ${p.webName} at his price? ChatFPL AI can compare the alternatives and tell you whether a switch makes sense.`
+
+  // ─── Q&A ────────────────────────────────────────────────────────────────────
+  const qaItems: PlayerQA[] = [
+    {
+      id: "sell",
+      question: `Should I sell ${p.webName} before Gameweek ${gw}?`,
+      answer: [verdict, "", ownershipContext, "", dataDisclaimer].join("\n"),
+    },
+    {
+      id: "ownership",
+      question: `What is the ownership risk of selling ${p.webName}?`,
+      answer: [
+        ownershipContext,
+        "",
+        `If ${p.webName} scores heavily and you have sold him, every manager who kept him gains those points on you directly. At ${p.ownership}% ownership, that is a large portion of the field. If he blanks, you gain on those same managers.`,
+        "",
+        `There is no universal right answer - it depends on your current rank, your target finish, and how many gameweeks remain. ChatFPL AI can contextualise this against your specific situation.`,
+      ].join("\n"),
+    },
+    {
+      id: "price",
+      question: `Is ${p.webName}'s price likely to drop further?`,
+      answer: [
+        priceChangeGW < 0
+          ? `${p.webName} has already dropped £${Math.abs(priceChangeGW).toFixed(1)}m this gameweek. FPL prices fall when more managers are selling than buying.`
+          : priceChangeGW > 0
+          ? `${p.webName}'s price has risen £${priceChangeGW.toFixed(1)}m this gameweek, meaning more managers are buying than selling right now.`
+          : `${p.webName}'s price is stable this gameweek - transfer activity in and out is roughly balanced.`,
+        "",
+        transfersOutGW > 50000
+          ? `${Math.round(transfersOutGW / 1000)}k managers have sold him this week. If that level of outward movement continues, further falls are likely.`
+          : `Current selling pressure is not at a level that would typically trigger a price drop imminently.`,
+        "",
+        `FPL price changes are calculated overnight. If you are planning to sell, the timing within a week can affect the sell price you receive.`,
+      ].join("\n"),
+    },
+    {
+      id: "replacement",
+      question: `Who should I buy if I sell ${p.webName}?`,
+      answer: [
+        `The right replacement depends on your available budget after selling ${p.webName} at his current sell price, and which areas of your squad need strengthening most.`,
+        "",
+        `The key questions are: does the replacement have a better fixture run over the next 4 gameweeks, a stronger recent form score, and a comparable expected points projection for the money?`,
+        "",
+        `ChatFPL AI can look at your specific squad, your budget after selling ${p.webName}, and the current data to suggest the strongest available options in his position and elsewhere.`,
+      ].join("\n"),
+    },
+  ]
+
+  const welcome = `${verdict} Click a question below for the full breakdown.`
+  const verdictColor = "#00FF87"
+
+  return {
+    verdict, verdictLabel, verdictColor, verdictBullets,
+    ownershipContext, dataDisclaimer,
     caseFor, caseAgainst, caseHeading,
     ctaLeadin, qaItems, welcome,
   }
