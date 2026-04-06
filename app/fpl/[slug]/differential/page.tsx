@@ -158,7 +158,7 @@ function DifferentialAlts({ alts, currentSlug }: { alts: DifferentialAlternative
               <div className="flex flex-col items-center w-full">
                 <div className="relative flex justify-center" style={{ height: 90 }}>
                   <Image
-                    src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${alt.code}.png`}
+                    src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${alt.code}.png`}
                     alt={alt.name}
                     width={70}
                     height={90}
