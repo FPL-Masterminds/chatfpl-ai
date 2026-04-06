@@ -286,6 +286,12 @@ export default async function FplPlayerPage({
             >
               Should I sell {player.webName}?
             </Link>
+            <Link
+              href={`/fpl/${slug}/differential`}
+              className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
+            >
+              Is {player.webName} a differential?
+            </Link>
             {relatedPlayers.map((rp) => (
               <Link
                 key={rp.slug}
