@@ -193,7 +193,8 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
       <table className="w-full min-w-[600px] text-sm">
         <thead>
           <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <th className="text-left px-3 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold whitespace-nowrap">Player</th>
+            <th className="text-center px-3 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold">Photo</th>
+            <th className="text-center px-3 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold">Player</th>
             {STAT_COLS.map((col) => (
               <th key={col.label} className="text-center px-2 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold whitespace-nowrap">
                 {col.label}
@@ -209,31 +210,30 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
                 key={player.slug}
                 style={{ borderBottom: rowIdx === 0 ? "1px solid rgba(255,255,255,0.04)" : undefined }}
               >
-                {/* Player cell — tight, no fixed width */}
-                <td className="px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex flex-col items-center shrink-0">
-                      <Image
-                        src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-                        alt={player.webName}
-                        width={52}
-                        height={65}
-                        style={{ objectFit: "contain" }}
-                        unoptimized
-                      />
-                      <div
-                        style={{
-                          height: 1, width: 52,
-                          background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
-                          boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
-                        }}
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-bold text-white leading-tight whitespace-nowrap">{player.webName}</p>
-                      <p className="text-[10px] text-white/70 whitespace-nowrap">{player.position} - {player.club}</p>
-                    </div>
+                {/* Photo cell */}
+                <td className="px-3 py-2 text-center">
+                  <div className="flex flex-col items-center mx-auto" style={{ width: 52 }}>
+                    <Image
+                      src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+                      alt={player.webName}
+                      width={52}
+                      height={65}
+                      style={{ objectFit: "contain" }}
+                      unoptimized
+                    />
+                    <div
+                      style={{
+                        height: 1, width: 52,
+                        background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+                        boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+                      }}
+                    />
                   </div>
+                </td>
+                {/* Player name cell — centred */}
+                <td className="px-3 py-2 text-center">
+                  <p className="text-sm font-bold text-white leading-tight whitespace-nowrap">{player.webName}</p>
+                  <p className="text-[10px] text-white/70 whitespace-nowrap">{player.position} - {player.club}</p>
                 </td>
                 {/* Stat cells */}
                 {STAT_COLS.map((col) => {
