@@ -96,8 +96,9 @@ export function buildSlugLookup(
  *   combined length is reasonable, otherwise fall back to web_name alone.
  */
 function getDisplayName(p: any): string {
-  const webName: string = p.web_name ?? ""
+  const webName: string   = p.web_name   ?? ""
   const firstName: string = p.first_name ?? ""
+  const secondName: string = p.second_name ?? ""
 
   // Abbreviated web_name like "B.Fernandes" — strip the initial and use first_name + surname
   const abbreviated = /^[A-Z]\..+/.test(webName)
@@ -110,11 +111,19 @@ function getDisplayName(p: any): string {
   // Multi-word web_name like "Bernardo Silva" — use as-is
   if (webName.includes(" ")) return webName
 
-  // Duplication guard: if first_name already ends with web_name
+  // Duplication guard: first_name already ends with web_name
   // e.g. first_name="Igor Thiago" web_name="Thiago" → avoid "Igor Thiago Thiago"
   if (firstName.toLowerCase().endsWith(webName.toLowerCase())) {
     return firstName.length <= 22 ? firstName : webName
   }
+
+  // Mononym check: if web_name is a nickname unrelated to the actual surname,
+  // use it alone — e.g. web_name="Beto", second_name="Betuncal" → return "Beto"
+  // Safe to concatenate only when web_name matches the start of second_name or vice versa
+  const wn = webName.toLowerCase()
+  const sn = secondName.toLowerCase()
+  const isSurname = sn.startsWith(wn) || wn.startsWith(sn)
+  if (!isSurname) return webName
 
   const full = `${firstName} ${webName}`
   return full.length <= 22 ? full : webName
