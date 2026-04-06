@@ -86,15 +86,47 @@ export async function GET() {
         });
     });
 
-    // Chip status
+    // Chip status — 2025/26 has two full sets of chips (H1: GW1-19, H2: GW20+).
+    // A chip used in H1 does NOT consume the H2 version. We only care about
+    // what is remaining in the current half (determined by the current GW).
+    const H2_START = 20;
+    const currentEvent = bootstrap.events?.find((e: any) => e.is_current)?.id
+      ?? bootstrap.events?.find((e: any) => e.is_next)?.id
+      ?? 1;
+    const inH2 = currentEvent >= H2_START;
+    const halfStart = inH2 ? H2_START : 1;
+    const halfEnd   = inH2 ? Infinity : H2_START - 1;
+
     const playedChips: any[] = history?.chips ?? [];
-    const usedNames: string[] = playedChips.map((c: any) => c.name);
-    const wildcardsUsed = usedNames.filter((n) => n === "wildcard").length;
+    // Only chips played within the current half matter for "remaining"
+    const halfChips = playedChips.filter((c: any) => {
+      const ev = c.event ?? 0;
+      return ev >= halfStart && ev <= halfEnd;
+    });
+    const halfUsedNames: string[] = halfChips.map((c: any) => c.name);
+    const halfWildcardsUsed = halfUsedNames.filter((n) => n === "wildcard").length;
+
     const chips = [
-      { name: "Wildcard", key: "wildcard", available: wildcardsUsed < 2, event: playedChips.findLast?.((c: any) => c.name === "wildcard")?.event ?? null },
-      { name: "Free Hit", key: "freehit", available: !usedNames.includes("freehit"), event: playedChips.find((c: any) => c.name === "freehit")?.event ?? null },
-      { name: "Triple Cap", key: "3xc", available: !usedNames.includes("3xc"), event: playedChips.find((c: any) => c.name === "3xc")?.event ?? null },
-      { name: "Bench Boost", key: "bboost", available: !usedNames.includes("bboost"), event: playedChips.find((c: any) => c.name === "bboost")?.event ?? null },
+      {
+        name: "Wildcard", key: "wildcard",
+        available: halfWildcardsUsed < 1,
+        event: halfChips.findLast?.((c: any) => c.name === "wildcard")?.event ?? null,
+      },
+      {
+        name: "Free Hit", key: "freehit",
+        available: !halfUsedNames.includes("freehit"),
+        event: halfChips.find((c: any) => c.name === "freehit")?.event ?? null,
+      },
+      {
+        name: "Triple Cap", key: "3xc",
+        available: !halfUsedNames.includes("3xc"),
+        event: halfChips.find((c: any) => c.name === "3xc")?.event ?? null,
+      },
+      {
+        name: "Bench Boost", key: "bboost",
+        available: !halfUsedNames.includes("bboost"),
+        event: halfChips.find((c: any) => c.name === "bboost")?.event ?? null,
+      },
     ];
 
     // Squad with full enrichment
@@ -178,13 +210,18 @@ export async function GET() {
 
     const leagueStandings = leagueResults.map((s: any, i: number) => {
       const hist = memberHistories[i];
-      const usedChipNames: string[] = (hist?.chips ?? []).map((c: any) => c.name);
-      const wildcardsUsed = usedChipNames.filter((n: string) => n === "wildcard").length;
+      // 2025/26: two sets of chips — only chips used within the CURRENT half consume that half's allowance
+      const memberHalfChips = (hist?.chips ?? []).filter((c: any) => {
+        const ev = c.event ?? 0;
+        return ev >= halfStart && ev <= halfEnd;
+      });
+      const memberHalfUsed: string[] = memberHalfChips.map((c: any) => c.name);
+      const memberWCUsed = memberHalfUsed.filter((n: string) => n === "wildcard").length;
       const chipsRemaining = [
-        ...(wildcardsUsed < 2 ? ["wildcard"] : []),
-        ...(!usedChipNames.includes("freehit") ? ["freehit"] : []),
-        ...(!usedChipNames.includes("3xc") ? ["3xc"] : []),
-        ...(!usedChipNames.includes("bboost") ? ["bboost"] : []),
+        ...(memberWCUsed < 1 ? ["wildcard"] : []),
+        ...(!memberHalfUsed.includes("freehit") ? ["freehit"] : []),
+        ...(!memberHalfUsed.includes("3xc") ? ["3xc"] : []),
+        ...(!memberHalfUsed.includes("bboost") ? ["bboost"] : []),
       ];
       const chipBonus = chipsRemaining.reduce((sum, c) => sum + (CHIP_BONUS[c] ?? 0), 0);
       return {
