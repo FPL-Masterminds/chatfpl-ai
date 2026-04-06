@@ -18,7 +18,7 @@ export const dynamicParams = true
 // ─── Static params — pre-render top 500 same-position pairs at build time ────
 
 export async function generateStaticParams() {
-  return getComparisonSlugs(1500)
+  return getComparisonSlugs(2000)
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
