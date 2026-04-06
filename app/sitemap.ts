@@ -88,7 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const differentialRoutes = playerSlugs.map((slug) => `/fpl/${slug}/differential`)
 
   // Comparison routes — top 500 same-position pairs by combined ownership
-  const comparisonPairs = await getComparisonSlugs(4000)
+  const comparisonPairs = await getComparisonSlugs(4250)
   const comparisonRoutes = comparisonPairs.map(
     ({ playerA, playerB }) => `/fpl/compare/${playerA}/${playerB}`
   )
