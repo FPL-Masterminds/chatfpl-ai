@@ -241,7 +241,36 @@ function buildPageText(d: NonNullable<Awaited<ReturnType<typeof getPageData>>>) 
 
   const welcome = `${verdict} Click a question below and I will walk you through the numbers.`
 
-  return { verdict, ctaLeadin, qaItems, welcome, gw, price: p.price }
+  // Verdict badge for the static answer block
+  const verdictLabel =
+    p.ep_next >= 8 ? "YES"
+    : p.ep_next >= 6 ? "PROBABLY YES"
+    : p.ep_next >= 4 ? "MAYBE"
+    : "PROBABLY NOT"
+
+  const verdictColor =
+    p.ep_next >= 6 ? "#00FF87"
+    : p.ep_next >= 4 ? "#FFB830"
+    : "#FF6B6B"
+
+  // Three crawlable bullets directly beneath the verdict
+  const verdictBullets = [
+    formVal >= 6
+      ? `Form: ${p.form} pts/game over the last 6 gameweeks - above average returns`
+      : formVal >= 4
+      ? `Form: ${p.form} pts/game over the last 6 gameweeks - moderate returns`
+      : `Form: ${p.form} pts/game over the last 6 gameweeks - below expectations`,
+    fdr <= 2
+      ? `Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} - one of the easier fixtures this week`
+      : fdr === 3
+      ? `Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} - a workable fixture`
+      : `Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} - a tough assignment`,
+    p.ownership >= 30
+      ? `Ownership: ${p.ownership}% - blanking carries a significant rank cost`
+      : `Ownership: ${p.ownership}% - a genuine differential pick`,
+  ]
+
+  return { verdict, verdictLabel, verdictColor, verdictBullets, ctaLeadin, qaItems, welcome, gw, price: p.price }
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
@@ -274,7 +303,7 @@ export default async function HaalandPage() {
   }
 
   const { gw, player, showcasePlayers } = data
-  const { verdict, ctaLeadin, qaItems, welcome } = buildPageText(data)
+  const { verdict, verdictLabel, verdictColor, verdictBullets, ctaLeadin, qaItems, welcome } = buildPageText(data)
 
   return (
     <div className="fpl-player-root flex min-h-screen flex-col bg-black">
@@ -284,6 +313,22 @@ export default async function HaalandPage() {
         .fpl-player-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
         .fpl-player-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
       `}</style>
+
+      {/* FAQPage JSON-LD schema — tells Google exactly what questions this page answers */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: qaItems.map((q) => ({
+              "@type": "Question",
+              name: q.question,
+              acceptedAnswer: { "@type": "Answer", text: q.answer.replace(/\n/g, " ") },
+            })),
+          }),
+        }}
+      />
 
       <DevHeader />
 
@@ -326,6 +371,41 @@ export default async function HaalandPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* ── Static verdict block (crawlable HTML — Google reads this first) ── */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
+          <div
+            className="rounded-2xl px-6 py-6"
+            style={{
+              border: `1px solid ${verdictColor}30`,
+              background: `${verdictColor}08`,
+              borderLeft: `4px solid ${verdictColor}`,
+            }}
+          >
+            {/* Verdict badge + headline */}
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <span
+                className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black"
+                style={{ background: verdictColor }}
+              >
+                {verdictLabel}
+              </span>
+              <p className="text-white font-semibold text-base leading-snug">{verdict}</p>
+            </div>
+
+            {/* Three crawlable bullets */}
+            <ul className="space-y-2">
+              {verdictBullets.map((b) => (
+                <li key={b} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
+                  <svg className="mt-0.5 h-4 w-4 shrink-0" style={{ color: verdictColor }} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  {b}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
@@ -382,6 +462,29 @@ export default async function HaalandPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </Link>
+          </div>
+        </div>
+
+        {/* ── Internal links — also analyse ── */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mt-16">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              { name: "Mohamed Salah", slug: "mohamed-salah" },
+              { name: "Cole Palmer",   slug: "cole-palmer"   },
+              { name: "Bryan Mbeumo",  slug: "bryan-mbeumo"  },
+              { name: "Bukayo Saka",   slug: "bukayo-saka"   },
+              { name: "Alexander Isak",slug: "alexander-isak"},
+              { name: "Bruno Fernandes", slug: "bruno-fernandes" },
+            ].map((p) => (
+              <Link
+                key={p.slug}
+                href={`/fpl/${p.slug}`}
+                className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
+              >
+                Should I captain {p.name}?
+              </Link>
+            ))}
           </div>
         </div>
 
