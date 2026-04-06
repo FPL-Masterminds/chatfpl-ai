@@ -136,7 +136,11 @@ export async function getComparisonData(
       posMap[et.id] = et.singular_name_short
     })
 
-    const slugLookup = buildSlugLookup(bootstrap.elements ?? [], bootstrap.teams ?? [])
+    // Eligible-only lookup so slugs match getComparisonSlugs / generateStaticParams
+    const eligibleElements = (bootstrap.elements ?? []).filter(
+      (p: any) => p.minutes >= 1000 && parseFloat(p.selected_by_percent ?? "0") >= 1.0
+    )
+    const slugLookup = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const idA = slugLookup.get(slugA)
     const idB = slugLookup.get(slugB)
     if (!idA || !idB || idA === idB) return null

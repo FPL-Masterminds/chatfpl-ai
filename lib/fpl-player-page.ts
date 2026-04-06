@@ -228,8 +228,11 @@ export async function getPlayerPageData(
       posMap[et.id] = et.singular_name_short
     })
 
-    // Resolve slug → player
-    const slugLookup = buildSlugLookup(bootstrap.elements ?? [], bootstrap.teams ?? [])
+    // Resolve slug → player (eligible-only set so slugs match generateStaticParams)
+    const eligibleElements = (bootstrap.elements ?? []).filter(
+      (p: any) => p.minutes >= 1000 && parseFloat(p.selected_by_percent ?? "0") >= 1.0
+    )
+    const slugLookup = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const elementId = slugLookup.get(slug)
     if (!elementId) return null
 
@@ -574,7 +577,11 @@ export async function getPlayerTransferData(
       posMap[et.id] = et.singular_name_short
     })
 
-    const slugLookup = buildSlugLookup(bootstrap.elements ?? [], bootstrap.teams ?? [])
+    // Eligible-only lookup so slugs match generateStaticParams
+    const eligibleElements = (bootstrap.elements ?? []).filter(
+      (p: any) => p.minutes >= 1000 && parseFloat(p.selected_by_percent ?? "0") >= 1.0
+    )
+    const slugLookup = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const elementId = slugLookup.get(slug)
     if (!elementId) return null
 
