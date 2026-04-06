@@ -4,20 +4,16 @@ import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { ConversationalPlayer } from "@/components/conversational-player"
 import Link from "next/link"
 import {
-  getPlayerPageData,
-  buildPageText,
+  getPlayerTransferData,
+  buildTransferPageText,
   buildSlugLookup,
-  toSlug,
 } from "@/lib/fpl-player-page"
 
-// ISR — revalidate all player pages every hour
+// ISR — revalidate every hour
 export const revalidate = 3600
-
-// Allow on-demand generation for slugs not in static params
-// (e.g. a player who just crossed the threshold mid-season)
 export const dynamicParams = true
 
-// ─── Static params — pre-render all eligible players at build time ─────────────
+// ─── Static params — same eligible player set as captain pages ────────────────
 
 export async function generateStaticParams() {
   try {
@@ -26,7 +22,6 @@ export async function generateStaticParams() {
       { headers: { "User-Agent": "ChatFPL/1.0" }, next: { revalidate: 86400 } }
     ).then((r) => r.json())
 
-    // Only pre-render players with meaningful season data
     const eligible = (bootstrap.elements ?? []).filter(
       (p: any) =>
         p.minutes >= 1000 &&
@@ -40,7 +35,7 @@ export async function generateStaticParams() {
   }
 }
 
-// ─── Dynamic metadata per player ──────────────────────────────────────────────
+// ─── Dynamic metadata ─────────────────────────────────────────────────────────
 
 export async function generateMetadata({
   params,
@@ -48,38 +43,54 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const data = await getPlayerPageData(slug)
-  if (!data) return { title: "FPL Player Captain Analysis | ChatFPL AI" }
+  const data = await getPlayerTransferData(slug)
+  if (!data) return { title: "FPL Transfer Analysis | ChatFPL AI" }
 
   const { player: p, gw } = data
   return {
-    title: `Should I captain ${p.displayName} in Fantasy Premier League? | ChatFPL AI`,
-    description: `Live form, expected points, and fixture analysis for ${p.displayName} in FPL Gameweek ${gw}. Get the full captain verdict, transfer advice, and fixture breakdown.`,
+    title: `Should I transfer ${p.displayName} into my FPL team? Gameweek ${gw} | ChatFPL AI`,
+    description: `Transfer analysis for ${p.displayName} in FPL Gameweek ${gw}. Fixture run, form, value, and expected points - everything you need to decide whether to buy ${p.webName} this week.`,
     openGraph: {
-      title: `Should I captain ${p.displayName}? - FPL Gameweek ${gw} | ChatFPL AI`,
-      description: `Is ${p.displayName} worth the armband in Gameweek ${gw}? Live FPL data, form, fixture difficulty, and full captaincy analysis.`,
-      url: `https://www.chatfpl.ai/fpl/${slug}`,
+      title: `Should I transfer ${p.displayName} in? FPL GW${gw} | ChatFPL AI`,
+      description: `Is ${p.displayName} worth transferring in for Gameweek ${gw}? Live FPL data, fixture run, and full transfer analysis.`,
+      url: `https://www.chatfpl.ai/fpl/${slug}/transfer`,
     },
   }
 }
 
+// ─── FDR dot helper ───────────────────────────────────────────────────────────
+
+function FdrDots({ fdr }: { fdr: number }) {
+  return (
+    <span className="flex gap-0.5 mt-1">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <span
+          key={i}
+          className="block h-1.5 w-1.5 rounded-full"
+          style={{ background: i <= fdr ? "#00FF87" : "rgba(255,255,255,0.12)" }}
+        />
+      ))}
+    </span>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function FplPlayerPage({
+export default async function FplTransferPage({
   params,
 }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const data = await getPlayerPageData(slug)
+  const data = await getPlayerTransferData(slug)
   if (!data) notFound()
 
-  const { gw, player, showcasePlayers, relatedPlayers } = data
+  const { gw, player, showcasePlayers, relatedPlayers, fixtureRun, ptsPerMillion } = data
   const {
     verdict, verdictLabel, verdictColor, verdictBullets,
     caseFor, caseAgainst, caseHeading,
     ctaLeadin, qaItems, welcome,
-  } = buildPageText(data)
+  } = buildTransferPageText(data)
 
   return (
     <div className="fpl-player-root flex min-h-screen flex-col bg-black">
@@ -90,7 +101,7 @@ export default async function FplPlayerPage({
         .fpl-player-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
       `}</style>
 
-      {/* FAQPage JSON-LD schema */}
+      {/* FAQPage JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -110,13 +121,12 @@ export default async function FplPlayerPage({
 
       {/* Hero */}
       <FplPlayerHero
-        h1White={`Should I captain ${player.displayName} in `}
-        h1Gradient={`Fantasy Premier League Gameweek ${gw}?`}
+        h1White={`Should I transfer ${player.displayName} into my `}
+        h1Gradient={`Fantasy Premier League team in Gameweek ${gw}?`}
         subtitle={`Gameweek ${gw} · ${player.club} · ${player.position} · ${player.price}`}
         players={showcasePlayers}
       />
 
-      {/* Analysis */}
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">
 
         <div
@@ -128,10 +138,10 @@ export default async function FplPlayerPage({
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Form (last 6 GWs)", value: player.form },
-              { label: `Expected pts, GW${gw}`, value: String(player.ep_next) },
-              { label: "Season total", value: `${player.totalPts} pts` },
-              { label: "Ownership", value: `${player.ownership}%` },
+              { label: "Form (last 6 GWs)",      value: player.form },
+              { label: `Expected pts, GW${gw}`,  value: String(player.ep_next) },
+              { label: "Pts per million",         value: String(ptsPerMillion) },
+              { label: "Season total",            value: `${player.totalPts} pts` },
             ].map((s) => (
               <div
                 key={s.label}
@@ -144,6 +154,30 @@ export default async function FplPlayerPage({
                 >
                   {s.value}
                 </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Fixture run strip */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
+          <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-4">Fixture run</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {fixtureRun.map((f) => (
+              <div
+                key={f.gw}
+                className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center flex flex-col items-center"
+              >
+                <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-1">GW{f.gw}</p>
+                {f.opponent === null ? (
+                  <p className="text-sm font-semibold text-white/40">Blank</p>
+                ) : (
+                  <>
+                    <p className="text-sm font-bold text-white leading-tight">{f.opponent}</p>
+                    <p className="text-[10px] text-white/50 mt-0.5">{f.isHome ? "Home" : "Away"}</p>
+                    <FdrDots fdr={f.fdr} />
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -217,7 +251,7 @@ export default async function FplPlayerPage({
         {/* Chat heading */}
         <div className="relative z-10 text-center mb-8 max-w-2xl">
           <h2 className="text-2xl font-bold leading-tight tracking-tight mb-2">
-            <span className="text-white">{player.webName} Analysis </span>
+            <span className="text-white">{player.webName} Transfer Analysis </span>
             <span
               className="text-transparent bg-clip-text"
               style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
@@ -270,23 +304,17 @@ export default async function FplPlayerPage({
           </div>
         </div>
 
-        {/* Also analyse */}
+        {/* Also analyse — links to transfer pages for similar players */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mt-16">
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Link
-              href={`/fpl/${slug}/transfer`}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
-            >
-              Should I transfer {player.webName} in?
-            </Link>
             {relatedPlayers.map((rp) => (
               <Link
                 key={rp.slug}
-                href={`/fpl/${rp.slug}`}
+                href={`/fpl/${rp.slug}/transfer`}
                 className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
               >
-                Should I captain {rp.name}?
+                Should I transfer {rp.name}?
               </Link>
             ))}
           </div>

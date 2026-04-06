@@ -96,9 +96,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Dynamic player routes from FPL API
   const playerSlugs = await getPlayerSlugs()
-  const playerRoutes = playerSlugs.map((slug) => `/fpl/${slug}`)
+  const captainRoutes  = playerSlugs.map((slug) => `/fpl/${slug}`)
+  const transferRoutes = playerSlugs.map((slug) => `/fpl/${slug}/transfer`)
 
-  const allRoutes = [...staticRoutes, ...playerRoutes]
+  const allRoutes = [...staticRoutes, ...captainRoutes, ...transferRoutes]
 
   return allRoutes.map((route) => {
     const meta = getRouteMetadata(route)
