@@ -27,7 +27,7 @@ function slim<T extends Record<string, unknown>>(arr: T[], fields: readonly stri
   })
 }
 
-const getBootstrap = unstable_cache(
+export const getBootstrap = unstable_cache(
   async () => {
     const res = await fetch(
       "https://fantasy.premierleague.com/api/bootstrap-static/",
@@ -156,7 +156,7 @@ export function buildSlugLookup(
  * - If web_name is one word (e.g. "Haaland") prepend first_name if the
  *   combined length is reasonable, otherwise fall back to web_name alone.
  */
-function getDisplayName(p: any): string {
+export function getDisplayName(p: any): string {
   const webName: string   = p.web_name   ?? ""
   const firstName: string = p.first_name ?? ""
   const secondName: string = p.second_name ?? ""
@@ -192,7 +192,7 @@ function getDisplayName(p: any): string {
 
 // ─── FPL API data fetch ───────────────────────────────────────────────────────
 
-const FPL_HEADERS = { "User-Agent": "ChatFPL/1.0" }
+export const FPL_HEADERS = { "User-Agent": "ChatFPL/1.0" }
 
 function toCard(
   p: any,
