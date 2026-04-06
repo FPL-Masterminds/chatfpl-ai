@@ -3,6 +3,7 @@ import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { ConversationalPlayer } from "@/components/conversational-player"
 import Link from "next/link"
+import Image from "next/image"
 import {
   getPlayerTransferData,
   buildTransferPageText,
@@ -166,15 +167,27 @@ export default async function FplTransferPage({
             {fixtureRun.map((f) => (
               <div
                 key={f.gw}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center flex flex-col items-center"
+                className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center flex flex-col items-center gap-1"
               >
-                <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-1">GW{f.gw}</p>
+                <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">{`GW${f.gw}`}</p>
                 {f.opponent === null ? (
-                  <p className="text-sm font-semibold text-white/40">Blank</p>
+                  <p className="text-sm font-semibold text-white/40 mt-1">Blank</p>
                 ) : (
                   <>
+                    {f.opponentCode ? (
+                      <Image
+                        src={`https://resources.premierleague.com/premierleague/badges/70/t${f.opponentCode}.png`}
+                        alt={f.opponent}
+                        width={36}
+                        height={36}
+                        className="object-contain"
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="h-9 w-9" />
+                    )}
                     <p className="text-sm font-bold text-white leading-tight">{f.opponent}</p>
-                    <p className="text-[10px] text-white/50 mt-0.5">{f.isHome ? "Home" : "Away"}</p>
+                    <p className="text-[10px] text-white/50">{f.isHome ? "Home" : "Away"}</p>
                     <FdrDots fdr={f.fdr} />
                   </>
                 )}

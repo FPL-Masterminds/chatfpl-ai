@@ -429,6 +429,7 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
 export interface FixtureGW {
   gw: number
   opponent: string | null  // null = blank gameweek
+  opponentCode: number | null
   isHome: boolean
   fdr: number
 }
@@ -508,12 +509,13 @@ export async function getPlayerTransferData(
       const fix = gwFixtures.find(
         (f) => f.team_h === el.team || f.team_a === el.team
       )
-      if (!fix) return { gw, opponent: null, isHome: false, fdr: 0 }
+      if (!fix) return { gw, opponent: null, opponentCode: null, isHome: false, fdr: 0 }
       const isHome = fix.team_h === el.team
       const oppId = isHome ? fix.team_a : fix.team_h
       return {
         gw,
         opponent: teamMap[oppId]?.name ?? "Unknown",
+        opponentCode: teamMap[oppId]?.code ?? null,
         isHome,
         fdr: isHome ? (fix.team_h_difficulty ?? 3) : (fix.team_a_difficulty ?? 3),
       }
