@@ -524,6 +524,7 @@ export interface FixtureGW {
 }
 
 export interface DifferentialAlternative {
+  code: number
   name: string
   slug: string
   ownership: number
@@ -730,6 +731,7 @@ export async function getPlayerTransferData(
                 ? base
                 : toSlug(p.web_name, teamMap[p.team]?.short)
               return {
+                code:      p.code,
                 name:      p.web_name,
                 slug:      dSlug,
                 ownership: parseFloat(p.selected_by_percent ?? "0"),

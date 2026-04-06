@@ -65,7 +65,7 @@ function FdrDots({ fdr }: { fdr: number }) {
 function FixtureStrip({ fixtureRun }: { fixtureRun: FixtureGW[] }) {
   return (
     <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
-      <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-4">Fixture run</p>
+      <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-4">Fixture run</p>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {fixtureRun.map((f) => (
           <div
@@ -80,7 +80,7 @@ function FixtureStrip({ fixtureRun }: { fixtureRun: FixtureGW[] }) {
             }
           >
             <div className="flex items-center gap-1.5">
-              <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">{`GW${f.gw}`}</p>
+              <p className="text-[9px] uppercase tracking-[0.18em] text-white/70">{`GW${f.gw}`}</p>
               {f.matches.length >= 2 && (
                 <span className="text-[8px] font-black uppercase tracking-wider rounded px-1 py-0.5 text-black" style={{ background: "#00FF87" }}>DGW</span>
               )}
@@ -107,7 +107,7 @@ function FixtureStrip({ fixtureRun }: { fixtureRun: FixtureGW[] }) {
                       <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`} alt={m.opponent} width={28} height={28} className="object-contain" unoptimized />
                     ) : <div className="h-7 w-7" />}
                     <p className="text-xs font-bold text-white leading-tight">{m.opponent}</p>
-                    <p className="text-[10px] text-white/50">{m.isHome ? "H" : "A"}</p>
+                    <p className="text-[10px] text-white/70">{m.isHome ? "H" : "A"}</p>
                     <FdrDots fdr={m.fdr} />
                   </div>
                 ))}
@@ -118,7 +118,7 @@ function FixtureStrip({ fixtureRun }: { fixtureRun: FixtureGW[] }) {
                   <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${f.matches[0].opponentCode}.png`} alt={f.matches[0].opponent} width={36} height={36} className="object-contain" unoptimized />
                 ) : <div className="h-9 w-9" />}
                 <p className="text-sm font-bold text-white leading-tight">{f.matches[0].opponent}</p>
-                <p className="text-[10px] text-white/50">{f.matches[0].isHome ? "Home" : "Away"}</p>
+                <p className="text-[10px] text-white/70">{f.matches[0].isHome ? "Home" : "Away"}</p>
                 <FdrDots fdr={f.matches[0].fdr} />
               </>
             )}
@@ -135,7 +135,7 @@ function DifferentialAlts({ alts, currentSlug }: { alts: DifferentialAlternative
   if (alts.length === 0) return null
   return (
     <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
-      <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-4">Genuine differential alternatives this week</p>
+      <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-4">Genuine differential alternatives this week</p>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {alts
           .filter((a) => a.slug !== currentSlug)
@@ -143,24 +143,46 @@ function DifferentialAlts({ alts, currentSlug }: { alts: DifferentialAlternative
             <Link
               key={alt.slug}
               href={`/fpl/${alt.slug}/differential`}
-              className="group rounded-2xl px-4 py-5 flex flex-col items-center gap-2 text-center transition-all hover:border-white/20"
+              className="group rounded-2xl px-4 pt-4 pb-5 flex flex-col items-center gap-2 text-center transition-all hover:border-white/20"
               style={{ border: "1px solid rgba(0,255,135,0.15)", background: "rgba(0,255,135,0.03)" }}
             >
-              <div className="flex items-center gap-1.5 mb-1">
-                <span
-                  className="text-[8px] font-black uppercase tracking-wider rounded px-1.5 py-0.5 text-black"
-                  style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-                >
-                  {alt.ownership < 5 ? "STRONG DIFF" : alt.ownership < 10 ? "DIFFERENTIAL" : "MILD DIFF"}
-                </span>
+              {/* Diff badge */}
+              <span
+                className="text-[8px] font-black uppercase tracking-wider rounded px-1.5 py-0.5 text-black"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+              >
+                {alt.ownership < 5 ? "STRONG DIFF" : alt.ownership < 10 ? "DIFFERENTIAL" : "MILD DIFF"}
+              </span>
+
+              {/* Player photo + glowing line */}
+              <div className="flex flex-col items-center w-full">
+                <div className="relative flex justify-center" style={{ height: 90 }}>
+                  <Image
+                    src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${alt.code}.png`}
+                    alt={alt.name}
+                    width={70}
+                    height={90}
+                    className="object-contain object-bottom"
+                    style={{ filter: "drop-shadow(0 4px 12px rgba(0,255,133,0.2))" }}
+                    unoptimized
+                  />
+                </div>
+                <div
+                  style={{
+                    height: 1,
+                    width: "80%",
+                    background: "linear-gradient(to right, transparent, rgba(255,255,255,0.5) 30%, rgba(255,255,255,0.75) 50%, rgba(255,255,255,0.5) 70%, transparent)",
+                    boxShadow: "0 0 6px 1px rgba(255,255,255,0.2)",
+                  }}
+                />
               </div>
-              <p className="text-sm font-bold text-white leading-tight">
-                {alt.name}
-              </p>
-              <p className="text-[10px] text-white/50">{alt.club} · {alt.position}</p>
+
+              <p className="text-sm font-bold text-white leading-tight mt-1">{alt.name}</p>
+              <p className="text-[10px] text-white/70">{alt.club} · {alt.position}</p>
+
               <div className="flex items-center gap-3 mt-1">
                 <div className="text-center">
-                  <p className="text-[8px] uppercase tracking-wider text-white/40">Own</p>
+                  <p className="text-[8px] uppercase tracking-wider text-white/70">Own</p>
                   <p
                     className="text-sm font-bold text-transparent bg-clip-text"
                     style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
@@ -169,7 +191,7 @@ function DifferentialAlts({ alts, currentSlug }: { alts: DifferentialAlternative
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[8px] uppercase tracking-wider text-white/40">xPts</p>
+                  <p className="text-[8px] uppercase tracking-wider text-white/70">xPts</p>
                   <p
                     className="text-sm font-bold text-transparent bg-clip-text"
                     style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
@@ -178,8 +200,8 @@ function DifferentialAlts({ alts, currentSlug }: { alts: DifferentialAlternative
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[8px] uppercase tracking-wider text-white/40">Price</p>
-                  <p className="text-sm font-bold text-white/80">{alt.price}</p>
+                  <p className="text-[8px] uppercase tracking-wider text-white/70">Price</p>
+                  <p className="text-sm font-bold text-white">{alt.price}</p>
                 </div>
               </div>
             </Link>
@@ -279,8 +301,8 @@ export default async function FplDifferentialPage({
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-6 py-5">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">FPL ownership</p>
-              <p className="text-xs font-semibold text-white/70">{player.ownership}% of managers own {player.webName}</p>
+              <p className="text-[9px] uppercase tracking-[0.18em] text-white/70">FPL ownership</p>
+              <p className="text-xs font-semibold text-white">{player.ownership}% of managers own {player.webName}</p>
             </div>
             <div className="relative h-2 rounded-full overflow-hidden bg-white/[0.08]">
               <div
@@ -292,23 +314,23 @@ export default async function FplDifferentialPage({
               />
             </div>
             <div className="flex justify-between mt-2">
-              <span className="text-[9px] text-white/30">0%</span>
+              <span className="text-[9px] text-white/70">0%</span>
               <div className="flex gap-4">
                 {[
                   { label: "Strong diff", pct: 5 },
                   { label: "Differential", pct: 10 },
                   { label: "Mild diff", pct: 20 },
                 ].map((m) => (
-                  <span key={m.label} className="text-[9px] text-white/30 relative">
+                  <span key={m.label} className="text-[9px] text-white/70 relative">
                     <span
                       className="absolute bottom-3 left-1/2 -translate-x-1/2 h-3 w-px"
-                      style={{ background: "rgba(255,255,255,0.15)" }}
+                      style={{ background: "rgba(255,255,255,0.3)" }}
                     />
                     {m.label}
                   </span>
                 ))}
               </div>
-              <span className="text-[9px] text-white/30">100%</span>
+              <span className="text-[9px] text-white/70">100%</span>
             </div>
           </div>
         </div>
@@ -385,7 +407,7 @@ export default async function FplDifferentialPage({
               </ul>
             </div>
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
-              <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/50 mb-3">
+              <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/70 mb-3">
                 {isNotDiff ? "The risks of not owning him" : "The risks of the differential play"}
               </p>
               <ul className="space-y-2.5">
@@ -460,7 +482,7 @@ export default async function FplDifferentialPage({
 
         {/* Also analyse */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mt-16">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-4 text-center">Also analyse</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               href={`/fpl/${slug}`}
