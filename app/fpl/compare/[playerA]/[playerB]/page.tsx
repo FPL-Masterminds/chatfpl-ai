@@ -126,14 +126,14 @@ function FixturePanel({ fixtureRun, player }: { fixtureRun: FixtureGW[]; player:
                 <p className="text-[11px] font-semibold uppercase tracking-widest text-white">No fixture</p>
               </div>
             ) : f.matches.length >= 2 ? (
-              <div className="flex flex-col gap-2 w-full mt-1">
+              <div className="flex gap-2 w-full mt-1 justify-center">
                 {f.matches.map((m, idx) => (
-                  <div key={idx} className="flex flex-col items-center gap-0.5">
+                  <div key={idx} className="flex flex-col items-center gap-0.5 flex-1 min-w-0">
                     {m.opponentCode ? (
-                      <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`} alt={m.opponent} width={28} height={28} className="object-contain" unoptimized />
-                    ) : <div className="h-7 w-7" />}
-                    <p className="text-xs font-bold text-white leading-tight">{m.opponent}</p>
-                    <p className="text-[10px] text-white/70">{m.isHome ? "H" : "A"}</p>
+                      <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`} alt={m.opponent} width={22} height={22} className="object-contain" unoptimized />
+                    ) : <div className="h-5 w-5" />}
+                    <p className="text-[9px] font-bold text-white leading-tight text-center w-full truncate">{m.opponent}</p>
+                    <p className="text-[8px] text-white/70">{m.isHome ? "H" : "A"}</p>
                     <FdrDots fdr={m.fdr} />
                   </div>
                 ))}
