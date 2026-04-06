@@ -2,10 +2,30 @@ import { unstable_cache } from "next/cache"
 import type { FplCardPlayer } from "@/components/fpl-player-hero"
 import type { PlayerQA } from "@/components/conversational-player"
 
-// ─── Shared cached bootstrap fetch (bypasses 2MB fetch-cache limit) ──────────
-// One API call is shared across ALL page renders during a build/revalidation
-// window. Without this, 700+ pages each fire a fresh FPL API request in
-// parallel, hitting rate limits and causing 404s across the board.
+// ─── Shared cached bootstrap fetch ───────────────────────────────────────────
+// The raw FPL bootstrap-static response is 2.6MB which exceeds Vercel's 2MB
+// cache limit. We slim it to only the fields our pages actually use before
+// caching — bringing the payload to ~400KB and allowing it to be cached.
+// One cached call is shared across all 700+ page renders per build cycle.
+
+const PLAYER_FIELDS = [
+  "id","code","web_name","first_name","second_name",
+  "element_type","team","now_cost","selected_by_percent",
+  "form","total_points","ep_next","goals_scored","assists",
+  "news","chance_of_playing_next_round","minutes",
+  "transfers_in_event","transfers_out_event","cost_change_event",
+] as const
+
+const TEAM_FIELDS   = ["id","name","short_name","code"] as const
+const EVENT_FIELDS  = ["id","is_current","is_next","finished","deadline_time"] as const
+
+function slim<T extends Record<string, unknown>>(arr: T[], fields: readonly string[]): Partial<T>[] {
+  return arr.map((item) => {
+    const out: Record<string, unknown> = {}
+    fields.forEach((f) => { if (f in item) out[f] = item[f] })
+    return out as Partial<T>
+  })
+}
 
 const getBootstrap = unstable_cache(
   async () => {
@@ -13,9 +33,15 @@ const getBootstrap = unstable_cache(
       "https://fantasy.premierleague.com/api/bootstrap-static/",
       { headers: { "User-Agent": "ChatFPL/1.0" }, cache: "no-store" }
     )
-    return res.json()
+    const raw = await res.json()
+    return {
+      elements:       slim(raw.elements  ?? [], PLAYER_FIELDS),
+      teams:          slim(raw.teams     ?? [], TEAM_FIELDS),
+      events:         slim(raw.events    ?? [], EVENT_FIELDS),
+      element_types:  raw.element_types  ?? [],
+    }
   },
-  ["fpl-bootstrap-static"],
+  ["fpl-bootstrap-slim"],
   { revalidate: 3600 }
 )
 
