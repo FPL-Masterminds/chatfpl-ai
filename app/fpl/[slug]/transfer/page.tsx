@@ -185,11 +185,18 @@ export default async function FplTransferPage({
 
                 {f.matches.length === 0 ? (
                   <div className="flex flex-col items-center gap-1.5 mt-1">
-                    <svg className="h-7 w-7 text-white/20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <svg className="h-7 w-7" fill="none" strokeWidth="1.5" viewBox="0 0 24 24"
+                      style={{ stroke: "url(#blankGrad)" }}>
+                      <defs>
+                        <linearGradient id="blankGrad" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#00FF87" />
+                          <stop offset="100%" stopColor="#00FFFF" />
+                        </linearGradient>
+                      </defs>
                       <circle cx="12" cy="12" r="9" />
                       <path strokeLinecap="round" d="M9 9l6 6M15 9l-6 6" />
                     </svg>
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">No fixture</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-white">No fixture</p>
                   </div>
                 ) : f.matches.length >= 2 ? (
                   // Double GW — stack both fixtures
