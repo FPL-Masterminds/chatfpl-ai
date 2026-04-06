@@ -167,8 +167,14 @@ export default async function FplTransferPage({
             {fixtureRun.map((f) => (
               <div
                 key={f.gw}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-4 text-center flex flex-col items-center gap-1"
-                style={f.matches.length >= 2 ? { borderColor: "rgba(0,255,135,0.2)", background: "rgba(0,255,135,0.04)" } : {}}
+                className="rounded-2xl px-4 py-4 text-center flex flex-col items-center gap-1"
+                style={
+                  f.matches.length === 0
+                    ? { border: "1px dashed rgba(255,255,255,0.08)", background: "transparent" }
+                    : f.matches.length >= 2
+                    ? { border: "1px solid rgba(0,255,135,0.2)", background: "rgba(0,255,135,0.04)" }
+                    : { border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }
+                }
               >
                 <div className="flex items-center gap-1.5">
                   <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">{`GW${f.gw}`}</p>
@@ -178,7 +184,13 @@ export default async function FplTransferPage({
                 </div>
 
                 {f.matches.length === 0 ? (
-                  <p className="text-sm font-semibold text-white/40 mt-1">Blank</p>
+                  <div className="flex flex-col items-center gap-1.5 mt-1">
+                    <svg className="h-7 w-7 text-white/20" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="9" />
+                      <path strokeLinecap="round" d="M9 9l6 6M15 9l-6 6" />
+                    </svg>
+                    <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40">No fixture</p>
+                  </div>
                 ) : f.matches.length >= 2 ? (
                   // Double GW — stack both fixtures
                   <div className="flex flex-col gap-2 w-full mt-1">
