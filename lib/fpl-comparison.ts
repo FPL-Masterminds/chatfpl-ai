@@ -415,9 +415,21 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
     },
     {
       question: `Can I own both ${a.webName} and ${b.webName} in the same FPL squad?`,
-      answer: d.samePosition
-        ? `Yes, you can start both. FPL allows flexible formations, so playing three forwards or five midfielders is perfectly valid. Whether it makes sense depends on your formation, budget, and whether the combined cost leaves enough quality across the rest of your squad.`
-        : `Yes, ${a.displayName} and ${b.displayName} play in different positions, so they can comfortably co-exist in the same squad. Whether it is worth the combined cost depends on your overall budget and other areas you need to cover.`,
+      answer: (() => {
+        if (!d.samePosition) {
+          return `Yes, ${a.displayName} and ${b.displayName} play in different positions, so they can comfortably co-exist in the same squad. Whether it is worth the combined cost depends on your overall budget and other areas you need to cover.`
+        }
+        const pos = a.position
+        const flexNote =
+          pos === "DEF"
+            ? "FPL allows flexible formations - you can field three, four, or five defenders - so both can start in the same eleven."
+            : pos === "MID"
+            ? "FPL allows flexible formations - you can field two, three, four, or five midfielders - so both can start in the same eleven."
+            : pos === "FWD"
+            ? "FPL allows flexible formations - you can field one, two, or three forwards - so both can start in the same eleven."
+            : "FPL allows flexible formations, so both can start in the same eleven."
+        return `Yes, you can start both. ${flexNote} Whether it makes sense depends on your overall formation, budget, and whether the combined cost leaves enough quality across the rest of your squad.`
+      })(),
     },
   ]
 
