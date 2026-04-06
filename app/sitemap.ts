@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import fs from 'fs'
 import path from 'path'
+import { buildSlugLookup, toSlug } from '@/lib/fpl-player-page'
 
 const baseUrl = 'https://www.chatfpl.ai'
 
@@ -16,106 +17,96 @@ const excludedRoutes = [
   '/verify-email',
   '/reset-password',
   '/forgot-password',
+  '/fpl',           // exclude the /fpl parent — only include /fpl/[slug] entries
 ]
 
-// Function to recursively find all page routes
+// Recursively find all static page routes from the filesystem
 function getAllPageRoutes(dir: string, baseRoute: string = ''): string[] {
   const routes: string[] = []
-  
+
   try {
     const entries = fs.readdirSync(dir, { withFileTypes: true })
-    
+
     for (const entry of entries) {
-      // Skip non-directories and special directories
       if (!entry.isDirectory()) continue
       if (entry.name.startsWith('_') || entry.name.startsWith('.')) continue
       if (entry.name === 'api') continue
-      
+      // Skip dynamic route directories — they are handled separately below
+      if (entry.name.startsWith('[')) continue
+
       const fullPath = path.join(dir, entry.name)
       const routePath = `${baseRoute}/${entry.name}`
-      
-      // Check if this directory has a page file
+
       const dirContents = fs.readdirSync(fullPath)
-      const hasPage = dirContents.some(file => 
-        file === 'page.tsx' || 
-        file === 'page.ts' || 
-        file === 'page.jsx' || 
-        file === 'page.js'
+      const hasPage = dirContents.some((file) =>
+        ['page.tsx', 'page.ts', 'page.jsx', 'page.js'].includes(file)
       )
-      
+
       if (hasPage && !excludedRoutes.includes(routePath)) {
         routes.push(routePath)
       }
-      
-      // Recursively check subdirectories
+
       const subRoutes = getAllPageRoutes(fullPath, routePath)
       routes.push(...subRoutes)
     }
-  } catch (error) {
-    // Directory not accessible, skip
+  } catch {
+    // Directory not accessible
   }
-  
+
   return routes
 }
 
-// Determine priority and change frequency based on route
 function getRouteMetadata(route: string) {
-  // Homepage
-  if (route === '') {
-    return { priority: 1.0, changeFrequency: 'daily' as const }
-  }
-  
-  // High priority pages
-  if (['/chat', '/signup'].includes(route)) {
-    return { priority: 0.9, changeFrequency: 'always' as const }
-  }
-  
-  // Important content pages
-  if (['/about', '/faq', '/contact'].includes(route)) {
-    return { priority: 0.8, changeFrequency: 'weekly' as const }
-  }
-  
-  // Legal pages
-  if (['/terms', '/privacy'].includes(route)) {
-    return { priority: 0.5, changeFrequency: 'monthly' as const }
-  }
-  
-  // Auth pages
-  if (['/login'].includes(route)) {
-    return { priority: 0.6, changeFrequency: 'monthly' as const }
-  }
-  
-  // FPL player pages — high priority, updated each gameweek
-  if (route.startsWith('/fpl/')) {
-    return { priority: 0.85, changeFrequency: 'daily' as const }
-  }
-
-  // All other pages
+  if (route === '') return { priority: 1.0, changeFrequency: 'daily' as const }
+  if (['/chat', '/signup'].includes(route)) return { priority: 0.9, changeFrequency: 'always' as const }
+  if (['/about', '/faq', '/contact'].includes(route)) return { priority: 0.8, changeFrequency: 'weekly' as const }
+  if (['/terms', '/privacy'].includes(route)) return { priority: 0.5, changeFrequency: 'monthly' as const }
+  if (['/login'].includes(route)) return { priority: 0.6, changeFrequency: 'monthly' as const }
+  if (route.startsWith('/fpl/')) return { priority: 0.85, changeFrequency: 'daily' as const }
   return { priority: 0.7, changeFrequency: 'weekly' as const }
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+// Fetch all eligible player slugs from the FPL API
+async function getPlayerSlugs(): Promise<string[]> {
+  try {
+    const bootstrap = await fetch(
+      'https://fantasy.premierleague.com/api/bootstrap-static/',
+      { headers: { 'User-Agent': 'ChatFPL/1.0' }, next: { revalidate: 86400 } }
+    ).then((r) => r.json())
+
+    const eligible = (bootstrap.elements ?? []).filter(
+      (p: any) =>
+        p.minutes >= 1000 &&
+        parseFloat(p.selected_by_percent ?? '0') >= 1.0
+    )
+
+    const slugMap = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    return Array.from(slugMap.keys())
+  } catch {
+    return []
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
   const appDir = path.join(process.cwd(), 'app')
-  
-  // Get all dynamic routes
-  const allRoutes = getAllPageRoutes(appDir)
-  
-  // Add homepage
-  const routes = ['', ...allRoutes]
-  
-  // Generate sitemap entries
-  const sitemapEntries: MetadataRoute.Sitemap = routes.map((route) => {
-    const metadata = getRouteMetadata(route)
-    
+
+  // Static file-system routes
+  const staticRoutes = ['', ...getAllPageRoutes(appDir)]
+
+  // Dynamic player routes from FPL API
+  const playerSlugs = await getPlayerSlugs()
+  const playerRoutes = playerSlugs.map((slug) => `/fpl/${slug}`)
+
+  const allRoutes = [...staticRoutes, ...playerRoutes]
+
+  return allRoutes.map((route) => {
+    const meta = getRouteMetadata(route)
     return {
       url: `${baseUrl}${route}`,
       lastModified: now,
-      changeFrequency: metadata.changeFrequency,
-      priority: metadata.priority,
+      changeFrequency: meta.changeFrequency,
+      priority: meta.priority,
     }
   })
-  
-  return sitemapEntries
 }
-
