@@ -73,12 +73,13 @@ function FixturePanel({ fixtureRun, player }: { fixtureRun: FixtureGW[]; player:
     >
       {/* Player photo + name */}
       <div className="flex flex-col items-center gap-1 shrink-0" style={{ width: 64 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
           alt={player.webName}
-          style={{ width: 52, height: "auto", objectFit: "contain" }}
-          onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+          width={52}
+          height={66}
+          style={{ objectFit: "contain" }}
+          unoptimized
         />
         <p className="text-[9px] font-bold text-white text-center leading-tight">{player.webName}</p>
       </div>
@@ -144,7 +145,7 @@ function FixturePanel({ fixtureRun, player }: { fixtureRun: FixtureGW[]; player:
 
 // ─── Horizontal stat table ────────────────────────────────────────────────────
 
-const STAT_COLS: { label: string; key: keyof ComparisonPlayer | "pos"; higherIsBetter: boolean }[] = [
+const STAT_COLS: { label: string; key: keyof ComparisonPlayer; higherIsBetter: boolean }[] = [
   { label: "GW xPts",    key: "ep_next",        higherIsBetter: true  },
   { label: "Form",       key: "formVal",         higherIsBetter: true  },
   { label: "Season Pts", key: "totalPts",        higherIsBetter: true  },
@@ -199,12 +200,13 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
                 {/* Player cell */}
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
                       alt={player.webName}
-                      style={{ width: 36, height: "auto", objectFit: "contain" }}
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                      width={36}
+                      height={45}
+                      style={{ objectFit: "contain" }}
+                      unoptimized
                     />
                     <div>
                       <p className="text-sm font-bold text-white leading-tight">{player.webName}</p>
