@@ -654,37 +654,41 @@ export async function getPlayerTransferData(
       transfersOutGW: el.transfers_out_event ?? 0,
       priceChangeGW:  (el.cost_change_event  ?? 0) / 10,
       differentialAlternatives: (() => {
-        const seenClubs = new Set<number>()
-        return (bootstrap.elements ?? [])
-          .filter((p: any) =>
-            p.id !== el.id &&
-            parseFloat(p.selected_by_percent ?? "0") < 10 &&
-            (p.chance_of_playing_next_round ?? 100) >= 75 &&
-            p.minutes >= 500 &&
-            parseFloat(p.ep_next ?? "0") >= 4
-          )
-          .sort((a: any, b: any) => parseFloat(b.ep_next) - parseFloat(a.ep_next))
-          .filter((p: any) => {
-            if (seenClubs.has(p.team)) return false
-            seenClubs.add(p.team)
-            return true
-          })
-          .slice(0, 4)
-          .map((p: any) => {
-            const base = toSlug(p.web_name)
-            const dSlug = slugLookup.get(base) === p.id
-              ? base
-              : toSlug(p.web_name, teamMap[p.team]?.short)
-            return {
-              name:      p.web_name,
-              slug:      dSlug,
-              ownership: parseFloat(p.selected_by_percent ?? "0"),
-              ep_next:   parseFloat(p.ep_next ?? "0"),
-              price:     `£${(p.now_cost / 10).toFixed(1)}m`,
-              club:      teamMap[p.team]?.short ?? "",
-              position:  posMap[p.element_type] ?? "",
-            }
-          })
+        try {
+          const seenClubs = new Set<number>()
+          return (bootstrap.elements ?? [])
+            .filter((p: any) =>
+              p.id !== el.id &&
+              parseFloat(p.selected_by_percent ?? "0") < 10 &&
+              (p.chance_of_playing_next_round ?? 100) >= 75 &&
+              p.minutes >= 500 &&
+              parseFloat(p.ep_next ?? "0") >= 4
+            )
+            .sort((a: any, b: any) => parseFloat(b.ep_next) - parseFloat(a.ep_next))
+            .filter((p: any) => {
+              if (seenClubs.has(p.team)) return false
+              seenClubs.add(p.team)
+              return true
+            })
+            .slice(0, 4)
+            .map((p: any) => {
+              const base = toSlug(p.web_name)
+              const dSlug = slugLookup.get(base) === p.id
+                ? base
+                : toSlug(p.web_name, teamMap[p.team]?.short)
+              return {
+                name:      p.web_name,
+                slug:      dSlug,
+                ownership: parseFloat(p.selected_by_percent ?? "0"),
+                ep_next:   parseFloat(p.ep_next ?? "0"),
+                price:     `£${(p.now_cost / 10).toFixed(1)}m`,
+                club:      teamMap[p.team]?.short ?? "",
+                position:  posMap[p.element_type] ?? "",
+              }
+            })
+        } catch {
+          return []
+        }
       })(),
     }
   } catch {
