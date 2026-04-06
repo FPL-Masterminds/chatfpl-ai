@@ -290,10 +290,10 @@ export default function PlayerCarousel() {
                         />
                       )}
                     </div>
-                    <p className="text-[17px] font-bold leading-[1.1] text-white tracking-tight">
+                    <p className="text-[17px] font-bold leading-[1.1] text-white tracking-tight text-center">
                       {player.name}
                     </p>
-                    <p className="text-[11px] text-white/45 font-medium mt-0.5">{player.club}</p>
+                    <p className="text-[11px] text-white/45 font-medium mt-0.5 text-center">{player.club}</p>
                     <div className="mt-3 flex items-center justify-between">
                       <div className="text-center">
                         <p className="text-[15px] font-bold leading-none" style={{ color: "#00FF85" }}>{player.totalPts}</p>
