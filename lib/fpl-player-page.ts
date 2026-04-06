@@ -433,12 +433,16 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
 // TRANSFER PAGE — types, data fetch, text logic
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export interface FixtureGW {
-  gw: number
-  opponent: string | null  // null = blank gameweek
+export interface FixtureMatch {
+  opponent: string
   opponentCode: number | null
   isHome: boolean
   fdr: number
+}
+
+export interface FixtureGW {
+  gw: number
+  matches: FixtureMatch[]  // empty = blank GW, 2+ = double GW
 }
 
 export interface PlayerTransferPageData extends PlayerPageData {
@@ -513,26 +517,27 @@ export async function getPlayerTransferData(
 
     const fixtureRun: FixtureGW[] = gwsToFetch.map((gw, i) => {
       const gwFixtures: any[] = fixtureResults[i]
-      const fix = gwFixtures.find(
+      const teamFixtures = gwFixtures.filter(
         (f) => f.team_h === el.team || f.team_a === el.team
       )
-      if (!fix) return { gw, opponent: null, opponentCode: null, isHome: false, fdr: 0 }
-      const isHome = fix.team_h === el.team
-      const oppId = isHome ? fix.team_a : fix.team_h
-      return {
-        gw,
-        opponent: teamMap[oppId]?.name ?? "Unknown",
-        opponentCode: teamMap[oppId]?.code ?? null,
-        isHome,
-        fdr: isHome ? (fix.team_h_difficulty ?? 3) : (fix.team_a_difficulty ?? 3),
-      }
+      const matches: FixtureMatch[] = teamFixtures.map((fix) => {
+        const isHome = fix.team_h === el.team
+        const oppId = isHome ? fix.team_a : fix.team_h
+        return {
+          opponent: teamMap[oppId]?.name ?? "Unknown",
+          opponentCode: teamMap[oppId]?.code ?? null,
+          isHome,
+          fdr: isHome ? (fix.team_h_difficulty ?? 3) : (fix.team_a_difficulty ?? 3),
+        }
+      })
+      return { gw, matches }
     })
 
-    // First fixture details (for base page data)
-    const firstFix = fixtureRun[0]
-    const isHome = firstFix.isHome
-    const opponent = firstFix.opponent ?? "TBD"
-    const fdr = firstFix.fdr || 3
+    // First fixture details (for base page data) — use first match of first GW
+    const firstMatch = fixtureRun[0]?.matches[0]
+    const isHome = firstMatch?.isHome ?? false
+    const opponent = firstMatch?.opponent ?? "TBD"
+    const fdr = firstMatch?.fdr ?? 3
 
     const player: PlayerData = {
       code:        el.code,
@@ -627,17 +632,20 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   const formVal = parseFloat(p.form)
   const nowCost = parseFloat(p.price.replace("£", "").replace("m", ""))
 
-  // Fixture run analysis
-  const playableRun = fixtureRun.filter((f) => f.opponent !== null)
-  const easyCount = playableRun.filter((f) => f.fdr <= 3).length
-  const hardCount = playableRun.filter((f) => f.fdr >= 4).length
-  const blanks = fixtureRun.filter((f) => f.opponent === null)
-  const hasImmediateBlank = fixtureRun[0].opponent === null
-  const hasBlankInRun = blanks.length > 0
-  const immediatelyTough = fixtureRun[0].fdr >= 4 && fixtureRun[0].opponent !== null
+  // Fixture run analysis — flatten all individual matches for difficulty counts
+  const allMatches = fixtureRun.flatMap((f) => f.matches)
+  const easyCount  = allMatches.filter((m) => m.fdr <= 3).length
+  const hardCount  = allMatches.filter((m) => m.fdr >= 4).length
+  const blankGWs   = fixtureRun.filter((f) => f.matches.length === 0)
+  const doubleGWs  = fixtureRun.filter((f) => f.matches.length >= 2)
+  const hasImmediateBlank = fixtureRun[0].matches.length === 0
+  const hasBlankInRun  = blankGWs.length > 0
+  const hasDoubleGW    = doubleGWs.length > 0
+  const firstGWMatches = fixtureRun[0].matches
+  const immediatelyTough = firstGWMatches.length > 0 && firstGWMatches.every((m) => m.fdr >= 4)
   const runImproves =
-    fixtureRun[0].fdr >= 4 &&
-    fixtureRun.slice(1).some((f) => f.opponent !== null && f.fdr <= 3)
+    immediatelyTough &&
+    fixtureRun.slice(1).some((f) => f.matches.some((m) => m.fdr <= 3))
 
   // Verdict logic
   const isStrongBuy = p.ep_next >= 6 && easyCount >= 2 && formVal >= 5 && p.chance >= 75 && !hasImmediateBlank
@@ -657,23 +665,31 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
       : isProbablyYes
       ? `Worth considering - ${p.webName} is a reasonable transfer target, though the case is not clear-cut. Weigh up what you would sell to fit him in.`
       : isWait
-      ? `Wait if you can. ${p.webName} has a tough GW${gw} fixture but his schedule improves from GW${fixtureRun.find(f => f.opponent !== null && f.fdr <= 3)?.gw ?? gw + 1} onwards. A week's patience could be the better entry point.`
+      ? `Wait if you can. ${p.webName} has a tough GW${gw} fixture but his schedule improves from GW${fixtureRun.find(f => f.matches.some(m => m.fdr <= 3))?.gw ?? gw + 1} onwards. A week's patience could be the better entry point.`
       : `Probably not this week. ${p.webName}'s current numbers do not make a strong case for an immediate transfer. There may be better-timed opportunities ahead.`
 
   // Fixture run summary sentence
-  const runSummary =
-    hasImmediateBlank
-      ? `${p.webName} has a blank in Gameweek ${gw} - he does not have a fixture this week.`
-      : `${p.webName}'s next fixture is ${fixtureRun[0].opponent} (${fixtureRun[0].isHome ? "H" : "A"}) in GW${gw}, rated ${fixtureRun[0].fdr}/5 for difficulty.`
+  const runSummary = (() => {
+    if (hasImmediateBlank) return `${p.webName} has a blank in Gameweek ${gw} - he does not have a fixture this week.`
+    if (firstGWMatches.length >= 2) {
+      const parts = firstGWMatches.map((m) => `${m.opponent} (${m.isHome ? "H" : "A"})`).join(" and ")
+      return `${p.webName} has a Double Gameweek ${gw} - ${parts}.`
+    }
+    const m = firstGWMatches[0]
+    return `${p.webName}'s next fixture is ${m.opponent} (${m.isHome ? "H" : "A"}) in GW${gw}, rated ${m.fdr}/5 for difficulty.`
+  })()
 
-  const runContext =
-    easyCount >= 3
-      ? `The run over the next 4 gameweeks looks very favourable - ${easyCount} of ${playableRun.length} fixtures are rated 3 or below for difficulty.`
-      : easyCount >= 2
-      ? `Of the next 4 gameweeks, ${easyCount} have a difficulty rating of 3 or below - a decent run with some tougher patches.`
-      : hardCount >= 3
-      ? `The fixture run over the next 4 gameweeks is challenging - ${hardCount} of ${playableRun.length} fixtures carry a difficulty rating of 4 or above.`
-      : `The next 4 gameweeks present a mixed picture - not a standout run in either direction.`
+  const runContext = (() => {
+    if (hasDoubleGW) {
+      const dgw = doubleGWs[0]
+      const dgwParts = dgw.matches.map((m) => `${m.opponent} (${m.isHome ? "H" : "A"})`).join(" and ")
+      return `${p.webName} has a Double Gameweek in GW${dgw.gw} (${dgwParts}), which significantly increases his points potential over the coming weeks.`
+    }
+    if (easyCount >= 3) return `The run over the next 4 gameweeks looks very favourable - ${easyCount} of ${allMatches.length} fixtures are rated 3 or below for difficulty.`
+    if (easyCount >= 2) return `Of the next 4 gameweeks, ${easyCount} fixtures have a difficulty rating of 3 or below - a decent run with some tougher patches.`
+    if (hardCount >= 3) return `The fixture run over the next 4 gameweeks is challenging - ${hardCount} of ${allMatches.length} fixtures carry a difficulty rating of 4 or above.`
+    return `The next 4 gameweeks present a mixed picture - not a standout run in either direction.`
+  })()
 
   // Verdict bullets
   const verdictBullets = [
@@ -682,8 +698,10 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
       : formVal >= 4
       ? `Form: ${p.form} pts/game over the last 6 gameweeks - moderate returns`
       : `Form: ${p.form} pts/game over the last 6 gameweeks - below expectations`,
-    easyCount >= 2
-      ? `Fixture run: ${easyCount} of the next 4 gameweeks rated 3 or below for difficulty`
+    hasDoubleGW
+      ? `Double Gameweek: ${p.webName} has 2 fixtures in GW${doubleGWs[0].gw} - significantly higher points ceiling`
+      : easyCount >= 2
+      ? `Fixture run: ${easyCount} of the next ${allMatches.length} fixtures rated 3 or below for difficulty`
       : hardCount >= 3
       ? `Fixture run: ${hardCount} tough fixtures (FDR 4+) in the next 4 gameweeks`
       : `Fixture run: mixed picture over the next 4 gameweeks`,
@@ -699,15 +717,22 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   else if (formVal >= 4) caseAgainst.push(`Form: only ${p.form} pts/game over the last 6 gameweeks - returns have not justified the price recently.`)
   else caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - the current numbers do not make a strong case for a transfer.`)
 
+  // Double GW — always a strong case for buying
+  if (hasDoubleGW) {
+    const dgw = doubleGWs[0]
+    const dgwParts = dgw.matches.map((m) => `${m.opponent} (${m.isHome ? "H" : "A"})`).join(" and ")
+    caseFor.push(`Double Gameweek: ${p.webName} has two fixtures in GW${dgw.gw} (${dgwParts}). Owning him for a DGW significantly raises the ceiling on his points return.`)
+  }
+
   // Fixture run
-  if (easyCount >= 3) caseFor.push(`Fixture run: ${easyCount} of the next 4 gameweeks are favourable. An excellent window to own ${p.webName}.`)
+  if (easyCount >= 3) caseFor.push(`Fixture run: ${easyCount} of the next ${allMatches.length} fixtures are favourable (FDR 3 or below). An excellent window to own ${p.webName}.`)
   else if (easyCount >= 2) caseFor.push(`Fixture run: ${easyCount} manageable fixtures in the next 4 gameweeks - a reasonable time to bring him in.`)
   else if (hardCount >= 3) caseAgainst.push(`Fixture run: ${hardCount} difficult fixtures in the next 4 gameweeks. There may be a better time to transfer ${p.webName} in.`)
   else caseAgainst.push(`Fixture run: a mixed schedule over the next 4 weeks - not the ideal window for a premium transfer.`)
 
   // Blank
   if (hasImmediateBlank) caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in GW${gw}. Transferring him in this week means taking a hit for a week with no return.`)
-  else if (hasBlankInRun) caseAgainst.push(`Blank ahead: ${p.webName} has a blank gameweek within the next 4 weeks. Factor this into your squad planning.`)
+  else if (hasBlankInRun) caseAgainst.push(`Blank Gameweek ahead: ${p.webName} has no fixture in GW${blankGWs[0].gw}. Factor this into your squad planning.`)
 
   // ep_next
   if (p.ep_next >= 7) caseFor.push(`Expected points: ${p.ep_next} xPts for GW${gw} - among the highest of any player in the game this week.`)
@@ -769,11 +794,15 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
       answer: [
         runSummary,
         "",
-        fixtureRun.map((f) =>
-          f.opponent === null
-            ? `GW${f.gw}: Blank gameweek - no fixture`
-            : `GW${f.gw}: ${f.opponent} (${f.isHome ? "Home" : "Away"}) - difficulty ${f.fdr}/5`
-        ).join("\n"),
+        fixtureRun.map((f) => {
+          if (f.matches.length === 0) return `GW${f.gw}: Blank gameweek - no fixture`
+          if (f.matches.length >= 2) {
+            const parts = f.matches.map((m) => `${m.opponent} (${m.isHome ? "Home" : "Away"}, FDR ${m.fdr}/5)`).join(" + ")
+            return `GW${f.gw}: DOUBLE GW - ${parts}`
+          }
+          const m = f.matches[0]
+          return `GW${f.gw}: ${m.opponent} (${m.isHome ? "Home" : "Away"}) - difficulty ${m.fdr}/5`
+        }).join("\n"),
         "",
         runContext,
         "",
@@ -802,7 +831,7 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
         isStrongBuy
           ? `Yes - the timing looks good. ${p.webName} has a favourable fixture run coming up and his form and expected points support an immediate transfer.`
           : isWait
-          ? `Probably not this week. The GW${gw} fixture is tough, but ${p.webName}'s schedule softens from GW${fixtureRun.find(f => f.opponent !== null && f.fdr <= 3)?.gw ?? gw + 1}. If you have a free transfer next week, that could be the better entry point.`
+          ? `Probably not this week. The GW${gw} fixture is tough, but ${p.webName}'s schedule softens from GW${fixtureRun.find(f => f.matches.some(m => m.fdr <= 3))?.gw ?? gw + 1}. If you have a free transfer next week, that could be the better entry point.`
           : `It depends on your squad situation. If you have a free transfer and need cover in ${p.webName}'s position, the case is there. If it costs you a transfer hit, the numbers this week do not strongly support that.`,
         "",
         `${runSummary} ${runContext}`,

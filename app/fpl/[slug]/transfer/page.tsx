@@ -167,28 +167,55 @@ export default async function FplTransferPage({
             {fixtureRun.map((f) => (
               <div
                 key={f.gw}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center flex flex-col items-center gap-1"
+                className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-4 text-center flex flex-col items-center gap-1"
+                style={f.matches.length >= 2 ? { borderColor: "rgba(0,255,135,0.2)", background: "rgba(0,255,135,0.04)" } : {}}
               >
-                <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">{`GW${f.gw}`}</p>
-                {f.opponent === null ? (
+                <div className="flex items-center gap-1.5">
+                  <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">{`GW${f.gw}`}</p>
+                  {f.matches.length >= 2 && (
+                    <span className="text-[8px] font-black uppercase tracking-wider rounded px-1 py-0.5 text-black" style={{ background: "#00FF87" }}>DGW</span>
+                  )}
+                </div>
+
+                {f.matches.length === 0 ? (
                   <p className="text-sm font-semibold text-white/40 mt-1">Blank</p>
+                ) : f.matches.length >= 2 ? (
+                  // Double GW — stack both fixtures
+                  <div className="flex flex-col gap-2 w-full mt-1">
+                    {f.matches.map((m, idx) => (
+                      <div key={idx} className="flex flex-col items-center gap-0.5">
+                        {m.opponentCode ? (
+                          <Image
+                            src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`}
+                            alt={m.opponent}
+                            width={28}
+                            height={28}
+                            className="object-contain"
+                            unoptimized
+                          />
+                        ) : <div className="h-7 w-7" />}
+                        <p className="text-xs font-bold text-white leading-tight">{m.opponent}</p>
+                        <p className="text-[10px] text-white/50">{m.isHome ? "H" : "A"}</p>
+                        <FdrDots fdr={m.fdr} />
+                      </div>
+                    ))}
+                  </div>
                 ) : (
+                  // Single fixture
                   <>
-                    {f.opponentCode ? (
+                    {f.matches[0].opponentCode ? (
                       <Image
-                        src={`https://resources.premierleague.com/premierleague/badges/70/t${f.opponentCode}.png`}
-                        alt={f.opponent}
+                        src={`https://resources.premierleague.com/premierleague/badges/70/t${f.matches[0].opponentCode}.png`}
+                        alt={f.matches[0].opponent}
                         width={36}
                         height={36}
                         className="object-contain"
                         unoptimized
                       />
-                    ) : (
-                      <div className="h-9 w-9" />
-                    )}
-                    <p className="text-sm font-bold text-white leading-tight">{f.opponent}</p>
-                    <p className="text-[10px] text-white/50">{f.isHome ? "Home" : "Away"}</p>
-                    <FdrDots fdr={f.fdr} />
+                    ) : <div className="h-9 w-9" />}
+                    <p className="text-sm font-bold text-white leading-tight">{f.matches[0].opponent}</p>
+                    <p className="text-[10px] text-white/50">{f.matches[0].isHome ? "Home" : "Away"}</p>
+                    <FdrDots fdr={f.matches[0].fdr} />
                   </>
                 )}
               </div>
