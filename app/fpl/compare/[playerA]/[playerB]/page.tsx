@@ -41,55 +41,61 @@ export async function generateMetadata({
 
 function FdrDots({ fdr }: { fdr: number }) {
   return (
-    <div className="flex gap-0.5 mt-0.5">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <div
-          key={n}
-          className="rounded-full"
-          style={{
-            width: 5, height: 5,
-            background:
-              n <= fdr
-                ? fdr <= 2
-                  ? "#00FF87"
-                  : fdr === 3
-                  ? "rgba(255,255,255,0.5)"
-                  : "rgba(255,80,80,0.7)"
-                : "rgba(255,255,255,0.12)",
-          }}
+    <span className="flex gap-0.5 mt-1">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <span
+          key={i}
+          className="block rounded-full"
+          style={{ width: 6, height: 6, background: i <= fdr ? "#00FF87" : "rgba(255,255,255,0.12)" }}
         />
       ))}
+    </span>
+  )
+}
+
+// ─── Fixture panel — player photo + 4 sell-page-style GW tiles in a row ─────
+
+function PlayerPhoto({ player }: { player: ComparisonPlayer }) {
+  return (
+    <div className="flex flex-col items-center gap-1 shrink-0" style={{ width: 80 }}>
+      <div className="relative flex flex-col items-center">
+        <Image
+          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+          alt={player.webName}
+          width={68}
+          height={86}
+          style={{ objectFit: "contain" }}
+          unoptimized
+        />
+        {/* Glowing white separator line — same as fpl-player-hero.tsx */}
+        <div
+          style={{
+            height: 1,
+            width: "100%",
+            background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+            boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+          }}
+        />
+      </div>
+      <p className="text-[10px] font-bold text-white text-center leading-tight mt-1">{player.webName}</p>
     </div>
   )
 }
 
-// ─── Fixture panel — one row: player photo + 4 GW tiles ──────────────────────
-
 function FixturePanel({ fixtureRun, player }: { fixtureRun: FixtureGW[]; player: ComparisonPlayer }) {
   return (
     <div
-      className="rounded-2xl px-4 py-4 flex items-center gap-3"
-      style={{ border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}
+      className="rounded-2xl px-4 py-4 flex items-center gap-4"
+      style={{ border: "1px solid rgba(0,255,135,0.2)", background: "rgba(0,255,135,0.03)" }}
     >
-      {/* Player photo + name */}
-      <div className="flex flex-col items-center gap-1 shrink-0" style={{ width: 64 }}>
-        <Image
-          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-          alt={player.webName}
-          width={52}
-          height={66}
-          style={{ objectFit: "contain" }}
-          unoptimized
-        />
-        <p className="text-[9px] font-bold text-white text-center leading-tight">{player.webName}</p>
-      </div>
+      <PlayerPhoto player={player} />
 
-      {/* 4 GW tiles in a row */}
-      <div className="flex-1 grid grid-cols-4 gap-2">
+      {/* 4 GW tiles — sell page size and style */}
+      <div className="flex-1 grid grid-cols-4 gap-3">
         {fixtureRun.map((f) => (
           <div
             key={f.gw}
-            className="rounded-xl px-2 py-2 text-center flex flex-col items-center gap-0.5"
+            className="rounded-2xl px-3 py-4 text-center flex flex-col items-center gap-1"
             style={
               f.matches.length === 0
                 ? { border: "1px dashed rgba(255,255,255,0.08)", background: "transparent" }
@@ -98,43 +104,49 @@ function FixturePanel({ fixtureRun, player }: { fixtureRun: FixtureGW[]; player:
                 : { border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }
             }
           >
-            <div className="flex items-center gap-0.5">
-              <p className="text-[8px] uppercase tracking-wider text-white/70">{`GW${f.gw}`}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-[9px] uppercase tracking-[0.18em] text-white/70">{`GW${f.gw}`}</p>
               {f.matches.length >= 2 && (
-                <span className="text-[7px] font-black uppercase rounded px-0.5 text-black" style={{ background: "#00FF87" }}>D</span>
+                <span className="text-[8px] font-black uppercase tracking-wider rounded px-1 py-0.5 text-black" style={{ background: "#00FF87" }}>DGW</span>
               )}
             </div>
 
             {f.matches.length === 0 ? (
-              <p className="text-[8px] font-semibold uppercase tracking-wide text-white/70 mt-0.5">BGW</p>
+              <div className="flex flex-col items-center gap-1.5 mt-1">
+                <svg className="h-7 w-7" fill="none" strokeWidth="1.5" viewBox="0 0 24 24" style={{ stroke: "url(#blankGradComp)" }}>
+                  <defs>
+                    <linearGradient id="blankGradComp" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#00FF87" />
+                      <stop offset="100%" stopColor="#00FFFF" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="9" />
+                  <path strokeLinecap="round" d="M9 9l6 6M15 9l-6 6" />
+                </svg>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-white">No fixture</p>
+              </div>
             ) : f.matches.length >= 2 ? (
-              <div className="flex flex-col gap-1 w-full mt-0.5">
+              <div className="flex flex-col gap-2 w-full mt-1">
                 {f.matches.map((m, idx) => (
-                  <div key={idx} className="flex flex-col items-center">
+                  <div key={idx} className="flex flex-col items-center gap-0.5">
                     {m.opponentCode ? (
-                      <Image
-                        src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`}
-                        alt={m.opponent} width={18} height={18} className="object-contain" unoptimized
-                      />
-                    ) : <div className="h-4 w-4" />}
-                    <p className="text-[8px] font-bold text-white leading-tight">{m.opponent}</p>
-                    <p className="text-[7px] text-white/70">{m.isHome ? "H" : "A"}</p>
+                      <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`} alt={m.opponent} width={28} height={28} className="object-contain" unoptimized />
+                    ) : <div className="h-7 w-7" />}
+                    <p className="text-xs font-bold text-white leading-tight">{m.opponent}</p>
+                    <p className="text-[10px] text-white/70">{m.isHome ? "H" : "A"}</p>
                     <FdrDots fdr={m.fdr} />
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center mt-0.5">
+              <>
                 {f.matches[0].opponentCode ? (
-                  <Image
-                    src={`https://resources.premierleague.com/premierleague/badges/70/t${f.matches[0].opponentCode}.png`}
-                    alt={f.matches[0].opponent} width={22} height={22} className="object-contain" unoptimized
-                  />
-                ) : <div className="h-5 w-5" />}
-                <p className="text-[9px] font-bold text-white leading-tight mt-0.5">{f.matches[0].opponent}</p>
-                <p className="text-[8px] text-white/70">{f.matches[0].isHome ? "H" : "A"}</p>
+                  <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${f.matches[0].opponentCode}.png`} alt={f.matches[0].opponent} width={36} height={36} className="object-contain" unoptimized />
+                ) : <div className="h-9 w-9" />}
+                <p className="text-sm font-bold text-white leading-tight">{f.matches[0].opponent}</p>
+                <p className="text-[10px] text-white/70">{f.matches[0].isHome ? "Home" : "Away"}</p>
                 <FdrDots fdr={f.matches[0].fdr} />
-              </div>
+              </>
             )}
           </div>
         ))}
@@ -200,14 +212,23 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
                 {/* Player cell */}
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <Image
-                      src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-                      alt={player.webName}
-                      width={36}
-                      height={45}
-                      style={{ objectFit: "contain" }}
-                      unoptimized
-                    />
+                    <div className="flex flex-col items-center shrink-0">
+                      <Image
+                        src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+                        alt={player.webName}
+                        width={40}
+                        height={50}
+                        style={{ objectFit: "contain" }}
+                        unoptimized
+                      />
+                      <div
+                        style={{
+                          height: 1, width: 40,
+                          background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+                          boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+                        }}
+                      />
+                    </div>
                     <div>
                       <p className="text-sm font-bold text-white leading-tight">{player.webName}</p>
                       <p className="text-[10px] text-white/70">{player.position} - {player.club}</p>
@@ -225,9 +246,6 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
                       <span className="text-sm font-bold" style={wins ? WIN_STYLE : { color: "rgba(255,255,255,0.85)" }}>
                         {display}
                       </span>
-                      {wins && (
-                        <span className="block text-[8px] font-black" style={{ color: "#00FF87" }}>▲</span>
-                      )}
                     </td>
                   )
                 })}
