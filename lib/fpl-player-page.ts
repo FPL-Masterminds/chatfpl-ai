@@ -96,6 +96,13 @@ export function buildSlugLookup(
  *   combined length is reasonable, otherwise fall back to web_name alone.
  */
 function getDisplayName(p: any): string {
+  // If web_name is an abbreviation like "B.Fernandes", use first_name + surname
+  const abbreviated = /^[A-Z]\..+/.test(p.web_name)
+  if (abbreviated) {
+    const surname = p.web_name.replace(/^[A-Z]\./, "")
+    const full = `${p.first_name} ${surname}`
+    return full.length <= 26 ? full : surname
+  }
   if (p.web_name.includes(" ")) return p.web_name
   const full = `${p.first_name} ${p.web_name}`
   return full.length <= 22 ? full : p.web_name
@@ -530,11 +537,7 @@ export async function getPlayerTransferData(
     const player: PlayerData = {
       code:        el.code,
       webName:     el.web_name,
-      displayName: (() => {
-        if (el.web_name.includes(" ")) return el.web_name
-        const full = `${el.first_name} ${el.web_name}`
-        return full.length <= 22 ? full : el.web_name
-      })(),
+      displayName: getDisplayName(el),
       club:        team?.short ?? "",
       teamCode:    team?.code ?? 0,
       position:    posMap[el.element_type] ?? "",
