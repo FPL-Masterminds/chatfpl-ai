@@ -189,13 +189,13 @@ const WIN_STYLE: React.CSSProperties = {
 
 function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: ComparisonPlayer }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/[0.06]" style={{ background: "rgba(255,255,255,0.02)" }}>
-      <table className="w-full min-w-[640px] text-sm">
+    <div className="overflow-x-auto rounded-2xl" style={{ border: "1px solid rgba(0,255,135,0.2)", background: "rgba(0,255,135,0.03)" }}>
+      <table className="w-full min-w-[600px] text-sm">
         <thead>
           <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <th className="text-left px-4 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold w-44">Player</th>
+            <th className="text-left px-3 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold whitespace-nowrap">Player</th>
             {STAT_COLS.map((col) => (
-              <th key={col.label} className="text-center px-3 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold whitespace-nowrap">
+              <th key={col.label} className="text-center px-2 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold whitespace-nowrap">
                 {col.label}
               </th>
             ))}
@@ -209,29 +209,29 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
                 key={player.slug}
                 style={{ borderBottom: rowIdx === 0 ? "1px solid rgba(255,255,255,0.04)" : undefined }}
               >
-                {/* Player cell */}
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
+                {/* Player cell — tight, no fixed width */}
+                <td className="px-3 py-2">
+                  <div className="flex items-center gap-2">
                     <div className="flex flex-col items-center shrink-0">
                       <Image
                         src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
                         alt={player.webName}
-                        width={40}
-                        height={50}
+                        width={52}
+                        height={65}
                         style={{ objectFit: "contain" }}
                         unoptimized
                       />
                       <div
                         style={{
-                          height: 1, width: 40,
+                          height: 1, width: 52,
                           background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
                           boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
                         }}
                       />
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-white leading-tight">{player.webName}</p>
-                      <p className="text-[10px] text-white/70">{player.position} - {player.club}</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white leading-tight whitespace-nowrap">{player.webName}</p>
+                      <p className="text-[10px] text-white/70 whitespace-nowrap">{player.position} - {player.club}</p>
                     </div>
                   </div>
                 </td>
@@ -242,7 +242,7 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
                   const wins    = col.higherIsBetter ? valNum > othNum : valNum < othNum
                   const display = formatStat(player, col.key as string)
                   return (
-                    <td key={col.label} className="text-center px-3 py-3">
+                    <td key={col.label} className="text-center px-2 py-2">
                       <span className="text-sm font-bold" style={wins ? WIN_STYLE : { color: "rgba(255,255,255,0.85)" }}>
                         {display}
                       </span>
