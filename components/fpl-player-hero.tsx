@@ -191,9 +191,10 @@ export interface FplPlayerHeroProps {
   h1Gradient: string  // "Fantasy Premier League Gameweek 32?"
   subtitle: string
   players: FplCardPlayer[]  // exactly 5, index 2 is the center subject
+  badgeLabel?: string  // defaults to "Captain Analysis"
 }
 
-export function FplPlayerHero({ h1White, h1Gradient, subtitle, players }: FplPlayerHeroProps) {
+export function FplPlayerHero({ h1White, h1Gradient, subtitle, players, badgeLabel = "Captain Analysis" }: FplPlayerHeroProps) {
   const { data: session } = useSession()
   const ctaHref = session?.user ? "/chat" : "/signup"
 
@@ -232,7 +233,7 @@ export function FplPlayerHero({ h1White, h1Gradient, subtitle, players }: FplPla
             >
               FPL
             </span>
-            Captain Analysis
+            {badgeLabel}
           </span>
         </div>
 
