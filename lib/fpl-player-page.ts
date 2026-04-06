@@ -96,16 +96,28 @@ export function buildSlugLookup(
  *   combined length is reasonable, otherwise fall back to web_name alone.
  */
 function getDisplayName(p: any): string {
-  // If web_name is an abbreviation like "B.Fernandes", use first_name + surname
-  const abbreviated = /^[A-Z]\..+/.test(p.web_name)
+  const webName: string = p.web_name ?? ""
+  const firstName: string = p.first_name ?? ""
+
+  // Abbreviated web_name like "B.Fernandes" — strip the initial and use first_name + surname
+  const abbreviated = /^[A-Z]\..+/.test(webName)
   if (abbreviated) {
-    const surname = p.web_name.replace(/^[A-Z]\./, "")
-    const full = `${p.first_name} ${surname}`
+    const surname = webName.replace(/^[A-Z]\./, "")
+    const full = `${firstName} ${surname}`
     return full.length <= 26 ? full : surname
   }
-  if (p.web_name.includes(" ")) return p.web_name
-  const full = `${p.first_name} ${p.web_name}`
-  return full.length <= 22 ? full : p.web_name
+
+  // Multi-word web_name like "Bernardo Silva" — use as-is
+  if (webName.includes(" ")) return webName
+
+  // Duplication guard: if first_name already ends with web_name
+  // e.g. first_name="Igor Thiago" web_name="Thiago" → avoid "Igor Thiago Thiago"
+  if (firstName.toLowerCase().endsWith(webName.toLowerCase())) {
+    return firstName.length <= 22 ? firstName : webName
+  }
+
+  const full = `${firstName} ${webName}`
+  return full.length <= 22 ? full : webName
 }
 
 // ─── FPL API data fetch ───────────────────────────────────────────────────────
