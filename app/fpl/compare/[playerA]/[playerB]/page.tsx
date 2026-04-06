@@ -28,7 +28,7 @@ export async function generateMetadata({
   const { playerA: a, playerB: b, gw } = data
   return {
     title: `${a.displayName} vs ${b.displayName}: Who to pick in Fantasy Premier League? | ChatFPL AI`,
-    description: `${a.displayName} vs ${b.displayName} — Gameweek ${gw} comparison. Form, expected points, fixture difficulty and a full verdict on who to start in your FPL squad.`,
+    description: `${a.displayName} vs ${b.displayName} - Gameweek ${gw} comparison. Form, expected points, fixture difficulty and a full verdict on who to start in your FPL squad.`,
     openGraph: {
       title: `${a.displayName} vs ${b.displayName}: FPL Gameweek ${gw} | ChatFPL AI`,
       description: `Head-to-head FPL analysis: ${a.displayName} vs ${b.displayName} for Gameweek ${gw}. Who has the better fixture, form, and value?`,
@@ -37,7 +37,7 @@ export async function generateMetadata({
   }
 }
 
-// ─── FDR dots (reused from transfer page) ─────────────────────────────────────
+// ─── FDR dots ─────────────────────────────────────────────────────────────────
 
 function FdrDots({ fdr }: { fdr: number }) {
   return (
@@ -63,128 +63,177 @@ function FdrDots({ fdr }: { fdr: number }) {
   )
 }
 
-// ─── Fixture column ────────────────────────────────────────────────────────────
+// ─── Fixture panel — one row: player photo + 4 GW tiles ──────────────────────
 
-function FixtureColumn({ fixtureRun, player }: { fixtureRun: FixtureGW[]; player: ComparisonPlayer }) {
+function FixturePanel({ fixtureRun, player }: { fixtureRun: FixtureGW[]; player: ComparisonPlayer }) {
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 text-center font-semibold">{player.webName}</p>
-      {fixtureRun.map((f) => (
-        <div
-          key={f.gw}
-          className="rounded-2xl px-3 py-3 text-center flex flex-col items-center gap-1"
-          style={
-            f.matches.length === 0
-              ? { border: "1px dashed rgba(255,255,255,0.08)", background: "transparent" }
-              : f.matches.length >= 2
-              ? { border: "1px solid rgba(0,255,135,0.2)", background: "rgba(0,255,135,0.04)" }
-              : { border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }
-          }
-        >
-          <div className="flex items-center gap-1">
-            <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">{`GW${f.gw}`}</p>
-            {f.matches.length >= 2 && (
-              <span className="text-[7px] font-black uppercase rounded px-1 py-0.5 text-black" style={{ background: "#00FF87" }}>DGW</span>
+    <div
+      className="rounded-2xl px-4 py-4 flex items-center gap-3"
+      style={{ border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}
+    >
+      {/* Player photo + name */}
+      <div className="flex flex-col items-center gap-1 shrink-0" style={{ width: 64 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+          alt={player.webName}
+          style={{ width: 52, height: "auto", objectFit: "contain" }}
+          onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+        />
+        <p className="text-[9px] font-bold text-white text-center leading-tight">{player.webName}</p>
+      </div>
+
+      {/* 4 GW tiles in a row */}
+      <div className="flex-1 grid grid-cols-4 gap-2">
+        {fixtureRun.map((f) => (
+          <div
+            key={f.gw}
+            className="rounded-xl px-2 py-2 text-center flex flex-col items-center gap-0.5"
+            style={
+              f.matches.length === 0
+                ? { border: "1px dashed rgba(255,255,255,0.08)", background: "transparent" }
+                : f.matches.length >= 2
+                ? { border: "1px solid rgba(0,255,135,0.2)", background: "rgba(0,255,135,0.04)" }
+                : { border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }
+            }
+          >
+            <div className="flex items-center gap-0.5">
+              <p className="text-[8px] uppercase tracking-wider text-white/70">{`GW${f.gw}`}</p>
+              {f.matches.length >= 2 && (
+                <span className="text-[7px] font-black uppercase rounded px-0.5 text-black" style={{ background: "#00FF87" }}>D</span>
+              )}
+            </div>
+
+            {f.matches.length === 0 ? (
+              <p className="text-[8px] font-semibold uppercase tracking-wide text-white/70 mt-0.5">BGW</p>
+            ) : f.matches.length >= 2 ? (
+              <div className="flex flex-col gap-1 w-full mt-0.5">
+                {f.matches.map((m, idx) => (
+                  <div key={idx} className="flex flex-col items-center">
+                    {m.opponentCode ? (
+                      <Image
+                        src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`}
+                        alt={m.opponent} width={18} height={18} className="object-contain" unoptimized
+                      />
+                    ) : <div className="h-4 w-4" />}
+                    <p className="text-[8px] font-bold text-white leading-tight">{m.opponent}</p>
+                    <p className="text-[7px] text-white/70">{m.isHome ? "H" : "A"}</p>
+                    <FdrDots fdr={m.fdr} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center mt-0.5">
+                {f.matches[0].opponentCode ? (
+                  <Image
+                    src={`https://resources.premierleague.com/premierleague/badges/70/t${f.matches[0].opponentCode}.png`}
+                    alt={f.matches[0].opponent} width={22} height={22} className="object-contain" unoptimized
+                  />
+                ) : <div className="h-5 w-5" />}
+                <p className="text-[9px] font-bold text-white leading-tight mt-0.5">{f.matches[0].opponent}</p>
+                <p className="text-[8px] text-white/70">{f.matches[0].isHome ? "H" : "A"}</p>
+                <FdrDots fdr={f.matches[0].fdr} />
+              </div>
             )}
           </div>
-
-          {f.matches.length === 0 ? (
-            <div className="flex flex-col items-center gap-1 mt-1">
-              <svg className="h-6 w-6" fill="none" strokeWidth="1.5" viewBox="0 0 24 24" style={{ stroke: "url(#blankGradComp)" }}>
-                <defs>
-                  <linearGradient id="blankGradComp" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#00FF87" />
-                    <stop offset="100%" stopColor="#00FFFF" />
-                  </linearGradient>
-                </defs>
-                <circle cx="12" cy="12" r="9" />
-                <path strokeLinecap="round" d="M9 9l6 6M15 9l-6 6" />
-              </svg>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-white">No fixture</p>
-            </div>
-          ) : f.matches.length >= 2 ? (
-            <div className="flex flex-col gap-1.5 w-full mt-1">
-              {f.matches.map((m, idx) => (
-                <div key={idx} className="flex flex-col items-center gap-0.5">
-                  {m.opponentCode ? (
-                    <Image
-                      src={`https://resources.premierleague.com/premierleague/badges/70/t${m.opponentCode}.png`}
-                      alt={m.opponent} width={22} height={22} className="object-contain" unoptimized
-                    />
-                  ) : <div className="h-5 w-5" />}
-                  <p className="text-[10px] font-bold text-white leading-tight">{m.opponent}</p>
-                  <p className="text-[9px] text-white/50">{m.isHome ? "H" : "A"}</p>
-                  <FdrDots fdr={m.fdr} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              {f.matches[0].opponentCode ? (
-                <Image
-                  src={`https://resources.premierleague.com/premierleague/badges/70/t${f.matches[0].opponentCode}.png`}
-                  alt={f.matches[0].opponent} width={28} height={28} className="object-contain" unoptimized
-                />
-              ) : <div className="h-7 w-7" />}
-              <p className="text-xs font-bold text-white leading-tight">{f.matches[0].opponent}</p>
-              <p className="text-[9px] text-white/50">{f.matches[0].isHome ? "Home" : "Away"}</p>
-              <FdrDots fdr={f.matches[0].fdr} />
-            </>
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
 
-// ─── Head-to-head stat row ─────────────────────────────────────────────────────
+// ─── Horizontal stat table ────────────────────────────────────────────────────
 
-function StatRow({
-  label,
-  valA,
-  valB,
-  higherIsBetter = true,
-}: {
-  label: string
-  valA: string
-  valB: string
-  higherIsBetter?: boolean
-}) {
-  const numA = parseFloat(valA.replace(/[^0-9.]/g, ""))
-  const numB = parseFloat(valB.replace(/[^0-9.]/g, ""))
-  const aWins = higherIsBetter ? numA > numB : numA < numB
-  const bWins = higherIsBetter ? numB > numA : numB < numA
+const STAT_COLS: { label: string; key: keyof ComparisonPlayer | "pos"; higherIsBetter: boolean }[] = [
+  { label: "GW xPts",    key: "ep_next",        higherIsBetter: true  },
+  { label: "Form",       key: "formVal",         higherIsBetter: true  },
+  { label: "Season Pts", key: "totalPts",        higherIsBetter: true  },
+  { label: "Goals",      key: "goals",           higherIsBetter: true  },
+  { label: "Assists",    key: "assists",         higherIsBetter: true  },
+  { label: "Pts per £m", key: "ptsPerMillion",   higherIsBetter: true  },
+  { label: "Ownership",  key: "ownership",       higherIsBetter: false },
+  { label: "Price",      key: "priceRaw",        higherIsBetter: false },
+]
 
-  const winStyle = {
-    backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)",
-    WebkitBackgroundClip: "text",
-    backgroundClip: "text",
-    color: "transparent",
-  } as React.CSSProperties
+function formatStat(player: ComparisonPlayer, key: string): string {
+  if (key === "ep_next")      return String(player.ep_next)
+  if (key === "formVal")      return player.form
+  if (key === "totalPts")     return String(player.totalPts)
+  if (key === "goals")        return String(player.goals)
+  if (key === "assists")      return String(player.assists)
+  if (key === "ptsPerMillion") return String(player.ptsPerMillion)
+  if (key === "ownership")    return `${player.ownership}%`
+  if (key === "priceRaw")     return player.price
+  return ""
+}
 
+const WIN_STYLE: React.CSSProperties = {
+  backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)",
+  WebkitBackgroundClip: "text",
+  backgroundClip: "text",
+  color: "transparent",
+}
+
+function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: ComparisonPlayer }) {
   return (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-3 border-b border-white/[0.04] last:border-0">
-      <div className="text-right">
-        <span
-          className="text-base font-bold"
-          style={aWins ? winStyle : { color: "rgba(255,255,255,0.8)" }}
-        >
-          {valA}
-        </span>
-        {aWins && <span className="ml-1.5 text-[10px] font-black" style={{ color: "#00FF87" }}>▲</span>}
-      </div>
-      <div className="text-center">
-        <p className="text-[9px] uppercase tracking-[0.15em] text-white/50 whitespace-nowrap">{label}</p>
-      </div>
-      <div className="text-left">
-        {bWins && <span className="mr-1.5 text-[10px] font-black" style={{ color: "#00FF87" }}>▲</span>}
-        <span
-          className="text-base font-bold"
-          style={bWins ? winStyle : { color: "rgba(255,255,255,0.8)" }}
-        >
-          {valB}
-        </span>
-      </div>
+    <div className="overflow-x-auto rounded-2xl border border-white/[0.06]" style={{ background: "rgba(255,255,255,0.02)" }}>
+      <table className="w-full min-w-[640px] text-sm">
+        <thead>
+          <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <th className="text-left px-4 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold w-44">Player</th>
+            {STAT_COLS.map((col) => (
+              <th key={col.label} className="text-center px-3 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold whitespace-nowrap">
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {[playerA, playerB].map((player, rowIdx) => {
+            const other = rowIdx === 0 ? playerB : playerA
+            return (
+              <tr
+                key={player.slug}
+                style={{ borderBottom: rowIdx === 0 ? "1px solid rgba(255,255,255,0.04)" : undefined }}
+              >
+                {/* Player cell */}
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+                      alt={player.webName}
+                      style={{ width: 36, height: "auto", objectFit: "contain" }}
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                    />
+                    <div>
+                      <p className="text-sm font-bold text-white leading-tight">{player.webName}</p>
+                      <p className="text-[10px] text-white/70">{player.position} - {player.club}</p>
+                    </div>
+                  </div>
+                </td>
+                {/* Stat cells */}
+                {STAT_COLS.map((col) => {
+                  const valNum  = player[col.key as keyof ComparisonPlayer] as number
+                  const othNum  = other[col.key as keyof ComparisonPlayer] as number
+                  const wins    = col.higherIsBetter ? valNum > othNum : valNum < othNum
+                  const display = formatStat(player, col.key as string)
+                  return (
+                    <td key={col.label} className="text-center px-3 py-3">
+                      <span className="text-sm font-bold" style={wins ? WIN_STYLE : { color: "rgba(255,255,255,0.85)" }}>
+                        {display}
+                      </span>
+                      {wins && (
+                        <span className="block text-[8px] font-black" style={{ color: "#00FF87" }}>▲</span>
+                      )}
+                    </td>
+                  )
+                })}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -211,7 +260,7 @@ export default async function ComparisonPage({
     answer: q.answer,
   }))
 
-  const welcome = `I've pulled the latest GW${gw} data for ${playerA.displayName} and ${playerB.displayName}. The verdict is below — click any question for more detail.`
+  const welcome = `I've pulled the latest GW${gw} data for ${playerA.displayName} and ${playerB.displayName}. The verdict is below - click any question for more detail.`
 
   return (
     <div className="fpl-player-root flex min-h-screen flex-col bg-black">
@@ -244,9 +293,10 @@ export default async function ComparisonPage({
       <ComparisonHero
         h1White={`${playerA.displayName} vs ${playerB.displayName}: Who should I pick for `}
         h1Gradient={`Fantasy Premier League Gameweek ${gw}?`}
-        subtitle={`${playerA.position} · GW${gw} comparison · ${playerA.club} vs ${playerB.club}`}
+        subtitle={`${playerA.position} - GW${gw} comparison - ${playerA.club} vs ${playerB.club}`}
         playerA={playerA}
         playerB={playerB}
+        gw={gw}
       />
 
       {/* Main content */}
@@ -270,24 +320,9 @@ export default async function ComparisonPage({
           </h2>
         </div>
 
-        {/* Head-to-head stat table */}
+        {/* Horizontal stat table */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-6 py-2">
-            {/* Player name headers */}
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-3 border-b border-white/[0.08] mb-1">
-              <p className="text-right text-sm font-bold text-white">{playerA.webName}</p>
-              <p className="text-center text-[9px] uppercase tracking-[0.15em] text-white/40">Head-to-head</p>
-              <p className="text-left text-sm font-bold text-white">{playerB.webName}</p>
-            </div>
-            <StatRow label="GW xPts" valA={String(playerA.ep_next)} valB={String(playerB.ep_next)} />
-            <StatRow label="Form" valA={playerA.form} valB={playerB.form} />
-            <StatRow label="Season pts" valA={String(playerA.totalPts)} valB={String(playerB.totalPts)} />
-            <StatRow label="Goals" valA={String(playerA.goals)} valB={String(playerB.goals)} />
-            <StatRow label="Assists" valA={String(playerA.assists)} valB={String(playerB.assists)} />
-            <StatRow label="Pts per £m" valA={String(playerA.ptsPerMillion)} valB={String(playerB.ptsPerMillion)} />
-            <StatRow label="Ownership" valA={`${playerA.ownership}%`} valB={`${playerB.ownership}%`} higherIsBetter={false} />
-            <StatRow label="Price" valA={playerA.price} valB={playerB.price} higherIsBetter={false} />
-          </div>
+          <StatTable playerA={playerA} playerB={playerB} />
         </div>
 
         {/* Verdict block */}
@@ -322,16 +357,16 @@ export default async function ComparisonPage({
           </div>
         </div>
 
-        {/* Fixture runs — side by side */}
+        {/* Fixture run - one panel per player */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
-          <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-4">Fixture run — next 4 gameweeks</p>
-          <div className="grid grid-cols-2 gap-4">
-            <FixtureColumn fixtureRun={fixtureRunA} player={playerA} />
-            <FixtureColumn fixtureRun={fixtureRunB} player={playerB} />
+          <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-4">Fixture run - next 4 gameweeks</p>
+          <div className="flex flex-col gap-3">
+            <FixturePanel fixtureRun={fixtureRunA} player={playerA} />
+            <FixturePanel fixtureRun={fixtureRunB} player={playerB} />
           </div>
         </div>
 
-        {/* For/Against — two player columns */}
+        {/* Case for each player */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <h2 className="text-lg font-bold text-white mb-5">The case for each player</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -428,9 +463,9 @@ export default async function ComparisonPage({
           </div>
         </div>
 
-        {/* Also compare */}
+        {/* Also analyse */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mt-16">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-4 text-center">Also analyse</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
               href={`/fpl/${slugA}`}

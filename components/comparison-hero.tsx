@@ -92,21 +92,21 @@ function CompCard({ player }: { player: ComparisonPlayer }) {
             )}
           </div>
           <p className="text-[17px] font-bold leading-[1.1] text-white tracking-tight">{player.webName}</p>
-          <p className="text-[11px] text-white/50 font-medium mt-0.5">{player.club}</p>
+          <p className="text-[11px] text-white/70 font-medium mt-0.5">{player.club}</p>
           <div className="mt-3 flex items-center justify-between">
             <div className="text-center">
               <p className="text-[15px] font-bold leading-none" style={{ color: "#00FF85" }}>{player.totalPts}</p>
-              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/50">Pts</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/70">Pts</p>
             </div>
             <div className="h-6 w-px bg-white/10" />
             <div className="text-center">
               <p className="text-[15px] font-bold leading-none text-white/90">{player.form}</p>
-              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/50">Form</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/70">Form</p>
             </div>
             <div className="h-6 w-px bg-white/10" />
             <div className="text-center">
               <p className="text-[15px] font-bold leading-none text-white/90">{player.price}</p>
-              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/50">Price</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-wider text-white/70">Price</p>
             </div>
           </div>
         </div>
@@ -137,9 +137,10 @@ export interface ComparisonHeroProps {
   subtitle: string
   playerA: ComparisonPlayer
   playerB: ComparisonPlayer
+  gw: number
 }
 
-export function ComparisonHero({ h1White, h1Gradient, subtitle, playerA, playerB }: ComparisonHeroProps) {
+export function ComparisonHero({ h1White, h1Gradient, subtitle, playerA, playerB, gw }: ComparisonHeroProps) {
   const { data: session } = useSession()
   const ctaHref = session?.user ? "/chat" : "/signup"
 
@@ -210,7 +211,7 @@ export function ComparisonHero({ h1White, h1Gradient, subtitle, playerA, playerB
               VS
             </div>
             <div className="h-px w-8 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-            <p className="text-[9px] uppercase tracking-[0.2em] text-white/40">GW{playerA.totalPts > 0 ? "" : ""}</p>
+            <p className="text-[9px] uppercase tracking-[0.2em] text-white/70">GW{gw}</p>
           </div>
 
           {/* Player B */}
