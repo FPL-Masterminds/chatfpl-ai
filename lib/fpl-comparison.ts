@@ -412,7 +412,7 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
     {
       question: `Can I own both ${a.webName} and ${b.webName} in the same FPL squad?`,
       answer: d.samePosition
-        ? `Both play in the same position, so owning them simultaneously means one will be on your bench in a typical week. This only makes sense if you plan to rotate or if one has a double gameweek. Budget permitting, it is a viable strategy when their fixtures alternate.`
+        ? `Yes, you can start both. FPL allows flexible formations, so playing three forwards or five midfielders is perfectly valid. Whether it makes sense depends on your formation, budget, and whether the combined cost leaves enough quality across the rest of your squad.`
         : `Yes, ${a.displayName} and ${b.displayName} play in different positions, so they can comfortably co-exist in the same squad. Whether it is worth the combined cost depends on your overall budget and other areas you need to cover.`,
     },
   ]
