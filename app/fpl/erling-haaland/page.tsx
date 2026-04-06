@@ -549,7 +549,14 @@ export default async function HaalandPage() {
 
         {/* CTA section */}
         <div className="relative z-10 w-full max-w-2xl mx-auto mt-16 text-center">
-          <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/[0.04] px-8 py-10">
+          <div
+            className="rounded-2xl px-8 py-10"
+            style={{
+              border: "1px solid rgba(0,255,135,0.18)",
+              borderLeft: "4px solid #00FF87",
+              background: "rgba(0,255,135,0.04)",
+            }}
+          >
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-3">ChatFPL AI</p>
             <h3 className="text-xl font-bold text-white mb-3 leading-tight">
               {ctaLeadin}
