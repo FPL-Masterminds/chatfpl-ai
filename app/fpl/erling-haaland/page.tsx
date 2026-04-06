@@ -105,11 +105,14 @@ async function getPageData() {
       totalPts:  p.total_points ?? 0,
     }))
 
-    // Top 6 for "Also analyse" — different from flanking 4 to avoid repetition
-    const relatedPlayers = fitByEpNext.slice(0, 8).map((p: any) => ({
-      name:  `${p.first_name} ${p.second_name}`,
-      slug:  toSlug(p.first_name, p.second_name),
-    }))
+    // Top 6 attackers/midfielders for "Also analyse" — defenders are not captain options
+    const relatedPlayers = fitByEpNext
+      .filter((p: any) => p.element_type >= 3) // 3=MID, 4=FWD only
+      .slice(0, 6)
+      .map((p: any) => ({
+        name:  `${p.first_name} ${p.second_name}`,
+        slug:  toSlug(p.first_name, p.second_name),
+      }))
 
     // Arrange: [0, 1, HAALAND, 2, 3]
     const centerCard: FplCardPlayer = {
@@ -258,6 +261,65 @@ function buildPageText(d: NonNullable<Awaited<ReturnType<typeof getPageData>>>) 
     },
   ]
 
+  // ── Static For/Against bullets (server-rendered so Google reads them) ──────
+  const caseFor: string[] = []
+  const caseAgainst: string[] = []
+
+  // Form
+  if (formVal >= 6)
+    caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - one of the better-returning players in his position right now.`)
+  else if (formVal >= 4)
+    caseAgainst.push(`Form: only ${p.form} pts/game over the last 6 gameweeks - returns have been below the level you would expect for a captain pick.`)
+  else
+    caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - poor recent returns make him a risky armband choice this week.`)
+
+  // Fixture
+  if (fdr <= 2)
+    caseFor.push(`Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} is one of the more inviting matchups available to premium assets this week.`)
+  else if (fdr === 3)
+    caseFor.push(`Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} is a workable fixture - not elite, but not a reason to avoid him.`)
+  else
+    caseAgainst.push(`Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} is a tough assignment - better-fixture alternatives exist this week.`)
+
+  // Expected points
+  if (p.ep_next >= 7)
+    caseFor.push(`Expected points: ${p.ep_next} xPts for GW${gw} is among the highest of any player this week.`)
+  else if (p.ep_next >= 5)
+    caseFor.push(`Expected points: ${p.ep_next} xPts for GW${gw} - a solid projected return for a premium asset.`)
+  else
+    caseAgainst.push(`Expected points: only ${p.ep_next} xPts projected for GW${gw} - the model suggests stronger options are available.`)
+
+  // Ownership
+  if (p.ownership >= 40)
+    caseAgainst.push(`Ownership: at ${p.ownership}%, not captaining him is a significant points-against decision - but that alone is not a reason to pick him.`)
+  else if (p.ownership >= 20)
+    caseFor.push(`Ownership: ${p.ownership}% ownership means blanking costs rank. It is a real consideration.`)
+  else
+    caseFor.push(`Ownership: ${p.ownership}% makes him a genuine differential. A big return here would move you up the overall rankings.`)
+
+  // Goals and assists
+  if (p.goals + p.assists >= 15)
+    caseFor.push(`Returns: ${p.goals} goals and ${p.assists} assists this season - consistent enough to justify the price tag.`)
+  else if (p.goals + p.assists >= 8)
+    caseFor.push(`Returns: ${p.goals} goals and ${p.assists} assists - decent underlying output for the season.`)
+  else
+    caseAgainst.push(`Returns: only ${p.goals} goals and ${p.assists} assists this season - the volume has not been there.`)
+
+  // Availability
+  if (p.chance < 75)
+    caseAgainst.push(`Availability: ${p.news} - there is a real risk he does not start or plays reduced minutes.`)
+
+  // Ensure at least one bullet each side
+  if (caseFor.length === 0)
+    caseFor.push(`${p.name} has shown he is capable of a big return on his day, and the FPL captaincy is ultimately about upside.`)
+  if (caseAgainst.length === 0)
+    caseAgainst.push(`At ${p.price} and ${p.ownership}% ownership, the expectation bar for the armband is high - any blank hurts.`)
+
+  const caseHeading =
+    p.ep_next >= 6
+      ? `Why ${p.name} is worth the armband in GW${gw}`
+      : `Why ${p.name} is probably not the best captain in GW${gw}`
+
   const welcome = `${verdict} Click a question below and I will walk you through the numbers.`
 
   // Verdict badge for the static answer block
@@ -286,7 +348,7 @@ function buildPageText(d: NonNullable<Awaited<ReturnType<typeof getPageData>>>) 
       : `Ownership: ${p.ownership}% - a genuine differential pick`,
   ]
 
-  return { verdict, verdictLabel, verdictColor, verdictBullets, ctaLeadin, qaItems, welcome, gw, price: p.price }
+  return { verdict, verdictLabel, verdictColor, verdictBullets, caseFor, caseAgainst, caseHeading, ctaLeadin, qaItems, welcome, gw, price: p.price }
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
@@ -319,7 +381,7 @@ export default async function HaalandPage() {
   }
 
   const { gw, player, showcasePlayers, relatedPlayers } = data
-  const { verdict, verdictLabel, verdictColor, verdictBullets, ctaLeadin, qaItems, welcome } = buildPageText(data)
+  const { verdict, verdictLabel, verdictColor, verdictBullets, caseFor, caseAgainst, caseHeading, ctaLeadin, qaItems, welcome } = buildPageText(data)
 
   return (
     <div className="fpl-player-root flex min-h-screen flex-col bg-black">
@@ -422,6 +484,41 @@ export default async function HaalandPage() {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+
+        {/* ── For / Against (static HTML — Google reads this fully) ── */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
+          <h2 className="text-lg font-bold text-white mb-5">{caseHeading}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Case for */}
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
+              <p className="text-[10px] uppercase tracking-[0.18em] font-bold mb-3" style={{ color: "#00FF87" }}>The case for</p>
+              <ul className="space-y-2.5">
+                {caseFor.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
+                    <svg className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "#00FF87" }} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {/* Case against */}
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
+              <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/50 mb-3">The case against</p>
+              <ul className="space-y-2.5">
+                {caseAgainst.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
+                    <svg className="mt-0.5 h-4 w-4 shrink-0 text-white/30" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
