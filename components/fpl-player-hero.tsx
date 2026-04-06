@@ -198,7 +198,7 @@ export function FplPlayerHero({ h1White, h1Gradient, subtitle, players }: FplPla
   const ctaHref = session?.user ? "/chat" : "/signup"
 
   return (
-    <section className="relative flex flex-col items-center justify-center px-4 py-24" style={{ minHeight: "100svh" }}>
+    <section className="relative flex flex-col items-center justify-center px-4 pt-28 pb-12">
       {/* Video background */}
       <DevHeroVideoBg />
 

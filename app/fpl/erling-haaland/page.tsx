@@ -3,6 +3,17 @@ import { FplPlayerHero, type FplCardPlayer } from "@/components/fpl-player-hero"
 import { ConversationalPlayer, type PlayerQA } from "@/components/conversational-player"
 import Link from "next/link"
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function toSlug(firstName: string, secondName: string): string {
+  return `${firstName} ${secondName}`
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")   // strip diacritics
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+}
+
 // ─── FPL API fetch (server-side, cached 1 hour) ───────────────────────────────
 
 const HAALAND_CODE = 223094
@@ -72,8 +83,8 @@ async function getPageData() {
       chance:      hEl.chance_of_playing_next_round ?? 100,
     }
 
-    // Top 4 flanking players by ep_next (exclude Haaland, must be fit)
-    const others: FplCardPlayer[] = (bootstrap.elements ?? [])
+    // Fit, active players sorted by ep_next (exclude Haaland)
+    const fitByEpNext = (bootstrap.elements ?? [])
       .filter((p: any) =>
         p.code !== HAALAND_CODE &&
         (p.chance_of_playing_next_round ?? 100) >= 75 &&
@@ -81,17 +92,24 @@ async function getPageData() {
         parseFloat(p.ep_next ?? "0") > 0
       )
       .sort((a: any, b: any) => parseFloat(b.ep_next) - parseFloat(a.ep_next))
-      .slice(0, 4)
-      .map((p: any) => ({
-        code:      p.code,
-        name:      p.web_name,
-        club:      teamMap[p.team]?.short ?? "",
-        teamCode:  teamMap[p.team]?.code ?? 0,
-        position:  posMap[p.element_type] ?? "",
-        price:     `£${(p.now_cost / 10).toFixed(1)}m`,
-        form:      p.form ?? "0.0",
-        totalPts:  p.total_points ?? 0,
-      }))
+
+    // Top 4 for flanking cards
+    const others: FplCardPlayer[] = fitByEpNext.slice(0, 4).map((p: any) => ({
+      code:      p.code,
+      name:      p.web_name,
+      club:      teamMap[p.team]?.short ?? "",
+      teamCode:  teamMap[p.team]?.code ?? 0,
+      position:  posMap[p.element_type] ?? "",
+      price:     `£${(p.now_cost / 10).toFixed(1)}m`,
+      form:      p.form ?? "0.0",
+      totalPts:  p.total_points ?? 0,
+    }))
+
+    // Top 6 for "Also analyse" — different from flanking 4 to avoid repetition
+    const relatedPlayers = fitByEpNext.slice(0, 8).map((p: any) => ({
+      name:  `${p.first_name} ${p.second_name}`,
+      slug:  toSlug(p.first_name, p.second_name),
+    }))
 
     // Arrange: [0, 1, HAALAND, 2, 3]
     const centerCard: FplCardPlayer = {
@@ -119,6 +137,7 @@ async function getPageData() {
       isHome,
       fdr,
       showcasePlayers,
+      relatedPlayers,
     }
   } catch {
     // Sensible fallback so the page still renders
@@ -248,10 +267,7 @@ function buildPageText(d: NonNullable<Awaited<ReturnType<typeof getPageData>>>) 
     : p.ep_next >= 4 ? "MAYBE"
     : "PROBABLY NOT"
 
-  const verdictColor =
-    p.ep_next >= 6 ? "#00FF87"
-    : p.ep_next >= 4 ? "#FFB830"
-    : "#FF6B6B"
+  const verdictColor = "#00FF87"
 
   // Three crawlable bullets directly beneath the verdict
   const verdictBullets = [
@@ -302,7 +318,7 @@ export default async function HaalandPage() {
     )
   }
 
-  const { gw, player, showcasePlayers } = data
+  const { gw, player, showcasePlayers, relatedPlayers } = data
   const { verdict, verdictLabel, verdictColor, verdictBullets, ctaLeadin, qaItems, welcome } = buildPageText(data)
 
   return (
@@ -341,7 +357,7 @@ export default async function HaalandPage() {
       />
 
       {/* Analysis section */}
-      <main className="relative z-10 flex-1 flex flex-col items-center px-4 py-16 bg-black">
+      <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">
 
         {/* Radial glow only - no grid */}
         <div
@@ -469,14 +485,7 @@ export default async function HaalandPage() {
         <div className="relative z-10 w-full max-w-4xl mx-auto mt-16">
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
           <div className="flex flex-wrap justify-center gap-3">
-            {[
-              { name: "Mohamed Salah", slug: "mohamed-salah" },
-              { name: "Cole Palmer",   slug: "cole-palmer"   },
-              { name: "Bryan Mbeumo",  slug: "bryan-mbeumo"  },
-              { name: "Bukayo Saka",   slug: "bukayo-saka"   },
-              { name: "Alexander Isak",slug: "alexander-isak"},
-              { name: "Bruno Fernandes", slug: "bruno-fernandes" },
-            ].map((p) => (
+            {relatedPlayers.map((p) => (
               <Link
                 key={p.slug}
                 href={`/fpl/${p.slug}`}
