@@ -194,6 +194,23 @@ export function getDisplayName(p: any): string {
 
 export const FPL_HEADERS = { "User-Agent": "ChatFPL/1.0" }
 
+/**
+ * Returns true when the FPL season is over — i.e. all events are finished
+ * and no event is marked as next. Used to show a season-ended holding page.
+ */
+export async function isSeasonOver(): Promise<boolean> {
+  try {
+    const bootstrap = await getBootstrap()
+    const events: any[] = bootstrap.events ?? []
+    if (events.length === 0) return false
+    const hasNext = events.some((e: any) => e.is_next)
+    const hasCurrent = events.some((e: any) => e.is_current && !e.finished)
+    return !hasNext && !hasCurrent
+  } catch {
+    return false
+  }
+}
+
 function toCard(
   p: any,
   teamMap: Record<number, { name: string; short: string; code: number }>,

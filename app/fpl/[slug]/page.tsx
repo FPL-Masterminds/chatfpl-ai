@@ -7,7 +7,9 @@ import {
   getPlayerPageData,
   buildPageText,
   getEligibleSlugs,
+  isSeasonOver,
 } from "@/lib/fpl-player-page"
+import { SeasonEnded } from "@/components/season-ended"
 
 // ISR — revalidate all player pages every hour
 export const revalidate = 3600
@@ -53,6 +55,7 @@ export default async function FplPlayerPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  if (await isSeasonOver()) return <SeasonEnded />
   const data = await getPlayerPageData(slug)
   if (!data) notFound()
 

@@ -8,9 +8,11 @@ import {
   getPlayerTransferData,
   buildDifferentialPageText,
   getEligibleSlugs,
+  isSeasonOver,
   type FixtureGW,
   type DifferentialAlternative,
 } from "@/lib/fpl-player-page"
+import { SeasonEnded } from "@/components/season-ended"
 
 export const revalidate = 3600
 export const dynamicParams = true
@@ -219,6 +221,7 @@ export default async function FplDifferentialPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  if (await isSeasonOver()) return <SeasonEnded />
   const data = await getPlayerTransferData(slug)
   if (!data) notFound()
 
