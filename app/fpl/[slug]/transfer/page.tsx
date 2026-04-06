@@ -364,11 +364,10 @@ export default async function FplTransferPage({
           </div>
         </div>
 
-        {/* Also analyse — links to transfer pages for similar players */}
+        {/* Also analyse */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mt-16">
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
           <div className="flex flex-wrap justify-center gap-3">
-            {relatedPlayers.map((rp) => (
             <Link
               href={`/fpl/${slug}/sell`}
               className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
@@ -383,7 +382,6 @@ export default async function FplTransferPage({
               >
                 Should I transfer {rp.name}?
               </Link>
-            ))}
             ))}
           </div>
         </div>
