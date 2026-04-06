@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next'
 import fs from 'fs'
 import path from 'path'
 import { getEligibleSlugs } from '@/lib/fpl-player-page'
+import { getComparisonSlugs } from '@/lib/fpl-comparison'
 
 const baseUrl = 'https://www.chatfpl.ai'
 
@@ -85,7 +86,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const transferRoutes     = playerSlugs.map((slug) => `/fpl/${slug}/transfer`)
   const sellRoutes         = playerSlugs.map((slug) => `/fpl/${slug}/sell`)
   const differentialRoutes = playerSlugs.map((slug) => `/fpl/${slug}/differential`)
-  const allRoutes = [...staticRoutes, ...captainRoutes, ...transferRoutes, ...sellRoutes, ...differentialRoutes]
+
+  // Comparison routes — top 500 same-position pairs by combined ownership
+  const comparisonPairs = await getComparisonSlugs(500)
+  const comparisonRoutes = comparisonPairs.map(
+    ({ playerA, playerB }) => `/fpl/compare/${playerA}/${playerB}`
+  )
+
+  const allRoutes = [
+    ...staticRoutes,
+    ...captainRoutes,
+    ...transferRoutes,
+    ...sellRoutes,
+    ...differentialRoutes,
+    ...comparisonRoutes,
+  ]
 
   return allRoutes.map((route) => {
     const meta = getRouteMetadata(route)

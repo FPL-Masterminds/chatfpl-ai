@@ -184,6 +184,60 @@ export async function getComparisonData(
   }
 }
 
+// ─── Static params generation ─────────────────────────────────────────────────
+
+export async function getComparisonSlugs(limit = 500): Promise<{ playerA: string; playerB: string }[]> {
+  try {
+    const bootstrap = await getBootstrap()
+    if (!bootstrap?.elements) return []
+
+    const teamMap: Record<number, { name: string; short: string; code: number }> = {}
+    ;(bootstrap.teams ?? []).forEach((t: any) => {
+      teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code }
+    })
+
+    const eligible = (bootstrap.elements ?? []).filter(
+      (p: any) => p.minutes >= 1000 && parseFloat(p.selected_by_percent ?? "0") >= 1.0
+    )
+
+    const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
+
+    // Reverse map: elementId -> slug
+    const idToSlug = new Map<number, string>()
+    slugLookup.forEach((id, slug) => idToSlug.set(id, slug))
+
+    // Group by position
+    const byPosition: Record<number, any[]> = {}
+    eligible.forEach((p: any) => {
+      if (!byPosition[p.element_type]) byPosition[p.element_type] = []
+      byPosition[p.element_type].push(p)
+    })
+
+    // All same-position pairs, scored by combined ownership (most popular first)
+    const pairs: { playerA: string; playerB: string; score: number }[] = []
+    for (const players of Object.values(byPosition)) {
+      for (let i = 0; i < players.length; i++) {
+        for (let j = i + 1; j < players.length; j++) {
+          const slugA = idToSlug.get(players[i].id)
+          const slugB = idToSlug.get(players[j].id)
+          if (!slugA || !slugB) continue
+          // Alphabetical A-before-B canonical order
+          const [finalA, finalB] = slugA < slugB ? [slugA, slugB] : [slugB, slugA]
+          const score =
+            parseFloat(players[i].selected_by_percent ?? "0") +
+            parseFloat(players[j].selected_by_percent ?? "0")
+          pairs.push({ playerA: finalA, playerB: finalB, score })
+        }
+      }
+    }
+
+    pairs.sort((a, b) => b.score - a.score)
+    return pairs.slice(0, limit).map(({ playerA, playerB }) => ({ playerA, playerB }))
+  } catch {
+    return []
+  }
+}
+
 // ─── Text generation ──────────────────────────────────────────────────────────
 
 function scorePlayer(p: ComparisonPlayer, fixtureRun: FixtureGW[]): number {
