@@ -523,12 +523,23 @@ export interface FixtureGW {
   matches: FixtureMatch[]  // empty = blank GW, 2+ = double GW
 }
 
+export interface DifferentialAlternative {
+  name: string
+  slug: string
+  ownership: number
+  ep_next: number
+  price: string
+  club: string
+  position: string
+}
+
 export interface PlayerTransferPageData extends PlayerPageData {
   fixtureRun: FixtureGW[]      // next 4 GWs
   ptsPerMillion: number
   transfersInGW: number
   transfersOutGW: number
   priceChangeGW: number        // cost_change_event (positive = rising)
+  differentialAlternatives: DifferentialAlternative[]
 }
 
 export interface TransferPageTextResult {
@@ -695,6 +706,43 @@ export async function getPlayerTransferData(
       transfersInGW:  el.transfers_in_event  ?? 0,
       transfersOutGW: el.transfers_out_event ?? 0,
       priceChangeGW:  (el.cost_change_event  ?? 0) / 10,
+      differentialAlternatives: (() => {
+        try {
+          const seenClubs = new Set<number>()
+          return (bootstrap.elements ?? [])
+            .filter((p: any) =>
+              p.id !== el.id &&
+              parseFloat(p.selected_by_percent ?? "0") < 10 &&
+              (p.chance_of_playing_next_round ?? 100) >= 75 &&
+              p.minutes >= 500 &&
+              parseFloat(p.ep_next ?? "0") >= 4
+            )
+            .sort((a: any, b: any) => parseFloat(b.ep_next) - parseFloat(a.ep_next))
+            .filter((p: any) => {
+              if (seenClubs.has(p.team)) return false
+              seenClubs.add(p.team)
+              return true
+            })
+            .slice(0, 4)
+            .map((p: any) => {
+              const base = toSlug(p.web_name)
+              const dSlug = slugLookup.get(base) === p.id
+                ? base
+                : toSlug(p.web_name, teamMap[p.team]?.short)
+              return {
+                name:      p.web_name,
+                slug:      dSlug,
+                ownership: parseFloat(p.selected_by_percent ?? "0"),
+                ep_next:   parseFloat(p.ep_next ?? "0"),
+                price:     `£${(p.now_cost / 10).toFixed(1)}m`,
+                club:      teamMap[p.team]?.short ?? "",
+                position:  posMap[p.element_type] ?? "",
+              }
+            })
+        } catch {
+          return []
+        }
+      })(),
     }
   } catch {
     return null
@@ -1129,4 +1177,186 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
     ctaLeadin, qaItems, welcome,
   }
 }
-
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DIFFERENTIAL PAGE — text logic
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface DifferentialPageTextResult {
+  verdictLabel: string
+  verdictColor: string
+  verdict: string
+  verdictBullets: string[]
+  captaincyPanel: string | null
+  caseFor: string[]
+  caseAgainst: string[]
+  caseHeading: string
+  ctaLeadin: string
+  qaItems: PlayerQA[]
+  welcome: string
+  showAlternatives: boolean
+}
+
+export function buildDifferentialPageText(d: PlayerTransferPageData): DifferentialPageTextResult {
+  const { gw, player: p, fixtureRun } = d
+  const formVal     = parseFloat(p.form)
+  const allMatches  = fixtureRun.flatMap((f) => f.matches)
+  const easyCount   = allMatches.filter((m) => m.fdr <= 3).length
+  const hardCount   = allMatches.filter((m) => m.fdr >= 4).length
+  const doubleGWs   = fixtureRun.filter((f) => f.matches.length >= 2)
+  const hasDoubleGW = doubleGWs.length > 0
+  const hasImmediateBlank = fixtureRun[0]?.matches.length === 0
+  const goodReturn  = p.ep_next >= 5 && formVal >= 4
+  const isStrongDiff = p.ownership < 5
+  const isDiff       = p.ownership >= 5  && p.ownership < 10
+  const isMildDiff   = p.ownership >= 10 && p.ownership < 20
+  const isNotDiff    = p.ownership >= 20
+
+  const verdictLabel =
+    isNotDiff    ? "NOT A DIFFERENTIAL"
+    : isMildDiff ? "MILD DIFFERENTIAL"
+    : isDiff     ? "DIFFERENTIAL"
+    :               "STRONG DIFFERENTIAL"
+
+  const verdictColor = "#00FF87"
+
+  const verdict =
+    isNotDiff
+      ? `At ${p.ownership}% ownership, ${p.webName} does not qualify as a differential pick. Owning or not owning him is a template decision that carries significant rank consequences either way, but that is a different calculation to differential selection. If you are looking for low-ownership players who could swing your rank this week, the genuine differentials are listed below.`
+      : isMildDiff
+      ? goodReturn && easyCount >= 2
+        ? `At ${p.ownership}% ownership, ${p.webName} sits in mild differential territory. The fixture and form data this week support a return, which makes the ownership gap meaningful. A big score would see you gain on a useful portion of the field.`
+        : `At ${p.ownership}% ownership, ${p.webName} is a mild differential at best. The ownership gap is not wide enough to make a return rank-defining, and the current data does not strongly support an imminent big haul.`
+      : isDiff
+      ? goodReturn && easyCount >= 2
+        ? `At ${p.ownership}% ownership, ${p.webName} has genuine differential potential in GW${gw}. The fixture and form both support a return this week. If he scores, you gain on approximately ${100 - Math.round(p.ownership)}% of the field.`
+        : `At ${p.ownership}% ownership, ${p.webName} qualifies as a differential on ownership alone. However, the current form and fixture data mean this is a speculative pick rather than a data-backed one. Whether the gamble is worth it depends on your rank situation.`
+      : goodReturn && easyCount >= 2
+      ? `At ${p.ownership}% ownership, ${p.webName} is a strong differential pick for GW${gw}. The data backs a return - form is solid, the fixture is favourable, and a haul would see you jump past approximately ${100 - Math.round(p.ownership)}% of managers. On the numbers, this is one of the more compelling differential calls available right now.`
+      : `At ${p.ownership}% ownership, ${p.webName} has maximum differential potential. A single big return would be a rank-defining moment. The risk is that low ownership can reflect what the broader game has already assessed - the form and fixture data this week are the deciding factor on whether the gamble is justified.`
+
+  const verdictBullets: string[] = [
+    `Ownership: ${p.ownership}% - ${isNotDiff ? "template player, not a differential" : isStrongDiff ? "true differential territory" : isMildDiff ? "mild differential" : "solid differential range"}`,
+    p.ep_next >= 6
+      ? `Expected points: ${p.ep_next} xPts for GW${gw} - strong return projection`
+      : p.ep_next >= 4
+      ? `Expected points: ${p.ep_next} xPts for GW${gw} - reasonable return expectation`
+      : `Expected points: ${p.ep_next} xPts for GW${gw} - low return projection weakens the differential case`,
+    hasDoubleGW
+      ? `Double Gameweek in GW${doubleGWs[0].gw}: two fixtures doubles the ceiling of a differential hold`
+      : easyCount >= 2
+      ? `Fixture run: ${easyCount} favourable fixtures in the next 4 gameweeks`
+      : hardCount >= 3
+      ? `Fixture run: ${hardCount} tough fixtures ahead, reducing the differential appeal`
+      : `Fixture run: mixed picture over the next 4 gameweeks`,
+  ]
+
+  const captaincyPanel = p.ownership < 15
+    ? (() => {
+        const swing = (100 - Math.round(p.ownership)).toFixed(0)
+        if (p.ep_next >= 5 && formVal >= 4) {
+          return `Differential captaincy upside: if you captain ${p.webName} and he returns 12 points, you receive 24. At ${p.ownership}% ownership, approximately ${swing}% of managers receive 0 captain points from him. That is the rank swing that makes differential captaincy one of the highest-leverage calls in the game - and the current data supports ${p.webName} as a live option.`
+        }
+        return `Differential captaincy note: captaining a ${p.ownership}% owned player amplifies the rank impact of any return. At this ownership level, a 12-point haul as captain would see you gain significantly on approximately ${swing}% of managers. The risk is proportional - a blank from a differential captain costs no rank points directly, but represents a missed opportunity relative to managers who captained a higher-return option.`
+      })()
+    : null
+
+  const caseFor: string[] = []
+  const caseAgainst: string[] = []
+
+  if (!isNotDiff) {
+    caseFor.push(`Ownership: at ${p.ownership}%, a single good return creates a meaningful rank advantage over the ${100 - Math.round(p.ownership)}% of managers who do not own him.`)
+  }
+  if (p.ep_next >= 6) caseFor.push(`Expected points: ${p.ep_next} xPts projected for GW${gw} - the model backs a return at worthwhile odds for a differential play.`)
+  else if (p.ep_next >= 4 && !isNotDiff) caseFor.push(`Expected points: ${p.ep_next} xPts for GW${gw} - a reasonable floor for a differential pick. Not elite projection, but viable.`)
+  if (formVal >= 6) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - actively scoring, not just theoretically differential.`)
+  else if (formVal >= 4 && !isNotDiff) caseFor.push(`Form: ${p.form} pts/game - moderate recent output. The differential case is not purely speculative.`)
+  if (hasDoubleGW) caseFor.push(`Double Gameweek: a DGW amplifies the differential upside significantly. Two chances to return means a higher ceiling for a low-owned pick.`)
+  if (easyCount >= 3) caseFor.push(`Fixture run: ${easyCount} favourable fixtures in the next 4 gameweeks - a sustained differential window, not a one-week gamble.`)
+  else if (easyCount >= 2 && !isNotDiff) caseFor.push(`Fixture run: ${easyCount} manageable fixtures ahead. The schedule supports holding a differential pick beyond this week.`)
+  if (!isNotDiff && p.chance >= 100 && !p.news) caseFor.push(`Availability: no fitness concerns - a differential who misses through injury is the worst outcome.`)
+
+  if (isNotDiff) caseAgainst.push(`Ownership: at ${p.ownership}%, ${p.webName} is a template player. Not owning him is the differential decision - and it carries significant rank risk if he returns.`)
+  if (formVal < 3) caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - low ownership can reflect what the broader game has already assessed.`)
+  else if (formVal < 4 && !isNotDiff) caseAgainst.push(`Form: ${p.form} pts/game - below what you want from a differential who needs to deliver to justify the squad spot.`)
+  if (p.ep_next < 4) caseAgainst.push(`Expected points: only ${p.ep_next} xPts projected for GW${gw}. A differential needs some return floor to be viable - the model does not back one this week.`)
+  if (hardCount >= 3) caseAgainst.push(`Fixture run: ${hardCount} tough fixtures in the next 4 gameweeks. A differential pick with a hard schedule is a short-term gamble rather than a planned hold.`)
+  if (hasImmediateBlank) caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in GW${gw}. There is no differential opportunity this week.`)
+  if (p.chance < 75) caseAgainst.push(`${p.news || "Fitness doubt"} - a differential pick who does not play delivers zero rank benefit.`)
+  if (!isNotDiff && formVal < 4 && hardCount >= 2) caseAgainst.push(`Low ownership may reflect consensus: when most managers avoid a player, it is worth understanding why before framing it as an opportunity.`)
+
+  if (caseFor.length === 0) caseFor.push(`${p.webName} has shown the ability to return points at this level. The differential case can emerge at the right moment.`)
+  if (caseAgainst.length === 0) caseAgainst.push(`The main risk of any differential pick is a blank when others captain and return. The rank swing works both ways.`)
+
+  const caseHeading = isNotDiff
+    ? `Why ${p.webName} is not a differential pick`
+    : isStrongDiff && goodReturn
+    ? `The case for ${p.webName} as a strong differential in GW${gw}`
+    : `Weighing ${p.webName} as a differential in GW${gw}`
+
+  const ctaLeadin = isNotDiff
+    ? `Want to find the genuine differentials for your squad this week? ChatFPL AI can identify the low-owned players best suited to your team and rank situation.`
+    : goodReturn
+    ? `Want to know if ${p.webName} fits your squad as a differential pick? ChatFPL AI can assess whether the move makes sense for your team and rank target.`
+    : `Not sure if ${p.webName} is the right differential call? ChatFPL AI can suggest the strongest low-ownership options available this week.`
+
+  const qaItems: PlayerQA[] = [
+    {
+      id: "differential",
+      question: `Is ${p.webName} a good differential for Gameweek ${gw}?`,
+      answer: [
+        verdict,
+        "",
+        captaincyPanel ?? `At ${p.ownership}% ownership, the rank impact of ${p.webName} returning or blanking is ${isNotDiff ? "substantial for managers on either side" : "meaningful but manageable"}.`,
+      ].join("\n"),
+    },
+    {
+      id: "rank-impact",
+      question: `What is the rank impact of ${p.webName} returning at ${p.ownership}% ownership?`,
+      answer: [
+        `At ${p.ownership}% ownership, approximately ${100 - Math.round(p.ownership)}% of FPL managers do not own ${p.webName}.`,
+        "",
+        isNotDiff
+          ? `If ${p.webName} scores 12 points, every manager who owns him gains those points on you. At ${p.ownership}% ownership, that is the majority of the field. This is why avoiding a high-ownership player is considered a differential move in itself - the rank risk of being wrong is significant.`
+          : `If ${p.webName} scores 12 points, you gain on approximately ${100 - Math.round(p.ownership)}% of managers who did not own him. If he blanks, you lose nothing in rank terms relative to those same managers. The rank impact is asymmetric - ownership this low means the upside of a return outweighs the downside of a blank.`,
+        "",
+        `For precise rank modelling based on your current position and mini-league standing, ChatFPL AI can give you a more contextual answer.`,
+      ].join("\n"),
+    },
+    {
+      id: "captaincy",
+      question: `Should I captain ${p.webName} as a differential pick?`,
+      answer: [
+        p.ownership < 15
+          ? captaincyPanel ?? `At ${p.ownership}% ownership, captaining ${p.webName} is a high-leverage call.`
+          : `At ${p.ownership}% ownership, captaining ${p.webName} is not a differential decision - it is a standard captain choice that affects your rank relative to the majority who own him.`,
+        "",
+        p.ep_next >= 5
+          ? `The expected points projection of ${p.ep_next} for GW${gw} makes the captaincy case stronger. The model backs a return.`
+          : `The expected points projection of ${p.ep_next} for GW${gw} is modest. Captaining a differential with a low return ceiling is high variance.`,
+        "",
+        `ChatFPL AI can compare ${p.webName} against the other captaincy options available this week and recommend the best call for your squad.`,
+      ].join("\n"),
+    },
+    {
+      id: "why-low-owned",
+      question: `Why is ${p.webName} ${isNotDiff ? "so widely owned" : "low-owned"} in FPL?`,
+      answer: [
+        isNotDiff
+          ? `${p.webName} is owned by ${p.ownership}% of managers because he has been one of the more consistent points scorers in the game. ${formVal >= 5 ? `His current form of ${p.form} pts/game reinforces why managers hold him.` : `Even through periods of lower form, his ceiling and captaincy potential keep ownership high.`}`
+          : `${p.webName} is owned by ${p.ownership}% of managers, which puts him outside the typical FPL template. ${formVal < 4 ? `Recent form of ${p.form} pts/game has likely reduced confidence in him.` : `This may reflect a perception gap between his actual output and how widely tracked he is.`} Low ownership in FPL can mean the market has missed something - or it can mean most managers have a reason not to own him. The form and fixture data are the clearest signals of which applies here.`,
+      ].join("\n"),
+    },
+  ]
+
+  const welcome = `${verdict} Click a question below for the full differential breakdown.`
+  const showAlternatives = p.ownership >= 5
+
+  return {
+    verdictLabel, verdictColor, verdict, verdictBullets,
+    captaincyPanel,
+    caseFor, caseAgainst, caseHeading,
+    ctaLeadin, qaItems, welcome,
+    showAlternatives,
+  }
+}

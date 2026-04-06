@@ -6,9 +6,10 @@ import Link from "next/link"
 import Image from "next/image"
 import {
   getPlayerTransferData,
-  buildSellPageText,
+  buildDifferentialPageText,
   getEligibleSlugs,
   type FixtureGW,
+  type DifferentialAlternative,
 } from "@/lib/fpl-player-page"
 
 export const revalidate = 3600
@@ -20,7 +21,7 @@ export async function generateStaticParams() {
   return getEligibleSlugs()
 }
 
-// ─── Metadata ────────────────────────────────────────────────────────────────
+// ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
   params,
@@ -29,21 +30,21 @@ export async function generateMetadata({
 }) {
   const { slug } = await params
   const data = await getPlayerTransferData(slug)
-  if (!data) return { title: "FPL Sell Analysis | ChatFPL AI" }
+  if (!data) return { title: "FPL Differential Analysis | ChatFPL AI" }
 
   const { player: p, gw } = data
   return {
-    title: `Should I sell ${p.displayName} in FPL Gameweek ${gw}? | ChatFPL AI`,
-    description: `Sell or hold ${p.displayName} in FPL GW${gw}? Form, fixture run, ownership risk, price movement, and transfer activity - everything you need to decide whether to sell ${p.webName} this week.`,
+    title: `Is ${p.displayName} a good differential for FPL Gameweek ${gw}? | ChatFPL AI`,
+    description: `Should you pick ${p.displayName} as a differential in FPL GW${gw}? We analyse ownership, form, fixture run, and rank impact to tell you whether ${p.webName} qualifies as a genuine differential this week.`,
     openGraph: {
-      title: `Should I sell ${p.displayName}? FPL GW${gw} | ChatFPL AI`,
-      description: `Data-driven sell analysis for ${p.displayName} in Fantasy Premier League Gameweek ${gw}.`,
-      url: `https://www.chatfpl.ai/fpl/${slug}/sell`,
+      title: `Is ${p.displayName} a differential pick in FPL GW${gw}? | ChatFPL AI`,
+      description: `Data-driven differential analysis for ${p.displayName} in Fantasy Premier League Gameweek ${gw}.`,
+      url: `https://www.chatfpl.ai/fpl/${slug}/differential`,
     },
   }
 }
 
-// ─── FDR dots ────────────────────────────────────────────────────────────────
+// ─── FDR dots ─────────────────────────────────────────────────────────────────
 
 function FdrDots({ fdr }: { fdr: number }) {
   return (
@@ -59,7 +60,7 @@ function FdrDots({ fdr }: { fdr: number }) {
   )
 }
 
-// ─── Fixture run strip (shared visual, same as transfer page) ─────────────────
+// ─── Fixture run strip ────────────────────────────────────────────────────────
 
 function FixtureStrip({ fixtureRun }: { fixtureRun: FixtureGW[] }) {
   return (
@@ -86,9 +87,9 @@ function FixtureStrip({ fixtureRun }: { fixtureRun: FixtureGW[] }) {
             </div>
             {f.matches.length === 0 ? (
               <div className="flex flex-col items-center gap-1.5 mt-1">
-                <svg className="h-7 w-7" fill="none" strokeWidth="1.5" viewBox="0 0 24 24" style={{ stroke: "url(#blankGradSell)" }}>
+                <svg className="h-7 w-7" fill="none" strokeWidth="1.5" viewBox="0 0 24 24" style={{ stroke: "url(#blankGradDiff)" }}>
                   <defs>
-                    <linearGradient id="blankGradSell" x1="0" y1="0" x2="1" y2="0">
+                    <linearGradient id="blankGradDiff" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stopColor="#00FF87" />
                       <stop offset="100%" stopColor="#00FFFF" />
                     </linearGradient>
@@ -128,9 +129,69 @@ function FixtureStrip({ fixtureRun }: { fixtureRun: FixtureGW[] }) {
   )
 }
 
+// ─── Differential alternatives card ──────────────────────────────────────────
+
+function DifferentialAlts({ alts, currentSlug }: { alts: DifferentialAlternative[]; currentSlug: string }) {
+  if (alts.length === 0) return null
+  return (
+    <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
+      <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-4">Genuine differential alternatives this week</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {alts
+          .filter((a) => a.slug !== currentSlug)
+          .map((alt) => (
+            <Link
+              key={alt.slug}
+              href={`/fpl/${alt.slug}/differential`}
+              className="group rounded-2xl px-4 py-5 flex flex-col items-center gap-2 text-center transition-all hover:border-white/20"
+              style={{ border: "1px solid rgba(0,255,135,0.15)", background: "rgba(0,255,135,0.03)" }}
+            >
+              <div className="flex items-center gap-1.5 mb-1">
+                <span
+                  className="text-[8px] font-black uppercase tracking-wider rounded px-1.5 py-0.5 text-black"
+                  style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+                >
+                  {alt.ownership < 5 ? "STRONG DIFF" : alt.ownership < 10 ? "DIFFERENTIAL" : "MILD DIFF"}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-white leading-tight">
+                {alt.name}
+              </p>
+              <p className="text-[10px] text-white/50">{alt.club} · {alt.position}</p>
+              <div className="flex items-center gap-3 mt-1">
+                <div className="text-center">
+                  <p className="text-[8px] uppercase tracking-wider text-white/40">Own</p>
+                  <p
+                    className="text-sm font-bold text-transparent bg-clip-text"
+                    style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
+                  >
+                    {alt.ownership.toFixed(1)}%
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[8px] uppercase tracking-wider text-white/40">xPts</p>
+                  <p
+                    className="text-sm font-bold text-transparent bg-clip-text"
+                    style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
+                  >
+                    {alt.ep_next.toFixed(1)}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[8px] uppercase tracking-wider text-white/40">Price</p>
+                  <p className="text-sm font-bold text-white/80">{alt.price}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function FplSellPage({
+export default async function FplDifferentialPage({
   params,
 }: {
   params: Promise<{ slug: string }>
@@ -139,13 +200,17 @@ export default async function FplSellPage({
   const data = await getPlayerTransferData(slug)
   if (!data) notFound()
 
-  const { gw, player, showcasePlayers, relatedPlayers, fixtureRun, ptsPerMillion, transfersOutGW } = data
+  const { gw, player, showcasePlayers, relatedPlayers, fixtureRun, transfersInGW, differentialAlternatives } = data
   const {
     verdict, verdictLabel, verdictColor, verdictBullets,
-    ownershipContext, dataDisclaimer,
+    captaincyPanel,
     caseFor, caseAgainst, caseHeading,
     ctaLeadin, qaItems, welcome,
-  } = buildSellPageText(data)
+    showAlternatives,
+  } = buildDifferentialPageText(data)
+
+  const ownershipPct = Math.min(100, player.ownership)
+  const isNotDiff = player.ownership >= 20
 
   return (
     <div className="fpl-player-root flex min-h-screen flex-col bg-black">
@@ -174,11 +239,11 @@ export default async function FplSellPage({
       <DevHeader />
 
       <FplPlayerHero
-        h1White={`Should I sell ${player.displayName} in `}
+        h1White={`Is ${player.displayName} a good differential for `}
         h1Gradient={`Fantasy Premier League Gameweek ${gw}?`}
         subtitle={`Gameweek ${gw} · ${player.club} · ${player.position} · ${player.price}`}
         players={showcasePlayers}
-        badgeLabel="Sell Analysis"
+        badgeLabel="Differential Analysis"
       />
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">
@@ -192,10 +257,10 @@ export default async function FplSellPage({
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Form (last 6 GWs)",        value: player.form },
-              { label: `Expected pts, GW${gw}`,    value: String(player.ep_next) },
-              { label: "Ownership",                value: `${player.ownership}%` },
-              { label: "Selling this GW",          value: transfersOutGW > 1000 ? `${Math.round(transfersOutGW / 1000)}k` : String(transfersOutGW) },
+              { label: "Ownership",              value: `${player.ownership}%` },
+              { label: "Form (last 6 GWs)",       value: player.form },
+              { label: `Expected pts, GW${gw}`,   value: String(player.ep_next) },
+              { label: "Transfers in this GW",    value: transfersInGW > 1000 ? `${Math.round(transfersInGW / 1000)}k` : String(transfersInGW) },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center">
                 <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-1">{s.label}</p>
@@ -207,6 +272,44 @@ export default async function FplSellPage({
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Ownership bar */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
+          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-6 py-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[9px] uppercase tracking-[0.18em] text-white/50">FPL ownership</p>
+              <p className="text-xs font-semibold text-white/70">{player.ownership}% of managers own {player.webName}</p>
+            </div>
+            <div className="relative h-2 rounded-full overflow-hidden bg-white/[0.08]">
+              <div
+                className="absolute left-0 top-0 h-full rounded-full transition-all"
+                style={{
+                  width: `${Math.min(ownershipPct, 100)}%`,
+                  background: "linear-gradient(to right,#00FF87,#00FFFF)",
+                }}
+              />
+            </div>
+            <div className="flex justify-between mt-2">
+              <span className="text-[9px] text-white/30">0%</span>
+              <div className="flex gap-4">
+                {[
+                  { label: "Strong diff", pct: 5 },
+                  { label: "Differential", pct: 10 },
+                  { label: "Mild diff", pct: 20 },
+                ].map((m) => (
+                  <span key={m.label} className="text-[9px] text-white/30 relative">
+                    <span
+                      className="absolute bottom-3 left-1/2 -translate-x-1/2 h-3 w-px"
+                      style={{ background: "rgba(255,255,255,0.15)" }}
+                    />
+                    {m.label}
+                  </span>
+                ))}
+              </div>
+              <span className="text-[9px] text-white/30">100%</span>
+            </div>
           </div>
         </div>
 
@@ -231,7 +334,7 @@ export default async function FplSellPage({
               </span>
               <p className="text-white font-semibold text-base leading-snug">{verdict}</p>
             </div>
-            <ul className="space-y-2 mb-5">
+            <ul className="space-y-2">
               {verdictBullets.map((b) => (
                 <li key={b} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
                   <svg className="mt-0.5 h-4 w-4 shrink-0" style={{ color: verdictColor }} fill="currentColor" viewBox="0 0 20 20">
@@ -241,20 +344,35 @@ export default async function FplSellPage({
                 </li>
               ))}
             </ul>
-            {/* Ownership context + data disclaimer woven in */}
-            <div className="border-t border-white/[0.06] pt-4 space-y-2">
-              <p className="text-sm text-white/70 leading-relaxed">{ownershipContext}</p>
-              <p className="text-xs text-white/40 leading-relaxed italic">{dataDisclaimer}</p>
-            </div>
           </div>
         </div>
+
+        {/* Captaincy differential panel */}
+        {captaincyPanel && (
+          <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
+            <div
+              className="rounded-2xl px-6 py-5"
+              style={{ border: "1px solid rgba(0,255,135,0.15)", background: "rgba(0,255,135,0.03)", borderLeft: "4px solid #00FF87" }}
+            >
+              <p className="text-[9px] uppercase tracking-[0.18em] font-bold mb-3" style={{ color: "#00FF87" }}>Differential captaincy</p>
+              <p className="text-sm text-white/80 leading-relaxed">{captaincyPanel}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Differential alternatives */}
+        {showAlternatives && differentialAlternatives.length > 0 && (
+          <DifferentialAlts alts={differentialAlternatives} currentSlug={slug} />
+        )}
 
         {/* For / Against */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <h2 className="text-lg font-bold text-white mb-5">{caseHeading}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
-              <p className="text-[10px] uppercase tracking-[0.18em] font-bold mb-3" style={{ color: "#00FF87" }}>The case for selling</p>
+              <p className="text-[10px] uppercase tracking-[0.18em] font-bold mb-3" style={{ color: "#00FF87" }}>
+                {isNotDiff ? "Why this matters for your rank" : "The case for picking him"}
+              </p>
               <ul className="space-y-2.5">
                 {caseFor.map((b) => (
                   <li key={b} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
@@ -267,7 +385,9 @@ export default async function FplSellPage({
               </ul>
             </div>
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
-              <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/50 mb-3">The case for holding</p>
+              <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-white/50 mb-3">
+                {isNotDiff ? "The risks of not owning him" : "The risks of the differential play"}
+              </p>
               <ul className="space-y-2.5">
                 {caseAgainst.map((b) => (
                   <li key={b} className="flex items-start gap-2 text-sm text-white/80 leading-relaxed">
@@ -285,7 +405,7 @@ export default async function FplSellPage({
         {/* Chat heading */}
         <div className="relative z-10 text-center mb-8 max-w-2xl">
           <h2 className="text-2xl font-bold leading-tight tracking-tight mb-2">
-            <span className="text-white">{player.webName} Sell Analysis </span>
+            <span className="text-white">{player.webName} Differential Analysis </span>
             <span
               className="text-transparent bg-clip-text"
               style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
@@ -293,7 +413,7 @@ export default async function FplSellPage({
               Gameweek {gw}
             </span>
           </h2>
-          <p className="text-white/70 text-sm">Click a question below and get the full breakdown.</p>
+          <p className="text-white/70 text-sm">Click a question below for the full breakdown.</p>
         </div>
 
         {/* Chat window */}
@@ -343,30 +463,30 @@ export default async function FplSellPage({
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              href={`/fpl/${slug}/transfer`}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
-            >
-              Should I transfer {player.webName} in?
-            </Link>
-            <Link
               href={`/fpl/${slug}`}
               className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
             >
               Should I captain {player.webName}?
             </Link>
             <Link
-              href={`/fpl/${slug}/differential`}
+              href={`/fpl/${slug}/transfer`}
               className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
             >
-              Is {player.webName} a differential?
+              Should I transfer {player.webName} in?
+            </Link>
+            <Link
+              href={`/fpl/${slug}/sell`}
+              className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
+            >
+              Should I sell {player.webName}?
             </Link>
             {relatedPlayers.map((rp) => (
               <Link
                 key={rp.slug}
-                href={`/fpl/${rp.slug}/sell`}
+                href={`/fpl/${rp.slug}/differential`}
                 className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
               >
-                Should I sell {rp.name}?
+                Is {rp.name} a differential?
               </Link>
             ))}
           </div>
