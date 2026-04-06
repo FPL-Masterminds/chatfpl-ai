@@ -6,8 +6,7 @@ import Link from "next/link"
 import {
   getPlayerPageData,
   buildPageText,
-  buildSlugLookup,
-  toSlug,
+  getEligibleSlugs,
 } from "@/lib/fpl-player-page"
 
 // ISR — revalidate all player pages every hour
@@ -20,24 +19,7 @@ export const dynamicParams = true
 // ─── Static params — pre-render all eligible players at build time ─────────────
 
 export async function generateStaticParams() {
-  try {
-    const bootstrap = await fetch(
-      "https://fantasy.premierleague.com/api/bootstrap-static/",
-      { headers: { "User-Agent": "ChatFPL/1.0" }, next: { revalidate: 86400 } }
-    ).then((r) => r.json())
-
-    // Only pre-render players with meaningful season data
-    const eligible = (bootstrap.elements ?? []).filter(
-      (p: any) =>
-        p.minutes >= 1000 &&
-        parseFloat(p.selected_by_percent ?? "0") >= 1.0
-    )
-
-    const slugMap = buildSlugLookup(eligible, bootstrap.teams ?? [])
-    return Array.from(slugMap.keys()).map((slug) => ({ slug }))
-  } catch {
-    return []
-  }
+  return getEligibleSlugs()
 }
 
 // ─── Dynamic metadata per player ──────────────────────────────────────────────

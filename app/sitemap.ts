@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import fs from 'fs'
 import path from 'path'
-import { buildSlugLookup, toSlug } from '@/lib/fpl-player-page'
+import { getEligibleSlugs } from '@/lib/fpl-player-page'
 
 const baseUrl = 'https://www.chatfpl.ai'
 
@@ -66,25 +66,10 @@ function getRouteMetadata(route: string) {
   return { priority: 0.7, changeFrequency: 'weekly' as const }
 }
 
-// Fetch all eligible player slugs from the FPL API
+// Fetch all eligible player slugs via the shared cached bootstrap call
 async function getPlayerSlugs(): Promise<string[]> {
-  try {
-    const bootstrap = await fetch(
-      'https://fantasy.premierleague.com/api/bootstrap-static/',
-      { headers: { 'User-Agent': 'ChatFPL/1.0' }, next: { revalidate: 86400 } }
-    ).then((r) => r.json())
-
-    const eligible = (bootstrap.elements ?? []).filter(
-      (p: any) =>
-        p.minutes >= 1000 &&
-        parseFloat(p.selected_by_percent ?? '0') >= 1.0
-    )
-
-    const slugMap = buildSlugLookup(eligible, bootstrap.teams ?? [])
-    return Array.from(slugMap.keys())
-  } catch {
-    return []
-  }
+  const params = await getEligibleSlugs()
+  return params.map((p) => p.slug)
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

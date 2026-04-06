@@ -7,7 +7,7 @@ import Image from "next/image"
 import {
   getPlayerTransferData,
   buildDifferentialPageText,
-  buildSlugLookup,
+  getEligibleSlugs,
   type FixtureGW,
   type DifferentialAlternative,
 } from "@/lib/fpl-player-page"
@@ -18,22 +18,7 @@ export const dynamicParams = true
 // ─── Static params ────────────────────────────────────────────────────────────
 
 export async function generateStaticParams() {
-  try {
-    const bootstrap = await fetch(
-      "https://fantasy.premierleague.com/api/bootstrap-static/",
-      { headers: { "User-Agent": "ChatFPL/1.0" }, next: { revalidate: 86400 } }
-    ).then((r) => r.json())
-
-    const eligible = (bootstrap.elements ?? []).filter(
-      (p: any) =>
-        p.minutes >= 1000 &&
-        parseFloat(p.selected_by_percent ?? "0") >= 1.0
-    )
-    const slugMap = buildSlugLookup(eligible, bootstrap.teams ?? [])
-    return Array.from(slugMap.keys()).map((slug) => ({ slug }))
-  } catch {
-    return []
-  }
+  return getEligibleSlugs()
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────

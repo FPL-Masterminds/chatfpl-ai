@@ -1,5 +1,23 @@
+import { unstable_cache } from "next/cache"
 import type { FplCardPlayer } from "@/components/fpl-player-hero"
 import type { PlayerQA } from "@/components/conversational-player"
+
+// ─── Shared cached bootstrap fetch (bypasses 2MB fetch-cache limit) ──────────
+// One API call is shared across ALL page renders during a build/revalidation
+// window. Without this, 700+ pages each fire a fresh FPL API request in
+// parallel, hitting rate limits and causing 404s across the board.
+
+const getBootstrap = unstable_cache(
+  async () => {
+    const res = await fetch(
+      "https://fantasy.premierleague.com/api/bootstrap-static/",
+      { headers: { "User-Agent": "ChatFPL/1.0" }, cache: "no-store" }
+    )
+    return res.json()
+  },
+  ["fpl-bootstrap-static"],
+  { revalidate: 3600 }
+)
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -63,6 +81,23 @@ export function toSlug(webName: string, teamShort?: string): string {
  * Build a slug → elementId map for a given array of player elements.
  * Where two players share the same web_name-derived slug, append team short name.
  */
+// ─── Shared helper for generateStaticParams across all four route types ───────
+// All pages call this instead of fetching bootstrap independently.
+export async function getEligibleSlugs(): Promise<{ slug: string }[]> {
+  try {
+    const bootstrap = await getBootstrap()
+    const eligible = (bootstrap.elements ?? []).filter(
+      (p: any) =>
+        p.minutes >= 1000 &&
+        parseFloat(p.selected_by_percent ?? "0") >= 1.0
+    )
+    const slugMap = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    return Array.from(slugMap.keys()).map((slug) => ({ slug }))
+  } catch {
+    return []
+  }
+}
+
 export function buildSlugLookup(
   elements: any[],
   teams: any[]
@@ -154,12 +189,8 @@ export async function getPlayerPageData(
   slug: string
 ): Promise<PlayerPageData | null> {
   try {
-    const bootstrapRes = await fetch(
-      "https://fantasy.premierleague.com/api/bootstrap-static/",
-      { headers: FPL_HEADERS, next: { revalidate: 3600 } }
-    )
-    if (!bootstrapRes.ok) return null
-    const bootstrap = await bootstrapRes.json()
+    const bootstrap = await getBootstrap()
+    if (!bootstrap?.elements) return null
 
     // Build maps
     const teamMap: Record<number, { name: string; short: string; code: number }> = {}
@@ -504,12 +535,8 @@ export async function getPlayerTransferData(
   slug: string
 ): Promise<PlayerTransferPageData | null> {
   try {
-    const bootstrapRes = await fetch(
-      "https://fantasy.premierleague.com/api/bootstrap-static/",
-      { headers: FPL_HEADERS, next: { revalidate: 3600 } }
-    )
-    if (!bootstrapRes.ok) return null
-    const bootstrap = await bootstrapRes.json()
+    const bootstrap = await getBootstrap()
+    if (!bootstrap?.elements) return null
 
     const teamMap: Record<number, { name: string; short: string; code: number }> = {}
     const posMap: Record<number, string> = {}
