@@ -200,6 +200,22 @@ export function getDisplayName(p: any): string {
   return full.length <= 26 ? full : webName
 }
 
+const MONTH_MAP: Record<string, string> = {
+  jan: "January", feb: "February", mar: "March", apr: "April",
+  may: "May",     jun: "June",     jul: "July",   aug: "August",
+  sep: "September", oct: "October", nov: "November", dec: "December",
+}
+
+/**
+ * Clean up the raw FPL news string for human display.
+ * Converts "Expected back 01 Jun" → "Expected back 1 June"
+ */
+export function formatFplNews(news: string): string {
+  return news
+    .replace(/\b0?(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/gi,
+      (_, day, mon) => `${parseInt(day, 10)} ${MONTH_MAP[mon.toLowerCase()] ?? mon}`)
+}
+
 // ─── FPL API data fetch ───────────────────────────────────────────────────────
 
 export const FPL_HEADERS = { "User-Agent": "ChatFPL/1.0" }
@@ -389,8 +405,8 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
     : `With only ${p.ownership}% ownership, ${p.webName} is a genuine differential. A big return here moves you up the overall rankings.`
 
   const availabilityText =
-    p.chance < 50 ? `Significant fitness concern: ${p.news}. Captaining ${p.webName} carries real risk this week.`
-    : p.chance < 75 ? `Minor doubt over ${p.webName}'s availability. ${p.news}. Worth monitoring before the deadline.`
+    p.chance < 50 ? `Significant fitness concern: ${formatFplNews(p.news)}. Captaining ${p.webName} carries real risk this week.`
+    : p.chance < 75 ? `Minor doubt over ${p.webName}'s availability. ${formatFplNews(p.news)}. Worth monitoring before the deadline.`
     : `No injury concerns flagged at the time of writing.`
 
   const closingText =
@@ -463,7 +479,7 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
     caseAgainst.push(`Returns: only ${p.goals} goals and ${p.assists} assists this season - the volume has not been there.`)
 
   if (p.chance < 75)
-    caseAgainst.push(`Availability: ${p.news} - real risk he does not start or plays reduced minutes.`)
+    caseAgainst.push(`Availability: ${formatFplNews(p.news)} - real risk he does not start or plays reduced minutes.`)
 
   if (caseFor.length === 0)
     caseFor.push(`${p.webName} has shown he can deliver a big return on his day, and the FPL captaincy is ultimately about upside.`)
@@ -909,7 +925,7 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   else if (priceChangeGW < 0) caseAgainst.push(`Price: ${p.webName} has dropped £${Math.abs(priceChangeGW).toFixed(1)}m this gameweek - falling prices can signal a period of poor returns.`)
 
   // Availability
-  if (p.chance < 75) caseAgainst.push(`Availability: ${p.news} - a real risk he does not start or plays reduced minutes.`)
+  if (p.chance < 75) caseAgainst.push(`Availability: ${formatFplNews(p.news)} - a real risk he does not start or plays reduced minutes.`)
 
   // Transfers in (momentum)
   if (transfersInGW > 200000) caseFor.push(`Transfer momentum: over ${Math.round(transfersInGW / 1000)}k managers have brought ${p.webName} in this gameweek - strong market confidence.`)
@@ -1076,7 +1092,7 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
     isClearSell
       ? `The data this week leans towards selling. ${
           p.chance < 75
-            ? `${p.webName} is ${p.news || "carrying a fitness concern"}, which alone makes holding him a risk.`
+            ? `${p.webName} is ${p.news ? formatFplNews(p.news) : "carrying a fitness concern"}, which alone makes holding him a risk.`
             : `Form is below what you need from a premium asset, the fixture run is tough, and a significant number of managers have already moved him on.`
         } Whether it is the right call depends on what you bring in and your current rank position.`
       : isConsiderSelling
@@ -1124,7 +1140,7 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
   const caseFor: string[] = []
   const caseAgainst: string[] = []
 
-  if (p.chance < 75) caseFor.push(`Availability: ${p.news || "Fitness doubt"} - a player you cannot rely on to start is worth reconsidering at this price.`)
+  if (p.chance < 75) caseFor.push(`Availability: ${p.news ? formatFplNews(p.news) : "Fitness doubt"} - a player you cannot rely on to start is worth reconsidering at this price.`)
   if (formVal < 3) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - poor output that is hard to justify at ${p.price}.`)
   else if (formVal < 5) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - below the standard you want from a player at this price.`)
   if (hardCount >= 3) caseFor.push(`Fixture run: ${hardCount} of the next ${allMatches.length} fixtures are rated 4 or above for difficulty. There are cheaper options with better schedules.`)
@@ -1318,7 +1334,7 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
   if (p.ep_next < 4) caseAgainst.push(`Expected points: only ${p.ep_next} xPts projected for GW${gw}. A differential needs some return floor to be viable - the model does not back one this week.`)
   if (hardCount >= 3) caseAgainst.push(`Fixture run: ${hardCount} tough fixtures in the next 4 gameweeks. A differential pick with a hard schedule is a short-term gamble rather than a planned hold.`)
   if (hasImmediateBlank) caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in GW${gw}. There is no differential opportunity this week.`)
-  if (p.chance < 75) caseAgainst.push(`${p.news || "Fitness doubt"} - a differential pick who does not play delivers zero rank benefit.`)
+  if (p.chance < 75) caseAgainst.push(`${p.news ? formatFplNews(p.news) : "Fitness doubt"} - a differential pick who does not play delivers zero rank benefit.`)
   if (!isNotDiff && formVal < 4 && hardCount >= 2) caseAgainst.push(`Low ownership may reflect consensus: when most managers avoid a player, it is worth understanding why before framing it as an opportunity.`)
 
   if (caseFor.length === 0) caseFor.push(`${p.webName} has shown the ability to return points at this level. The differential case can emerge at the right moment.`)

@@ -3,6 +3,7 @@ import {
   buildSlugLookup,
   getDisplayName,
   FPL_HEADERS,
+  formatFplNews,
   FixtureGW,
   FixtureMatch,
 } from "@/lib/fpl-player-page"
@@ -318,9 +319,9 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   if (aOut && bOut) {
     verdictText = `Both ${a.displayName} and ${b.displayName} are currently listed as unavailable. Check the latest FPL injury news before making any decisions.`
   } else if (aOut) {
-    verdictText = `${a.displayName} is currently ruled out${a.news ? ` - ${a.news.toLowerCase()}` : ""}. ${b.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
+    verdictText = `${a.displayName} is currently ruled out${a.news ? ` - ${formatFplNews(a.news).toLowerCase()}` : ""}. ${b.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
   } else if (bOut) {
-    verdictText = `${b.displayName} is currently ruled out${b.news ? ` - ${b.news.toLowerCase()}` : ""}. ${a.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
+    verdictText = `${b.displayName} is currently ruled out${b.news ? ` - ${formatFplNews(b.news).toLowerCase()}` : ""}. ${a.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
   } else if (verdictPlayer === "EVEN") {
     verdictText = `${a.displayName} and ${b.displayName} are closely matched in Gameweek ${gw}. Both carry similar expected returns, form, and fixture difficulty. This one comes down to your squad needs and risk tolerance.`
   } else {
@@ -376,11 +377,11 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   // ── Case for A ────────────────────────────────────────────────────────────
   const caseForA: string[] = []
   if (aOut) {
-    caseForA.push(`Unavailable: ${a.news || "Currently ruled out - check latest injury news before transferring in."}`)
+    caseForA.push(`Unavailable: ${a.news ? formatFplNews(a.news) : "Currently ruled out - check latest injury news before transferring in."}`)
     caseForA.push(`${a.displayName} has a 0% chance of playing in GW${gw} per the FPL injury feed.`)
     caseForA.push(`${a.displayName} has contributed ${a.goals} goals and ${a.assists} assists this season but cannot be relied upon this gameweek.`)
   } else if (aDoubtful) {
-    caseForA.push(`Injury doubt: ${a.news || `Listed at ${a.chance}% chance of playing in GW${gw} - a significant risk.`}`)
+    caseForA.push(`Injury doubt: ${a.news ? formatFplNews(a.news) : `Listed at ${a.chance}% chance of playing in GW${gw} - a significant risk.`}`)
     caseForA.push(`${a.displayName} has registered ${a.goals} goals and ${a.assists} assists this season at ${a.price}.`)
     if (a.ep_next > 0) caseForA.push(`Projects ${a.ep_next.toFixed(1)} expected points in GW${gw} if fit, but availability is uncertain.`)
   } else {
@@ -403,11 +404,11 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   // ── Case for B ────────────────────────────────────────────────────────────
   const caseForB: string[] = []
   if (bOut) {
-    caseForB.push(`Unavailable: ${b.news || "Currently ruled out - check latest injury news before transferring in."}`)
+    caseForB.push(`Unavailable: ${b.news ? formatFplNews(b.news) : "Currently ruled out - check latest injury news before transferring in."}`)
     caseForB.push(`${b.displayName} has a 0% chance of playing in GW${gw} per the FPL injury feed.`)
     caseForB.push(`${b.displayName} has contributed ${b.goals} goals and ${b.assists} assists this season but cannot be relied upon this gameweek.`)
   } else if (bDoubtful) {
-    caseForB.push(`Injury doubt: ${b.news || `Listed at ${b.chance}% chance of playing in GW${gw} - a significant risk.`}`)
+    caseForB.push(`Injury doubt: ${b.news ? formatFplNews(b.news) : `Listed at ${b.chance}% chance of playing in GW${gw} - a significant risk.`}`)
     caseForB.push(`${b.displayName} has registered ${b.goals} goals and ${b.assists} assists this season at ${b.price}.`)
     if (b.ep_next > 0) caseForB.push(`Projects ${b.ep_next.toFixed(1)} expected points in GW${gw} if fit, but availability is uncertain.`)
   } else {
@@ -437,9 +438,9 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
       answer: aOut && bOut
         ? `Neither player is currently available for GW${gw}. Check the latest FPL injury news and consider alternatives in your squad before making a decision.`
         : aOut
-        ? `${a.displayName} is ruled out for GW${gw}${a.news ? ` (${a.news.toLowerCase()})` : ""}, making ${b.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
+        ? `${a.displayName} is ruled out for GW${gw}${a.news ? ` (${formatFplNews(a.news).toLowerCase()})` : ""}, making ${b.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
         : bOut
-        ? `${b.displayName} is ruled out for GW${gw}${b.news ? ` (${b.news.toLowerCase()})` : ""}, making ${a.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
+        ? `${b.displayName} is ruled out for GW${gw}${b.news ? ` (${formatFplNews(b.news).toLowerCase()})` : ""}, making ${a.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
         : (aDoubtful || bDoubtful)
         ? `There is an injury concern in this comparison - ${aDoubtful ? `${a.displayName} is listed at ${a.chance}% chance of playing` : ""}${aDoubtful && bDoubtful ? " and " : ""}${bDoubtful ? `${b.displayName} is listed at ${b.chance}% chance of playing` : ""}. Monitor team news closely before the deadline. On current numbers, ${verdictPlayer === "EVEN" ? "this is too close to call" : `${winner!.displayName} has the edge if both are fit`}.`
         : verdictPlayer === "EVEN"
