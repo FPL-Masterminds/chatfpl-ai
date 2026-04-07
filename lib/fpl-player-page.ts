@@ -169,25 +169,35 @@ export function getDisplayName(p: any): string {
     return full.length <= 26 ? full : surname
   }
 
-  // Multi-word web_name like "Bernardo Silva" — use as-is
-  if (webName.includes(" ")) return webName
-
   // Duplication guard: first_name already ends with web_name
   // e.g. first_name="Igor Thiago" web_name="Thiago" → avoid "Igor Thiago Thiago"
   if (firstName.toLowerCase().endsWith(webName.toLowerCase())) {
     return firstName.length <= 22 ? firstName : webName
   }
 
-  // Mononym check: if web_name is a nickname unrelated to the actual surname,
-  // use it alone — e.g. web_name="Beto", second_name="Betuncal" → return "Beto"
-  // Safe to concatenate only when web_name matches the start of second_name or vice versa
-  const wn = webName.toLowerCase()
-  const sn = secondName.toLowerCase()
-  const isSurname = sn.startsWith(wn) || wn.startsWith(sn)
+  // Normalise for comparison (strip diacritics, lowercase)
+  const norm = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+
+  const wn = norm(webName)
+  const sn = norm(secondName)
+
+  // Is web_name the surname (possibly compound) or an already-complete display name?
+  // e.g. "Van den Berg" → second_name "van den Berg" → isSurname → prepend first_name
+  // e.g. "Mac Allister" → second_name "Mac Allister" → isSurname → prepend first_name
+  // e.g. "Bernardo Silva" → second_name "Silva" → NOT isSurname → use as-is
+  // e.g. "João Pedro" → second_name "Junqueira de Jesus" → NOT isSurname → use as-is
+  const isSurname = wn === sn || sn.startsWith(wn) || wn.startsWith(sn)
+
+  // Multi-word web_name that is already a full display name — return as-is
+  if (webName.includes(" ") && !isSurname) return webName
+
+  // Mononym/nickname unrelated to second_name (e.g. "Beto") — use alone
   if (!isSurname) return webName
 
+  // Surname (single or compound) — prepend first_name
   const full = `${firstName} ${webName}`
-  return full.length <= 22 ? full : webName
+  return full.length <= 26 ? full : webName
 }
 
 // ─── FPL API data fetch ───────────────────────────────────────────────────────
