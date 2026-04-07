@@ -267,13 +267,23 @@ function avgNextFdr(fixtureRun: FixtureGW[]): number {
 export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   const { playerA: a, playerB: b, fixtureRunA, fixtureRunB, gw } = d
 
+  // ── Injury / availability detection ────────────────────────────────────────
+  const aOut      = a.chance === 0
+  const bOut      = b.chance === 0
+  const aDoubtful = !aOut && a.chance > 0 && a.chance <= 25
+  const bDoubtful = !bOut && b.chance > 0 && b.chance <= 25
+
   const scoreA = scorePlayer(a, fixtureRunA)
   const scoreB = scorePlayer(b, fixtureRunB)
   const diff = scoreA - scoreB
   const tolerance = 5
 
+  // Unavailable player loses by default; both out = EVEN
   const verdictPlayer: "A" | "B" | "EVEN" =
-    diff > tolerance ? "A" : diff < -tolerance ? "B" : "EVEN"
+    aOut && !bOut ? "B"
+    : bOut && !aOut ? "A"
+    : aOut && bOut ? "EVEN"
+    : diff > tolerance ? "A" : diff < -tolerance ? "B" : "EVEN"
 
   const winner = verdictPlayer === "A" ? a : verdictPlayer === "B" ? b : null
   const loser  = verdictPlayer === "A" ? b : verdictPlayer === "B" ? a : null
@@ -289,7 +299,13 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
 
   // ── Verdict label ──────────────────────────────────────────────────────────
   let verdictLabel: string
-  if (verdictPlayer === "EVEN") {
+  if (aOut && bOut) {
+    verdictLabel = "BOTH UNAVAILABLE"
+  } else if (aOut) {
+    verdictLabel = `PICK ${b.webName.toUpperCase()}`
+  } else if (bOut) {
+    verdictLabel = `PICK ${a.webName.toUpperCase()}`
+  } else if (verdictPlayer === "EVEN") {
     verdictLabel = "TOO CLOSE TO CALL"
   } else if (Math.abs(diff) > 15) {
     verdictLabel = `PICK ${winner!.webName.toUpperCase()}`
@@ -299,11 +315,19 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
 
   // ── Verdict text ───────────────────────────────────────────────────────────
   let verdictText: string
-  if (verdictPlayer === "EVEN") {
+  if (aOut && bOut) {
+    verdictText = `Both ${a.displayName} and ${b.displayName} are currently listed as unavailable. Check the latest FPL injury news before making any decisions.`
+  } else if (aOut) {
+    verdictText = `${a.displayName} is currently ruled out${a.news ? ` - ${a.news.toLowerCase()}` : ""}. ${b.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
+  } else if (bOut) {
+    verdictText = `${b.displayName} is currently ruled out${b.news ? ` - ${b.news.toLowerCase()}` : ""}. ${a.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
+  } else if (verdictPlayer === "EVEN") {
     verdictText = `${a.displayName} and ${b.displayName} are closely matched in Gameweek ${gw}. Both carry similar expected returns, form, and fixture difficulty. This one comes down to your squad needs and risk tolerance.`
   } else {
     const margin = Math.abs(diff) > 15 ? "clear" : "slight"
     verdictText = `${winner!.displayName} holds a ${margin} edge over ${loser!.displayName} heading into Gameweek ${gw}, driven by ${winner!.ep_next > loser!.ep_next ? "higher expected points" : winner!.formVal > loser!.formVal ? "stronger recent form" : "a more favourable fixture"}.`
+    if (aDoubtful) verdictText += ` Note: ${a.displayName} is listed as a doubt (${a.chance}% chance of playing).`
+    if (bDoubtful) verdictText += ` Note: ${b.displayName} is listed as a doubt (${b.chance}% chance of playing).`
   }
 
   // ── Verdict bullets ────────────────────────────────────────────────────────
@@ -351,40 +375,56 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
 
   // ── Case for A ────────────────────────────────────────────────────────────
   const caseForA: string[] = []
-  caseForA.push(`${a.displayName} has registered ${a.goals} goals and ${a.assists} assists this season, totalling ${a.totalPts} points at ${a.price}.`)
-  if (a.ep_next > 0) {
-    caseForA.push(`Expected to score ${a.ep_next.toFixed(1)} points in GW${gw}, making ${a.webName} a viable starting option.`)
-  }
-  if (a.ownership < 10) {
-    caseForA.push(`With only ${a.ownership}% ownership, ${a.webName} offers differential value to boost your rank if they deliver.`)
-  } else if (a.formVal > b.formVal) {
-    caseForA.push(`${a.webName} has shown better recent form at ${a.form} points per game over the last six gameweeks.`)
+  if (aOut) {
+    caseForA.push(`Unavailable: ${a.news || "Currently ruled out - check latest injury news before transferring in."}`)
+    caseForA.push(`${a.displayName} has a 0% chance of playing in GW${gw} per the FPL injury feed.`)
+    caseForA.push(`${a.displayName} has contributed ${a.goals} goals and ${a.assists} assists this season but cannot be relied upon this gameweek.`)
+  } else if (aDoubtful) {
+    caseForA.push(`Injury doubt: ${a.news || `Listed at ${a.chance}% chance of playing in GW${gw} - a significant risk.`}`)
+    caseForA.push(`${a.displayName} has registered ${a.goals} goals and ${a.assists} assists this season at ${a.price}.`)
+    if (a.ep_next > 0) caseForA.push(`Projects ${a.ep_next.toFixed(1)} expected points in GW${gw} if fit, but availability is uncertain.`)
   } else {
-    caseForA.push(`${a.webName}'s fixture run looks ${avgFdrA <= 2.5 ? "favourable" : avgFdrA >= 3.5 ? "testing" : "manageable"} over the next four gameweeks.`)
-  }
-  if (a.news) {
-    caseForA.push(`Note: ${a.news}`)
-  } else if (dgwA) {
-    caseForA.push(`${a.webName} has a double gameweek in GW${gw}, providing two scoring opportunities.`)
+    caseForA.push(`${a.displayName} has registered ${a.goals} goals and ${a.assists} assists this season, totalling ${a.totalPts} points at ${a.price}.`)
+    if (a.ep_next > 0) {
+      caseForA.push(`Expected to score ${a.ep_next.toFixed(1)} points in GW${gw}, making ${a.webName} a viable starting option.`)
+    }
+    if (a.ownership < 10) {
+      caseForA.push(`With only ${a.ownership}% ownership, ${a.webName} offers differential value to boost your rank if they deliver.`)
+    } else if (a.formVal > b.formVal) {
+      caseForA.push(`${a.webName} has shown better recent form at ${a.form} points per game over the last six gameweeks.`)
+    } else {
+      caseForA.push(`${a.webName}'s fixture run looks ${avgFdrA <= 2.5 ? "favourable" : avgFdrA >= 3.5 ? "testing" : "manageable"} over the next four gameweeks.`)
+    }
+    if (dgwA) {
+      caseForA.push(`${a.webName} has a double gameweek in GW${gw}, providing two scoring opportunities.`)
+    }
   }
 
   // ── Case for B ────────────────────────────────────────────────────────────
   const caseForB: string[] = []
-  caseForB.push(`${b.displayName} has registered ${b.goals} goals and ${b.assists} assists this season, totalling ${b.totalPts} points at ${b.price}.`)
-  if (b.ep_next > 0) {
-    caseForB.push(`Expected to score ${b.ep_next.toFixed(1)} points in GW${gw}, making ${b.webName} a viable starting option.`)
-  }
-  if (b.ownership < 10) {
-    caseForB.push(`With only ${b.ownership}% ownership, ${b.webName} offers differential value to boost your rank if they deliver.`)
-  } else if (b.formVal > a.formVal) {
-    caseForB.push(`${b.webName} has shown better recent form at ${b.form} points per game over the last six gameweeks.`)
+  if (bOut) {
+    caseForB.push(`Unavailable: ${b.news || "Currently ruled out - check latest injury news before transferring in."}`)
+    caseForB.push(`${b.displayName} has a 0% chance of playing in GW${gw} per the FPL injury feed.`)
+    caseForB.push(`${b.displayName} has contributed ${b.goals} goals and ${b.assists} assists this season but cannot be relied upon this gameweek.`)
+  } else if (bDoubtful) {
+    caseForB.push(`Injury doubt: ${b.news || `Listed at ${b.chance}% chance of playing in GW${gw} - a significant risk.`}`)
+    caseForB.push(`${b.displayName} has registered ${b.goals} goals and ${b.assists} assists this season at ${b.price}.`)
+    if (b.ep_next > 0) caseForB.push(`Projects ${b.ep_next.toFixed(1)} expected points in GW${gw} if fit, but availability is uncertain.`)
   } else {
-    caseForB.push(`${b.webName}'s fixture run looks ${avgFdrB <= 2.5 ? "favourable" : avgFdrB >= 3.5 ? "testing" : "manageable"} over the next four gameweeks.`)
-  }
-  if (b.news) {
-    caseForB.push(`Note: ${b.news}`)
-  } else if (dgwB) {
-    caseForB.push(`${b.webName} has a double gameweek in GW${gw}, providing two scoring opportunities.`)
+    caseForB.push(`${b.displayName} has registered ${b.goals} goals and ${b.assists} assists this season, totalling ${b.totalPts} points at ${b.price}.`)
+    if (b.ep_next > 0) {
+      caseForB.push(`Expected to score ${b.ep_next.toFixed(1)} points in GW${gw}, making ${b.webName} a viable starting option.`)
+    }
+    if (b.ownership < 10) {
+      caseForB.push(`With only ${b.ownership}% ownership, ${b.webName} offers differential value to boost your rank if they deliver.`)
+    } else if (b.formVal > a.formVal) {
+      caseForB.push(`${b.webName} has shown better recent form at ${b.form} points per game over the last six gameweeks.`)
+    } else {
+      caseForB.push(`${b.webName}'s fixture run looks ${avgFdrB <= 2.5 ? "favourable" : avgFdrB >= 3.5 ? "testing" : "manageable"} over the next four gameweeks.`)
+    }
+    if (dgwB) {
+      caseForB.push(`${b.webName} has a double gameweek in GW${gw}, providing two scoring opportunities.`)
+    }
   }
 
   // Keep to 3 bullets each
@@ -394,7 +434,15 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   const qaItems = [
     {
       question: `Who should I pick between ${a.displayName} and ${b.displayName} in Gameweek ${gw}?`,
-      answer: verdictPlayer === "EVEN"
+      answer: aOut && bOut
+        ? `Neither player is currently available for GW${gw}. Check the latest FPL injury news and consider alternatives in your squad before making a decision.`
+        : aOut
+        ? `${a.displayName} is ruled out for GW${gw}${a.news ? ` (${a.news.toLowerCase()})` : ""}, making ${b.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
+        : bOut
+        ? `${b.displayName} is ruled out for GW${gw}${b.news ? ` (${b.news.toLowerCase()})` : ""}, making ${a.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
+        : (aDoubtful || bDoubtful)
+        ? `There is an injury concern in this comparison - ${aDoubtful ? `${a.displayName} is listed at ${a.chance}% chance of playing` : ""}${aDoubtful && bDoubtful ? " and " : ""}${bDoubtful ? `${b.displayName} is listed at ${b.chance}% chance of playing` : ""}. Monitor team news closely before the deadline. On current numbers, ${verdictPlayer === "EVEN" ? "this is too close to call" : `${winner!.displayName} has the edge if both are fit`}.`
+        : verdictPlayer === "EVEN"
         ? `This is a genuine 50/50. Both players carry similar expected returns in GW${gw}. If you already own one, keeping them avoids a transfer cost. If choosing between them fresh, consider squad balance and budget.`
         : `On the numbers, ${winner!.displayName} has the edge in GW${gw}. With ${winner!.ep_next.toFixed(1)} expected points and ${winner!.form} recent form, ${winner!.webName} is the stronger pick heading into this gameweek. That said, squad context and transfer cost should factor into your decision.`,
     },
