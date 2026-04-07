@@ -319,9 +319,9 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   if (aOut && bOut) {
     verdictText = `Both ${a.displayName} and ${b.displayName} are currently listed as unavailable. Check the latest FPL injury news before making any decisions.`
   } else if (aOut) {
-    verdictText = `${a.displayName} is currently ruled out${a.news ? ` - ${formatFplNews(a.news).toLowerCase()}` : ""}. ${b.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
+    verdictText = `${a.displayName} is currently ruled out${a.news ? ` - ${formatFplNews(a.news)}` : ""}. ${b.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
   } else if (bOut) {
-    verdictText = `${b.displayName} is currently ruled out${b.news ? ` - ${formatFplNews(b.news).toLowerCase()}` : ""}. ${a.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
+    verdictText = `${b.displayName} is currently ruled out${b.news ? ` - ${formatFplNews(b.news)}` : ""}. ${a.displayName} wins this comparison by default and is the clear pick for Gameweek ${gw}.`
   } else if (verdictPlayer === "EVEN") {
     verdictText = `${a.displayName} and ${b.displayName} are closely matched in Gameweek ${gw}. Both carry similar expected returns, form, and fixture difficulty. This one comes down to your squad needs and risk tolerance.`
   } else {
@@ -438,9 +438,9 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
       answer: aOut && bOut
         ? `Neither player is currently available for GW${gw}. Check the latest FPL injury news and consider alternatives in your squad before making a decision.`
         : aOut
-        ? `${a.displayName} is ruled out for GW${gw}${a.news ? ` (${formatFplNews(a.news).toLowerCase()})` : ""}, making ${b.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
+        ? `${a.displayName} is ruled out for GW${gw}${a.news ? ` (${formatFplNews(a.news)})` : ""}, making ${b.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
         : bOut
-        ? `${b.displayName} is ruled out for GW${gw}${b.news ? ` (${formatFplNews(b.news).toLowerCase()})` : ""}, making ${a.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
+        ? `${b.displayName} is ruled out for GW${gw}${b.news ? ` (${formatFplNews(b.news)})` : ""}, making ${a.displayName} the automatic pick here. Do not risk a zero from an unavailable player.`
         : (aDoubtful || bDoubtful)
         ? `There is an injury concern in this comparison - ${aDoubtful ? `${a.displayName} is listed at ${a.chance}% chance of playing` : ""}${aDoubtful && bDoubtful ? " and " : ""}${bDoubtful ? `${b.displayName} is listed at ${b.chance}% chance of playing` : ""}. Monitor team news closely before the deadline. On current numbers, ${verdictPlayer === "EVEN" ? "this is too close to call" : `${winner!.displayName} has the edge if both are fit`}.`
         : verdictPlayer === "EVEN"
