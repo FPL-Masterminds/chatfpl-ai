@@ -4,6 +4,7 @@ import {
   getDisplayName,
   FPL_HEADERS,
   formatFplNews,
+  isEligiblePlayer,
   FixtureGW,
   FixtureMatch,
 } from "@/lib/fpl-player-page"
@@ -138,9 +139,7 @@ export async function getComparisonData(
     })
 
     // Eligible-only lookup so slugs match getComparisonSlugs / generateStaticParams
-    const eligibleElements = (bootstrap.elements ?? []).filter(
-      (p: any) => p.minutes >= 1000 && parseFloat(p.selected_by_percent ?? "0") >= 1.0
-    )
+    const eligibleElements = (bootstrap.elements ?? []).filter(isEligiblePlayer)
     const slugLookup = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const idA = slugLookup.get(slugA)
     const idB = slugLookup.get(slugB)
@@ -201,9 +200,7 @@ export async function getComparisonSlugs(limit = 500): Promise<{ playerA: string
       teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code }
     })
 
-    const eligible = (bootstrap.elements ?? []).filter(
-      (p: any) => p.minutes >= 1000 && parseFloat(p.selected_by_percent ?? "0") >= 1.0
-    )
+    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
 
     const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
 

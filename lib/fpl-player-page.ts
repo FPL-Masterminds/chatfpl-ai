@@ -109,14 +109,21 @@ export function toSlug(webName: string, teamShort?: string): string {
  */
 // ─── Shared helper for generateStaticParams across all four route types ───────
 // All pages call this instead of fetching bootstrap independently.
+/**
+ * A player is eligible for pSEO pages if they either:
+ * - Have ≥1000 minutes AND ≥1% ownership (active + relevant), OR
+ * - Have ≥2000 minutes regardless of ownership (established starter, e.g. Bernardo)
+ */
+export function isEligiblePlayer(p: any): boolean {
+  const mins = p.minutes ?? 0
+  const sel  = parseFloat(p.selected_by_percent ?? "0")
+  return (mins >= 1000 && sel >= 1.0) || mins >= 2000
+}
+
 export async function getEligibleSlugs(): Promise<{ slug: string }[]> {
   try {
     const bootstrap = await getBootstrap()
-    const eligible = (bootstrap.elements ?? []).filter(
-      (p: any) =>
-        p.minutes >= 1000 &&
-        parseFloat(p.selected_by_percent ?? "0") >= 1.0
-    )
+    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
     const slugMap = buildSlugLookup(eligible, bootstrap.teams ?? [])
     return Array.from(slugMap.keys()).map((slug) => ({ slug }))
   } catch {
@@ -272,9 +279,7 @@ export async function getPlayerPageData(
     })
 
     // Resolve slug → player (eligible-only set so slugs match generateStaticParams)
-    const eligibleElements = (bootstrap.elements ?? []).filter(
-      (p: any) => p.minutes >= 1000 && parseFloat(p.selected_by_percent ?? "0") >= 1.0
-    )
+    const eligibleElements = (bootstrap.elements ?? []).filter(isEligiblePlayer)
     const slugLookup = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const elementId = slugLookup.get(slug)
     if (!elementId) return null
@@ -621,9 +626,7 @@ export async function getPlayerTransferData(
     })
 
     // Eligible-only lookup so slugs match generateStaticParams
-    const eligibleElements = (bootstrap.elements ?? []).filter(
-      (p: any) => p.minutes >= 1000 && parseFloat(p.selected_by_percent ?? "0") >= 1.0
-    )
+    const eligibleElements = (bootstrap.elements ?? []).filter(isEligiblePlayer)
     const slugLookup = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const elementId = slugLookup.get(slug)
     if (!elementId) return null
