@@ -307,7 +307,8 @@ export default async function FplDifferentialPage({
               <p className="text-[9px] uppercase tracking-[0.18em] text-white/70">FPL ownership</p>
               <p className="text-xs font-semibold text-white">{player.ownership}% of managers own {player.webName}</p>
             </div>
-            <div className="relative h-2 rounded-full overflow-hidden bg-white/[0.08]">
+            {/* Bar */}
+            <div className="relative h-2 rounded-full bg-white/[0.08]">
               <div
                 className="absolute left-0 top-0 h-full rounded-full transition-all"
                 style={{
@@ -315,25 +316,32 @@ export default async function FplDifferentialPage({
                   background: "linear-gradient(to right,#00FF87,#00FFFF)",
                 }}
               />
+              {/* Tick marks at correct % positions */}
+              {[5, 10, 20].map((pct) => (
+                <div
+                  key={pct}
+                  className="absolute top-0 h-full w-px"
+                  style={{ left: `${pct}%`, background: "rgba(255,255,255,0.35)" }}
+                />
+              ))}
             </div>
-            <div className="flex justify-between mt-2">
-              <span className="text-[9px] text-white/70">0%</span>
-              <div className="flex gap-4">
-                {[
-                  { label: "Strong diff", pct: 5 },
-                  { label: "Differential", pct: 10 },
-                  { label: "Mild diff", pct: 20 },
-                ].map((m) => (
-                  <span key={m.label} className="text-[9px] text-white/70 relative">
-                    <span
-                      className="absolute bottom-3 left-1/2 -translate-x-1/2 h-3 w-px"
-                      style={{ background: "rgba(255,255,255,0.3)" }}
-                    />
-                    {m.label}
-                  </span>
-                ))}
-              </div>
-              <span className="text-[9px] text-white/70">100%</span>
+            {/* Labels — absolutely positioned at correct % */}
+            <div className="relative mt-1" style={{ height: 18 }}>
+              <span className="absolute left-0 text-[9px] text-white/50">0%</span>
+              {[
+                { label: "Strong diff", pct: 5 },
+                { label: "Differential", pct: 10 },
+                { label: "Mild diff", pct: 20 },
+              ].map((m) => (
+                <span
+                  key={m.label}
+                  className="absolute text-[9px] text-white/70 -translate-x-1/2 whitespace-nowrap"
+                  style={{ left: `${m.pct}%` }}
+                >
+                  {m.label}
+                </span>
+              ))}
+              <span className="absolute right-0 text-[9px] text-white/50">100%</span>
             </div>
           </div>
         </div>
