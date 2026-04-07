@@ -307,41 +307,50 @@ export default async function FplDifferentialPage({
               <p className="text-[9px] uppercase tracking-[0.18em] text-white/70">FPL ownership</p>
               <p className="text-xs font-semibold text-white">{player.ownership}% of managers own {player.webName}</p>
             </div>
-            {/* Bar */}
-            <div className="relative h-2 rounded-full bg-white/[0.08]">
+            {/* Bar: flex segments 5% + 5% + 10% + 80% so boundaries are exactly 5%, 10%, 20% (not %-of-parent bugs) */}
+            <div className="relative h-2.5 w-full min-w-0 overflow-hidden rounded-full bg-white/[0.08]">
               <div
-                className="absolute left-0 top-0 h-full rounded-full transition-all"
+                className="absolute left-0 top-0 z-[1] h-full rounded-l-full transition-[width] duration-300"
                 style={{
                   width: `${Math.min(ownershipPct, 100)}%`,
                   background: "linear-gradient(to right,#00FF87,#00FFFF)",
                 }}
               />
-              {/* Tick marks at correct % positions */}
-              {[5, 10, 20].map((pct) => (
-                <div
-                  key={pct}
-                  className="absolute top-0 h-full w-px"
-                  style={{ left: `${pct}%`, background: "rgba(255,255,255,0.35)" }}
-                />
-              ))}
+              {/* Vertical rules at 5%, 10%, 20% — same flex math as label row */}
+              <div className="pointer-events-none absolute inset-0 z-[2] flex min-w-0">
+                <div className="h-full w-[5%] shrink-0 border-r border-white/40" />
+                <div className="h-full w-[5%] shrink-0 border-r border-white/40" />
+                <div className="h-full w-[10%] shrink-0 border-r border-white/40" />
+                <div className="h-full min-w-0 flex-1" />
+              </div>
             </div>
-            {/* Labels — absolutely positioned at correct % */}
-            <div className="relative mt-1" style={{ height: 18 }}>
-              <span className="absolute left-0 text-[9px] text-white/50">0%</span>
-              {[
-                { label: "Strong diff", pct: 5 },
-                { label: "Differential", pct: 10 },
-                { label: "Mild diff", pct: 20 },
-              ].map((m) => (
-                <span
-                  key={m.label}
-                  className="absolute text-[9px] text-white/70 -translate-x-1/2 whitespace-nowrap"
-                  style={{ left: `${m.pct}%` }}
-                >
-                  {m.label}
-                </span>
-              ))}
-              <span className="absolute right-0 text-[9px] text-white/50">100%</span>
+            {/* Scale ends */}
+            <div className="mt-1 flex justify-between text-[9px] text-white/50">
+              <span>0%</span>
+              <span>100%</span>
+            </div>
+            {/* Mobile: 5% column is ~16px wide — use a readable legend instead */}
+            <p className="mt-2 text-[10px] leading-relaxed text-white/60 sm:hidden">
+              Scale: <span className="text-white/85">Strong differential</span> ≤5% ownership ·{" "}
+              <span className="text-white/85">Differential</span> ≤10% · <span className="text-white/85">Mild</span> ≤20% · above that is template territory.
+            </p>
+            {/* sm+: tier columns align exactly with bar segments (same 5/5/10/80 flex) */}
+            <div className="mt-2 hidden min-w-0 text-[8px] leading-tight text-white/70 sm:flex sm:text-[9px]">
+              <div className="w-[5%] shrink-0 text-center">
+                <span className="block font-medium text-white/90">Strong diff</span>
+                <span className="text-white/45">≤5%</span>
+              </div>
+              <div className="w-[5%] shrink-0 border-l border-white/[0.12] text-center">
+                <span className="block font-medium text-white/90">Diff</span>
+                <span className="text-white/45">≤10%</span>
+              </div>
+              <div className="w-[10%] shrink-0 border-l border-white/[0.12] text-center">
+                <span className="block font-medium text-white/90">Mild diff</span>
+                <span className="text-white/45">≤20%</span>
+              </div>
+              <div className="min-w-0 flex-1 border-l border-white/[0.12] pl-2 text-left text-white/50">
+                Template territory
+              </div>
             </div>
           </div>
         </div>
