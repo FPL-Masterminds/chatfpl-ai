@@ -196,7 +196,7 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
       <table className="w-full min-w-[600px] text-sm">
         <thead>
           <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            <th className="text-center px-3 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold">Photo</th>
+            <th className="text-center px-3 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold" style={{ position: "sticky", left: 0, zIndex: 3, background: "#020a05" }}>Photo</th>
             <th className="text-center px-3 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold">Player</th>
             {STAT_COLS.map((col) => (
               <th key={col.label} className="text-center px-2 py-3 text-[9px] uppercase tracking-[0.15em] text-white/70 font-semibold whitespace-nowrap">
@@ -213,8 +213,8 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
                 key={player.slug}
                 style={{ borderBottom: rowIdx === 0 ? "1px solid rgba(255,255,255,0.04)" : undefined }}
               >
-                {/* Photo cell */}
-                <td className="px-3 py-2 text-center">
+                {/* Photo cell — sticky so it stays visible when scrolling right */}
+                <td className="px-3 py-2 text-center" style={{ position: "sticky", left: 0, zIndex: 2, background: "#020a05" }}>
                   <div className="flex flex-col items-center mx-auto" style={{ width: 52 }}>
                     <Image
                       src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
@@ -287,12 +287,18 @@ export default async function ComparisonPage({
   const welcome = `I've pulled the latest GW${gw} data for ${playerA.displayName} and ${playerB.displayName}. The verdict is below - click any question for more detail.`
 
   return (
-    <div className="fpl-player-root flex min-h-screen flex-col bg-black">
+    <div className="fpl-player-root flex min-h-screen flex-col bg-black overflow-x-hidden">
       <style>{`
         .fpl-player-root ::-webkit-scrollbar { width: 4px; height: 4px; }
         .fpl-player-root ::-webkit-scrollbar-track { background: transparent; }
         .fpl-player-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
         .fpl-player-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
+        @media (max-width: 480px) {
+          .comp-hero-cards { transform: scale(0.68); transform-origin: center top; margin-bottom: -99px; }
+        }
+        @media (min-width: 481px) and (max-width: 620px) {
+          .comp-hero-cards { transform: scale(0.82); transform-origin: center top; margin-bottom: -56px; }
+        }
       `}</style>
 
       {/* FAQPage JSON-LD */}

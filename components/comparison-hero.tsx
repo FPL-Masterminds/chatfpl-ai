@@ -195,7 +195,7 @@ export function ComparisonHero({ h1White, h1Gradient, subtitle, playerA, playerB
         <p className="text-white/70 text-base">{subtitle}</p>
 
         {/* Two player cards with VS between */}
-        <div className="flex items-end justify-center gap-4 sm:gap-8 w-full select-none" style={{ paddingTop: 20, overflow: "visible" }}>
+        <div className="comp-hero-cards flex items-end justify-center gap-4 sm:gap-8 w-full select-none" style={{ paddingTop: 20, overflow: "visible" }}>
 
           {/* Player A */}
           <div style={{ position: "relative", width: CARD_W, height: CARD_H, flexShrink: 0, overflow: "visible" }}>
