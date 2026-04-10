@@ -256,24 +256,12 @@ export default async function FplPlayerPage({
         </div>
 
         {/* Captain hub back-link */}
-        <div className="relative z-10 w-full max-w-4xl mx-auto mt-10">
+        <div className="relative z-10 w-full max-w-4xl mx-auto mt-10 text-center">
           <Link
             href="/fpl/captains"
-            className="group flex items-center justify-between rounded-2xl px-6 py-4 transition-all hover:scale-[1.01]"
-            style={{
-              border: "1px solid rgba(0,255,135,0.2)",
-              background: "rgba(0,255,135,0.04)",
-            }}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2.5 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
           >
-            <div>
-              <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-1">ChatFPL AI</p>
-              <p className="text-sm font-semibold text-white group-hover:text-[#00FF87] transition-colors">
-                See all top captain picks for Gameweek {gw} →
-              </p>
-            </div>
-            <svg className="shrink-0 h-5 w-5 text-white/20 group-hover:text-[#00FF87] transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
+            Top captain picks for Gameweek {gw} →
           </Link>
         </div>
 

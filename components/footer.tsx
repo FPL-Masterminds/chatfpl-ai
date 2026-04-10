@@ -29,7 +29,7 @@ export function Footer() {
       </div>
 
       <div className="relative container mx-auto px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-4">
+        <div className="grid gap-8 md:grid-cols-5">
           <div className="space-y-4">
             <Link href="/">
               <Image 
@@ -47,13 +47,31 @@ export function Footer() {
             <h3 className="mb-4 text-sm font-semibold text-white">Product</h3>
             <ul className="space-y-3">
               {[
-                { href: "/",                  label: "Home"                },
-                { href: "/about",             label: "About"               },
-                { href: "/faq",               label: "FAQ"                 },
-                { href: "/contact",           label: "Contact Us"          },
-                { href: "/fpl/captains",      label: "Captains Hub"        },
-                { href: "/fpl/differentials", label: "Differentials Hub"   },
-                { href: "/fpl/comparisons",   label: "Head-to-Head Hub"    },
+                { href: "/",        label: "Home"       },
+                { href: "/about",   label: "About"      },
+                { href: "/faq",     label: "FAQ"        },
+                { href: "/contact", label: "Contact Us" },
+              ].map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87] group">
+                    <span
+                      className="h-2 w-2 rounded-full shrink-0 animate-pulse"
+                      style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
+                    />
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-sm font-semibold text-white">Player Hubs</h3>
+            <ul className="space-y-3">
+              {[
+                { href: "/fpl/captains",      label: "Captains Hub"      },
+                { href: "/fpl/differentials", label: "Differentials Hub" },
+                { href: "/fpl/comparisons",   label: "Head-to-Head Hub"  },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87] group">

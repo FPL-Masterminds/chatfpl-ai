@@ -210,24 +210,6 @@ export default async function ComparisonsHubPage() {
 
       {/* Hero */}
       <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
-        {/* Badge */}
-        <span
-          className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest"
-          style={{
-            background: "rgba(0,255,135,0.08)",
-            border: "1px solid rgba(0,255,135,0.25)",
-            color: GREEN,
-          }}
-        >
-          <span
-            className="rounded-full px-2 py-0.5 text-[10px] font-black text-black"
-            style={{ background: GREEN }}
-          >
-            FPL
-          </span>
-          Head-to-Head
-        </span>
-
         <h1
           className="font-bold leading-[1.1] tracking-tighter mb-4"
           style={{ fontSize: "clamp(24px, 4.5vw, 50px)", maxWidth: 860 }}
@@ -245,7 +227,7 @@ export default async function ComparisonsHubPage() {
         </h1>
 
         <p className="text-white/60 text-base max-w-2xl">
-          The most-owned FPL players going head-to-head for Gameweek {gw}. Ranked by combined ownership — the bigger the names, the higher up the list. Refreshes with a new set every visit.
+          The most-owned FPL players going head-to-head for Gameweek {gw}. Ranked by combined ownership, the bigger the names, the higher up the list. Refreshes with a new set every visit.
         </p>
       </section>
 
@@ -254,7 +236,7 @@ export default async function ComparisonsHubPage() {
         <div className="w-full max-w-3xl">
 
           {/* Column headers — desktop */}
-          <div className="hidden sm:flex items-center gap-3 px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/40">
+          <div className="hidden sm:flex items-center gap-3 px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/70">
             <div className="w-6 shrink-0" />
             <div className="shrink-0" style={{ width: 46 }} />
             <div className="shrink-0 w-8 text-center" />

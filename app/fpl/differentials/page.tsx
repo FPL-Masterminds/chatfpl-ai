@@ -203,23 +203,6 @@ export default async function DifferentialsHubPage() {
 
       {/* Hero */}
       <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
-        <span
-          className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest"
-          style={{
-            background: "rgba(0,255,135,0.08)",
-            border: "1px solid rgba(0,255,135,0.25)",
-            color: GREEN,
-          }}
-        >
-          <span
-            className="rounded-full px-2 py-0.5 text-[10px] font-black text-black"
-            style={{ background: GREEN }}
-          >
-            FPL
-          </span>
-          Differential Analysis
-        </span>
-
         <h1
           className="font-bold leading-[1.1] tracking-tighter mb-4"
           style={{ fontSize: "clamp(26px, 5vw, 52px)", maxWidth: 820 }}
@@ -240,12 +223,6 @@ export default async function DifferentialsHubPage() {
           Low-ownership players ranked by expected points relative to their ownership. Click any player for the full differential verdict and rank-impact analysis.
         </p>
 
-        {/* Legend */}
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          {(["Strong differential", "Differential", "Mild differential"] as const).map((c) => (
-            <DiffBadge key={c} category={c} />
-          ))}
-        </div>
       </section>
 
       {/* Main content */}
@@ -253,7 +230,7 @@ export default async function DifferentialsHubPage() {
         <div className="w-full max-w-3xl">
 
           {/* Column headers — desktop */}
-          <div className="hidden sm:flex items-center gap-4 px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/40">
+          <div className="hidden sm:flex items-center gap-4 px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/70">
             <div className="w-7 shrink-0" />
             <div className="shrink-0" style={{ width: 52 }} />
             <div className="flex-1">Player</div>
