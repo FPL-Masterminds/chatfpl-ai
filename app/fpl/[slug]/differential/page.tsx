@@ -500,8 +500,30 @@ export default async function FplDifferentialPage({
           </div>
         </div>
 
+        {/* Differential hub back-link */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mt-10">
+          <Link
+            href="/fpl/differentials"
+            className="group flex items-center justify-between rounded-2xl px-6 py-4 transition-all hover:scale-[1.01]"
+            style={{
+              border: "1px solid rgba(0,255,135,0.2)",
+              background: "rgba(0,255,135,0.04)",
+            }}
+          >
+            <div>
+              <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-1">ChatFPL AI</p>
+              <p className="text-sm font-semibold text-white group-hover:text-[#00FF87] transition-colors">
+                See all top differential picks for Gameweek {gw} →
+              </p>
+            </div>
+            <svg className="shrink-0 h-5 w-5 text-white/20 group-hover:text-[#00FF87] transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+
         {/* Also analyse */}
-        <div className="relative z-10 w-full max-w-4xl mx-auto mt-16">
+        <div className="relative z-10 w-full max-w-4xl mx-auto mt-10">
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-4 text-center">Also analyse</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link

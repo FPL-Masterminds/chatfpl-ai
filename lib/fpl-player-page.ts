@@ -1416,7 +1416,7 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
   }
 }
 
-// ─── Captains Hub ─────────────────────────────────────────────────────────────
+// ─── Hub shared types ─────────────────────────────────────────────────────────
 
 export interface CaptainHubPlayer {
   slug: string
@@ -1507,6 +1507,103 @@ export async function getCaptainHub(): Promise<CaptainHubData | null> {
         news: p.news ?? "",
         chance: p.chance_of_playing_next_round ?? 100,
         fdrNext: fdrByTeam[p.team] ?? null,
+      }
+    })
+
+    return { gw, players }
+  } catch {
+    return null
+  }
+}
+
+// ─── Differentials Hub ────────────────────────────────────────────────────────
+
+export interface DifferentialHubPlayer extends CaptainHubPlayer {
+  ownershipRaw: number
+  diffCategory: "Strong differential" | "Differential" | "Mild differential"
+}
+
+export interface DifferentialHubData {
+  gw: number
+  players: DifferentialHubPlayer[]
+}
+
+export async function getDifferentialHub(): Promise<DifferentialHubData | null> {
+  try {
+    const bootstrap = await getBootstrap()
+    const events: any[] = bootstrap.events ?? []
+    const nextEvent   = events.find((e: any) => e.is_next)
+    const currentEvent = events.find((e: any) => e.is_current)
+    const gw: number =
+      nextEvent?.id ?? (currentEvent ? currentEvent.id + 1 : 1)
+
+    const teamMap: Record<number, { name: string; short: string; code: number }> = {}
+    const posMap: Record<number, string> = {}
+    ;(bootstrap.teams ?? []).forEach((t: any) => {
+      teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code }
+    })
+    ;(bootstrap.element_types ?? []).forEach((et: any) => {
+      posMap[et.id] = et.singular_name_short
+    })
+
+    // FDR for next GW
+    let fdrByTeam: Record<number, number> = {}
+    try {
+      const fixtRes = await fetch(
+        `https://fantasy.premierleague.com/api/fixtures/?event=${gw}`,
+        { headers: FPL_HEADERS, next: { revalidate: 900 } }
+      )
+      const fixtures = await fixtRes.json()
+      fixtures.forEach((f: any) => {
+        if (fdrByTeam[f.team_h] === undefined) fdrByTeam[f.team_h] = f.team_h_difficulty
+        if (fdrByTeam[f.team_a] === undefined) fdrByTeam[f.team_a] = f.team_a_difficulty
+      })
+    } catch { /* optional */ }
+
+    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const idToSlug = new Map<number, string>()
+    for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
+
+    // Outfield, available, ownership < 20%, ep_next > 0
+    // Sorted by ep_next ÷ ownership — rewards high xPts at low ownership
+    const candidates = eligible
+      .filter((p: any) =>
+        p.element_type !== 1 &&
+        (p.chance_of_playing_next_round ?? 100) > 0 &&
+        parseFloat(p.selected_by_percent ?? "0") < 20 &&
+        parseFloat(p.ep_next ?? "0") > 0
+      )
+      .sort((a: any, b: any) => {
+        const scoreA = parseFloat(a.ep_next ?? "0") / Math.max(parseFloat(a.selected_by_percent ?? "1"), 0.5)
+        const scoreB = parseFloat(b.ep_next ?? "0") / Math.max(parseFloat(b.selected_by_percent ?? "1"), 0.5)
+        return scoreB - scoreA
+      })
+      .slice(0, 15)
+
+    const players: DifferentialHubPlayer[] = candidates.map((p: any) => {
+      const team = teamMap[p.team] ?? { name: "", short: "?", code: 0 }
+      const slug = idToSlug.get(p.id) ?? toSlug(p.web_name)
+      const ownershipRaw = parseFloat(p.selected_by_percent ?? "0")
+      const diffCategory: DifferentialHubPlayer["diffCategory"] =
+        ownershipRaw < 5 ? "Strong differential" : ownershipRaw < 10 ? "Differential" : "Mild differential"
+      return {
+        slug,
+        displayName: getDisplayName(p),
+        webName: p.web_name,
+        code: p.code,
+        club: team.short,
+        teamCode: team.code,
+        position: posMap[p.element_type] ?? "",
+        price: `£${(p.now_cost / 10).toFixed(1)}m`,
+        form: p.form ?? "0.0",
+        ep_next: parseFloat(p.ep_next ?? "0"),
+        ownership: p.selected_by_percent ?? "0.0",
+        ownershipRaw,
+        news: p.news ?? "",
+        chance: p.chance_of_playing_next_round ?? 100,
+        fdrNext: fdrByTeam[p.team] ?? null,
+        diffCategory,
       }
     })
 

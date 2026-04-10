@@ -3,7 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
-import { getCaptainHub, isSeasonOver, type CaptainHubPlayer } from "@/lib/fpl-player-page"
+import { getDifferentialHub, isSeasonOver, type DifferentialHubPlayer } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
 
 export const revalidate = 3600
@@ -12,26 +12,26 @@ export const dynamic = "force-dynamic"
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "FPL Captain Picks | ChatFPL AI" }
-  const data = await getCaptainHub()
+  if (await isSeasonOver()) return { title: "FPL Differential Picks | ChatFPL AI" }
+  const data = await getDifferentialHub()
   const gw = data?.gw ?? "?"
   return {
-    title: `Best FPL Captain Picks Gameweek ${gw} | ChatFPL AI`,
-    description: `The top FPL captain options for Gameweek ${gw}, ranked by expected points. Live form, fixture difficulty and ownership data for every pick.`,
+    title: `Best FPL Differential Picks Gameweek ${gw} | ChatFPL AI`,
+    description: `The top FPL differential picks for Gameweek ${gw} — low-ownership players with high expected points who could rocket your rank. Updated hourly.`,
     openGraph: {
-      title: `Best FPL Captain Picks Gameweek ${gw} | ChatFPL AI`,
-      description: `Top FPL captain options for GW${gw} ranked by expected points, form and fixture.`,
-      url: "https://www.chatfpl.ai/fpl/captains",
+      title: `Best FPL Differential Picks Gameweek ${gw} | ChatFPL AI`,
+      description: `Top FPL differentials for GW${gw} ranked by expected points per ownership percentage.`,
+      url: "https://www.chatfpl.ai/fpl/differentials",
     },
   }
 }
 
-// ─── FDR colour (green only, 5 shades) ────────────────────────────────────────
+// ─── FDR dots ─────────────────────────────────────────────────────────────────
 
 function fdrDot(fdr: number | null) {
   if (fdr === null) return null
   return (
-    <span className="flex items-center gap-0.5">
+    <span className="flex items-center gap-0.5 justify-center">
       {[1, 2, 3, 4, 5].map((i) => (
         <span
           key={i}
@@ -47,15 +47,34 @@ function fdrDot(fdr: number | null) {
   )
 }
 
+// ─── Category badge ───────────────────────────────────────────────────────────
+
+function DiffBadge({ category }: { category: DifferentialHubPlayer["diffCategory"] }) {
+  const colour =
+    category === "Strong differential"
+      ? "#00FF87"
+      : category === "Differential"
+      ? "#00EFFF"
+      : "rgba(255,255,255,0.5)"
+  return (
+    <span
+      className="inline-block rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+      style={{ color: colour, background: `${colour}18`, border: `1px solid ${colour}40` }}
+    >
+      {category}
+    </span>
+  )
+}
+
 // ─── Single player card ────────────────────────────────────────────────────────
 
-function CaptainCard({ player, rank }: { player: CaptainHubPlayer; rank: number }) {
+function DiffCard({ player, rank }: { player: DifferentialHubPlayer; rank: number }) {
   const isDoubt = player.chance < 75 && player.chance > 0
   const GREEN = "#00FF87"
 
   return (
     <Link
-      href={`/fpl/${player.slug}`}
+      href={`/fpl/${player.slug}/differential`}
       className="group block rounded-2xl transition-all hover:scale-[1.01]"
       style={{
         border: "1px solid rgba(0,255,135,0.18)",
@@ -67,7 +86,7 @@ function CaptainCard({ player, rank }: { player: CaptainHubPlayer; rank: number 
         {/* Rank */}
         <div className="shrink-0 w-7 text-center">
           <span
-            className="text-lg font-black"
+            className="text-lg font-bold tabular-nums"
             style={{ color: rank === 1 ? GREEN : "rgba(255,255,255,0.3)" }}
           >
             {rank}
@@ -95,7 +114,7 @@ function CaptainCard({ player, rank }: { player: CaptainHubPlayer; rank: number 
           />
         </div>
 
-        {/* Name + club */}
+        {/* Name + club + badge */}
         <div className="flex-1 min-w-0">
           <p className="font-bold text-white text-sm leading-tight truncate group-hover:text-[#00FF87] transition-colors">
             {player.displayName}
@@ -103,6 +122,9 @@ function CaptainCard({ player, rank }: { player: CaptainHubPlayer; rank: number 
           <p className="text-[11px] text-white/50 mt-0.5">
             {player.position} · {player.club} · {player.price}
           </p>
+          <div className="mt-1">
+            <DiffBadge category={player.diffCategory} />
+          </div>
           {isDoubt && (
             <p className="text-[10px] mt-0.5" style={{ color: "#FFB347" }}>
               {player.news || `${player.chance}% fit`}
@@ -110,7 +132,7 @@ function CaptainCard({ player, rank }: { player: CaptainHubPlayer; rank: number 
           )}
         </div>
 
-        {/* Stats — fixed width columns so values align vertically */}
+        {/* Stats — fixed-width columns */}
         <div className="hidden sm:flex items-center shrink-0">
           <div className="w-14 text-center">
             <p className="text-base font-bold tabular-nums" style={{ color: GREEN }}>
@@ -122,22 +144,23 @@ function CaptainCard({ player, rank }: { player: CaptainHubPlayer; rank: number 
             <p className="text-base font-bold tabular-nums text-white/80">{player.form}</p>
             <p className="text-[9px] uppercase tracking-wider text-white/50 mt-0.5">Form</p>
           </div>
-          <div className="w-14 text-center">
+          <div className="w-16 text-center">
             <p className="text-base font-bold tabular-nums text-white/80">{player.ownership}%</p>
             <p className="text-[9px] uppercase tracking-wider text-white/50 mt-0.5">Owned</p>
           </div>
           <div className="w-14 text-center">
-            <div className="flex justify-center">{fdrDot(player.fdrNext)}</div>
+            {fdrDot(player.fdrNext)}
             <p className="text-[9px] uppercase tracking-wider text-white/50 mt-1">FDR</p>
           </div>
         </div>
 
-        {/* Mobile stat — xPts only */}
-        <div className="flex sm:hidden flex-col items-end shrink-0">
+        {/* Mobile — xPts + ownership */}
+        <div className="flex sm:hidden flex-col items-end shrink-0 gap-1">
           <p className="text-base font-bold tabular-nums" style={{ color: GREEN }}>
             {player.ep_next.toFixed(1)}
           </p>
           <p className="text-[9px] uppercase tracking-wider text-white/50">xPts</p>
+          <p className="text-xs text-white/50">{player.ownership}% owned</p>
         </div>
 
         {/* Arrow */}
@@ -157,10 +180,10 @@ function CaptainCard({ player, rank }: { player: CaptainHubPlayer; rank: number 
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function CaptainsHubPage() {
+export default async function DifferentialsHubPage() {
   if (await isSeasonOver()) return <SeasonEnded />
 
-  const data = await getCaptainHub()
+  const data = await getDifferentialHub()
   if (!data) notFound()
 
   const { gw, players } = data
@@ -170,7 +193,6 @@ export default async function CaptainsHubPage() {
     <div className="flex min-h-screen flex-col bg-black overflow-x-hidden">
       <DevHeader />
 
-      {/* Subtle background glow */}
       <div
         className="pointer-events-none fixed inset-0 z-0"
         style={{
@@ -181,7 +203,6 @@ export default async function CaptainsHubPage() {
 
       {/* Hero */}
       <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
-        {/* Badge */}
         <span
           className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest"
           style={{
@@ -196,14 +217,14 @@ export default async function CaptainsHubPage() {
           >
             FPL
           </span>
-          Captain Analysis
+          Differential Analysis
         </span>
 
         <h1
           className="font-bold leading-[1.1] tracking-tighter mb-4"
           style={{ fontSize: "clamp(26px, 5vw, 52px)", maxWidth: 820 }}
         >
-          <span className="text-white">The Best FPL Captain Picks for </span>
+          <span className="text-white">The Best FPL Differential Picks for </span>
           <span
             className="text-transparent bg-clip-text"
             style={{
@@ -216,15 +237,22 @@ export default async function CaptainsHubPage() {
         </h1>
 
         <p className="text-white/60 text-base max-w-xl">
-          Ranked by expected points. Click any player for the full captaincy verdict, fixture analysis, and AI chat.
+          Low-ownership players ranked by expected points relative to their ownership. Click any player for the full differential verdict and rank-impact analysis.
         </p>
+
+        {/* Legend */}
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          {(["Strong differential", "Differential", "Mild differential"] as const).map((c) => (
+            <DiffBadge key={c} category={c} />
+          ))}
+        </div>
       </section>
 
       {/* Main content */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
         <div className="w-full max-w-3xl">
 
-          {/* Column headers — desktop only */}
+          {/* Column headers — desktop */}
           <div className="hidden sm:flex items-center px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/40">
             <div className="w-7 shrink-0" />
             <div className="shrink-0" style={{ width: 52 }} />
@@ -232,7 +260,7 @@ export default async function CaptainsHubPage() {
             <div className="flex shrink-0">
               <span className="w-14 text-center">xPts</span>
               <span className="w-14 text-center">Form</span>
-              <span className="w-14 text-center">Owned</span>
+              <span className="w-16 text-center">Owned</span>
               <span className="w-14 text-center">FDR</span>
             </div>
             <div className="w-5 shrink-0" />
@@ -241,16 +269,14 @@ export default async function CaptainsHubPage() {
           {/* Player cards */}
           <div className="flex flex-col gap-3">
             {players.map((player, i) => (
-              <CaptainCard key={player.slug} player={player} rank={i + 1} />
+              <DiffCard key={player.slug} player={player} rank={i + 1} />
             ))}
           </div>
 
-          {/* Explainer note */}
           <p className="mt-6 text-center text-[11px] text-white/40 leading-relaxed">
-            Rankings based on FPL expected points for GW{gw}. Excludes goalkeepers and players ruled out. Updated hourly.
+            Ranked by expected points divided by ownership percentage. Excludes goalkeepers, ruled-out players, and anyone with more than 20% ownership. Updated hourly.
           </p>
 
-          {/* Divider */}
           <div
             className="my-10 h-px w-full"
             style={{ background: "linear-gradient(to right, transparent, rgba(0,255,135,0.2), transparent)" }}
@@ -267,10 +293,10 @@ export default async function CaptainsHubPage() {
           >
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-3">ChatFPL AI</p>
             <h2 className="text-xl font-bold text-white mb-3 leading-tight">
-              Still not sure who to captain?
+              Is a differential the right call for your squad?
             </h2>
             <p className="text-sm text-white/60 mb-7">
-              ChatFPL AI analyses your actual squad, budget, and rivals to give you a personalised captain recommendation. 20 free messages — no credit card required.
+              ChatFPL AI analyses your actual squad, rivals, and rank trajectory to tell you whether a differential play makes sense this gameweek. 20 free messages — no credit card required.
             </p>
             <Link
               href="/signup"

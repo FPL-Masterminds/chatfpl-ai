@@ -60,7 +60,7 @@ function getAllPageRoutes(dir: string, baseRoute: string = ''): string[] {
 function getRouteMetadata(route: string) {
   if (route === '') return { priority: 1.0, changeFrequency: 'daily' as const }
   if (['/chat', '/signup'].includes(route)) return { priority: 0.9, changeFrequency: 'always' as const }
-  if (route === '/fpl/captains') return { priority: 1.0, changeFrequency: 'always' as const }
+  if (['/fpl/captains', '/fpl/differentials'].includes(route)) return { priority: 1.0, changeFrequency: 'always' as const }
   if (['/about', '/faq', '/contact'].includes(route)) return { priority: 0.8, changeFrequency: 'weekly' as const }
   if (['/terms', '/privacy'].includes(route)) return { priority: 0.5, changeFrequency: 'monthly' as const }
   if (['/login'].includes(route)) return { priority: 0.6, changeFrequency: 'monthly' as const }
@@ -96,7 +96,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const allRoutes = [
     ...staticRoutes,
-    "/fpl/captains",   // Captains hub — high priority, changes every GW
+    "/fpl/captains",      // Captains hub — high priority, changes every GW
+    "/fpl/differentials", // Differentials hub — high priority, changes every GW
     ...captainRoutes,
     ...transferRoutes,
     ...sellRoutes,
