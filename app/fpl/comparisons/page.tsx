@@ -4,7 +4,7 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
 import { getComparisonHub, type ComparisonHubPair } from "@/lib/fpl-comparison"
-import { isSeasonOver } from "@/lib/fpl-player-page"
+import { isSeasonOver, getCaptainHub, getDifferentialHub } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
 
 export const revalidate = 3600
@@ -189,10 +189,16 @@ function ComparisonCard({ pair, rank }: { pair: ComparisonHubPair; rank: number 
 export default async function ComparisonsHubPage() {
   if (await isSeasonOver()) return <SeasonEnded />
 
-  const data = await getComparisonHub()
+  const [data, captainData, diffData] = await Promise.all([
+    getComparisonHub(),
+    getCaptainHub(),
+    getDifferentialHub(),
+  ])
   if (!data) notFound()
 
   const { gw, pairs } = data
+  const topCaptain = captainData?.players?.[0] ?? null
+  const topDiff    = diffData?.players?.[0] ?? null
   const GREEN = "#00FF87"
 
   return (
@@ -274,33 +280,58 @@ export default async function ComparisonsHubPage() {
 
           {/* Other hubs */}
           <div className="grid gap-4 sm:grid-cols-2 mb-10">
+            {/* Captains Hub panel */}
             <Link
               href="/fpl/captains"
-              className="group rounded-2xl px-6 py-5 transition-all hover:scale-[1.01]"
-              style={{
-                border: "1px solid rgba(0,255,135,0.18)",
-                background: "rgba(0,255,135,0.03)",
-              }}
+              className="group relative overflow-hidden rounded-2xl transition-all hover:scale-[1.01]"
+              style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)", minHeight: 96 }}
             >
-              <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
-              <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">
-                Captains Hub →
-              </p>
-              <p className="text-[11px] text-white/50 mt-0.5">Top captain picks for GW{gw}</p>
+              <div className="px-6 py-5 relative z-10" style={{ paddingRight: topCaptain ? 90 : undefined }}>
+                <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
+                <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">
+                  Captains Hub →
+                </p>
+                <p className="text-[11px] text-white/50 mt-0.5">Top captain picks for GW{gw}</p>
+              </div>
+              {topCaptain && (
+                <div className="absolute right-0 bottom-0 flex flex-col items-end z-0" style={{ width: 76 }}>
+                  <Image
+                    src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topCaptain.code}.png`}
+                    alt={topCaptain.displayName}
+                    width={76} height={95}
+                    style={{ objectFit: "contain" }}
+                    unoptimized
+                  />
+                  <div style={{ height: 1, width: 76, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
+                </div>
+              )}
             </Link>
+
+            {/* Differentials Hub panel */}
             <Link
               href="/fpl/differentials"
-              className="group rounded-2xl px-6 py-5 transition-all hover:scale-[1.01]"
-              style={{
-                border: "1px solid rgba(0,255,135,0.18)",
-                background: "rgba(0,255,135,0.03)",
-              }}
+              className="group relative overflow-hidden rounded-2xl transition-all hover:scale-[1.01]"
+              style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)", minHeight: 96 }}
             >
-              <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
-              <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">
-                Differentials Hub →
-              </p>
-              <p className="text-[11px] text-white/50 mt-0.5">Low-ownership gems for GW{gw}</p>
+              <div className="px-6 py-5 relative z-10" style={{ paddingRight: topDiff ? 90 : undefined }}>
+                <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
+                <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">
+                  Differentials Hub →
+                </p>
+                <p className="text-[11px] text-white/50 mt-0.5">Low-ownership gems for GW{gw}</p>
+              </div>
+              {topDiff && (
+                <div className="absolute right-0 bottom-0 flex flex-col items-end z-0" style={{ width: 76 }}>
+                  <Image
+                    src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topDiff.code}.png`}
+                    alt={topDiff.displayName}
+                    width={76} height={95}
+                    style={{ objectFit: "contain" }}
+                    unoptimized
+                  />
+                  <div style={{ height: 1, width: 76, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
+                </div>
+              )}
             </Link>
           </div>
 

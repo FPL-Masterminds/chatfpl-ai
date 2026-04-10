@@ -3,7 +3,8 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
-import { getCaptainHub, isSeasonOver, type CaptainHubPlayer } from "@/lib/fpl-player-page"
+import { getCaptainHub, getDifferentialHub, isSeasonOver, type CaptainHubPlayer } from "@/lib/fpl-player-page"
+import { getComparisonHub } from "@/lib/fpl-comparison"
 import { SeasonEnded } from "@/components/season-ended"
 
 export const revalidate = 3600
@@ -160,10 +161,16 @@ function CaptainCard({ player, rank }: { player: CaptainHubPlayer; rank: number 
 export default async function CaptainsHubPage() {
   if (await isSeasonOver()) return <SeasonEnded />
 
-  const data = await getCaptainHub()
+  const [data, diffData, compData] = await Promise.all([
+    getCaptainHub(),
+    getDifferentialHub(),
+    getComparisonHub(),
+  ])
   if (!data) notFound()
 
   const { gw, players } = data
+  const topDiff = diffData?.players?.[0] ?? null
+  const topPair = compData?.pairs?.[0] ?? null
   const GREEN = "#00FF87"
 
   return (
@@ -231,6 +238,53 @@ export default async function CaptainsHubPage() {
           <p className="mt-6 text-center text-[11px] text-white/40 leading-relaxed">
             Rankings based on FPL expected points for GW{gw}. Excludes goalkeepers and players ruled out. Updated hourly.
           </p>
+
+          {/* Other hubs */}
+          <div className="grid gap-4 sm:grid-cols-2 mt-8 mb-2">
+            {/* Differentials Hub panel */}
+            <Link
+              href="/fpl/differentials"
+              className="group relative overflow-hidden rounded-2xl transition-all hover:scale-[1.01]"
+              style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)", minHeight: 96 }}
+            >
+              <div className="px-6 py-5 relative z-10" style={{ paddingRight: topDiff ? 90 : undefined }}>
+                <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
+                <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">Differentials Hub →</p>
+                <p className="text-[11px] text-white/50 mt-0.5">Low-ownership gems for GW{gw}</p>
+              </div>
+              {topDiff && (
+                <div className="absolute right-0 bottom-0 flex flex-col items-end z-0" style={{ width: 76 }}>
+                  <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topDiff.code}.png`} alt={topDiff.displayName} width={76} height={95} style={{ objectFit: "contain" }} unoptimized />
+                  <div style={{ height: 1, width: 76, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
+                </div>
+              )}
+            </Link>
+
+            {/* Head-to-Head Hub panel */}
+            <Link
+              href="/fpl/comparisons"
+              className="group relative overflow-hidden rounded-2xl transition-all hover:scale-[1.01]"
+              style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)", minHeight: 96 }}
+            >
+              <div className="px-6 py-5 relative z-10" style={{ paddingRight: topPair ? 148 : undefined }}>
+                <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
+                <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">Head-to-Head Hub →</p>
+                <p className="text-[11px] text-white/50 mt-0.5">Top FPL matchups for GW{gw}</p>
+              </div>
+              {topPair && (
+                <div className="absolute right-0 bottom-0 flex flex-row items-end z-0">
+                  <div className="flex flex-col items-end" style={{ width: 68 }}>
+                    <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topPair.codeA}.png`} alt={topPair.nameA} width={68} height={85} style={{ objectFit: "contain" }} unoptimized />
+                    <div style={{ height: 1, width: 68, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
+                  </div>
+                  <div className="flex flex-col items-end" style={{ width: 68 }}>
+                    <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topPair.codeB}.png`} alt={topPair.nameB} width={68} height={85} style={{ objectFit: "contain" }} unoptimized />
+                    <div style={{ height: 1, width: 68, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
+                  </div>
+                </div>
+              )}
+            </Link>
+          </div>
 
           {/* Divider */}
           <div
