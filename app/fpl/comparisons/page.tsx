@@ -233,7 +233,7 @@ export default async function ComparisonsHubPage() {
         </h1>
 
         <p className="text-white/60 text-base max-w-2xl">
-          The most-owned FPL players going head-to-head for Gameweek {gw}. Ranked by combined ownership, the bigger the names, the higher up the list. Refreshes with a new set every visit.
+          The most-owned FPL players going head-to-head for Gameweek {gw}. Ranked by combined ownership, the bigger the names, the higher up the list.
         </p>
       </section>
 
