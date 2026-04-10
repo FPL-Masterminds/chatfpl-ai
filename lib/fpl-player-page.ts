@@ -1415,3 +1415,103 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
     showAlternatives,
   }
 }
+
+// ─── Captains Hub ─────────────────────────────────────────────────────────────
+
+export interface CaptainHubPlayer {
+  slug: string
+  displayName: string
+  webName: string
+  code: number
+  club: string
+  teamCode: number
+  position: string
+  price: string
+  form: string
+  ep_next: number
+  ownership: string
+  news: string
+  chance: number
+  fdrNext: number | null
+}
+
+export interface CaptainHubData {
+  gw: number
+  players: CaptainHubPlayer[]
+}
+
+export async function getCaptainHub(): Promise<CaptainHubData | null> {
+  try {
+    const bootstrap = await getBootstrap()
+    const events: any[] = bootstrap.events ?? []
+    const nextEvent = events.find((e: any) => e.is_next)
+    const currentEvent = events.find((e: any) => e.is_current)
+    const gw: number =
+      nextEvent?.id ??
+      (currentEvent ? currentEvent.id + 1 : 1)
+
+    const teamMap: Record<number, { name: string; short: string; code: number }> = {}
+    const posMap: Record<number, string> = {}
+    ;(bootstrap.teams ?? []).forEach((t: any) => {
+      teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code }
+    })
+    ;(bootstrap.element_types ?? []).forEach((et: any) => {
+      posMap[et.id] = et.singular_name_short
+    })
+
+    // Fetch next GW fixtures for FDR
+    let fdrByTeam: Record<number, number> = {}
+    try {
+      const fixtRes = await fetch(
+        `https://fantasy.premierleague.com/api/fixtures/?event=${gw}`,
+        { headers: FPL_HEADERS, next: { revalidate: 900 } }
+      )
+      const fixtures = await fixtRes.json()
+      fixtures.forEach((f: any) => {
+        if (fdrByTeam[f.team_h] === undefined) fdrByTeam[f.team_h] = f.team_h_difficulty
+        if (fdrByTeam[f.team_a] === undefined) fdrByTeam[f.team_a] = f.team_a_difficulty
+      })
+    } catch { /* fixtures optional */ }
+
+    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const idToSlug = new Map<number, string>()
+    for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
+
+    // Only outfield players with a next fixture, sorted by ep_next desc
+    const candidates = eligible
+      .filter((p: any) =>
+        p.element_type !== 1 &&                  // no GKs
+        (p.chance_of_playing_next_round ?? 100) > 0 // exclude ruled-out
+      )
+      .sort((a: any, b: any) =>
+        parseFloat(b.ep_next ?? "0") - parseFloat(a.ep_next ?? "0")
+      )
+      .slice(0, 15)
+
+    const players: CaptainHubPlayer[] = candidates.map((p: any) => {
+      const team = teamMap[p.team] ?? { name: "", short: "?", code: 0 }
+      const slug = idToSlug.get(p.id) ?? toSlug(p.web_name)
+      return {
+        slug,
+        displayName: getDisplayName(p),
+        webName: p.web_name,
+        code: p.code,
+        club: team.short,
+        teamCode: team.code,
+        position: posMap[p.element_type] ?? "",
+        price: `£${(p.now_cost / 10).toFixed(1)}m`,
+        form: p.form ?? "0.0",
+        ep_next: parseFloat(p.ep_next ?? "0"),
+        ownership: p.selected_by_percent ?? "0.0",
+        news: p.news ?? "",
+        chance: p.chance_of_playing_next_round ?? 100,
+        fdrNext: fdrByTeam[p.team] ?? null,
+      }
+    })
+
+    return { gw, players }
+  } catch {
+    return null
+  }
+}
