@@ -18,10 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const gw = data?.gw ?? "?"
   return {
     title: `FPL Head-to-Head Comparisons Gameweek ${gw} | ChatFPL AI`,
-    description: `The closest FPL player battles for Gameweek ${gw}. Head-to-head stats, expected points, form and fixture difficulty to help you decide who to pick.`,
+    description: `The most-owned FPL players head-to-head for Gameweek ${gw}. Haaland vs Salah, Salah vs Palmer and more — expected points, form and a full verdict on who to pick.`,
     openGraph: {
       title: `FPL Head-to-Head Comparisons Gameweek ${gw} | ChatFPL AI`,
-      description: `The tightest FPL selection battles for GW${gw} — head-to-head stats and verdicts.`,
+      description: `The most-owned FPL players head-to-head for GW${gw} — who to pick, who to bench.`,
       url: "https://www.chatfpl.ai/fpl/comparisons",
     },
   }
@@ -245,7 +245,7 @@ export default async function ComparisonsHubPage() {
         </h1>
 
         <p className="text-white/60 text-base max-w-2xl">
-          The closest selection battles for Gameweek {gw} — ranked by how tight the expected points gap is. Click any matchup for a full breakdown, fixture analysis, and AI chat.
+          The most-owned FPL players going head-to-head for Gameweek {gw}. Ranked by combined ownership — the bigger the names, the higher up the list. Refreshes with a new set every visit.
         </p>
       </section>
 
@@ -281,7 +281,7 @@ export default async function ComparisonsHubPage() {
 
           {/* Explainer */}
           <p className="mt-6 text-center text-[11px] text-white/40 leading-relaxed">
-            Ranked by tightness of the expected points gap for GW{gw}. Excludes goalkeepers and players ruled out. Updated hourly.
+            25 random matchups from the top 10 most-owned defenders, midfielders and forwards for GW{gw}. Ranked by combined ownership. Excludes goalkeepers and ruled-out players. Refreshes each visit.
           </p>
 
           {/* Divider */}

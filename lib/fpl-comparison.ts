@@ -507,9 +507,10 @@ export interface ComparisonHubPair {
   position: string
   epA: number
   epB: number
-  formA: number
-  formB: number
-  closeness: number  // lower = tighter battle
+  ownershipA: number
+  ownershipB: number
+  combinedOwnership: number
+  gap: number
 }
 
 export interface ComparisonHubData {
@@ -525,10 +526,10 @@ export async function getComparisonHub(): Promise<ComparisonHubData | null> {
     const currentEvent = events.find((e: any) => e.is_current)
     const gw: number  = nextEvent?.id ?? (currentEvent ? currentEvent.id + 1 : 1)
 
-    const teamMap: Record<number, { short: string; code: number }> = {}
+    const teamMap: Record<number, { short: string }> = {}
     const posMap:  Record<number, string> = {}
     ;(bootstrap.teams ?? []).forEach((t: any) => {
-      teamMap[t.id] = { short: t.short_name, code: t.code }
+      teamMap[t.id] = { short: t.short_name }
     })
     ;(bootstrap.element_types ?? []).forEach((et: any) => {
       posMap[et.id] = et.singular_name_short
@@ -539,71 +540,70 @@ export async function getComparisonHub(): Promise<ComparisonHubData | null> {
     const idToSlug = new Map<number, string>()
     for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
 
-    // Group by position, only outfield, both available
-    const byPos: Record<number, any[]> = {}
-    eligible.forEach((p: any) => {
-      if (p.element_type === 1) return  // no GKs
-      if ((p.chance_of_playing_next_round ?? 100) === 0) return
-      if (!byPos[p.element_type]) byPos[p.element_type] = []
-      byPos[p.element_type].push(p)
-    })
+    // Top 10 most-owned per outfield position (DEF=2, MID=3, FWD=4)
+    const allPairs: ComparisonHubPair[] = []
 
-    const scored: ComparisonHubPair[] = []
+    for (const posId of [2, 3, 4]) {
+      const top10 = eligible
+        .filter((p: any) =>
+          p.element_type === posId &&
+          (p.chance_of_playing_next_round ?? 100) > 0
+        )
+        .sort((a: any, b: any) =>
+          parseFloat(b.selected_by_percent ?? "0") - parseFloat(a.selected_by_percent ?? "0")
+        )
+        .slice(0, 10)
 
-    for (const players of Object.values(byPos)) {
-      for (let i = 0; i < players.length; i++) {
-        for (let j = i + 1; j < players.length; j++) {
-          const a = players[i]
-          const b = players[j]
-          const epA   = parseFloat(a.ep_next ?? "0")
-          const epB   = parseFloat(b.ep_next ?? "0")
-          const frmA  = parseFloat(a.form ?? "0")
-          const frmB  = parseFloat(b.form ?? "0")
-          const selA  = parseFloat(a.selected_by_percent ?? "0")
-          const selB  = parseFloat(b.selected_by_percent ?? "0")
-
-          // Both need meaningful data
-          if (epA < 2 || epB < 2) continue
-          // Both need to be relevant (combined ownership > 5%)
-          if (selA + selB < 5) continue
-
-          // Closeness = normalised difference in ep_next + form (0 = identical)
-          const epDiff  = Math.abs(epA - epB)
-          const frmDiff = Math.abs(frmA - frmB)
-          const closeness = epDiff * 2 + frmDiff  // weight ep_next more heavily
+      // Generate all C(10,2) = 45 within-position pairs
+      for (let i = 0; i < top10.length; i++) {
+        for (let j = i + 1; j < top10.length; j++) {
+          const a = top10[i]
+          const b = top10[j]
 
           const slugA = idToSlug.get(a.id)
           const slugB = idToSlug.get(b.id)
           if (!slugA || !slugB) continue
 
-          const [finalA, finalB, finalPA, finalPB] =
-            slugA < slugB
-              ? [slugA, slugB, a, b]
-              : [slugB, slugA, b, a]
+          // Alphabetical ordering so URL is canonical
+          const [sA, sB, pA, pB] =
+            slugA < slugB ? [slugA, slugB, a, b] : [slugB, slugA, b, a]
 
-          scored.push({
-            slugA: finalA,
-            slugB: finalB,
-            nameA: getDisplayName(finalPA),
-            nameB: getDisplayName(finalPB),
-            codeA: finalPA.code,
-            codeB: finalPB.code,
-            clubA: teamMap[finalPA.team]?.short ?? "",
-            clubB: teamMap[finalPB.team]?.short ?? "",
-            position: posMap[finalPA.element_type] ?? "",
-            epA: parseFloat(finalPA.ep_next ?? "0"),
-            epB: parseFloat(finalPB.ep_next ?? "0"),
-            formA: parseFloat(finalPA.form ?? "0"),
-            formB: parseFloat(finalPB.form ?? "0"),
-            closeness,
+          const epA = parseFloat(pA.ep_next ?? "0")
+          const epB = parseFloat(pB.ep_next ?? "0")
+          const owA = parseFloat(pA.selected_by_percent ?? "0")
+          const owB = parseFloat(pB.selected_by_percent ?? "0")
+
+          allPairs.push({
+            slugA: sA,
+            slugB: sB,
+            nameA: getDisplayName(pA),
+            nameB: getDisplayName(pB),
+            codeA: pA.code,
+            codeB: pB.code,
+            clubA: teamMap[pA.team]?.short ?? "",
+            clubB: teamMap[pB.team]?.short ?? "",
+            position: posMap[pA.element_type] ?? "",
+            epA,
+            epB,
+            ownershipA: owA,
+            ownershipB: owB,
+            combinedOwnership: owA + owB,
+            gap: Math.abs(epA - epB),
           })
         }
       }
     }
 
-    // Sort by closeness (tightest battles first), take top 20
-    scored.sort((a, b) => a.closeness - b.closeness)
-    const pairs = scored.slice(0, 20)
+    // Shuffle all 135 pairs randomly (different every request due to force-dynamic)
+    for (let i = allPairs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[allPairs[i], allPairs[j]] = [allPairs[j], allPairs[i]]
+    }
+
+    // Take 25, then sort by combined ownership so biggest names float to top
+    const pairs = allPairs
+      .slice(0, 25)
+      .sort((a, b) => b.combinedOwnership - a.combinedOwnership)
 
     return { gw, pairs }
   } catch {
