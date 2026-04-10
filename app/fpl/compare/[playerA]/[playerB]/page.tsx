@@ -495,12 +495,26 @@ export default async function ComparisonPage({
 
         {/* Back to hub */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mt-10 text-center">
-          <Link
-            href="/fpl/comparisons"
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2.5 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
+          <div
+            className="inline-block"
+            style={{
+              padding: "1.5px",
+              borderRadius: "9999px",
+              background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+              backgroundSize: "200% 200%",
+              animation: "glow_scroll 3.5s linear infinite",
+            }}
           >
-            Head-to-Head comparisons for Gameweek {gw} →
-          </Link>
+            <Link
+              href="/fpl/comparisons"
+              className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
+              style={{ background: "rgba(0,0,0,0.9)" }}
+            >
+              <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                Head-to-Head comparisons for Gameweek {gw} →
+              </span>
+            </Link>
+          </div>
         </div>
 
         {/* Also analyse */}
