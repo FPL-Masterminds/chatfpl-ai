@@ -254,7 +254,7 @@ export default async function ComparisonsHubPage() {
         <div className="w-full max-w-3xl">
 
           {/* Column headers — desktop */}
-          <div className="hidden sm:flex items-center gap-3 px-4 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/40">
+          <div className="hidden sm:flex items-center gap-3 px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/40">
             <div className="w-6 shrink-0" />
             <div className="shrink-0" style={{ width: 46 }} />
             <div className="shrink-0 w-8 text-center" />
