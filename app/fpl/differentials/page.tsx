@@ -275,9 +275,8 @@ export default async function DifferentialsHubPage() {
                 <p className="text-[11px] text-white/50 mt-0.5">Top captain picks for GW{gw}</p>
               </div>
               {topCaptain && (
-                <div className="absolute right-4 bottom-0 flex flex-col items-end z-0" style={{ width: 56 }}>
+                <div className="absolute right-4 inset-y-0 flex flex-col items-center justify-center z-0" style={{ width: 56 }}>
                   <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topCaptain.code}.png`} alt={topCaptain.displayName} width={56} height={70} style={{ objectFit: "contain" }} unoptimized />
-                  <div style={{ height: 1, width: 56, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
                 </div>
               )}
             </Link>
@@ -294,15 +293,9 @@ export default async function DifferentialsHubPage() {
                 <p className="text-[11px] text-white/50 mt-0.5">Top FPL matchups for GW{gw}</p>
               </div>
               {topPair && (
-                <div className="absolute right-4 bottom-0 flex flex-row items-end z-0">
-                  <div className="flex flex-col items-end" style={{ width: 50 }}>
-                    <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topPair.codeA}.png`} alt={topPair.nameA} width={50} height={63} style={{ objectFit: "contain" }} unoptimized />
-                    <div style={{ height: 1, width: 50, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
-                  </div>
-                  <div className="flex flex-col items-end" style={{ width: 50 }}>
-                    <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topPair.codeB}.png`} alt={topPair.nameB} width={50} height={63} style={{ objectFit: "contain" }} unoptimized />
-                    <div style={{ height: 1, width: 50, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
-                  </div>
+                <div className="absolute right-4 inset-y-0 flex flex-row items-center z-0 gap-1">
+                  <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topPair.codeA}.png`} alt={topPair.nameA} width={50} height={63} style={{ objectFit: "contain" }} unoptimized />
+                  <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topPair.codeB}.png`} alt={topPair.nameB} width={50} height={63} style={{ objectFit: "contain" }} unoptimized />
                 </div>
               )}
             </Link>

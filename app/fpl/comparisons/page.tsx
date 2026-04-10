@@ -294,7 +294,7 @@ export default async function ComparisonsHubPage() {
                 <p className="text-[11px] text-white/50 mt-0.5">Top captain picks for GW{gw}</p>
               </div>
               {topCaptain && (
-                <div className="absolute right-4 bottom-0 flex flex-col items-end z-0" style={{ width: 56 }}>
+                <div className="absolute right-4 inset-y-0 flex flex-col items-center justify-center z-0" style={{ width: 56 }}>
                   <Image
                     src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topCaptain.code}.png`}
                     alt={topCaptain.displayName}
@@ -302,7 +302,6 @@ export default async function ComparisonsHubPage() {
                     style={{ objectFit: "contain" }}
                     unoptimized
                   />
-                  <div style={{ height: 1, width: 56, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
                 </div>
               )}
             </Link>
@@ -321,7 +320,7 @@ export default async function ComparisonsHubPage() {
                 <p className="text-[11px] text-white/50 mt-0.5">Low-ownership gems for GW{gw}</p>
               </div>
               {topDiff && (
-                <div className="absolute right-4 bottom-0 flex flex-col items-end z-0" style={{ width: 56 }}>
+                <div className="absolute right-4 inset-y-0 flex flex-col items-center justify-center z-0" style={{ width: 56 }}>
                   <Image
                     src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topDiff.code}.png`}
                     alt={topDiff.displayName}
@@ -329,7 +328,6 @@ export default async function ComparisonsHubPage() {
                     style={{ objectFit: "contain" }}
                     unoptimized
                   />
-                  <div style={{ height: 1, width: 56, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
                 </div>
               )}
             </Link>
