@@ -493,6 +493,19 @@ export default async function ComparisonPage({
           </div>
         </div>
 
+        {/* Back to hub */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mt-10 text-center">
+          <Link
+            href="/fpl/comparisons"
+            className="inline-flex items-center gap-1.5 text-sm text-white/50 transition-colors hover:text-[#00FF87]"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            See all Head-to-Head comparisons for Gameweek {gw}
+          </Link>
+        </div>
+
         {/* Also analyse */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mt-16">
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-4 text-center">Also analyse</p>

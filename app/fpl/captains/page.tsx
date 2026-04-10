@@ -225,17 +225,17 @@ export default async function CaptainsHubPage() {
         <div className="w-full max-w-3xl">
 
           {/* Column headers — desktop only */}
-          <div className="hidden sm:flex items-center px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/40">
+          <div className="hidden sm:flex items-center gap-4 px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/40">
             <div className="w-7 shrink-0" />
             <div className="shrink-0" style={{ width: 52 }} />
-            <div className="flex-1 pl-4">Player</div>
+            <div className="flex-1">Player</div>
             <div className="flex shrink-0">
               <span className="w-14 text-center">xPts</span>
               <span className="w-14 text-center">Form</span>
               <span className="w-14 text-center">Owned</span>
               <span className="w-14 text-center">FDR</span>
             </div>
-            <div className="w-5 shrink-0" />
+            <div className="w-4 shrink-0" />
           </div>
 
           {/* Player cards */}

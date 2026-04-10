@@ -47,10 +47,13 @@ export function Footer() {
             <h3 className="mb-4 text-sm font-semibold text-white">Product</h3>
             <ul className="space-y-3">
               {[
-                { href: "/",        label: "Home"       },
-                { href: "/about",   label: "About"      },
-                { href: "/faq",     label: "FAQ"        },
-                { href: "/contact", label: "Contact Us" },
+                { href: "/",                  label: "Home"                },
+                { href: "/about",             label: "About"               },
+                { href: "/faq",               label: "FAQ"                 },
+                { href: "/contact",           label: "Contact Us"          },
+                { href: "/fpl/captains",      label: "Captains Hub"        },
+                { href: "/fpl/differentials", label: "Differentials Hub"   },
+                { href: "/fpl/comparisons",   label: "Head-to-Head Hub"    },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87] group">

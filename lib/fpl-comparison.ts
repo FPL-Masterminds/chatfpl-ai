@@ -492,3 +492,121 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
     subheading,
   }
 }
+
+// ─── Comparisons Hub ──────────────────────────────────────────────────────────
+
+export interface ComparisonHubPair {
+  slugA: string
+  slugB: string
+  nameA: string
+  nameB: string
+  codeA: number
+  codeB: number
+  clubA: string
+  clubB: string
+  position: string
+  epA: number
+  epB: number
+  formA: number
+  formB: number
+  closeness: number  // lower = tighter battle
+}
+
+export interface ComparisonHubData {
+  gw: number
+  pairs: ComparisonHubPair[]
+}
+
+export async function getComparisonHub(): Promise<ComparisonHubData | null> {
+  try {
+    const bootstrap = await getBootstrap()
+    const events: any[] = bootstrap.events ?? []
+    const nextEvent    = events.find((e: any) => e.is_next)
+    const currentEvent = events.find((e: any) => e.is_current)
+    const gw: number  = nextEvent?.id ?? (currentEvent ? currentEvent.id + 1 : 1)
+
+    const teamMap: Record<number, { short: string; code: number }> = {}
+    const posMap:  Record<number, string> = {}
+    ;(bootstrap.teams ?? []).forEach((t: any) => {
+      teamMap[t.id] = { short: t.short_name, code: t.code }
+    })
+    ;(bootstrap.element_types ?? []).forEach((et: any) => {
+      posMap[et.id] = et.singular_name_short
+    })
+
+    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const idToSlug = new Map<number, string>()
+    for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
+
+    // Group by position, only outfield, both available
+    const byPos: Record<number, any[]> = {}
+    eligible.forEach((p: any) => {
+      if (p.element_type === 1) return  // no GKs
+      if ((p.chance_of_playing_next_round ?? 100) === 0) return
+      if (!byPos[p.element_type]) byPos[p.element_type] = []
+      byPos[p.element_type].push(p)
+    })
+
+    const scored: ComparisonHubPair[] = []
+
+    for (const players of Object.values(byPos)) {
+      for (let i = 0; i < players.length; i++) {
+        for (let j = i + 1; j < players.length; j++) {
+          const a = players[i]
+          const b = players[j]
+          const epA   = parseFloat(a.ep_next ?? "0")
+          const epB   = parseFloat(b.ep_next ?? "0")
+          const frmA  = parseFloat(a.form ?? "0")
+          const frmB  = parseFloat(b.form ?? "0")
+          const selA  = parseFloat(a.selected_by_percent ?? "0")
+          const selB  = parseFloat(b.selected_by_percent ?? "0")
+
+          // Both need meaningful data
+          if (epA < 2 || epB < 2) continue
+          // Both need to be relevant (combined ownership > 5%)
+          if (selA + selB < 5) continue
+
+          // Closeness = normalised difference in ep_next + form (0 = identical)
+          const epDiff  = Math.abs(epA - epB)
+          const frmDiff = Math.abs(frmA - frmB)
+          const closeness = epDiff * 2 + frmDiff  // weight ep_next more heavily
+
+          const slugA = idToSlug.get(a.id)
+          const slugB = idToSlug.get(b.id)
+          if (!slugA || !slugB) continue
+
+          const [finalA, finalB, finalPA, finalPB] =
+            slugA < slugB
+              ? [slugA, slugB, a, b]
+              : [slugB, slugA, b, a]
+
+          scored.push({
+            slugA: finalA,
+            slugB: finalB,
+            nameA: getDisplayName(finalPA),
+            nameB: getDisplayName(finalPB),
+            codeA: finalPA.code,
+            codeB: finalPB.code,
+            clubA: teamMap[finalPA.team]?.short ?? "",
+            clubB: teamMap[finalPB.team]?.short ?? "",
+            position: posMap[finalPA.element_type] ?? "",
+            epA: parseFloat(finalPA.ep_next ?? "0"),
+            epB: parseFloat(finalPB.ep_next ?? "0"),
+            formA: parseFloat(finalPA.form ?? "0"),
+            formB: parseFloat(finalPB.form ?? "0"),
+            closeness,
+          })
+        }
+      }
+    }
+
+    // Sort by closeness (tightest battles first), take top 20
+    scored.sort((a, b) => a.closeness - b.closeness)
+    const pairs = scored.slice(0, 20)
+
+    return { gw, pairs }
+  } catch {
+    return null
+  }
+}
