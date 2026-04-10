@@ -308,7 +308,7 @@ export default async function CaptainsHubPage() {
               Still not sure who to captain?
             </h2>
             <p className="text-sm text-white/60 mb-7">
-              ChatFPL AI analyses your actual squad, budget, and rivals to give you a personalised captain recommendation. 20 free messages — no credit card required.
+              ChatFPL AI analyses your actual squad, budget, and rivals to give you a personalised captain recommendation. 20 free messages - no credit card required.
             </p>
             <Link
               href="/signup"

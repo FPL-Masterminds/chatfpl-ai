@@ -341,7 +341,7 @@ export default async function ComparisonsHubPage() {
               Can&apos;t split them?
             </h2>
             <p className="text-sm text-white/60 mb-7">
-              ChatFPL AI analyses your actual squad, transfer budget, and rival managers to give you a personalised verdict. 20 free messages — no credit card required.
+              ChatFPL AI analyses your actual squad, transfer budget, and rival managers to give you a personalised verdict. 20 free messages - no credit card required.
             </p>
             <Link
               href="/signup"
