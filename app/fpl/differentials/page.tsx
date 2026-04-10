@@ -329,7 +329,7 @@ export default async function DifferentialsHubPage() {
               Is a differential the right call for your squad?
             </h2>
             <p className="text-sm text-white/60 mb-7">
-              ChatFPL AI analyses your actual squad, rivals, and rank trajectory to tell you whether a differential play makes sense this gameweek. 20 free messages - no credit card required.
+              ChatFPL AI analyses your actual squad, rivals, and rank trajectory to tell you whether a differential play makes sense this gameweek. Try it free - no credit card required.
             </p>
             <Link
               href="/signup"
