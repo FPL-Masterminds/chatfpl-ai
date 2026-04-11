@@ -88,7 +88,7 @@ function DiffCard({ player, rank }: { player: DifferentialHubPlayer; rank: numbe
         <div className="shrink-0 w-7 text-center">
           <span
             className="text-lg font-bold tabular-nums"
-            style={{ color: rank === 1 ? GREEN : "rgba(255,255,255,0.3)" }}
+            style={{ color: "rgba(255,255,255,1)" }}
           >
             {rank}
           </span>
