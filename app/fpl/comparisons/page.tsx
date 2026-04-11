@@ -47,7 +47,7 @@ function ComparisonCard({ pair, rank }: { pair: ComparisonHubPair; rank: number 
         {/* Rank */}
         <div className="shrink-0 w-6 text-center">
           <span
-            className="text-base font-black"
+            className="text-base font-bold tabular-nums"
             style={{ color: rank === 1 ? GREEN : "rgba(255,255,255,0.25)" }}
           >
             {rank}
