@@ -1466,7 +1466,7 @@ export async function getCaptainHub(): Promise<CaptainHubData | null> {
         `https://fantasy.premierleague.com/api/fixtures/?event=${gw}`,
         { headers: FPL_HEADERS, next: { revalidate: 900 } }
       )
-      const fixtures = await fixtRes.json()
+      const fixtures = fixtRes.ok ? await fixtRes.json() : []
       fixtures.forEach((f: any) => {
         if (fdrByTeam[f.team_h] === undefined) fdrByTeam[f.team_h] = f.team_h_difficulty
         if (fdrByTeam[f.team_a] === undefined) fdrByTeam[f.team_a] = f.team_a_difficulty
@@ -1553,7 +1553,7 @@ export async function getDifferentialHub(): Promise<DifferentialHubData | null> 
         `https://fantasy.premierleague.com/api/fixtures/?event=${gw}`,
         { headers: FPL_HEADERS, next: { revalidate: 900 } }
       )
-      const fixtures = await fixtRes.json()
+      const fixtures = fixtRes.ok ? await fixtRes.json() : []
       fixtures.forEach((f: any) => {
         if (fdrByTeam[f.team_h] === undefined) fdrByTeam[f.team_h] = f.team_h_difficulty
         if (fdrByTeam[f.team_a] === undefined) fdrByTeam[f.team_a] = f.team_a_difficulty
