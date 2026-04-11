@@ -137,7 +137,7 @@ function ComparisonCard({ pair, rank }: { pair: ComparisonHubPair; rank: number 
               {pair.epA.toFixed(1)}
             </p>
             <p className="text-[8px] uppercase tracking-wider text-white/40 mt-0.5">
-              {pair.nameA.split(" ")[0]} xPts
+              {pair.nameA.split(" ").at(-1)} xPts
             </p>
           </div>
           {/* xPts B */}
@@ -149,12 +149,12 @@ function ComparisonCard({ pair, rank }: { pair: ComparisonHubPair; rank: number 
               {pair.epB.toFixed(1)}
             </p>
             <p className="text-[8px] uppercase tracking-wider text-white/40 mt-0.5">
-              {pair.nameB.split(" ")[0]} xPts
+              {pair.nameB.split(" ").at(-1)} xPts
             </p>
           </div>
           {/* Gap */}
           <div className="w-14 text-center">
-            <p className="text-base font-bold tabular-nums text-white/50">
+            <p className="text-base font-bold tabular-nums text-white">
               {Math.abs(pair.epA - pair.epB).toFixed(1)}
             </p>
             <p className="text-[8px] uppercase tracking-wider text-white/40 mt-0.5">Gap</p>
