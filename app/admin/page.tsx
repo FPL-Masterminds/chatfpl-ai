@@ -846,17 +846,19 @@ export default function AdminPage() {
 
               {/* Top users table */}
               <div className="rounded-xl border border-white/8 overflow-hidden mb-4">
-                <div className="grid grid-cols-3 bg-emerald-400/[0.06] px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-emerald-400/70">
-                  <span>User</span><span className="text-center">Messages</span><span className="text-right">Type</span>
+                <div className="flex bg-emerald-400/[0.06] px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-emerald-400/70">
+                  <span className="flex-1 min-w-0">User</span>
+                  <span className="w-24 text-center shrink-0">Messages</span>
+                  <span className="w-20 text-right shrink-0">Type</span>
                 </div>
                 <div className="max-h-48 overflow-y-auto">
                   {topUsers.length === 0 ? (
                     <p className="px-3 py-3 text-sm text-white/30">No message activity yet in this range.</p>
                   ) : topUsers.map((u, i) => (
-                    <div key={u.userId} className="grid grid-cols-3 border-t border-white/5 px-3 py-2 text-sm">
-                      <span className="text-white">{i+1}. {u.name} <span className="text-xs text-white/60">({u.email})</span></span>
-                      <span className="text-center font-semibold text-[#00FF87]">{u.messages}</span>
-                      <span className="text-right text-xs text-white/50">Top user</span>
+                    <div key={u.userId} className="flex items-center border-t border-white/5 px-3 py-2 text-sm gap-2">
+                      <span className="flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis text-white">{i+1}. {u.name} <span className="text-xs text-white/60">({u.email})</span></span>
+                      <span className="w-24 text-center font-semibold text-[#00FF87] shrink-0">{u.messages}</span>
+                      <span className="w-20 text-right text-xs text-white/50 shrink-0">Top user</span>
                     </div>
                   ))}
                 </div>
