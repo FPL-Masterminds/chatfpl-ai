@@ -855,8 +855,8 @@ export default function AdminPage() {
                   {topUsers.length === 0 ? (
                     <p className="px-3 py-3 text-sm text-white/30">No message activity yet in this range.</p>
                   ) : topUsers.map((u, i) => (
-                    <div key={u.userId} className="flex items-center border-t border-white/5 px-3 py-2 text-sm gap-2">
-                      <span className="flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis text-white">{i+1}. {u.name} <span className="text-xs text-white/60">({u.email})</span></span>
+                    <div key={u.userId} className="flex items-center border-t border-white/5 px-3 py-2 text-sm gap-2 overflow-hidden">
+                      <span className="flex-1 truncate text-white min-w-0">{i+1}. {u.name} <span className="text-xs text-white/60">({u.email})</span></span>
                       <span className="w-24 text-center font-semibold text-[#00FF87] shrink-0">{u.messages}</span>
                       <span className="w-20 text-right text-xs text-white/50 shrink-0">Top user</span>
                     </div>
