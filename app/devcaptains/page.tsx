@@ -10,19 +10,16 @@ export const dynamic = "force-dynamic"
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
 const GREEN = "#00FF87"
 
-// FDR — no red, uses green → amber → orange scale only
-const FDR_COLOURS = ["", "#00FF87", "#a3e635", "#facc15", "#f97316", "#fb923c"]
-const FDR_LABELS  = ["", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"]
+const FDR_LABELS = ["", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"]
 
 function FdrDots({ fdr }: { fdr: number | null }) {
   if (fdr === null) return null
-  const col = FDR_COLOURS[fdr] ?? GREEN
   return (
     <span className="flex items-center gap-0.5">
       {[1,2,3,4,5].map(i => (
         <span key={i} className="block rounded-full" style={{
           width: 7, height: 7,
-          background: i <= fdr ? col : "rgba(255,255,255,0.12)",
+          background: i <= fdr ? GREEN : "rgba(255,255,255,0.12)",
         }} />
       ))}
     </span>
@@ -32,7 +29,7 @@ function FdrDots({ fdr }: { fdr: number | null }) {
 function FdrLabel({ fdr }: { fdr: number | null }) {
   if (fdr === null) return <span className="text-white/30 text-xs">-</span>
   return (
-    <span className="text-xs font-semibold" style={{ color: FDR_COLOURS[fdr] ?? GREEN }}>
+    <span className="text-xs font-semibold text-white/70">
       {FDR_LABELS[fdr] ?? fdr}
     </span>
   )
@@ -42,7 +39,7 @@ function VerdictPill({ player }: { player: CaptainHubPlayer }) {
   const isDoubt = player.chance < 75 && player.chance > 0
   const isOut   = player.chance === 0
   if (isOut)   return <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-white/5 text-white/50 border border-white/10">Ruled out</span>
-  if (isDoubt) return <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">{player.chance}% fit</span>
+  if (isDoubt) return <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-white/5 text-white/60 border border-white/10">{player.chance}% fit</span>
   return <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 border border-emerald-500/30" style={{ color: GREEN }}>Available</span>
 }
 
@@ -124,7 +121,7 @@ function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }
                 <FdrLabel fdr={player.fdrNext} />
               </div>
               {player.news && (
-                <span className="text-amber-400 text-xs truncate max-w-xs">{player.news}</span>
+                <span className="text-white/50 text-xs truncate max-w-xs">{player.news}</span>
               )}
             </div>
             <Link
