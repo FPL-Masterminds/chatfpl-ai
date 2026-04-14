@@ -40,11 +40,15 @@ function FdrLabel({ fdr }: { fdr: number | null }) {
 // ─── Player card ──────────────────────────────────────────────────────────────
 
 function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: number; even: boolean }) {
+  const transfersLabel = player.transfersIn >= 1000
+    ? `${(player.transfersIn / 1000).toFixed(1)}k`
+    : `${player.transfersIn}`
+
   const stats = [
-    { label: "xPts",      value: player.ep_next.toFixed(1) },
-    { label: "Form",      value: player.form },
-    { label: "Owned",     value: `${player.ownership}%` },
-    { label: "Price",     value: player.price },
+    { label: "xPts",         value: player.ep_next.toFixed(1) },
+    { label: "Form",         value: player.form },
+    { label: "Owned",        value: `${player.ownership}%` },
+    { label: "Transfers In", value: transfersLabel },
   ]
 
   return (

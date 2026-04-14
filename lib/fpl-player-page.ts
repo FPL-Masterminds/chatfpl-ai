@@ -1433,6 +1433,7 @@ export interface CaptainHubPlayer {
   news: string
   chance: number
   fdrNext: number | null
+  transfersIn: number
 }
 
 export interface CaptainHubData {
@@ -1507,6 +1508,7 @@ export async function getCaptainHub(): Promise<CaptainHubData | null> {
         news: p.news ?? "",
         chance: p.chance_of_playing_next_round ?? 100,
         fdrNext: fdrByTeam[p.team] ?? null,
+        transfersIn: p.transfers_in_event ?? 0,
       }
     })
 
