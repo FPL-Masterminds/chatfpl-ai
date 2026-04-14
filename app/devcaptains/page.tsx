@@ -86,7 +86,7 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
               unoptimized
             />
             <div style={{
-              width: "100%", height: 1, marginTop: 1,
+              height: 1,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
             }} />
