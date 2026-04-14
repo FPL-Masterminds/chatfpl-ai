@@ -81,11 +81,11 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
             src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
             alt={player.displayName}
             width={110} height={140}
-            style={{ width: "90%", height: "auto", display: "block" }}
+            style={{ height: 110, width: "auto", display: "block" }}
             unoptimized
           />
           <div style={{
-            width: "90%", height: 1,
+            width: "80%", height: 1,
             background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
             boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
           }} />
