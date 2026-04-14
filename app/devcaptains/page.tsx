@@ -4,6 +4,7 @@ import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getCaptainHub, type CaptainHubPlayer } from "@/lib/fpl-player-page"
 import { DevHeader } from "@/components/dev-header"
+import { Reveal } from "@/components/scroll-reveal"
 
 export const dynamic = "force-dynamic"
 
@@ -203,7 +204,9 @@ export default async function DevCaptainsPage() {
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
         <div className="w-full max-w-3xl flex flex-col gap-3">
           {players.map((player, i) => (
-            <PlayerCard key={player.slug} player={player} rank={i + 1} even={(i + 1) % 2 === 0} />
+            <Reveal key={player.slug} delay={i * 0.06}>
+              <PlayerCard player={player} rank={i + 1} even={(i + 1) % 2 === 0} />
+            </Reveal>
           ))}
         </div>
 
