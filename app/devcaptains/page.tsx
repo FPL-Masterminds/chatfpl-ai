@@ -36,13 +36,6 @@ function FdrLabel({ fdr }: { fdr: number | null }) {
   )
 }
 
-function VerdictPill({ player }: { player: CaptainHubPlayer }) {
-  const isDoubt = player.chance < 75 && player.chance > 0
-  const isOut   = player.chance === 0
-  if (isOut)   return <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-white/5 text-white/50 border border-white/10">Ruled out</span>
-  if (isDoubt) return <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-white/5 text-white/60 border border-white/10">{player.chance}% fit</span>
-  return <span className="rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 border border-emerald-500/30" style={{ color: GREEN }}>Available</span>
-}
 
 // ─── Player card ──────────────────────────────────────────────────────────────
 
@@ -98,16 +91,19 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
         {/* Right — data */}
         <div className="flex-1 min-w-0 flex flex-col justify-between p-3 sm:p-4 gap-2.5">
 
-          {/* Row 1: name + verdict + price */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
+          {/* Row 1: name + badge + price */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{player.displayName}</h2>
-              <p className="text-[11px] mt-0.5" style={{ color: "#A0A0A0" }}>{player.club}</p>
+              <Image
+                src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
+                alt={player.club}
+                width={20} height={20}
+                style={{ objectFit: "contain", flexShrink: 0 }}
+                unoptimized
+              />
             </div>
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              <span className="font-bold text-white text-base sm:text-xl">{player.price}</span>
-              <VerdictPill player={player} />
-            </div>
+            <span className="font-bold text-white text-base sm:text-xl shrink-0">{player.price}</span>
           </div>
 
           {/* Row 2: stats — 2 cols mobile, 4 cols desktop */}
