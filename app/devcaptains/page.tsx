@@ -62,15 +62,15 @@ function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }
       <div className="flex flex-row">
 
         {/* Left — photo strip */}
-        <div className="relative shrink-0 flex flex-col items-center justify-center overflow-hidden"
-          style={{ width: 160, minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 0" }}
+        <div className="relative shrink-0 w-24 sm:w-40 flex flex-col items-center justify-center overflow-hidden"
+          style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "14px 0" }}
         >
-          <div className="absolute top-2.5 left-2.5 z-10 flex items-center justify-center rounded"
-            style={{ width: 24, height: 24, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
+          <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
+            style={{ width: 22, height: 22, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
           >
-            <span className="text-[11px] font-bold tabular-nums text-white">{rank}</span>
+            <span className="text-[10px] font-bold tabular-nums text-white">{rank}</span>
           </div>
-          <div className="absolute top-2.5 right-2.5 z-10 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase"
+          <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
             style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
           >
             {player.position}
@@ -79,7 +79,8 @@ function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }
             <Image
               src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
               alt={player.displayName}
-              width={100} height={126}
+              width={80} height={101}
+              className="w-16 sm:w-24"
               style={{ objectFit: "contain" }}
               unoptimized
             />
@@ -92,50 +93,50 @@ function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }
         </div>
 
         {/* Right — data */}
-        <div className="flex-1 flex flex-col justify-between p-4 gap-3">
+        <div className="flex-1 min-w-0 flex flex-col justify-between p-3 sm:p-4 gap-2.5">
 
           {/* Row 1: name + verdict + price */}
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h2 className="text-white font-semibold truncate" style={{ fontSize: 18 }}>{player.displayName}</h2>
-              <p className="text-xs mt-0.5" style={{ color: "#A0A0A0" }}>{player.club}</p>
+              <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{player.displayName}</h2>
+              <p className="text-[11px] mt-0.5" style={{ color: "#A0A0A0" }}>{player.club}</p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              <span className="font-bold text-white text-base sm:text-xl">{player.price}</span>
               <VerdictPill player={player} />
-              <span className="font-bold text-white" style={{ fontSize: 20 }}>{player.price}</span>
             </div>
           </div>
 
-          {/* Row 2: stats */}
-          <div className="grid grid-cols-4 gap-2">
+          {/* Row 2: stats — 2 cols mobile, 4 cols desktop */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
             {stats.map(s => (
-              <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 4, padding: "8px 10px" }}>
-                <p className="font-bold tabular-nums" style={{ fontSize: 16, color: GREEN }}>{s.value}</p>
-                <p style={{ fontSize: 11, color: "#A0A0A0", marginTop: 1 }}>{s.label}</p>
+              <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 8px" }}>
+                <p className="font-bold tabular-nums text-sm sm:text-base" style={{ color: GREEN }}>{s.value}</p>
+                <p className="text-[10px] sm:text-[11px] mt-0.5" style={{ color: "#A0A0A0" }}>{s.label}</p>
               </div>
             ))}
           </div>
 
-          {/* Row 3: FDR + news + CTA */}
-          <div className="flex items-center justify-between gap-3" style={{
-            padding: "8px 12px", background: "#1A1A1A", borderRadius: 4,
+          {/* Row 3: FDR + CTA */}
+          <div className="flex items-center justify-between gap-2" style={{
+            padding: "7px 10px", background: "#1A1A1A", borderRadius: 4,
           }}>
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
               <div className="flex items-center gap-1.5">
-                <span style={{ fontSize: 11, color: "#A0A0A0" }}>FDR:</span>
+                <span className="text-[10px] sm:text-[11px]" style={{ color: "#A0A0A0" }}>FDR:</span>
                 <FdrDots fdr={player.fdrNext} />
                 <FdrLabel fdr={player.fdrNext} />
               </div>
               {player.news && (
-                <span className="text-white/50 text-xs truncate max-w-xs">{player.news}</span>
+                <span className="text-white/50 text-[10px] truncate">{player.news}</span>
               )}
             </div>
             <Link
               href={`/fpl/${player.slug}`}
-              className="shrink-0 font-semibold transition-opacity hover:opacity-80 text-xs"
+              className="shrink-0 font-semibold transition-opacity hover:opacity-80 text-[11px] sm:text-xs whitespace-nowrap"
               style={{
                 background: GREEN, color: "#000000",
-                borderRadius: 4, padding: "7px 16px", fontWeight: 600,
+                borderRadius: 4, padding: "6px 12px", fontWeight: 600,
               }}
             >
               Full analysis →
