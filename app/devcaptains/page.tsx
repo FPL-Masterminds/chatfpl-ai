@@ -65,11 +65,11 @@ function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }
       border: "1px solid #222222",
       borderRadius: 8,
     }}>
-      <div className="flex flex-col sm:flex-row">
+      <div className="flex flex-row">
 
         {/* Left — photo */}
         <div className="relative shrink-0 flex flex-col items-center justify-end overflow-hidden"
-          style={{ width: "100%", minHeight: 160, background: "#0a0a0a", borderRadius: "8px 0 0 8px" }}
+          style={{ width: 180, minHeight: 180, background: "#0a0a0a", borderRadius: "8px 0 0 8px" }}
         >
           {/* Rank badge */}
           <div className="absolute top-3 left-3 z-10 flex items-center justify-center rounded"
