@@ -45,7 +45,7 @@ function VerdictPill({ player }: { player: CaptainHubPlayer }) {
 
 // ─── Player card ──────────────────────────────────────────────────────────────
 
-function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }) {
+function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: number; even: boolean }) {
   const stats = [
     { label: "xPts",      value: player.ep_next.toFixed(1) },
     { label: "Form",      value: player.form },
@@ -55,7 +55,9 @@ function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }
 
   return (
     <div style={{
-      background: "rgba(0,255,135,0.03)",
+      background: even
+        ? "radial-gradient(ellipse 80% 120% at 60% 50%, rgba(0,255,135,0.07) 0%, rgba(0,255,135,0.02) 55%, transparent 100%)"
+        : "rgba(0,255,135,0.03)",
       border: "1px solid rgba(0,255,135,0.18)",
       borderRadius: 12,
     }}>
@@ -201,7 +203,7 @@ export default async function DevCaptainsPage() {
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
         <div className="w-full max-w-3xl flex flex-col gap-3">
           {players.map((player, i) => (
-            <PlayerCard key={player.slug} player={player} rank={i + 1} />
+            <PlayerCard key={player.slug} player={player} rank={i + 1} even={(i + 1) % 2 === 0} />
           ))}
         </div>
 
