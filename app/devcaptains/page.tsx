@@ -7,7 +7,7 @@ import { DevHeader } from "@/components/dev-header"
 
 export const dynamic = "force-dynamic"
 
-const ADMIN_EMAIL = "johnmcdermott1979@gmail.com"
+const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
 const GREEN = "#00FF87"
 
 // ─── FDR label ────────────────────────────────────────────────────────────────
@@ -173,8 +173,7 @@ function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }
 
 export default async function DevCaptainsPage() {
   const session = await auth()
-  const email = (session?.user as any)?.email ?? ""
-  if (email !== ADMIN_EMAIL) redirect("/login")
+  if (!session?.user?.email || session.user.email !== ALLOWED_EMAIL) redirect("/login")
 
   const data = await getCaptainHub()
   const gw   = data?.gw ?? "?"
