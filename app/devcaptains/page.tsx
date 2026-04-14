@@ -134,15 +134,13 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
                 <span className="text-white/50 text-[10px] truncate">{player.news}</span>
               )}
             </div>
-            <div className="shrink-0" style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
-              <Link
-                href={`/fpl/${player.slug}`}
-                className="block whitespace-nowrap text-[11px] sm:text-xs font-bold"
-                style={{ background: "#000", borderRadius: "9999px", padding: "5px 14px", color: "#00FF87" }}
-              >
-                Full analysis →
-              </Link>
-            </div>
+            <Link
+              href={`/fpl/${player.slug}`}
+              className="shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
+              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 14px" }}
+            >
+              Full analysis →
+            </Link>
           </div>
 
         </div>
@@ -210,15 +208,13 @@ export default async function DevCaptainsPage() {
         </div>
 
         <div className="flex justify-center mt-10">
-          <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4.8s linear infinite" }}>
-            <Link
-              href="/fpl/captains"
-              className="block text-sm font-bold"
-              style={{ background: "#000", borderRadius: "9999px", padding: "10px 28px", color: "#00FF87" }}
-            >
-              View live Captains Hub
-            </Link>
-          </div>
+          <Link
+            href="/fpl/captains"
+            className="text-sm font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
+            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "10px 28px" }}
+          >
+            View live Captains Hub
+          </Link>
         </div>
       </main>
     </div>
