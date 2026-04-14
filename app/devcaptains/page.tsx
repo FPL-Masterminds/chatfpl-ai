@@ -56,7 +56,7 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
   return (
     <div style={{
       background: even
-        ? "radial-gradient(ellipse 80% 120% at 60% 50%, rgba(0,255,135,0.07) 0%, rgba(0,255,135,0.02) 55%, transparent 100%)"
+        ? "radial-gradient(ellipse 90% 100% at 65% 50%, rgba(0,255,135,0.18) 0%, rgba(0,255,135,0.07) 45%, transparent 100%)"
         : "rgba(0,255,135,0.03)",
       border: "1px solid rgba(0,255,135,0.18)",
       borderRadius: 12,
