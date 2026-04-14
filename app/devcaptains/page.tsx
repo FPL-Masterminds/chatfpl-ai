@@ -64,8 +64,8 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
       <div className="flex flex-row">
 
         {/* Left — photo strip */}
-        <div className="relative shrink-0 w-24 sm:w-40 flex flex-col items-center justify-center overflow-hidden"
-          style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "14px 0" }}
+        <div className="relative shrink-0 w-24 sm:w-40 flex flex-col items-center justify-end"
+          style={{ background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", paddingTop: 32 }}
         >
           <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
             style={{ width: 22, height: 22, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
@@ -77,21 +77,18 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
           >
             {player.position}
           </div>
-          <div className="flex flex-col items-center">
-            <Image
-              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-              alt={player.displayName}
-              width={80} height={101}
-              className="w-16 sm:w-24"
-              style={{ objectFit: "contain" }}
-              unoptimized
-            />
-            <div style={{
-              width: "80%", height: 1, marginTop: 2,
-              background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
-              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
-            }} />
-          </div>
+          <Image
+            src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+            alt={player.displayName}
+            width={110} height={140}
+            style={{ width: "90%", height: "auto", display: "block" }}
+            unoptimized
+          />
+          <div style={{
+            width: "90%", height: 1,
+            background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+            boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+          }} />
         </div>
 
         {/* Right — data */}
