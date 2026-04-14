@@ -134,16 +134,15 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
                 <span className="text-white/50 text-[10px] truncate">{player.news}</span>
               )}
             </div>
-            <Link
-              href={`/fpl/${player.slug}`}
-              className="shrink-0 font-semibold transition-opacity hover:opacity-80 text-[11px] sm:text-xs whitespace-nowrap"
-              style={{
-                background: GREEN, color: "#000000",
-                borderRadius: 4, padding: "6px 12px", fontWeight: 600,
-              }}
-            >
-              Full analysis →
-            </Link>
+            <div className="shrink-0" style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
+              <Link
+                href={`/fpl/${player.slug}`}
+                className="block whitespace-nowrap text-[11px] sm:text-xs font-bold"
+                style={{ background: "#000", borderRadius: "9999px", padding: "5px 14px", color: "#00FF87" }}
+              >
+                Full analysis →
+              </Link>
+            </div>
           </div>
 
         </div>
@@ -211,13 +210,15 @@ export default async function DevCaptainsPage() {
         </div>
 
         <div className="flex justify-center mt-10">
-          <Link
-            href="/fpl/captains"
-            className="transition-colors hover:text-white text-sm font-medium"
-            style={{ border: `1px solid ${GREEN}`, color: GREEN, borderRadius: 4, padding: "10px 28px", background: "transparent" }}
-          >
-            View live Captains Hub
-          </Link>
+          <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4.8s linear infinite" }}>
+            <Link
+              href="/fpl/captains"
+              className="block text-sm font-bold"
+              style={{ background: "#000", borderRadius: "9999px", padding: "10px 28px", color: "#00FF87" }}
+            >
+              View live Captains Hub
+            </Link>
+          </div>
         </div>
       </main>
     </div>
