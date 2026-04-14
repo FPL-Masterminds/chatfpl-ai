@@ -54,15 +54,19 @@ function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }
   ]
 
   return (
-    <div style={{ background: "#111111", border: "1px solid #222222", borderRadius: 8 }}>
+    <div style={{
+      background: "rgba(0,255,135,0.03)",
+      border: "1px solid rgba(0,255,135,0.18)",
+      borderRadius: 12,
+    }}>
       <div className="flex flex-row">
 
         {/* Left — photo strip */}
-        <div className="relative shrink-0 flex flex-col items-center justify-end overflow-hidden"
-          style={{ width: 160, minHeight: 160, background: "#0a0a0a", borderRadius: "8px 0 0 8px" }}
+        <div className="relative shrink-0 flex flex-col items-center justify-center overflow-hidden"
+          style={{ width: 160, minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 0" }}
         >
           <div className="absolute top-2.5 left-2.5 z-10 flex items-center justify-center rounded"
-            style={{ width: 24, height: 24, background: "rgba(0,0,0,0.7)", border: "1px solid #333" }}
+            style={{ width: 24, height: 24, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
           >
             <span className="text-[11px] font-bold tabular-nums text-white">{rank}</span>
           </div>
@@ -71,18 +75,20 @@ function PlayerCard({ player, rank }: { player: CaptainHubPlayer; rank: number }
           >
             {player.position}
           </div>
-          <Image
-            src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-            alt={player.displayName}
-            width={110} height={140}
-            style={{ objectFit: "contain", maxHeight: 150 }}
-            unoptimized
-          />
-          <div style={{
-            position: "absolute", bottom: 0, left: 0, right: 0, height: 1,
-            background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
-            boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
-          }} />
+          <div className="flex flex-col items-center">
+            <Image
+              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+              alt={player.displayName}
+              width={100} height={126}
+              style={{ objectFit: "contain" }}
+              unoptimized
+            />
+            <div style={{
+              width: "80%", height: 1, marginTop: 2,
+              background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+            }} />
+          </div>
         </div>
 
         {/* Right — data */}
