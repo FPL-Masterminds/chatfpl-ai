@@ -17,43 +17,67 @@ export const runtime = "nodejs";
 
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com";
 
-// ─── Reddit fetcher ───────────────────────────────────────────────────────────
+// ─── Reddit cache (30-minute module-level TTL) ────────────────────────────────
+
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+let redditCache: { context: string; fetchedAt: number } | null = null;
+
+const SUBREDDITS = [
+  "FantasyPL",
+  "fantasypremierleague",
+];
+
+async function fetchSubreddit(sub: string): Promise<string[]> {
+  const res = await fetch(
+    `https://www.reddit.com/r/${sub}/hot.json?limit=5&raw_json=1`,
+    { headers: { "User-Agent": "ChatFPL/1.0 (by /u/chatfpl)" } }
+  );
+  if (!res.ok) return [];
+
+  const data = await res.json();
+  const posts: any[] = data?.data?.children ?? [];
+  const lines: string[] = [];
+
+  for (const { data: post } of posts) {
+    if (post.stickied) continue;
+    const flair = post.link_flair_text ? `[${post.link_flair_text}] ` : "";
+    const body = post.selftext
+      ? ` — "${post.selftext.slice(0, 200).replace(/\n+/g, " ").trim()}…"`
+      : "";
+    lines.push(`• ${flair}${post.title} (↑${post.score})${body}`);
+  }
+
+  return lines;
+}
 
 async function getRedditContext(): Promise<string> {
+  // Return cached version if still fresh
+  if (redditCache && Date.now() - redditCache.fetchedAt < CACHE_TTL_MS) {
+    return redditCache.context;
+  }
+
   try {
-    const res = await fetch(
-      "https://www.reddit.com/r/FantasyPL/hot.json?limit=10&raw_json=1",
-      {
-        headers: { "User-Agent": "ChatFPL/1.0 (by /u/chatfpl)" },
-        next: { revalidate: 1800 }, // cache 30 min
-      }
-    );
+    const results = await Promise.all(SUBREDDITS.map(fetchSubreddit));
 
-    if (!res.ok) return "";
+    const sections = SUBREDDITS.map((sub, i) =>
+      results[i].length
+        ? `r/${sub}:\n${results[i].join("\n")}`
+        : null
+    ).filter(Boolean);
 
-    const data = await res.json();
-    const posts = data?.data?.children ?? [];
-
-    const lines: string[] = [];
-
-    for (const { data: post } of posts) {
-      if (post.stickied) continue; // skip mod sticky posts
-      const flair = post.link_flair_text ? `[${post.link_flair_text}] ` : "";
-      const title = `${flair}${post.title}`;
-      const score = `↑${post.score}`;
-      const body = post.selftext
-        ? post.selftext.slice(0, 300).replace(/\n+/g, " ").trim()
-        : "";
-
-      lines.push(`• ${title} (${score})${body ? ` — "${body}${body.length >= 300 ? "…" : ""}"` : ""}`);
+    if (sections.length === 0) {
+      redditCache = { context: "", fetchedAt: Date.now() };
+      return "";
     }
 
-    if (lines.length === 0) return "";
+    const context = `LIVE FPL REDDIT COMMUNITY CONTEXT (cached, refreshes every 30 min):
+${sections.join("\n\n")}
 
-    return `LIVE r/FantasyPL REDDIT CONTEXT (hot posts right now):
-${lines.join("\n")}
+Use this to reflect community mood and trending opinion on captains, transfers and hot topics. Do not treat Reddit posts as hard facts.`;
 
-Use this community context to supplement your FPL advice — especially for sentiment on captains, transfers and hot topics this gameweek. Do not treat Reddit posts as facts; use them to reflect community mood and trending opinion.`;
+    redditCache = { context, fetchedAt: Date.now() };
+    return context;
   } catch {
     return ""; // silent fail — chat continues without Reddit data
   }
