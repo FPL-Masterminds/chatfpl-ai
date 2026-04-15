@@ -25,6 +25,12 @@ const ALL_PROMPTS = [
   "Best bench boost candidates?",
   "Which players have the most clean sheet potential?",
   "Give me a differential captain option under 10% owned",
+  "Any big controversies or talking points in the FPL community right now?",
+  "What's everyone talking about in FPL this week?",
+  "Who are FPL managers rushing to buy this week?",
+  "Who is the community backing as captain this week and do you agree?",
+  "Is there a clear captain consensus this gameweek or is it split?",
+  "What's the debate around the captain pick right now?",
 ]
 
 function pickPrompts() {
@@ -602,13 +608,15 @@ export default function DevChatPage() {
               <div className="shrink-0 md:relative fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
                 <div className="hidden md:flex flex-wrap gap-2 mb-3">
                   {suggestedPrompts.map((prompt) => (
-                    <button
-                      key={prompt}
-                      onClick={() => setInput(prompt)}
-                      className="rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-xs text-white/60 hover:text-white hover:bg-white/[0.07] hover:border-white/20 transition-all"
-                    >
-                      {prompt}
-                    </button>
+                    <div key={prompt} style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
+                      <button
+                        onClick={() => setInput(prompt)}
+                        className="block rounded-full px-3.5 py-1.5 text-xs font-medium transition-all hover:opacity-80"
+                        style={{ background: "#000", color: "#00FF87" }}
+                      >
+                        {prompt}
+                      </button>
+                    </div>
                   ))}
                 </div>
 

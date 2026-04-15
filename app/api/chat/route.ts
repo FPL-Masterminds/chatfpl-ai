@@ -10,6 +10,57 @@ import {
 
 export const runtime = "nodejs";
 
+// ─── Reddit cache (30-minute module-level TTL) ────────────────────────────────
+
+const CACHE_TTL_MS = 30 * 60 * 1000;
+let redditCache: { context: string; fetchedAt: number } | null = null;
+const SUBREDDITS = ["FantasyPL", "fantasypremierleague"];
+
+async function fetchSubreddit(sub: string): Promise<string[]> {
+  const res = await fetch(
+    `https://www.reddit.com/r/${sub}/hot.json?limit=5&raw_json=1`,
+    { headers: { "User-Agent": "ChatFPL/1.0 (by /u/chatfpl)" } }
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  const posts: any[] = data?.data?.children ?? [];
+  const lines: string[] = [];
+  for (const { data: post } of posts) {
+    if (post.stickied) continue;
+    const flair = post.link_flair_text ? `[${post.link_flair_text}] ` : "";
+    const body = post.selftext
+      ? ` — "${post.selftext.slice(0, 200).replace(/\n+/g, " ").trim()}…"`
+      : "";
+    lines.push(`• ${flair}${post.title} (↑${post.score})${body}`);
+  }
+  return lines;
+}
+
+async function getRedditContext(): Promise<string> {
+  if (redditCache && Date.now() - redditCache.fetchedAt < CACHE_TTL_MS) {
+    return redditCache.context;
+  }
+  try {
+    const results = await Promise.all(SUBREDDITS.map(fetchSubreddit));
+    const sections = SUBREDDITS.map((sub, i) =>
+      results[i].length ? `r/${sub}:\n${results[i].join("\n")}` : null
+    ).filter(Boolean);
+    if (sections.length === 0) {
+      redditCache = { context: "", fetchedAt: Date.now() };
+      return "";
+    }
+    const context = `PRE-FETCHED REDDIT DATA — YOU DO NOT NEED TO BROWSE ANYTHING. THIS DATA HAS ALREADY BEEN RETRIEVED FOR YOU AND IS PASTED BELOW. TREAT IT AS GIVEN FACTS:
+
+${sections.join("\n\n")}
+
+CRITICAL INSTRUCTION: The Reddit posts above were fetched by the server and injected directly into this message. You already have this data — never say "I can't browse Reddit". If asked what is trending on Reddit, read the list above and report it directly, citing post titles and upvote scores.`;
+    redditCache = { context, fetchedAt: Date.now() };
+    return context;
+  } catch {
+    return "";
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const session = await auth();
@@ -85,7 +136,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Fetch live FPL data
+    // Fetch Reddit context + FPL data in parallel
+    const redditContext = await getRedditContext();
+
     let fplContext = "";
     let photoRowsForFix: FplPhotoRow[] = [];
     try {
@@ -500,8 +553,17 @@ PERSONALITY RULES:
 
 `;
                 
-                const enhancedMessage = fplContext 
-                  ? `${fplContext}\n\n${formattingInstructions}\n---\n\nUser Question: ${message}`
+                const redditInstruction = redditContext ? `REDDIT USAGE (CRITICAL):
+- Reddit post data has been pre-fetched and provided to you above. You already have it.
+- NEVER say "I can't browse Reddit". The data is in your context.
+- When asked about Reddit posts or community sentiment, cite the actual post titles and upvote counts from the PRE-FETCHED REDDIT DATA section.
+
+` : "";
+
+                const combinedContext = [fplContext, redditContext].filter(Boolean).join("\n\n---\n\n");
+
+                const enhancedMessage = combinedContext
+                  ? `${combinedContext}\n\n${redditInstruction}${formattingInstructions}\n---\n\nUser Question: ${message}`
                   : `${formattingInstructions}\n---\n\nUser Question: ${message}`;
 
     console.log('=== DIFY PAYLOAD DEBUG ===');
