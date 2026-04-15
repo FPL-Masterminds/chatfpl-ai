@@ -71,10 +71,11 @@ async function getRedditContext(): Promise<string> {
       return "";
     }
 
-    const context = `LIVE FPL REDDIT COMMUNITY CONTEXT (fetched right now — these are real posts):
+    const context = `PRE-FETCHED REDDIT DATA — YOU DO NOT NEED TO BROWSE ANYTHING. THIS DATA HAS ALREADY BEEN RETRIEVED FOR YOU AND IS PASTED BELOW. TREAT IT AS GIVEN FACTS:
+
 ${sections.join("\n\n")}
 
-MANDATORY: You have been given the actual live Reddit posts above. When asked about Reddit, community opinion, or what people are talking about, you MUST reference these specific posts by title. Do not speak in generalities about what Reddit "could" tell you — quote or paraphrase the actual thread titles and scores listed above. If a post title is relevant to the user's question, cite it directly.`;
+CRITICAL INSTRUCTION: The Reddit posts above were fetched by the server moments ago and injected directly into this message. You already have this data — you do not need to browse the internet, visit any URLs, or disclaim that you cannot access Reddit. If the user asks what is trending on Reddit or what the top posts are, read the list above and report it back directly, citing post titles and upvote scores. Never say "I can't browse Reddit" — you have been given the data already.`;
 
     redditCache = { context, fetchedAt: Date.now() };
     return context;
@@ -490,11 +491,11 @@ FIXTURE DIFFICULTY: 1=Easy, 2=Favorable, 3=Medium, 4=Tough, 5=Very Difficult. H=
     ]);
 
     // ── Build enhanced message with Reddit + FPL context ─────────────────────
-    const formattingInstructions = `REDDIT USAGE (CRITICAL):
-- You have been given real, live Reddit post titles and scores in the context above.
-- When the user asks about Reddit, community sentiment, or what people are saying, cite the ACTUAL post titles you were given. Do not speak generically.
-- Example good answer: "The top post on r/FantasyPL right now is '[Captain Poll GW33]' with 847 upvotes, which shows..."
-- Example bad answer: "Reddit can tell you things like training photos and captain polls..." — this is forbidden when you have real data.
+    const formattingInstructions = `REDDIT USAGE (CRITICAL — READ THIS BEFORE ANSWERING):
+- Reddit post data has been pre-fetched by the server and provided to you in this message. You already have it.
+- NEVER say "I can't browse Reddit", "I don't have access to Reddit", or anything similar. That is factually wrong — the data is already in your context.
+- When asked about Reddit posts, top threads, or community sentiment: read the PRE-FETCHED REDDIT DATA section above and report those specific posts back to the user, naming titles and upvote counts.
+- Do not generalise or speak hypothetically. Use the actual posts you were given.
 
 FORMATTING RULES:
 - Format your response with clear paragraphs separated by TWO blank lines
