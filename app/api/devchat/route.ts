@@ -71,10 +71,10 @@ async function getRedditContext(): Promise<string> {
       return "";
     }
 
-    const context = `LIVE FPL REDDIT COMMUNITY CONTEXT (cached, refreshes every 30 min):
+    const context = `LIVE FPL REDDIT COMMUNITY CONTEXT (fetched right now — these are real posts):
 ${sections.join("\n\n")}
 
-Use this to reflect community mood and trending opinion on captains, transfers and hot topics. Do not treat Reddit posts as hard facts.`;
+MANDATORY: You have been given the actual live Reddit posts above. When asked about Reddit, community opinion, or what people are talking about, you MUST reference these specific posts by title. Do not speak in generalities about what Reddit "could" tell you — quote or paraphrase the actual thread titles and scores listed above. If a post title is relevant to the user's question, cite it directly.`;
 
     redditCache = { context, fetchedAt: Date.now() };
     return context;
@@ -490,7 +490,13 @@ FIXTURE DIFFICULTY: 1=Easy, 2=Favorable, 3=Medium, 4=Tough, 5=Very Difficult. H=
     ]);
 
     // ── Build enhanced message with Reddit + FPL context ─────────────────────
-    const formattingInstructions = `FORMATTING RULES:
+    const formattingInstructions = `REDDIT USAGE (CRITICAL):
+- You have been given real, live Reddit post titles and scores in the context above.
+- When the user asks about Reddit, community sentiment, or what people are saying, cite the ACTUAL post titles you were given. Do not speak generically.
+- Example good answer: "The top post on r/FantasyPL right now is '[Captain Poll GW33]' with 847 upvotes, which shows..."
+- Example bad answer: "Reddit can tell you things like training photos and captain polls..." — this is forbidden when you have real data.
+
+FORMATTING RULES:
 - Format your response with clear paragraphs separated by TWO blank lines
 - Use bullet points (•) for lists and multiple items
 - Use HYPHENS (-) not em-dashes
