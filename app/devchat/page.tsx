@@ -298,7 +298,7 @@ export default function DevChatPage() {
     setInput("")
     setIsLoading(true)
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch("/api/devchat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input, conversationId }),
