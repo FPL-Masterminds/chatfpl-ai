@@ -57,7 +57,7 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
         <div style={{ overflow: "hidden" }}>
           <button
             onClick={handleOpen}
-            className="relative w-full overflow-hidden text-center rounded-full px-4 py-2 text-xs font-semibold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] transition-shadow"
+            className="relative w-full overflow-hidden text-center rounded-full px-4 py-2 text-xs font-semibold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] transition-shadow whitespace-nowrap"
             style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a" }}
           >
             <span
@@ -68,7 +68,7 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
                 animation: "shimmer 2.4s linear infinite",
               }}
             />
-            <span className="relative">{promptLabel} →</span>
+            <span className="relative">{promptLabel}</span>
           </button>
         </div>
       </div>
@@ -110,7 +110,7 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
                   animation: "shimmer 2.4s linear infinite",
                 }}
               />
-              <span className="relative">Ask ChatFPL AI about your squad →</span>
+              <span className="relative">Ask ChatFPL AI about your squad</span>
             </Link>
 
             {/* Close button — bottom-right */}

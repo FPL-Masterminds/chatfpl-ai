@@ -198,7 +198,7 @@ function CompareCard({ pair, rank, even, gw, text }: {
               className="whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
               style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 14px" }}
             >
-              Full comparison →
+              Full comparison
             </Link>
           </div>
 

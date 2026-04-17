@@ -200,7 +200,7 @@ function PlayerCard({ player, rank, even, gw, text }: { player: DifferentialHubP
               className="shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
               style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 14px" }}
             >
-              Full analysis →
+              Full analysis
             </Link>
           </div>
 
