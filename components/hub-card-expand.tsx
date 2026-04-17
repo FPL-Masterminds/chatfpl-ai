@@ -53,9 +53,8 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
           <motion.button
             key="trigger"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            animate={{ opacity: 1, transition: { duration: 0.25, delay: 0.28, ease: "easeOut" } }}
+            exit={{ opacity: 0, transition: { duration: 0.12, ease: "easeIn" } }}
             onClick={handleOpen}
             className="relative w-full overflow-hidden text-left rounded-full px-4 py-2 text-xs font-semibold hover:-translate-y-0.5 hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] transition-shadow"
             style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a" }}
@@ -78,10 +77,9 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
         {open && (
           <motion.div
             key="panel"
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0,  scale: 1 }}
-            exit={{    opacity: 0, y: -8, scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 280, damping: 28 }}
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0,  scale: 1,  transition: { type: "spring", stiffness: 260, damping: 30 } }}
+            exit={{ opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.28, ease: "easeInOut" } }}
             className="relative rounded-xl p-4 text-sm leading-relaxed text-white"
             style={{ background: "rgba(0,255,135,0.05)", border: "1px solid rgba(0,255,135,0.12)" }}
           >
