@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import Link from "next/link"
 
 interface HubCardExpandProps {
@@ -11,35 +12,25 @@ interface HubCardExpandProps {
 }
 
 export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProps) {
-  const [open, setOpen]          = useState(false)
-  const [visible, setVisible]    = useState(false)
+  const [open, setOpen]           = useState(false)
   const [displayed, setDisplayed] = useState("")
   const intervalRef               = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Step 1: mount the panel (open=true), then on next frame flip visible for CSS transition
   function handleOpen() {
     setOpen(true)
     setDisplayed("")
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => setVisible(true))
-    })
   }
 
-  // Close: fade + slide out, then unmount after transition
   function handleClose() {
-    setVisible(false)
+    setOpen(false)
     if (intervalRef.current) clearInterval(intervalRef.current)
-    setTimeout(() => {
-      setOpen(false)
-      setDisplayed("")
-    }, 320)
+    setDisplayed("")
   }
 
-  // Typewriter — starts after panel is fully faded in (300ms)
+  // Typewriter starts after panel spring settles (~350ms)
   useEffect(() => {
-    if (!visible) return
+    if (!open) return
     if (intervalRef.current) clearInterval(intervalRef.current)
-
     let i = 0
     const timer = setTimeout(() => {
       intervalRef.current = setInterval(() => {
@@ -47,55 +38,65 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
         setDisplayed(text.slice(0, i))
         if (i >= text.length) clearInterval(intervalRef.current!)
       }, 10)
-    }, 300)
-
+    }, 350)
     return () => {
       clearTimeout(timer)
       if (intervalRef.current) clearInterval(intervalRef.current)
     }
-  }, [visible, text])
+  }, [open, text])
 
   return (
     <div className="mt-2.5">
       {/* Trigger pill */}
-      {!open && (
-        <button
-          onClick={handleOpen}
-          className="relative w-full overflow-hidden text-left rounded-full px-4 py-2 text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_16px_rgba(0,255,135,0.3)]"
-          style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a" }}
-        >
-          <span
-            className="pointer-events-none absolute inset-0 rounded-full"
-            style={{
-              background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
-              backgroundSize: "200% 100%",
-              animation: "shimmer 2.4s linear infinite",
-            }}
-          />
-          <span className="relative">{promptLabel} →</span>
-        </button>
-      )}
+      <AnimatePresence>
+        {!open && (
+          <motion.button
+            key="trigger"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={handleOpen}
+            className="relative w-full overflow-hidden text-left rounded-full px-4 py-2 text-xs font-semibold hover:-translate-y-0.5 hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] transition-shadow"
+            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a" }}
+          >
+            <span
+              className="pointer-events-none absolute inset-0 rounded-full"
+              style={{
+                background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
+                backgroundSize: "200% 100%",
+                animation: "shimmer 2.4s linear infinite",
+              }}
+            />
+            <span className="relative">{promptLabel} →</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
-      {/* Panel — always full height, animated via opacity + translateY only */}
-      {open && (
-        <div
-          style={{
-            opacity:    visible ? 1 : 0,
-            transform:  visible ? "translateY(0)" : "translateY(-10px)",
-            transition: "opacity 0.3s ease, transform 0.3s ease",
-          }}
-        >
-          <div
+      {/* Panel */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="panel"
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0,  scale: 1 }}
+            exit={{    opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 280, damping: 28 }}
             className="rounded-xl p-4 text-sm leading-relaxed text-white"
             style={{ background: "rgba(0,255,135,0.05)", border: "1px solid rgba(0,255,135,0.12)" }}
           >
-            {/* Typewriter text — min-height prevents layout shift while typing */}
-            <p className="mb-5" style={{ minHeight: "5.5em" }}>
-              {displayed}
-              {displayed.length < text.length && (
-                <span className="animate-pulse" style={{ color: "#00FF87" }}>|</span>
-              )}
-            </p>
+            {/* Ghost text locks height — typewriter sits on top */}
+            <div className="relative mb-5">
+              {/* invisible full text — establishes container height immediately */}
+              <p className="invisible select-none" aria-hidden="true">{text}</p>
+              {/* typewriter layer */}
+              <p className="absolute inset-0">
+                {displayed}
+                {displayed.length < text.length && (
+                  <span className="animate-pulse" style={{ color: "#00FF87" }}>|</span>
+                )}
+              </p>
+            </div>
 
             {/* CTA */}
             <Link
@@ -120,9 +121,9 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
             >
               Close
             </button>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
