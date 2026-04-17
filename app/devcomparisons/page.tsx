@@ -110,34 +110,21 @@ function PhotoStrip({ code, name, side, rank, position }: {
   )
 }
 
-// ─── Stat comparison row ──────────────────────────────────────────────────────
+// ─── Single player stat box ───────────────────────────────────────────────────
 
-function StatRow({ label, valA, valB, numA, numB, higherWins = true }: {
-  label: string
-  valA: string
-  valB: string
-  numA: number
-  numB: number
-  higherWins?: boolean
-}) {
-  const aWins = higherWins ? numA > numB : numA < numB
-  const bWins = higherWins ? numB > numA : numB < numA
+function StatBox({ label, value, wins }: { label: string; value: string; wins: boolean }) {
   return (
-    <div style={{ background: "#1A1A1A", borderRadius: 4, padding: "6px 8px" }}>
-      <div className="grid items-center" style={{ gridTemplateColumns: "1fr auto 1fr" }}>
-        <span className="text-right text-xs sm:text-sm font-bold tabular-nums"
-          style={{ color: aWins ? GREEN : "white" }}>
-          {valA}
-        </span>
-        <span className="text-center text-[9px] sm:text-[10px] uppercase tracking-wide text-white px-1.5"
-          style={{ minWidth: 64 }}>
-          {label}
-        </span>
-        <span className="text-left text-xs sm:text-sm font-bold tabular-nums"
-          style={{ color: bWins ? GREEN : "white" }}>
-          {valB}
-        </span>
-      </div>
+    <div className="flex items-center justify-between gap-2"
+      style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 10px" }}
+    >
+      <span className="text-[10px] sm:text-[11px] uppercase tracking-wide text-white shrink-0">
+        {label}
+      </span>
+      <span className="text-sm sm:text-base font-bold tabular-nums"
+        style={{ color: wins ? GREEN : "white" }}
+      >
+        {value}
+      </span>
     </div>
   )
 }
@@ -165,59 +152,50 @@ function CompareCard({ pair, rank, even, gw, text }: {
           rank={rank} position={pair.position}
         />
 
-        {/* Centre — names + stats + CTA + expand */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between p-3 sm:p-4 gap-2.5">
+        {/* Centre — two-column player stats + CTA + expand */}
+        <div className="flex-1 min-w-0 flex flex-col p-3 sm:p-4 gap-2.5">
 
-          {/* Player name headers — match captains hub sizing */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <Image
-                src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeA}.png`}
-                alt={pair.clubA} width={18} height={18}
-                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-              />
-              <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{pair.nameA}</h2>
+          {/* Two-column stat area */}
+          <div className="grid grid-cols-2 gap-2 flex-1">
+
+            {/* Player A column */}
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-1.5 min-w-0 mb-0.5">
+                <Image
+                  src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeA}.png`}
+                  alt={pair.clubA} width={18} height={18}
+                  style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+                />
+                <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{pair.nameA}</h2>
+              </div>
+              <StatBox label="xPts" value={pair.epA.toFixed(1)}   wins={pair.epA >= pair.epB} />
+              <StatBox label="Form" value={pair.formA.toFixed(1)} wins={pair.formA >= pair.formB} />
+              <StatBox label="Price" value={pair.priceA}
+                wins={parseFloat(pair.priceA.replace(/[£m]/g,"")) <= parseFloat(pair.priceB.replace(/[£m]/g,""))} />
             </div>
-            <span className="shrink-0 text-[9px] font-black tracking-widest uppercase px-1"
-              style={{ color: "rgba(255,255,255,0.3)" }}>VS</span>
-            <div className="flex items-center gap-2 min-w-0 justify-end">
-              <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{pair.nameB}</h2>
-              <Image
-                src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeB}.png`}
-                alt={pair.clubB} width={18} height={18}
-                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-              />
+
+            {/* Player B column */}
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-1.5 min-w-0 mb-0.5 justify-end">
+                <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{pair.nameB}</h2>
+                <Image
+                  src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeB}.png`}
+                  alt={pair.clubB} width={18} height={18}
+                  style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+                />
+              </div>
+              <StatBox label="xPts" value={pair.epB.toFixed(1)}   wins={pair.epB > pair.epA} />
+              <StatBox label="Form" value={pair.formB.toFixed(1)} wins={pair.formB > pair.formA} />
+              <StatBox label="Price" value={pair.priceB}
+                wins={parseFloat(pair.priceB.replace(/[£m]/g,"")) < parseFloat(pair.priceA.replace(/[£m]/g,""))} />
             </div>
           </div>
 
-          {/* 3 stat rows */}
-          <div className="flex flex-col gap-1.5">
-            <StatRow
-              label="xPts"
-              valA={pair.epA.toFixed(1)} valB={pair.epB.toFixed(1)}
-              numA={pair.epA} numB={pair.epB}
-            />
-            <StatRow
-              label="Form"
-              valA={pair.formA.toFixed(1)} valB={pair.formB.toFixed(1)}
-              numA={pair.formA} numB={pair.formB}
-            />
-            <StatRow
-              label="Price"
-              valA={pair.priceA} valB={pair.priceB}
-              numA={parseFloat(pair.priceA.replace(/[£m]/g, ""))}
-              numB={parseFloat(pair.priceB.replace(/[£m]/g, ""))}
-              higherWins={false}
-            />
-          </div>
-
-          {/* Full comparison CTA row */}
-          <div className="flex items-center justify-between gap-2"
-            style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 10px" }}
-          >
+          {/* Full comparison CTA */}
+          <div style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 10px" }}>
             <Link
               href={`/fpl/compare/${pair.slugA}/${pair.slugB}`}
-              className="shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
+              className="whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
               style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 14px" }}
             >
               Full comparison →
