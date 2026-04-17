@@ -35,7 +35,7 @@ function buildCaptainText(player: CaptainHubPlayer, gw: number | string, rank: n
     return `The model has ${name} projected at ${ep} expected points for Gameweek ${gw}, ` +
       `placing them near the top of the captaincy table this week. ` +
       `Recent form of ${form} points per game over six gameweeks backs the projection rather than fighting it. ` +
-      `Against ${fixture} — rated ${fdrLabel} for difficulty — the underlying numbers are pointing in the right direction. ` +
+      `Against ${fixture}, rated ${fdrLabel} for difficulty, the underlying numbers are pointing in the right direction. ` +
       `At ${ownership}% ownership, doubling their score with the armband could be one of the bigger rank-climbing opportunities of the gameweek.`
   }
 
@@ -52,7 +52,7 @@ function buildCaptainText(player: CaptainHubPlayer, gw: number | string, rank: n
   return `The armband conversation in Gameweek ${gw} has to account for fixture, form, and projected output. ` +
     `${name} scores well across all three: a ${fdrLabel} rated tie against ${fixture}, ` +
     `${form} points per game over six weeks, and ${ep} expected points from the model. ` +
-    `Owned by ${ownership}% of managers, this is a mainstream captaincy pick — which means getting it right protects rank, ` +
+      `Owned by ${ownership}% of managers, this is a mainstream captaincy pick, which means getting it right protects rank, ` +
     `and getting it wrong means losing ground to most of the field. ` +
     `The data makes the case clearly.`
 }

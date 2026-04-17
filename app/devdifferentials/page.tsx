@@ -36,7 +36,7 @@ function buildDiffText(player: DifferentialHubPlayer, gw: number | string, rank:
     // Ownership + value angle
     return `Only ${ownership}% of FPL managers own ${name} heading into Gameweek ${gw}, ` +
       `which makes this one of the more compelling rank-swing opportunities available. ` +
-      `A return here gains on roughly ${swingPct}% of the field — and at ${price}, the financial commitment is low. ` +
+      `A return here gains on roughly ${swingPct}% of the field, and at ${price}, the financial commitment is low. ` +
       `The model projects ${ep} expected points against ${fixture}, rated ${fdrLabel} for difficulty, ` +
       `with recent form sitting at ${form} per game over six gameweeks. ` +
       `The numbers are there to back the punt rather than just hope for it.`
