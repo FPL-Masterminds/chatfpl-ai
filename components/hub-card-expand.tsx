@@ -85,23 +85,8 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
             className="relative rounded-xl p-4 text-sm leading-relaxed text-white"
             style={{ background: "rgba(0,255,135,0.05)", border: "1px solid rgba(0,255,135,0.12)" }}
           >
-            {/* Close button — gradient circle top-right */}
-            <button
-              onClick={handleClose}
-              aria-label="Close"
-              className="absolute top-3 right-3 flex items-center justify-center rounded-full font-bold text-[11px] text-black transition-transform hover:scale-110"
-              style={{
-                width: 22,
-                height: 22,
-                background: "linear-gradient(135deg,#00FF87,#00FFFF)",
-                lineHeight: 1,
-              }}
-            >
-              ×
-            </button>
-
             {/* Ghost text locks height — typewriter sits on top */}
-            <div className="relative mb-5 pr-7">
+            <div className="relative mb-5">
               {/* invisible full text — establishes container height immediately */}
               <p className="invisible select-none" aria-hidden="true">{text}</p>
               {/* typewriter layer */}
@@ -113,22 +98,39 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
               </p>
             </div>
 
-            {/* CTA */}
-            <Link
-              href="/chat"
-              className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-5 py-2.5 font-bold text-xs text-black transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(0,255,135,0.35)]"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-            >
-              <span
-                className="pointer-events-none absolute inset-0 rounded-full"
+            {/* CTA row + close button */}
+            <div className="flex items-center gap-3">
+              <Link
+                href="/chat"
+                className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-5 py-2.5 font-bold text-xs text-black transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(0,255,135,0.35)]"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+              >
+                <span
+                  className="pointer-events-none absolute inset-0 rounded-full"
+                  style={{
+                    background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
+                    backgroundSize: "200% 100%",
+                    animation: "shimmer 2.4s linear infinite",
+                  }}
+                />
+                <span className="relative">Ask ChatFPL AI about your squad →</span>
+              </Link>
+
+              {/* Close button — gradient circle bottom-right */}
+              <button
+                onClick={handleClose}
+                aria-label="Close"
+                className="flex items-center justify-center rounded-full font-bold text-[13px] text-black transition-transform hover:scale-110 shrink-0"
                 style={{
-                  background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 2.4s linear infinite",
+                  width: 28,
+                  height: 28,
+                  background: "linear-gradient(135deg,#00FF87,#00FFFF)",
+                  lineHeight: 1,
                 }}
-              />
-              <span className="relative">Ask ChatFPL AI about your squad →</span>
-            </Link>
+              >
+                ×
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
