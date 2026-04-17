@@ -95,30 +95,12 @@ export function DeadlineCTA() {
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          background: urgent
-            ? "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(180,0,0,0.12) 0%, transparent 70%)"
-            : "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,40,20,0.6) 0%, rgba(0,0,0,0) 70%)",
-          transition: "background 2s ease",
+          background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,40,20,0.6) 0%, rgba(0,0,0,0) 70%)",
         }}
       />
 
 
       <div className="relative mx-auto max-w-4xl text-center">
-
-        {/* Urgent pill — only shown when < 24 hours */}
-        {urgent && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-widest"
-            style={{ borderColor: "rgba(255,60,60,0.4)", color: "#ff6666", background: "rgba(255,0,0,0.06)" }}
-          >
-            <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "#ff4444" }} />
-            Less than 24 hours remaining
-          </motion.div>
-        )}
 
         {/* Headline */}
         <motion.h2

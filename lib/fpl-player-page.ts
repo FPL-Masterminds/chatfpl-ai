@@ -1434,6 +1434,9 @@ export interface CaptainHubPlayer {
   chance: number
   fdrNext: number | null
   transfersIn: number
+  opponentShort: string
+  opponentCode: number | null
+  isHome: boolean | null
 }
 
 export interface CaptainHubData {
@@ -1460,8 +1463,9 @@ export async function getCaptainHub(): Promise<CaptainHubData | null> {
       posMap[et.id] = et.singular_name_short
     })
 
-    // Fetch next GW fixtures for FDR
+    // Fetch next GW fixtures for FDR + opponent info
     let fdrByTeam: Record<number, number> = {}
+    let opponentByTeam: Record<number, { short: string; code: number; isHome: boolean }> = {}
     try {
       const fixtRes = await fetch(
         `https://fantasy.premierleague.com/api/fixtures/?event=${gw}`,
@@ -1471,6 +1475,8 @@ export async function getCaptainHub(): Promise<CaptainHubData | null> {
       fixtures.forEach((f: any) => {
         if (fdrByTeam[f.team_h] === undefined) fdrByTeam[f.team_h] = f.team_h_difficulty
         if (fdrByTeam[f.team_a] === undefined) fdrByTeam[f.team_a] = f.team_a_difficulty
+        if (!opponentByTeam[f.team_h]) opponentByTeam[f.team_h] = { short: teamMap[f.team_a]?.short ?? "?", code: teamMap[f.team_a]?.code ?? 0, isHome: true }
+        if (!opponentByTeam[f.team_a]) opponentByTeam[f.team_a] = { short: teamMap[f.team_h]?.short ?? "?", code: teamMap[f.team_h]?.code ?? 0, isHome: false }
       })
     } catch { /* fixtures optional */ }
 
@@ -1509,6 +1515,9 @@ export async function getCaptainHub(): Promise<CaptainHubData | null> {
         chance: p.chance_of_playing_next_round ?? 100,
         fdrNext: fdrByTeam[p.team] ?? null,
         transfersIn: p.transfers_in_event ?? 0,
+        opponentShort: opponentByTeam[p.team]?.short ?? "",
+        opponentCode: opponentByTeam[p.team]?.code ?? null,
+        isHome: opponentByTeam[p.team]?.isHome ?? null,
       }
     })
 
@@ -1548,8 +1557,9 @@ export async function getDifferentialHub(): Promise<DifferentialHubData | null> 
       posMap[et.id] = et.singular_name_short
     })
 
-    // FDR for next GW
+    // FDR + opponent info for next GW
     let fdrByTeam: Record<number, number> = {}
+    let opponentByTeam: Record<number, { short: string; code: number; isHome: boolean }> = {}
     try {
       const fixtRes = await fetch(
         `https://fantasy.premierleague.com/api/fixtures/?event=${gw}`,
@@ -1559,6 +1569,8 @@ export async function getDifferentialHub(): Promise<DifferentialHubData | null> 
       fixtures.forEach((f: any) => {
         if (fdrByTeam[f.team_h] === undefined) fdrByTeam[f.team_h] = f.team_h_difficulty
         if (fdrByTeam[f.team_a] === undefined) fdrByTeam[f.team_a] = f.team_a_difficulty
+        if (!opponentByTeam[f.team_h]) opponentByTeam[f.team_h] = { short: teamMap[f.team_a]?.short ?? "?", code: teamMap[f.team_a]?.code ?? 0, isHome: true }
+        if (!opponentByTeam[f.team_a]) opponentByTeam[f.team_a] = { short: teamMap[f.team_h]?.short ?? "?", code: teamMap[f.team_h]?.code ?? 0, isHome: false }
       })
     } catch { /* optional */ }
 
@@ -1605,6 +1617,10 @@ export async function getDifferentialHub(): Promise<DifferentialHubData | null> 
         news: p.news ?? "",
         chance: p.chance_of_playing_next_round ?? 100,
         fdrNext: fdrByTeam[p.team] ?? null,
+        transfersIn: p.transfers_in_event ?? 0,
+        opponentShort: opponentByTeam[p.team]?.short ?? "",
+        opponentCode: opponentByTeam[p.team]?.code ?? null,
+        isHome: opponentByTeam[p.team]?.isHome ?? null,
         diffCategory,
       }
     })

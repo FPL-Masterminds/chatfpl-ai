@@ -14,6 +14,8 @@ const excludedRoutes = [
   '/earn-messages',
   '/devlandingpage',
   '/devchat',
+  '/devcaptains',
+  '/devdifferentials',
   '/dashboard',
   '/verify-email',
   '/reset-password',

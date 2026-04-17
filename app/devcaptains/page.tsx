@@ -120,18 +120,32 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
             ))}
           </div>
 
-          {/* Row 3: FDR + CTA */}
+          {/* Row 3: FDR + opponent + CTA */}
           <div className="flex items-center justify-between gap-2" style={{
             padding: "7px 10px", background: "#1A1A1A", borderRadius: 4,
           }}>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] sm:text-[11px]" style={{ color: "#A0A0A0" }}>FDR:</span>
                 <FdrDots fdr={player.fdrNext} />
                 <FdrLabel fdr={player.fdrNext} />
               </div>
-              {player.news && (
-                <span className="text-white/50 text-[10px] truncate">{player.news}</span>
+              {player.opponentShort && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-white/20 text-[10px]">|</span>
+                  <span className="text-[10px] sm:text-[11px] font-semibold text-white/60">
+                    {player.opponentShort} ({player.isHome ? "H" : "A"})
+                  </span>
+                  {player.opponentCode && (
+                    <Image
+                      src={`https://resources.premierleague.com/premierleague/badges/70/t${player.opponentCode}.png`}
+                      alt={player.opponentShort}
+                      width={16} height={16}
+                      style={{ objectFit: "contain", flexShrink: 0 }}
+                      unoptimized
+                    />
+                  )}
+                </div>
               )}
             </div>
             <Link
@@ -207,15 +221,6 @@ export default async function DevCaptainsPage() {
           ))}
         </div>
 
-        <div className="flex justify-center mt-10">
-          <Link
-            href="/fpl/captains"
-            className="text-sm font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
-            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "10px 28px" }}
-          >
-            View live Captains Hub
-          </Link>
-        </div>
       </main>
     </div>
   )
