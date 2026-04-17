@@ -504,9 +504,23 @@ export interface ComparisonHubPair {
   codeB: number
   clubA: string
   clubB: string
+  teamCodeA: number
+  teamCodeB: number
   position: string
   epA: number
   epB: number
+  formA: number
+  formB: number
+  totalPtsA: number
+  totalPtsB: number
+  goalsA: number
+  goalsB: number
+  assistsA: number
+  assistsB: number
+  priceA: string
+  priceB: string
+  ptsPerMillionA: number
+  ptsPerMillionB: number
   ownershipA: number
   ownershipB: number
   combinedOwnership: number
@@ -526,10 +540,10 @@ export async function getComparisonHub(): Promise<ComparisonHubData | null> {
     const currentEvent = events.find((e: any) => e.is_current)
     const gw: number  = nextEvent?.id ?? (currentEvent ? currentEvent.id + 1 : 1)
 
-    const teamMap: Record<number, { short: string }> = {}
+    const teamMap: Record<number, { short: string; code: number }> = {}
     const posMap:  Record<number, string> = {}
     ;(bootstrap.teams ?? []).forEach((t: any) => {
-      teamMap[t.id] = { short: t.short_name }
+      teamMap[t.id] = { short: t.short_name, code: t.code }
     })
     ;(bootstrap.element_types ?? []).forEach((et: any) => {
       posMap[et.id] = et.singular_name_short
@@ -568,10 +582,14 @@ export async function getComparisonHub(): Promise<ComparisonHubData | null> {
           const [sA, sB, pA, pB] =
             slugA < slugB ? [slugA, slugB, a, b] : [slugB, slugA, b, a]
 
-          const epA = parseFloat(pA.ep_next ?? "0")
-          const epB = parseFloat(pB.ep_next ?? "0")
-          const owA = parseFloat(pA.selected_by_percent ?? "0")
-          const owB = parseFloat(pB.selected_by_percent ?? "0")
+          const epA   = parseFloat(pA.ep_next ?? "0")
+          const epB   = parseFloat(pB.ep_next ?? "0")
+          const owA   = parseFloat(pA.selected_by_percent ?? "0")
+          const owB   = parseFloat(pB.selected_by_percent ?? "0")
+          const priceARaw = pA.now_cost / 10
+          const priceBRaw = pB.now_cost / 10
+          const totalPtsA = pA.total_points ?? 0
+          const totalPtsB = pB.total_points ?? 0
 
           allPairs.push({
             slugA: sA,
@@ -582,9 +600,23 @@ export async function getComparisonHub(): Promise<ComparisonHubData | null> {
             codeB: pB.code,
             clubA: teamMap[pA.team]?.short ?? "",
             clubB: teamMap[pB.team]?.short ?? "",
+            teamCodeA: teamMap[pA.team]?.code ?? 0,
+            teamCodeB: teamMap[pB.team]?.code ?? 0,
             position: posMap[pA.element_type] ?? "",
             epA,
             epB,
+            formA: parseFloat(pA.form ?? "0"),
+            formB: parseFloat(pB.form ?? "0"),
+            totalPtsA,
+            totalPtsB,
+            goalsA: pA.goals_scored ?? 0,
+            goalsB: pB.goals_scored ?? 0,
+            assistsA: pA.assists ?? 0,
+            assistsB: pB.assists ?? 0,
+            priceA: `£${priceARaw.toFixed(1)}m`,
+            priceB: `£${priceBRaw.toFixed(1)}m`,
+            ptsPerMillionA: priceARaw > 0 ? parseFloat((totalPtsA / priceARaw).toFixed(1)) : 0,
+            ptsPerMillionB: priceBRaw > 0 ? parseFloat((totalPtsB / priceBRaw).toFixed(1)) : 0,
             ownershipA: owA,
             ownershipB: owB,
             combinedOwnership: owA + owB,

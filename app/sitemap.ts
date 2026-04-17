@@ -16,6 +16,7 @@ const excludedRoutes = [
   '/devchat',
   '/devcaptains',
   '/devdifferentials',
+  '/devcomparisons',
   '/dashboard',
   '/verify-email',
   '/reset-password',
