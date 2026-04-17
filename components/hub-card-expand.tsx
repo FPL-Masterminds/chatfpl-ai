@@ -82,11 +82,26 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
             animate={{ opacity: 1, y: 0,  scale: 1 }}
             exit={{    opacity: 0, y: -8, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 280, damping: 28 }}
-            className="rounded-xl p-4 text-sm leading-relaxed text-white"
+            className="relative rounded-xl p-4 text-sm leading-relaxed text-white"
             style={{ background: "rgba(0,255,135,0.05)", border: "1px solid rgba(0,255,135,0.12)" }}
           >
+            {/* Close button — gradient circle top-right */}
+            <button
+              onClick={handleClose}
+              aria-label="Close"
+              className="absolute top-3 right-3 flex items-center justify-center rounded-full font-bold text-[11px] text-black transition-transform hover:scale-110"
+              style={{
+                width: 22,
+                height: 22,
+                background: "linear-gradient(135deg,#00FF87,#00FFFF)",
+                lineHeight: 1,
+              }}
+            >
+              ×
+            </button>
+
             {/* Ghost text locks height — typewriter sits on top */}
-            <div className="relative mb-5">
+            <div className="relative mb-5 pr-7">
               {/* invisible full text — establishes container height immediately */}
               <p className="invisible select-none" aria-hidden="true">{text}</p>
               {/* typewriter layer */}
@@ -114,13 +129,6 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
               />
               <span className="relative">Ask ChatFPL AI about your squad →</span>
             </Link>
-
-            <button
-              onClick={handleClose}
-              className="mt-3 block text-[10px] font-semibold text-white hover:text-[#00FF87] transition-colors"
-            >
-              Close
-            </button>
           </motion.div>
         )}
       </AnimatePresence>

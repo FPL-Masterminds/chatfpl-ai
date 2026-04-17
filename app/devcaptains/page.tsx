@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth"
 import { getCaptainHub, type CaptainHubPlayer } from "@/lib/fpl-player-page"
 import { DevHeader } from "@/components/dev-header"
 import { Reveal } from "@/components/scroll-reveal"
+import { HubCardExpand } from "@/components/hub-card-expand"
 
 export const dynamic = "force-dynamic"
 
@@ -13,11 +14,56 @@ const GREEN = "#00FF87"
 
 const FDR_LABELS = ["", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"]
 
+// ─── Text generation — 3 rotating templates ───────────────────────────────────
+// randomBase is generated once per page render; rank offset ensures
+// adjacent players never share a template
+
+function buildCaptainText(player: CaptainHubPlayer, gw: number | string, rank: number, randomBase: number): string {
+  const name      = player.displayName
+  const ownership = player.ownership
+  const ep        = player.ep_next.toFixed(1)
+  const form      = player.form
+  const fdrLabel  = FDR_LABELS[player.fdrNext ?? 3] ?? "Medium"
+  const fixture   = player.opponentName
+    ? `${player.opponentName} (${player.isHome ? "H" : "A"})`
+    : "their next opponent"
+
+  const variant = (randomBase + rank) % 3
+
+  if (variant === 0) {
+    // Expected points + form angle
+    return `The model has ${name} projected at ${ep} expected points for Gameweek ${gw}, ` +
+      `placing them near the top of the captaincy table this week. ` +
+      `Recent form of ${form} points per game over six gameweeks backs the projection rather than fighting it. ` +
+      `Against ${fixture} — rated ${fdrLabel} for difficulty — the underlying numbers are pointing in the right direction. ` +
+      `At ${ownership}% ownership, doubling their score with the armband could be one of the bigger rank-climbing opportunities of the gameweek.`
+  }
+
+  if (variant === 1) {
+    // Fixture-led angle
+    return `${name} lines up against ${fixture} in Gameweek ${gw}, a fixture rated ${fdrLabel} for difficulty. ` +
+      `The model projects ${ep} expected points, and form of ${form} per game over the last six gameweeks ` +
+      `shows consistent involvement rather than fluke output. ` +
+      `Owned by ${ownership}% of FPL managers, getting the captaincy right here affects rank relative to the bulk of the field. ` +
+      `If ${name} delivers a double-figure return, those without the armband will feel it.`
+  }
+
+  // Captaincy decision angle
+  return `The armband conversation in Gameweek ${gw} has to account for fixture, form, and projected output. ` +
+    `${name} scores well across all three: a ${fdrLabel} rated tie against ${fixture}, ` +
+    `${form} points per game over six weeks, and ${ep} expected points from the model. ` +
+    `Owned by ${ownership}% of managers, this is a mainstream captaincy pick — which means getting it right protects rank, ` +
+    `and getting it wrong means losing ground to most of the field. ` +
+    `The data makes the case clearly.`
+}
+
+// ─── FDR dots + label ─────────────────────────────────────────────────────────
+
 function FdrDots({ fdr }: { fdr: number | null }) {
   if (fdr === null) return null
   return (
     <span className="flex items-center gap-0.5">
-      {[1,2,3,4,5].map(i => (
+      {[1, 2, 3, 4, 5].map(i => (
         <span key={i} className="block rounded-full" style={{
           width: 7, height: 7,
           background: i <= fdr ? GREEN : "rgba(255,255,255,0.12)",
@@ -30,16 +76,21 @@ function FdrDots({ fdr }: { fdr: number | null }) {
 function FdrLabel({ fdr }: { fdr: number | null }) {
   if (fdr === null) return <span className="text-white/30 text-xs">-</span>
   return (
-    <span className="text-xs font-semibold text-white/70">
+    <span className="text-xs font-semibold text-white">
       {FDR_LABELS[fdr] ?? fdr}
     </span>
   )
 }
 
-
 // ─── Player card ──────────────────────────────────────────────────────────────
 
-function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: number; even: boolean }) {
+function PlayerCard({ player, rank, even, gw, text }: {
+  player: CaptainHubPlayer
+  rank: number
+  even: boolean
+  gw: number | string
+  text: string
+}) {
   const transfersLabel = player.transfersIn >= 1000
     ? `${(player.transfersIn / 1000).toFixed(1)}k`
     : `${player.transfersIn}`
@@ -84,8 +135,7 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
               unoptimized
             />
             <div style={{
-              height: 1,
-              width: 88,
+              height: 1, width: 88,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
             }} />
@@ -110,12 +160,12 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
             <span className="font-bold text-white text-base sm:text-xl shrink-0">{player.price}</span>
           </div>
 
-          {/* Row 2: stats — 2 cols mobile, 4 cols desktop */}
+          {/* Row 2: stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
             {stats.map(s => (
               <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 8px" }}>
                 <p className="font-bold tabular-nums text-sm sm:text-base" style={{ color: GREEN }}>{s.value}</p>
-                <p className="text-[10px] sm:text-[11px] mt-0.5" style={{ color: "#A0A0A0" }}>{s.label}</p>
+                <p className="text-[10px] sm:text-[11px] mt-0.5 text-white">{s.label}</p>
               </div>
             ))}
           </div>
@@ -126,14 +176,14 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
           }}>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] sm:text-[11px]" style={{ color: "#A0A0A0" }}>FDR:</span>
+                <span className="text-[10px] sm:text-[11px] text-white">FDR:</span>
                 <FdrDots fdr={player.fdrNext} />
                 <FdrLabel fdr={player.fdrNext} />
               </div>
               {player.opponentShort && (
                 <div className="flex items-center gap-1.5">
                   <span className="text-white/20 text-[10px]">|</span>
-                  <span className="text-[10px] sm:text-[11px] font-semibold text-white/60">
+                  <span className="text-[10px] sm:text-[11px] font-semibold text-white">
                     {player.opponentShort} ({player.isHome ? "H" : "A"})
                   </span>
                   {player.opponentCode && (
@@ -157,6 +207,14 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
             </Link>
           </div>
 
+          {/* Expandable analysis */}
+          <HubCardExpand
+            slug={player.slug}
+            gw={gw}
+            text={text}
+            promptLabel={`Should I captain ${player.displayName} in GW${gw}?`}
+          />
+
         </div>
       </div>
     </div>
@@ -169,6 +227,7 @@ export default async function DevCaptainsPage() {
   const session = await auth()
   if (!session?.user?.email || session.user.email !== ALLOWED_EMAIL) redirect("/login")
 
+  const randomBase = Math.floor(Math.random() * 3)
   const data = await getCaptainHub()
   const gw      = data?.gw ?? "?"
   const players = data?.players ?? []
@@ -177,12 +236,12 @@ export default async function DevCaptainsPage() {
     <div className="flex min-h-screen flex-col bg-black overflow-x-hidden">
       <DevHeader />
 
-      {/* Background glow — matches live page */}
+      {/* Background glow */}
       <div className="pointer-events-none fixed inset-0 z-0" style={{
         background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,255,135,0.06) 0%, transparent 70%)",
       }} />
 
-      {/* Hero — identical to live captains page */}
+      {/* Hero */}
       <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
         <h1
           className="font-bold leading-[1.1] tracking-tighter mb-4"
@@ -216,11 +275,16 @@ export default async function DevCaptainsPage() {
         <div className="w-full max-w-3xl flex flex-col gap-3">
           {players.map((player, i) => (
             <Reveal key={player.slug} delay={i * 0.06}>
-              <PlayerCard player={player} rank={i + 1} even={(i + 1) % 2 === 0} />
+              <PlayerCard
+                player={player}
+                rank={i + 1}
+                even={(i + 1) % 2 === 0}
+                gw={gw}
+                text={buildCaptainText(player, gw, i + 1, randomBase)}
+              />
             </Reveal>
           ))}
         </div>
-
       </main>
     </div>
   )

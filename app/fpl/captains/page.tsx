@@ -48,7 +48,7 @@ function FdrDots({ fdr }: { fdr: number | null }) {
 function FdrLabel({ fdr }: { fdr: number | null }) {
   if (fdr === null) return <span className="text-white/30 text-xs">-</span>
   return (
-    <span className="text-xs font-semibold text-white/70">
+    <span className="text-xs font-semibold text-white">
       {FDR_LABELS[fdr] ?? fdr}
     </span>
   )
@@ -132,7 +132,7 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
             {stats.map(s => (
               <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 8px" }}>
                 <p className="font-bold tabular-nums text-sm sm:text-base" style={{ color: GREEN }}>{s.value}</p>
-                <p className="text-[10px] sm:text-[11px] mt-0.5" style={{ color: "#A0A0A0" }}>{s.label}</p>
+                <p className="text-[10px] sm:text-[11px] mt-0.5 text-white">{s.label}</p>
               </div>
             ))}
           </div>
@@ -143,14 +143,14 @@ function PlayerCard({ player, rank, even }: { player: CaptainHubPlayer; rank: nu
           }}>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] sm:text-[11px]" style={{ color: "#A0A0A0" }}>FDR:</span>
+                <span className="text-[10px] sm:text-[11px] text-white">FDR:</span>
                 <FdrDots fdr={player.fdrNext} />
                 <FdrLabel fdr={player.fdrNext} />
               </div>
               {player.opponentShort && (
                 <div className="flex items-center gap-1.5">
                   <span className="text-white/20 text-[10px]">|</span>
-                  <span className="text-[10px] sm:text-[11px] font-semibold text-white/60">
+                  <span className="text-[10px] sm:text-[11px] font-semibold text-white">
                     {player.opponentShort} ({player.isHome ? "H" : "A"})
                   </span>
                   {player.opponentCode && (
