@@ -180,16 +180,16 @@ function PlayerCard({ player, rank, even, gw, text }: {
                 <FdrDots fdr={player.fdrNext} />
                 <FdrLabel fdr={player.fdrNext} />
               </div>
-              {player.opponentShort && (
+              {player.opponentName && (
                 <div className="flex items-center gap-1.5">
                   <span className="text-white/20 text-[10px]">|</span>
                   <span className="text-[10px] sm:text-[11px] font-semibold text-white">
-                    {player.opponentShort} ({player.isHome ? "H" : "A"})
+                    {player.opponentName} ({player.isHome ? "H" : "A"})
                   </span>
                   {player.opponentCode && (
                     <Image
                       src={`https://resources.premierleague.com/premierleague/badges/70/t${player.opponentCode}.png`}
-                      alt={player.opponentShort}
+                      alt={player.opponentName}
                       width={16} height={16}
                       style={{ objectFit: "contain", flexShrink: 0 }}
                       unoptimized
