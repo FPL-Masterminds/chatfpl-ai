@@ -1494,7 +1494,7 @@ export async function getCaptainHub(): Promise<CaptainHubData | null> {
       .sort((a: any, b: any) =>
         parseFloat(b.ep_next ?? "0") - parseFloat(a.ep_next ?? "0")
       )
-      .slice(0, 15)
+      .slice(0, 25)
 
     const players: CaptainHubPlayer[] = candidates.map((p: any) => {
       const team = teamMap[p.team] ?? { name: "", short: "?", code: 0 }
@@ -1593,7 +1593,7 @@ export async function getDifferentialHub(): Promise<DifferentialHubData | null> 
         const scoreB = parseFloat(b.ep_next ?? "0") / Math.max(parseFloat(b.selected_by_percent ?? "1"), 0.5)
         return scoreB - scoreA
       })
-      .slice(0, 15)
+      .slice(0, 25)
 
     const players: DifferentialHubPlayer[] = candidates.map((p: any) => {
       const team = teamMap[p.team] ?? { name: "", short: "?", code: 0 }

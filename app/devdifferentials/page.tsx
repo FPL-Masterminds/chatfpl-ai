@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth"
 import { getDifferentialHub, type DifferentialHubPlayer } from "@/lib/fpl-player-page"
 import { DevHeader } from "@/components/dev-header"
 import { Reveal } from "@/components/scroll-reveal"
+import { HubCardExpand } from "@/components/hub-card-expand"
 
 export const dynamic = "force-dynamic"
 
@@ -12,6 +13,55 @@ const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
 const GREEN = "#00FF87"
 
 const FDR_LABELS = ["", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"]
+
+// ─── Text generation — 3 rotating templates ───────────────────────────────────
+
+function buildDiffText(player: DifferentialHubPlayer, gw: number | string): string {
+  const name        = player.displayName
+  const ownership   = player.ownership
+  const ep          = player.ep_next.toFixed(1)
+  const form        = player.form
+  const price       = player.price
+  const fdrLabel    = FDR_LABELS[player.fdrNext ?? 3] ?? "Medium"
+  const fixture     = player.opponentShort
+    ? `${player.opponentShort} (${player.isHome ? "H" : "A"})`
+    : "their next opponent"
+  const swingPct    = Math.round(100 - parseFloat(String(ownership)))
+  const transfersLabel = player.transfersIn >= 1000
+    ? `${(player.transfersIn / 1000).toFixed(1)}k`
+    : `${player.transfersIn}`
+  const category    = player.diffCategory.toLowerCase()
+
+  // Pick a variant deterministically per render — Math.random() re-runs each request
+  const variant = Math.floor(Math.random() * 3)
+
+  if (variant === 0) {
+    // Ownership-led
+    return `With only ${ownership}% ownership in Gameweek ${gw}, ${name} sits firmly in ${category} territory. ` +
+      `A return here would see you gain on approximately ${swingPct}% of FPL managers - and the underlying numbers back the punt. ` +
+      `The model has ${name} projected at ${ep} expected points against ${fixture}, ` +
+      `a fixture rated ${fdrLabel} for difficulty. Recent form of ${form} points per game over the last six gameweeks ` +
+      `adds further weight to the case. At ${price}, this is low-cost upside with a genuine rank-swing attached.`
+  }
+
+  if (variant === 1) {
+    // Fixture-led
+    return `${name} faces ${fixture} in Gameweek ${gw} - a fixture rated ${fdrLabel} for difficulty. ` +
+      `With ${ownership}% ownership, the vast majority of FPL managers won't benefit if ${name} delivers here. ` +
+      `That asymmetry is the point. Expected points of ${ep} and form of ${form} per game suggest ` +
+      `there is genuine output to support the pick rather than blind hope. ` +
+      `${transfersLabel} managers have already moved for ${name} this gameweek - ` +
+      `enough to signal confidence, not so many that the differential value is gone.`
+  }
+
+  // Form-led
+  return `${name} has averaged ${form} points per game over the last six gameweeks. ` +
+    `Paired with a Gameweek ${gw} fixture against ${fixture} - rated ${fdrLabel} - ` +
+    `the model projects ${ep} expected points. The kicker is the ownership figure: just ${ownership}%. ` +
+    `A single haul from ${name} creates a real rank swing, gaining on approximately ${swingPct}% of the field. ` +
+    `${transfersLabel} transfers in this week suggest the market is starting to take notice - ` +
+    `but at ${price} there is still time to get ahead of the move.`
+}
 
 function FdrDots({ fdr }: { fdr: number | null }) {
   if (fdr === null) return null
@@ -38,7 +88,7 @@ function FdrLabel({ fdr }: { fdr: number | null }) {
 
 // ─── Player card ──────────────────────────────────────────────────────────────
 
-function PlayerCard({ player, rank, even }: { player: DifferentialHubPlayer; rank: number; even: boolean }) {
+function PlayerCard({ player, rank, even, gw, text }: { player: DifferentialHubPlayer; rank: number; even: boolean; gw: number | string; text: string }) {
   const transfersLabel = player.transfersIn >= 1000
     ? `${(player.transfersIn / 1000).toFixed(1)}k`
     : `${player.transfersIn}`
@@ -156,6 +206,15 @@ function PlayerCard({ player, rank, even }: { player: DifferentialHubPlayer; ran
             </Link>
           </div>
 
+          {/* Expandable analysis */}
+          <HubCardExpand
+            playerName={player.displayName}
+            slug={player.slug}
+            gw={gw}
+            text={text}
+            promptLabel={`Is ${player.displayName} a good differential in GW${gw}?`}
+          />
+
         </div>
       </div>
     </div>
@@ -215,7 +274,13 @@ export default async function DevDifferentialsPage() {
         <div className="w-full max-w-3xl flex flex-col gap-3">
           {players.map((player, i) => (
             <Reveal key={player.slug} delay={i * 0.06}>
-              <PlayerCard player={player} rank={i + 1} even={(i + 1) % 2 === 0} />
+              <PlayerCard
+                player={player}
+                rank={i + 1}
+                even={(i + 1) % 2 === 0}
+                gw={gw}
+                text={buildDiffText(player, gw)}
+              />
             </Reveal>
           ))}
         </div>
