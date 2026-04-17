@@ -170,10 +170,10 @@ function CompareCard({ pair, rank, even, gw, text }: {
                 />
                 <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{pair.nameA}</h2>
               </div>
-              <StatBox label="xPts" value={pair.epA.toFixed(1)}   wins={pair.epA >= pair.epB} />
-              <StatBox label="Form" value={pair.formA.toFixed(1)} wins={pair.formA >= pair.formB} />
+              <StatBox label="xPts" value={pair.epA.toFixed(1)}   wins={pair.epA > pair.epB} />
+              <StatBox label="Form" value={pair.formA.toFixed(1)} wins={pair.formA > pair.formB} />
               <StatBox label="Price" value={pair.priceA}
-                wins={parseFloat(pair.priceA.replace(/[£m]/g,"")) <= parseFloat(pair.priceB.replace(/[£m]/g,""))} />
+                wins={parseFloat(pair.priceA.replace(/[£m]/g,"")) < parseFloat(pair.priceB.replace(/[£m]/g,""))} />
             </div>
 
             {/* Player B column */}
