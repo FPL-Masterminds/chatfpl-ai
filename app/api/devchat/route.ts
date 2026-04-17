@@ -190,7 +190,7 @@ export async function POST(request: Request) {
               const clubLabel = team ? `${team.name} (${team.short_name})` : "";
               const injuryNews = p.news ? `[${p.news}]` : "";
               return {
-                formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
+                formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|xGC:${p.expected_goals_conceded}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
                 rawData: p,
                 team: team?.short_name,
                 position: position?.singular_name_short,
@@ -469,14 +469,19 @@ ${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (Next 5 Gamewe
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
-Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|Status|Fitness%|[InjuryNews]|PhotoURL
+Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|xG|xA|xGI|xGC|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|Status|Fitness%|[InjuryNews]|PhotoURL
 ${filteredPlayers.map((p: any) => p.formatted).join("\n")}
 
 TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
-- xPNext = Expected points for NEXT gameweek
+- xPNext = Expected points for NEXT gameweek (FPL official prediction)
+- xPThis = Expected points for CURRENT gameweek
+- xG = Expected goals this season (FPL/Opta data)
+- xA = Expected assists this season
+- xGI = Expected goal involvements (xG + xA combined)
+- xGC = Expected goals conceded this season (useful for defenders/goalkeepers)
 - TI_GW = Transfers IN this gameweek (trending players)
 - TO_GW = Transfers OUT this gameweek
 - Status: a=available, d=doubtful, i=injured, u=unavailable, s=suspended
