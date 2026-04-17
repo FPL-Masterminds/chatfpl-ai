@@ -102,10 +102,7 @@ export async function POST(request: Request) {
       where: { email: session.user.email },
       include: {
         usageTracking: {
-          where: {
-            month: new Date().getMonth() + 1,
-            year: new Date().getFullYear(),
-          },
+          orderBy: { id: 'desc' },
           take: 1,
         },
         subscriptions: {
@@ -119,33 +116,46 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Reset bonus messages if past renewal date (Free tier only)
-    const updatedUsage = await resetFreeMessagesIfExpired(user.id);
-    let usage = updatedUsage || user.usageTracking[0];
-    
-    // If no usage tracking exists for current month, create it
-    if (!usage) {
-      const subscription = user.subscriptions[0];
-      const plan = subscription?.plan.toLowerCase() || 'free';
-      
-      // Determine message limit based on plan
-      let messagesLimit = 20; // Default Free tier
-      if (plan === 'premium') messagesLimit = 100;
-      else if (plan === 'elite') messagesLimit = 500;
-      else if (plan === 'vip') messagesLimit = 999999;
-      
-      const now = new Date();
-      usage = await prisma.usageTracking.create({
-        data: {
-          user_id: user.id,
-          month: now.getMonth() + 1,
-          year: now.getFullYear(),
-          messages_used: 0,
-          messages_limit: messagesLimit,
-        },
-      });
-      
-      console.log(`Created missing usage tracking for user ${user.id}: plan=${plan}, limit=${messagesLimit}`);
+    const plan = user.subscriptions[0]?.plan.toLowerCase() || 'free';
+    const isFree = plan === 'free';
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
+    let usage = user.usageTracking[0];
+
+    if (isFree) {
+      // Free tier: lifetime allowance — never create a new monthly row
+      if (!usage) {
+        usage = await prisma.usageTracking.create({
+          data: {
+            user_id: user.id,
+            month: currentMonth,
+            year: currentYear,
+            messages_used: 0,
+            messages_limit: 20,
+          },
+        });
+        console.log(`Created lifetime usage tracking for free user ${user.id}`);
+      }
+    } else {
+      // Paid tier: monthly allowance — create a fresh row each new month
+      if (!usage || usage.month !== currentMonth || usage.year !== currentYear) {
+        let messagesLimit = 100;
+        if (plan === 'elite') messagesLimit = 500;
+        else if (plan === 'vip') messagesLimit = 999999;
+
+        usage = await prisma.usageTracking.create({
+          data: {
+            user_id: user.id,
+            month: currentMonth,
+            year: currentYear,
+            messages_used: 0,
+            messages_limit: messagesLimit,
+          },
+        });
+        console.log(`Created monthly usage tracking for paid user ${user.id}: plan=${plan}, limit=${messagesLimit}`);
+      }
     }
     
     const userFirstName = user.name?.split(' ')[0] || "there";
