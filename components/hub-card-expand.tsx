@@ -57,7 +57,7 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
         <div style={{ overflow: "hidden" }}>
           <button
             onClick={handleOpen}
-            className="relative w-full overflow-hidden text-left rounded-full px-4 py-2 text-xs font-semibold hover:-translate-y-0.5 hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] transition-shadow"
+            className="relative w-full overflow-hidden text-center rounded-full px-4 py-2 text-xs font-semibold hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] transition-shadow"
             style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a" }}
           >
             <span

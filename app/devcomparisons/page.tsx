@@ -64,8 +64,12 @@ function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: nu
 
 // ─── Photo strip ──────────────────────────────────────────────────────────────
 
-function PhotoStrip({ code, name, side }: {
-  code: number; name: string; side: "left" | "right"
+function PhotoStrip({ code, name, side, rank, position }: {
+  code: number
+  name: string
+  side: "left" | "right"
+  rank?: number
+  position?: string
 }) {
   const radius = side === "left" ? "11px 0 0 11px" : "0 11px 11px 0"
   return (
@@ -73,6 +77,20 @@ function PhotoStrip({ code, name, side }: {
       className="relative shrink-0 flex flex-col items-center justify-center w-24 sm:w-40"
       style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: radius, padding: "16px 8px" }}
     >
+      {rank !== undefined && (
+        <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
+          style={{ width: 22, height: 22, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
+        >
+          <span className="text-[10px] font-bold tabular-nums text-white">{rank}</span>
+        </div>
+      )}
+      {position && (
+        <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
+          style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
+        >
+          {position}
+        </div>
+      )}
       <div className="flex flex-col items-center">
         <Image
           src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`}
@@ -135,94 +153,66 @@ function CompareCard({ pair, rank, even, gw, text }: {
 }) {
   return (
     <div style={{
-      background: even
-        ? "radial-gradient(ellipse 90% 100% at 50% 50%, rgba(0,255,135,0.15) 0%, rgba(0,255,135,0.06) 50%, transparent 100%)"
-        : "rgba(0,255,135,0.03)",
+      background: "rgba(0,255,135,0.03)",
       border: "1px solid rgba(0,255,135,0.18)",
       borderRadius: 12,
     }}>
       <div className="flex flex-row">
 
-        {/* Left — Player A photo strip */}
-        <div className="relative">
-          <PhotoStrip code={pair.codeA} name={pair.nameA} side="left" />
-          {/* Rank badge */}
-          <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
-            style={{ width: 22, height: 22, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
-          >
-            <span className="text-[10px] font-bold tabular-nums text-white">{rank}</span>
-          </div>
-          {/* Position badge */}
-          <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
-            style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-          >
-            {pair.position}
-          </div>
-        </div>
+        {/* Left — Player A photo strip (rank + position badges inside) */}
+        <PhotoStrip
+          code={pair.codeA} name={pair.nameA} side="left"
+          rank={rank} position={pair.position}
+        />
 
         {/* Centre — names + stats + CTA + expand */}
-        <div className="flex-1 min-w-0 flex flex-col p-3 sm:p-4 gap-2">
+        <div className="flex-1 min-w-0 flex flex-col justify-between p-3 sm:p-4 gap-2.5">
 
-          {/* Player name headers */}
+          {/* Player name headers — match captains hub sizing */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
               <Image
                 src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeA}.png`}
-                alt={pair.clubA} width={16} height={16}
+                alt={pair.clubA} width={18} height={18}
                 style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
               />
-              <h2 className="text-white font-semibold truncate text-xs sm:text-sm">{pair.nameA}</h2>
+              <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{pair.nameA}</h2>
             </div>
-            <span className="shrink-0 text-[9px] font-black tracking-widest uppercase"
+            <span className="shrink-0 text-[9px] font-black tracking-widest uppercase px-1"
               style={{ color: "rgba(255,255,255,0.3)" }}>VS</span>
-            <div className="flex items-center gap-1.5 min-w-0 justify-end">
-              <h2 className="text-white font-semibold truncate text-xs sm:text-sm">{pair.nameB}</h2>
+            <div className="flex items-center gap-2 min-w-0 justify-end">
+              <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{pair.nameB}</h2>
               <Image
                 src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeB}.png`}
-                alt={pair.clubB} width={16} height={16}
+                alt={pair.clubB} width={18} height={18}
                 style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
               />
             </div>
           </div>
 
-          {/* Stat rows */}
-          <StatRow
-            label={`xPts GW${gw}`}
-            valA={pair.epA.toFixed(1)} valB={pair.epB.toFixed(1)}
-            numA={pair.epA} numB={pair.epB}
-          />
-          <StatRow
-            label="Form"
-            valA={pair.formA.toFixed(1)} valB={pair.formB.toFixed(1)}
-            numA={pair.formA} numB={pair.formB}
-          />
-          <StatRow
-            label="Season Pts"
-            valA={String(pair.totalPtsA)} valB={String(pair.totalPtsB)}
-            numA={pair.totalPtsA} numB={pair.totalPtsB}
-          />
-          <StatRow
-            label="Goals + Ast"
-            valA={`${pair.goalsA}G ${pair.assistsA}A`}
-            valB={`${pair.goalsB}G ${pair.assistsB}A`}
-            numA={pair.goalsA + pair.assistsA}
-            numB={pair.goalsB + pair.assistsB}
-          />
-          <StatRow
-            label="Owned"
-            valA={`${pair.ownershipA}%`} valB={`${pair.ownershipB}%`}
-            numA={pair.ownershipA} numB={pair.ownershipB}
-          />
-          <StatRow
-            label="Price"
-            valA={pair.priceA} valB={pair.priceB}
-            numA={parseFloat(pair.priceA.replace(/[£m]/g, ""))}
-            numB={parseFloat(pair.priceB.replace(/[£m]/g, ""))}
-            higherWins={false}
-          />
+          {/* 3 stat rows */}
+          <div className="flex flex-col gap-1.5">
+            <StatRow
+              label="xPts"
+              valA={pair.epA.toFixed(1)} valB={pair.epB.toFixed(1)}
+              numA={pair.epA} numB={pair.epB}
+            />
+            <StatRow
+              label="Form"
+              valA={pair.formA.toFixed(1)} valB={pair.formB.toFixed(1)}
+              numA={pair.formA} numB={pair.formB}
+            />
+            <StatRow
+              label="Price"
+              valA={pair.priceA} valB={pair.priceB}
+              numA={parseFloat(pair.priceA.replace(/[£m]/g, ""))}
+              numB={parseFloat(pair.priceB.replace(/[£m]/g, ""))}
+              higherWins={false}
+            />
+          </div>
 
-          {/* Full comparison CTA */}
-          <div className="flex items-center justify-end gap-2"
+          {/* Full comparison CTA row */}
+          <div className="flex items-center justify-between gap-2"
             style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 10px" }}
           >
             <Link
@@ -244,7 +234,7 @@ function CompareCard({ pair, rank, even, gw, text }: {
 
         </div>
 
-        {/* Right — Player B photo strip */}
+        {/* Right — Player B photo strip (no badges) */}
         <PhotoStrip code={pair.codeB} name={pair.nameB} side="right" />
 
       </div>
