@@ -64,50 +64,29 @@ function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: nu
 
 // ─── Photo strip ──────────────────────────────────────────────────────────────
 
-function PhotoStrip({ code, name, teamCode, club, side }: {
-  code: number; name: string; teamCode: number; club: string; side: "left" | "right"
+function PhotoStrip({ code, name, side }: {
+  code: number; name: string; side: "left" | "right"
 }) {
   const radius = side === "left" ? "11px 0 0 11px" : "0 11px 11px 0"
   return (
     <div
-      className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-24"
-      style={{ background: "rgba(0,0,0,0.4)", borderRadius: radius, padding: "12px 6px 10px" }}
+      className="relative shrink-0 flex flex-col items-center justify-center w-24 sm:w-40"
+      style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: radius, padding: "16px 8px" }}
     >
       <div className="flex flex-col items-center">
         <Image
           src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`}
           alt={name}
-          width={52} height={66}
-          className="sm:hidden"
-          style={{ objectFit: "contain" }}
-          unoptimized
-        />
-        <Image
-          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`}
-          alt={name}
-          width={72} height={90}
-          className="hidden sm:block"
+          width={88} height={112}
           style={{ objectFit: "contain" }}
           unoptimized
         />
         <div style={{
           height: 1,
-          width: "100%",
-          background: "linear-gradient(to right, transparent, rgba(255,255,255,0.8) 30%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0.8) 70%, transparent)",
-          boxShadow: "0 0 8px 2px rgba(255,255,255,0.3)",
+          width: 88,
+          background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+          boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
         }} />
-      </div>
-      <p className="text-[8px] sm:text-[10px] font-semibold text-white text-center leading-tight mt-1.5 px-0.5 line-clamp-2">
-        {name}
-      </p>
-      <div className="flex items-center justify-center mt-1">
-        <Image
-          src={`https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`}
-          alt={club}
-          width={14} height={14}
-          style={{ objectFit: "contain" }}
-          unoptimized
-        />
       </div>
     </div>
   )
@@ -165,33 +144,45 @@ function CompareCard({ pair, rank, even, gw, text }: {
       <div className="flex flex-row">
 
         {/* Left — Player A photo strip */}
-        <PhotoStrip
-          code={pair.codeA}
-          name={pair.nameA}
-          teamCode={pair.teamCodeA}
-          club={pair.clubA}
-          side="left"
-        />
+        <div className="relative">
+          <PhotoStrip code={pair.codeA} name={pair.nameA} side="left" />
+          {/* Rank badge */}
+          <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
+            style={{ width: 22, height: 22, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
+          >
+            <span className="text-[10px] font-bold tabular-nums text-white">{rank}</span>
+          </div>
+          {/* Position badge */}
+          <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
+            style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
+          >
+            {pair.position}
+          </div>
+        </div>
 
-        {/* Centre — stats + CTA + expand */}
-        <div className="flex-1 min-w-0 flex flex-col p-2 sm:p-3 gap-1.5">
+        {/* Centre — names + stats + CTA + expand */}
+        <div className="flex-1 min-w-0 flex flex-col p-3 sm:p-4 gap-2">
 
-          {/* Rank + position header */}
-          <div className="flex items-center justify-between mb-0.5">
-            <div className="flex items-center justify-center rounded"
-              style={{ width: 20, height: 20, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
-            >
-              <span className="text-[9px] font-bold tabular-nums text-white">{rank}</span>
+          {/* Player name headers */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Image
+                src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeA}.png`}
+                alt={pair.clubA} width={16} height={16}
+                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+              />
+              <h2 className="text-white font-semibold truncate text-xs sm:text-sm">{pair.nameA}</h2>
             </div>
-            <span className="text-[8px] sm:text-[9px] font-black tracking-[0.2em] uppercase"
-              style={{ color: "rgba(255,255,255,0.25)" }}>
-              VS
-            </span>
-            <span className="rounded px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold uppercase"
-              style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-            >
-              {pair.position}
-            </span>
+            <span className="shrink-0 text-[9px] font-black tracking-widest uppercase"
+              style={{ color: "rgba(255,255,255,0.3)" }}>VS</span>
+            <div className="flex items-center gap-1.5 min-w-0 justify-end">
+              <h2 className="text-white font-semibold truncate text-xs sm:text-sm">{pair.nameB}</h2>
+              <Image
+                src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeB}.png`}
+                alt={pair.clubB} width={16} height={16}
+                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+              />
+            </div>
           </div>
 
           {/* Stat rows */}
@@ -231,28 +222,13 @@ function CompareCard({ pair, rank, even, gw, text }: {
           />
 
           {/* Full comparison CTA */}
-          <div className="flex items-center justify-between gap-2 mt-0.5"
-            style={{ background: "#1A1A1A", borderRadius: 4, padding: "6px 8px" }}
+          <div className="flex items-center justify-end gap-2"
+            style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 10px" }}
           >
-            <div className="flex items-center gap-1 min-w-0">
-              <Image
-                src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeA}.png`}
-                alt={pair.clubA} width={12} height={12}
-                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-              />
-              <span className="text-[9px] text-white truncate">{pair.clubA}</span>
-              <span className="text-white/20 text-[9px]">vs</span>
-              <span className="text-[9px] text-white truncate">{pair.clubB}</span>
-              <Image
-                src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeB}.png`}
-                alt={pair.clubB} width={12} height={12}
-                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-              />
-            </div>
             <Link
               href={`/fpl/compare/${pair.slugA}/${pair.slugB}`}
-              className="shrink-0 whitespace-nowrap text-[10px] font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_16px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "5px 10px" }}
+              className="shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
+              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 14px" }}
             >
               Full comparison →
             </Link>
@@ -269,13 +245,7 @@ function CompareCard({ pair, rank, even, gw, text }: {
         </div>
 
         {/* Right — Player B photo strip */}
-        <PhotoStrip
-          code={pair.codeB}
-          name={pair.nameB}
-          teamCode={pair.teamCodeB}
-          club={pair.clubB}
-          side="right"
-        />
+        <PhotoStrip code={pair.codeB} name={pair.nameB} side="right" />
 
       </div>
     </div>
