@@ -129,7 +129,7 @@ export async function GET(request: Request) {
       submitted: results.submitted,
       errors: results.errors,
       total_submitted_ever: submittedSet.size + results.submitted,
-      sample_urls: results.urls.slice(0, 5),
+      urls_submitted: results.urls,
     });
   } catch (err: any) {
     console.error("Indexing cron error:", err);
