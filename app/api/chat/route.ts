@@ -17,22 +17,44 @@ let redditCache: { context: string; fetchedAt: number } | null = null;
 const SUBREDDITS = ["FantasyPL", "fantasypremierleague"];
 
 async function fetchSubreddit(sub: string): Promise<string[]> {
-  const res = await fetch(
-    `https://www.reddit.com/r/${sub}/hot.json?limit=5&raw_json=1`,
-    { headers: { "User-Agent": "ChatFPL/1.0 (by /u/chatfpl)" } }
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
+  let res: Response;
+  try {
+    res = await fetch(
+      `https://www.reddit.com/r/${sub}/hot.json?limit=8&raw_json=1`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; ChatFPL/1.0; +https://chatfpl.ai)",
+          "Accept": "application/json",
+        },
+        next: { revalidate: 0 },
+      }
+    );
+  } catch (err) {
+    console.error(`[Reddit] Network error fetching r/${sub}:`, err);
+    return [];
+  }
+  if (!res.ok) {
+    console.error(`[Reddit] r/${sub} returned HTTP ${res.status} ${res.statusText}`);
+    return [];
+  }
+  let data: any;
+  try {
+    data = await res.json();
+  } catch (err) {
+    console.error(`[Reddit] Failed to parse JSON from r/${sub}:`, err);
+    return [];
+  }
   const posts: any[] = data?.data?.children ?? [];
   const lines: string[] = [];
   for (const { data: post } of posts) {
     if (post.stickied) continue;
     const flair = post.link_flair_text ? `[${post.link_flair_text}] ` : "";
     const body = post.selftext
-      ? ` — "${post.selftext.slice(0, 200).replace(/\n+/g, " ").trim()}…"`
+      ? ` - "${post.selftext.slice(0, 200).replace(/\n+/g, " ").trim()}..."`
       : "";
-    lines.push(`• ${flair}${post.title} (↑${post.score})${body}`);
+    lines.push(`• ${flair}${post.title} (upvotes: ${post.score})${body}`);
   }
+  console.log(`[Reddit] r/${sub}: fetched ${lines.length} posts`);
   return lines;
 }
 
@@ -553,12 +575,15 @@ PERSONALITY RULES:
 
 `;
                 
-                const redditInstruction = redditContext ? `REDDIT USAGE (CRITICAL):
-- Reddit post data has been pre-fetched and provided to you above. You already have it.
-- NEVER say "I can't browse Reddit". The data is in your context.
-- When asked about Reddit posts or community sentiment, cite the actual post titles and upvote counts from the PRE-FETCHED REDDIT DATA section.
+                const redditInstruction = redditContext ? `REDDIT USAGE (CRITICAL - READ THIS):
+- Reddit post data has already been fetched by the server and injected into this message above. You have it right now.
+- NEVER say "I don't have Reddit data", "I can't browse Reddit", or "Reddit isn't in the data you gave me". That is factually wrong - it IS in this message.
+- When asked about Reddit, scan the PRE-FETCHED REDDIT DATA section above and report the post titles, upvote counts, and topics directly.
+- You do not need to browse anything. The data is already here.
 
-` : "";
+` : `REDDIT NOTE: No Reddit data was fetched for this request (fetch failed or returned empty). Do not claim you have Reddit data you don't have - tell the user Reddit posts could not be retrieved this time.
+
+`;
 
                 const combinedContext = [fplContext, redditContext].filter(Boolean).join("\n\n---\n\n");
 
