@@ -149,3 +149,13 @@ model SocialAction {
   
   @@map("social_actions")
 }
+
+model IndexingLog {
+  id           String   @id @default(cuid())
+  url          String   @unique @db.VarChar(500)
+  submitted_at DateTime @default(now()) @db.Timestamp(6)
+  status       String   @db.VarChar(20) // 'submitted', 'error'
+  error        String?  @db.Text
+
+  @@map("indexing_log")
+}
