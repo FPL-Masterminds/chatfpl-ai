@@ -223,14 +223,26 @@ function CompareCard({ pair, rank, gw, text }: {
           </div>
 
           {/* CTA row */}
-          <div className="flex items-center justify-end px-3 py-2 border-t" style={{ borderColor: BORDER }}>
-            <Link
-              href={`/fpl/compare/${pair.slugA}/${pair.slugB}`}
-              className="shrink-0 whitespace-nowrap font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
-              style={{ background: `linear-gradient(to right,${GREEN},${CYAN})`, color: "#0a0e14", padding: "5px 14px", fontSize: 11 }}
+          <div className="flex items-center justify-center px-3 py-3 border-t" style={{ borderColor: BORDER }}>
+            <div
+              className="rounded-full p-px transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.3)]"
+              style={{ background: `linear-gradient(to right, ${GREEN}, ${CYAN})` }}
             >
-              Full comparison
-            </Link>
+              <Link
+                href={`/fpl/compare/${pair.slugA}/${pair.slugB}`}
+                className="block whitespace-nowrap font-bold rounded-full"
+                style={{ background: "#0d1117", padding: "5px 20px", fontSize: 12 }}
+              >
+                <span style={{
+                  backgroundImage: `linear-gradient(to right, ${GREEN}, ${CYAN})`,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}>
+                  Full comparison
+                </span>
+              </Link>
+            </div>
           </div>
 
           {/* Expand */}
