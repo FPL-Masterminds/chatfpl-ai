@@ -12,7 +12,7 @@ const PLAYER_FIELDS = [
   "id","code","web_name","first_name","second_name",
   "element_type","team","now_cost","selected_by_percent",
   "form","total_points","ep_next","goals_scored","assists",
-  "news","chance_of_playing_next_round","minutes",
+  "news","status","chance_of_playing_next_round","minutes",
   "transfers_in_event","transfers_out_event","cost_change_event",
 ] as const
 
@@ -63,6 +63,7 @@ export interface PlayerData {
   assists: number
   news: string
   chance: number
+  status: string
 }
 
 export interface PlayerPageData {
@@ -327,6 +328,7 @@ export async function getPlayerPageData(
       assists:     el.assists ?? 0,
       news:        el.news ?? "",
       chance:      el.chance_of_playing_next_round ?? 100,
+      status:      el.status ?? "a",
     }
 
     // Top fit players sorted by ep_next (for flanking cards + related links)

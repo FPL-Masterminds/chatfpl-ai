@@ -109,6 +109,43 @@ export default async function FplPlayerPage({
           style={{ background: "radial-gradient(ellipse 70% 50% at 50% 60%, rgba(0,255,135,0.05) 0%, transparent 70%)" }}
         />
 
+        {/* Injury / availability banner */}
+        {(player.news || player.chance < 100 || player.status !== "a") && (
+          <div className="relative z-10 w-full max-w-4xl mx-auto mb-6">
+            <div
+              className="rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3"
+              style={{
+                background: "rgba(0,255,135,0.06)",
+                border: "1px solid rgba(0,255,135,0.25)",
+                borderLeft: "4px solid #00FF87",
+              }}
+            >
+              <span
+                className="shrink-0 inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black whitespace-nowrap"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+              >
+                {player.status === "i" || player.chance === 0
+                  ? "Injured"
+                  : player.status === "u"
+                  ? "Unavailable"
+                  : player.status === "s"
+                  ? "Suspended"
+                  : player.chance < 50
+                  ? "Injury Doubt"
+                  : "Fitness Concern"}
+              </span>
+              <p className="text-sm text-white leading-relaxed">
+                {player.news
+                  ? player.news
+                  : `${player.displayName} has a ${player.chance}% chance of playing — monitor before the deadline.`}
+                {player.chance > 0 && player.chance < 100 && (
+                  <span className="ml-2 text-white/50 text-xs">({player.chance}% chance of playing)</span>
+                )}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Stat strip */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
