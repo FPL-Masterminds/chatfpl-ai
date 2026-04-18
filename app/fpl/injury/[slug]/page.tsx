@@ -132,11 +132,18 @@ function AltBox({ player }: { player: InjuryPlayer }) {
       className="rounded-2xl px-4 py-5 flex flex-col items-center gap-2 text-center"
       style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)" }}
     >
-      <Image
-        src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-        alt={player.displayName} width={64} height={82}
-        style={{ objectFit: "contain" }} unoptimized
-      />
+      <div className="flex flex-col items-center">
+        <Image
+          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+          alt={player.displayName} width={80} height={102}
+          style={{ objectFit: "contain", display: "block" }} unoptimized
+        />
+        <div style={{
+          height: 1, width: 80,
+          background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+          boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+        }} />
+      </div>
       <div className="flex items-center gap-1.5 justify-center">
         <p className="text-sm font-bold text-white leading-tight">{player.displayName}</p>
         <Image
@@ -294,9 +301,16 @@ export default async function InjuryPlayerPage({
         {/* Alternatives */}
         {!isAvailable && alternatives.length > 0 && (
           <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
-            <p className="text-[9px] uppercase tracking-[0.18em] text-white/50 mb-4">
-              Fit alternatives at a similar price
-            </p>
+            <h2 className="text-2xl font-bold leading-tight tracking-tight mb-2">
+              <span className="text-white">{player.webName} Injury — FPL Alternatives for </span>
+              <span
+                className="text-transparent bg-clip-text"
+                style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
+              >
+                Gameweek {gw}
+              </span>
+            </h2>
+            <p className="text-white/50 text-sm mb-6">Fit replacements at a similar price point, ranked by expected points.</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {alternatives.map((alt) => (
                 <AltBox key={alt.slug} player={alt} />
