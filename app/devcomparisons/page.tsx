@@ -232,7 +232,7 @@ function CompareCard({ pair, rank, gw, text }: {
               <Link
                 href={`/fpl/compare/${pair.slugA}/${pair.slugB}`}
                 className="block whitespace-nowrap font-bold rounded-full"
-                style={{ background: "#0d1117", padding: "5px 20px", fontSize: 12 }}
+                style={{ background: "#0d1117", padding: "5px 20px", fontSize: "clamp(9px, 1.1vw, 12px)" }}
               >
                 <span style={{
                   backgroundImage: `linear-gradient(to right, ${GREEN}, ${CYAN})`,
@@ -240,7 +240,7 @@ function CompareCard({ pair, rank, gw, text }: {
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                 }}>
-                  Full comparison
+                  {`Full comparison: ${pair.nameA.split(" ").at(-1)} vs ${pair.nameB.split(" ").at(-1)}`}
                 </span>
               </Link>
             </div>
