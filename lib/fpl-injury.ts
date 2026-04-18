@@ -13,6 +13,9 @@ export interface InjuryPlayer {
   news:        string
   chance:      number   // 0–100
   minutes:     number
+  form:        string
+  totalPts:    number
+  epNext:      number
 }
 
 export interface InjuryHubData {
@@ -79,6 +82,9 @@ export async function getInjuryHub(): Promise<InjuryHubData | null> {
           news:        p.news ?? "",
           chance:      p.chance_of_playing_next_round ?? 100,
           minutes:     p.minutes ?? 0,
+          form:        p.form ?? "0.0",
+          totalPts:    p.total_points ?? 0,
+          epNext:      parseFloat(p.ep_next ?? "0"),
         }
       })
       // Sort: unavailable/injured first, then by chance ascending
@@ -147,9 +153,12 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
       news:        el.news ?? "",
       chance:      el.chance_of_playing_next_round ?? 100,
       minutes:     el.minutes ?? 0,
+      form:        el.form ?? "0.0",
+      totalPts:    el.total_points ?? 0,
+      epNext:      parseFloat(el.ep_next ?? "0"),
     }
 
-    // Suggest 3 fit alternatives — same position, similar price, fully fit
+    // Suggest 4 fit alternatives — same position, similar price, fully fit
     const playerCost = el.now_cost
     const alternatives: InjuryPlayer[] = allMapped
       .filter((p: any) =>
@@ -158,12 +167,12 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
         (p.status ?? "a") === "a" &&
         (p.chance_of_playing_next_round ?? 100) >= 75 &&
         p.minutes > 200 &&
-        Math.abs(p.now_cost - playerCost) <= 15  // within £1.5m
+        Math.abs(p.now_cost - playerCost) <= 20  // within £2.0m
       )
       .sort((a: any, b: any) =>
         parseFloat(b.ep_next ?? "0") - parseFloat(a.ep_next ?? "0")
       )
-      .slice(0, 5)
+      .slice(0, 4)
       .map((p: any) => ({
         slug:        p._slug,
         displayName: getDisplayName(p),
@@ -177,6 +186,9 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
         news:        p.news ?? "",
         chance:      p.chance_of_playing_next_round ?? 100,
         minutes:     p.minutes ?? 0,
+        form:        p.form ?? "0.0",
+        totalPts:    p.total_points ?? 0,
+        epNext:      parseFloat(p.ep_next ?? "0"),
       }))
 
     return { gw, player, alternatives }
