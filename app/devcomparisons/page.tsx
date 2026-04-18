@@ -10,9 +10,13 @@ import { HubCardExpand } from "@/components/hub-card-expand"
 export const dynamic = "force-dynamic"
 
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
-const GREEN = "#00FF87"
+const GREEN  = "#00FF87"
+const CYAN   = "#00FFFF"
+const MUTED  = "#8b949e"
+const SURFACE = "rgba(13,17,23,0.82)"
+const BORDER  = "rgba(255,255,255,0.07)"
 
-// ─── Text generation — 3 rotating templates ───────────────────────────────────
+// ─── Text generation ──────────────────────────────────────────────────────────
 
 function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: number, randomBase: number): string {
   const { nameA, nameB, epA, epB, formA, formB, totalPtsA, totalPtsB,
@@ -64,158 +68,208 @@ function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: nu
     `The full fixture-by-fixture comparison is on the dedicated head-to-head page.`
 }
 
-// ─── Photo strip ──────────────────────────────────────────────────────────────
+// ─── Stat row — horizontal label | value for each player ──────────────────────
 
-function PhotoStrip({ code, name, side, rank, position }: {
-  code: number
-  name: string
-  side: "left" | "right"
-  rank?: number
-  position?: string
+function StatRow({ label, valA, valB, winsA, winsB }: {
+  label: string; valA: string; valB: string; winsA: boolean; winsB: boolean
 }) {
-  const radius = side === "left" ? "11px 0 0 11px" : "0 11px 11px 0"
   return (
-    <div
-      className="relative shrink-0 flex flex-col items-center justify-center w-24 sm:w-40"
-      style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: radius, padding: "16px 8px" }}
-    >
-      {rank !== undefined && (
-        <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
-          style={{ width: 22, height: 22, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
-        >
-          <span className="text-[10px] font-bold tabular-nums text-white">{rank}</span>
-        </div>
-      )}
-      {position && (
-        <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
-          style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-        >
-          {position}
-        </div>
-      )}
-      <div className="flex flex-col items-center">
-        <Image
-          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`}
-          alt={name}
-          width={88} height={112}
-          style={{ objectFit: "contain" }}
-          unoptimized
-        />
-        <div style={{
-          height: 1,
-          width: 88,
-          background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
-          boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
-        }} />
-      </div>
-    </div>
-  )
-}
-
-// ─── Single player stat box ───────────────────────────────────────────────────
-
-function StatBox({ label, value, wins }: { label: string; value: string; wins: boolean }) {
-  return (
-    <div className="flex items-center justify-between gap-2"
-      style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 10px" }}
-    >
-      <span className="text-[10px] sm:text-[11px] uppercase tracking-wide text-white shrink-0">
-        {label}
-      </span>
-      <span className="text-sm sm:text-base font-bold tabular-nums"
-        style={{ color: wins ? GREEN : "white" }}
+    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-0">
+      {/* Player A value */}
+      <div
+        className="flex items-center justify-start pl-3 py-2"
+        style={{
+          fontFamily: "ui-monospace, monospace",
+          fontSize: 13,
+          fontWeight: 700,
+          color: winsA ? GREEN : "white",
+          textShadow: winsA ? `0 0 12px ${GREEN}80` : "none",
+          background: winsA ? "rgba(0,255,135,0.05)" : "transparent",
+          borderRight: "1px solid rgba(255,255,255,0.05)",
+        }}
       >
-        {value}
-      </span>
+        {valA}
+      </div>
+      {/* Label */}
+      <div
+        className="flex items-center justify-center px-3 py-2"
+        style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED, whiteSpace: "nowrap" }}
+      >
+        {label}
+      </div>
+      {/* Player B value */}
+      <div
+        className="flex items-center justify-end pr-3 py-2"
+        style={{
+          fontFamily: "ui-monospace, monospace",
+          fontSize: 13,
+          fontWeight: 700,
+          color: winsB ? GREEN : "white",
+          textShadow: winsB ? `0 0 12px ${GREEN}80` : "none",
+          background: winsB ? "rgba(0,255,135,0.05)" : "transparent",
+          borderLeft: "1px solid rgba(255,255,255,0.05)",
+        }}
+      >
+        {valB}
+      </div>
     </div>
   )
 }
 
 // ─── Comparison card ──────────────────────────────────────────────────────────
 
-function CompareCard({ pair, rank, even, gw, text }: {
+function CompareCard({ pair, rank, gw, text }: {
   pair: ComparisonHubPair
   rank: number
-  even: boolean
   gw: number | string
   text: string
 }) {
+  const priceNumA = parseFloat(pair.priceA.replace(/[£m]/g, ""))
+  const priceNumB = parseFloat(pair.priceB.replace(/[£m]/g, ""))
+
   return (
-    <div style={{
-      background: "rgba(0,255,135,0.03)",
-      border: "1px solid rgba(0,255,135,0.18)",
-      borderRadius: 12,
-    }}>
+    <div
+      className="compare-card group"
+      style={{
+        background: SURFACE,
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: `1px solid ${BORDER}`,
+        borderTop: "1px solid rgba(255,255,255,0.12)",
+        borderRadius: 16,
+        boxShadow: "0 8px 32px 0 rgba(0,0,0,0.8)",
+        transition: "transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
+        overflow: "hidden",
+      }}
+    >
+      {/* Top accent strip */}
+      <div style={{ height: 2, background: `linear-gradient(to right,${GREEN},${CYAN})`, opacity: 0.6 }} />
+
       <div className="flex flex-row">
 
-        {/* Left — Player A photo strip (rank + position badges inside) */}
-        <PhotoStrip
-          code={pair.codeA} name={pair.nameA} side="left"
-          rank={rank} position={pair.position}
-        />
+        {/* Left photo strip */}
+        <div
+          className="relative shrink-0 flex flex-col items-center justify-center w-20 sm:w-36"
+          style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
+        >
+          {/* Rank badge */}
+          <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
+            style={{ width: 20, height: 20, background: "rgba(0,0,0,0.8)", border: `1px solid rgba(0,255,135,0.2)` }}
+          >
+            <span style={{ fontSize: 9, fontWeight: 700, color: "white", fontFamily: "ui-monospace, monospace" }}>{rank}</span>
+          </div>
+          {/* Position badge */}
+          <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5"
+            style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.2)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}
+          >
+            {pair.position}
+          </div>
+          <div className="flex flex-col items-center">
+            <Image
+              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeA}.png`}
+              alt={pair.nameA} width={80} height={102}
+              style={{ objectFit: "contain" }} unoptimized
+            />
+            <div style={{
+              height: 1, width: 80,
+              background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+            }} />
+          </div>
+        </div>
 
-        {/* Centre — two-column player stats + CTA + expand */}
-        <div className="flex-1 min-w-0 flex flex-col p-3 sm:p-4 gap-2.5">
+        {/* Centre */}
+        <div className="flex-1 min-w-0 flex flex-col">
 
-          {/* Two-column stat area */}
-          <div className="grid grid-cols-2 gap-2 flex-1">
-
-            {/* Player A column */}
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-1.5 min-w-0 mb-0.5">
-                <Image
-                  src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeA}.png`}
-                  alt={pair.clubA} width={18} height={18}
-                  style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-                />
-                <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{pair.nameA}</h2>
-              </div>
-              <StatBox label="xPts" value={pair.epA.toFixed(1)}   wins={pair.epA > pair.epB} />
-              <StatBox label="Form" value={pair.formA.toFixed(1)} wins={pair.formA > pair.formB} />
-              <StatBox label="Price" value={pair.priceA}
-                wins={parseFloat(pair.priceA.replace(/[£m]/g,"")) < parseFloat(pair.priceB.replace(/[£m]/g,""))} />
+          {/* Player name headers */}
+          <div className="grid grid-cols-2 border-b" style={{ borderColor: BORDER }}>
+            <div className="flex items-center gap-1.5 px-3 py-2.5 border-r" style={{ borderColor: BORDER }}>
+              <Image
+                src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeA}.png`}
+                alt={pair.clubA} width={16} height={16}
+                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+              />
+              <span className="text-white font-bold truncate text-xs sm:text-sm">{pair.nameA}</span>
             </div>
-
-            {/* Player B column */}
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-1.5 min-w-0 mb-0.5 justify-end">
-                <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{pair.nameB}</h2>
-                <Image
-                  src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeB}.png`}
-                  alt={pair.clubB} width={18} height={18}
-                  style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-                />
-              </div>
-              <StatBox label="xPts" value={pair.epB.toFixed(1)}   wins={pair.epB > pair.epA} />
-              <StatBox label="Form" value={pair.formB.toFixed(1)} wins={pair.formB > pair.formA} />
-              <StatBox label="Price" value={pair.priceB}
-                wins={parseFloat(pair.priceB.replace(/[£m]/g,"")) < parseFloat(pair.priceA.replace(/[£m]/g,""))} />
+            <div className="flex items-center justify-end gap-1.5 px-3 py-2.5">
+              <span className="text-white font-bold truncate text-xs sm:text-sm">{pair.nameB}</span>
+              <Image
+                src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeB}.png`}
+                alt={pair.clubB} width={16} height={16}
+                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+              />
             </div>
           </div>
 
-          {/* Full comparison CTA */}
-          <div style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 10px" }}>
+          {/* Stat rows */}
+          <div className="flex flex-col divide-y" style={{ borderColor: BORDER }}>
+            <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
+              <StatRow
+                label="xPTS"
+                valA={pair.epA.toFixed(1)} valB={pair.epB.toFixed(1)}
+                winsA={pair.epA > pair.epB} winsB={pair.epB > pair.epA}
+              />
+            </div>
+            <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
+              <StatRow
+                label="FORM"
+                valA={pair.formA.toFixed(1)} valB={pair.formB.toFixed(1)}
+                winsA={pair.formA > pair.formB} winsB={pair.formB > pair.formA}
+              />
+            </div>
+            <div>
+              <StatRow
+                label="PRICE"
+                valA={pair.priceA} valB={pair.priceB}
+                winsA={priceNumA < priceNumB} winsB={priceNumB < priceNumA}
+              />
+            </div>
+          </div>
+
+          {/* CTA row */}
+          <div className="flex items-center justify-between px-3 py-2 border-t gap-3" style={{ borderColor: BORDER }}>
+            <span style={{ fontSize: 9, color: MUTED, fontFamily: "ui-monospace, monospace", letterSpacing: "0.04em" }}>
+              GET /compare/{pair.slugA}/{pair.slugB}
+            </span>
             <Link
               href={`/fpl/compare/${pair.slugA}/${pair.slugB}`}
-              className="whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 14px" }}
+              className="shrink-0 whitespace-nowrap font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
+              style={{ background: `linear-gradient(to right,${GREEN},${CYAN})`, color: "#0a0e14", padding: "5px 14px", fontSize: 11 }}
             >
               Full comparison
             </Link>
           </div>
 
-          {/* Expandable analysis */}
-          <HubCardExpand
-            slug={`${pair.slugA}-vs-${pair.slugB}`}
-            gw={gw}
-            text={text}
-            promptLabel={`Who should I pick: ${pair.nameA} or ${pair.nameB} in GW${gw}?`}
-          />
+          {/* Expand */}
+          <div className="border-t" style={{ borderColor: BORDER }}>
+            <HubCardExpand
+              slug={`${pair.slugA}-vs-${pair.slugB}`}
+              gw={gw}
+              text={text}
+              promptLabel={`> query: Who should I pick, ${pair.nameA} or ${pair.nameB} in GW${gw}?`}
+            />
+          </div>
 
         </div>
 
-        {/* Right — Player B photo strip (no badges) */}
-        <PhotoStrip code={pair.codeB} name={pair.nameB} side="right" />
+        {/* Right photo strip */}
+        <div
+          className="relative shrink-0 flex flex-col items-center justify-center w-20 sm:w-36"
+          style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
+        >
+          <div className="flex flex-col items-center">
+            <Image
+              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeB}.png`}
+              alt={pair.nameB} width={80} height={102}
+              style={{ objectFit: "contain" }} unoptimized
+            />
+            <div style={{
+              height: 1, width: 80,
+              background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+            }} />
+          </div>
+        </div>
 
       </div>
     </div>
@@ -234,15 +288,37 @@ export default async function DevComparisonsPage() {
   const pairs = data?.pairs ?? []
 
   return (
-    <div className="flex min-h-screen flex-col bg-black overflow-x-hidden">
+    <div className="flex min-h-screen flex-col overflow-x-hidden" style={{ background: "#05070a" }}>
+      <style>{`
+        .compare-card:hover {
+          transform: scale(1.005);
+          border-color: rgba(0,255,135,0.25) !important;
+          box-shadow: 0 12px 40px 0 rgba(0,0,0,0.9), 0 0 0 1px rgba(0,255,135,0.1) !important;
+        }
+      `}</style>
+
       <DevHeader />
 
       <div className="pointer-events-none fixed inset-0 z-0" style={{
-        background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,255,135,0.06) 0%, transparent 70%)",
+        background: "radial-gradient(ellipse 60% 50% at 50% 20%, rgba(0,255,135,0.04) 0%, transparent 70%)",
       }} />
 
       {/* Hero */}
       <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
+
+        {/* System status badge */}
+        <div className="flex items-center gap-2 mb-6 rounded-full px-4 py-1.5"
+          style={{ background: "rgba(0,255,135,0.06)", border: "1px solid rgba(0,255,135,0.15)" }}
+        >
+          <span
+            className="rounded-full animate-pulse"
+            style={{ width: 7, height: 7, display: "inline-block", background: GREEN, boxShadow: `0 0 6px 2px ${GREEN}80` }}
+          />
+          <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: GREEN, fontFamily: "ui-monospace, monospace" }}>
+            Live Data Stream
+          </span>
+        </div>
+
         <h1
           className="font-bold leading-[1.1] tracking-tighter mb-4"
           style={{ fontSize: "clamp(26px, 5vw, 52px)", maxWidth: 820 }}
@@ -250,22 +326,24 @@ export default async function DevComparisonsPage() {
           <span className="text-white">FPL Head-to-Head Picks for </span>
           <span
             className="text-transparent bg-clip-text"
-            style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
+            style={{ backgroundImage: `linear-gradient(to right,${GREEN},${CYAN})`, WebkitBackgroundClip: "text" }}
           >
             Gameweek {gw}
           </span>
         </h1>
-        <p className="text-white/60 text-base max-w-xl">
-          Same-position matchups ranked by combined ownership. The stronger stat on each row highlights green. Click any pair for the full head-to-head breakdown.
+
+        <p className="text-white/60 text-base max-w-xl mb-4">
+          Same-position matchups ranked by combined ownership. Monospace values highlight the stronger stat. Click any pair for the full breakdown.
         </p>
-        <div className="mt-3 flex items-center gap-2">
+
+        <div className="flex items-center gap-2">
           <span className="rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-widest"
-            style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
+            style={{ background: "rgba(0,255,135,0.08)", color: GREEN, border: "1px solid rgba(0,255,135,0.2)", fontFamily: "ui-monospace, monospace" }}
           >
             Dev preview
           </span>
-          <Link href="/fpl/comparisons" className="text-xs text-white/40 hover:text-white/70 transition-colors">
-            View live page →
+          <Link href="/fpl/comparisons" className="text-xs transition-colors" style={{ color: MUTED }}>
+            View live page
           </Link>
         </div>
       </section>
@@ -274,11 +352,10 @@ export default async function DevComparisonsPage() {
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
         <div className="w-full max-w-3xl flex flex-col gap-3">
           {pairs.map((pair, i) => (
-            <Reveal key={`${pair.slugA}-${pair.slugB}`} delay={i * 0.05}>
+            <Reveal key={`${pair.slugA}-${pair.slugB}`} delay={i * 0.04}>
               <CompareCard
                 pair={pair}
                 rank={i + 1}
-                even={(i + 1) % 2 === 0}
                 gw={gw}
                 text={buildCompareText(pair, gw, i + 1, randomBase)}
               />
