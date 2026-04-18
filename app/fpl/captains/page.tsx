@@ -8,6 +8,7 @@ import { getComparisonHub } from "@/lib/fpl-comparison"
 import { SeasonEnded } from "@/components/season-ended"
 import { Reveal } from "@/components/scroll-reveal"
 import { HubCardExpand } from "@/components/hub-card-expand"
+import { HubHero } from "@/components/hub-hero"
 
 export const revalidate = 3600
 export const dynamic = "force-dynamic"
@@ -118,7 +119,7 @@ function PlayerCard({ player, rank, even, gw, text }: { player: CaptainHubPlayer
       <div className="flex flex-row">
 
         {/* Left — photo strip */}
-        <div className="relative shrink-0 w-24 sm:w-40 flex flex-col items-center justify-center"
+        <div className="relative shrink-0 w-20 sm:w-52 flex flex-col items-center justify-center"
           style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
         >
           <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
@@ -135,13 +136,13 @@ function PlayerCard({ player, rank, even, gw, text }: { player: CaptainHubPlayer
             <Image
               src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
               alt={player.displayName}
-              width={88} height={112}
+              width={160} height={204}
+              className="w-14 sm:w-[160px]"
               style={{ objectFit: "contain" }}
               unoptimized
             />
-            <div style={{
+            <div className="w-14 sm:w-[160px]" style={{
               height: 1,
-              width: 88,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
             }} />
@@ -213,16 +214,19 @@ function PlayerCard({ player, rank, even, gw, text }: { player: CaptainHubPlayer
             </Link>
           </div>
 
-          {/* Expandable analysis */}
-          <HubCardExpand
-            slug={player.slug}
-            gw={gw}
-            text={text}
-            promptLabel={`Should I captain ${player.displayName} in GW${gw}?`}
-          />
-
         </div>
       </div>
+
+      {/* Expandable analysis — full card width */}
+      <div className="border-t px-4 py-3" style={{ borderColor: "rgba(0,255,135,0.18)" }}>
+        <HubCardExpand
+          slug={player.slug}
+          gw={gw}
+          text={text}
+          promptLabel={`Should I captain ${player.displayName} in GW${gw}?`}
+        />
+      </div>
+
     </div>
   )
 }
@@ -249,29 +253,11 @@ export default async function CaptainsHubPage() {
     <div className="flex min-h-screen flex-col bg-black overflow-x-hidden">
       <DevHeader />
 
-      {/* Background glow */}
-      <div className="pointer-events-none fixed inset-0 z-0" style={{
-        background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,255,135,0.06) 0%, transparent 70%)",
-      }} />
-
-      {/* Hero */}
-      <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
-        <h1
-          className="font-bold leading-[1.1] tracking-tighter mb-4"
-          style={{ fontSize: "clamp(26px, 5vw, 52px)", maxWidth: 820 }}
-        >
-          <span className="text-white">The Best FPL Captain Picks for </span>
-          <span
-            className="text-transparent bg-clip-text"
-            style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
-          >
-            Gameweek {gw}
-          </span>
-        </h1>
-        <p className="text-white/60 text-base max-w-xl">
-          Ranked by expected points. Click any player for the full captaincy verdict, fixture analysis, and AI chat.
-        </p>
-      </section>
+      <HubHero
+        headingWhite="The Best FPL Captain Picks for "
+        headingGradient={`Gameweek ${gw}`}
+        subtitle="Ranked by expected points, form, and fixture difficulty. Click any player for the full captaincy verdict and AI chat."
+      />
 
       {/* Cards */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">

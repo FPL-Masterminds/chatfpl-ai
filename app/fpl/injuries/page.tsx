@@ -169,14 +169,7 @@ export default async function InjuriesHubPage() {
       <HubHero
         headingWhite="FPL Injury and Fitness Update: "
         headingGradient={`Gameweek ${gw}`}
-        subtitle={`Every injured, doubtful, and suspended FPL player for Gameweek ${gw}. Updated hourly from the official API. Click any player for their full fitness update.`}
-        badge={
-          <span className="rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-widest"
-            style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-          >
-            {players.length} players flagged
-          </span>
-        }
+        subtitle={`Every injured, doubtful, and suspended FPL player for Gameweek ${gw}. Updated hourly. Click any player for their full fitness update.`}
       />
 
       {/* Cards */}

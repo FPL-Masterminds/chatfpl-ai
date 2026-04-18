@@ -6,9 +6,18 @@ import { DevHeader } from "@/components/dev-header"
 import { getComparisonHub, type ComparisonHubPair } from "@/lib/fpl-comparison"
 import { isSeasonOver, getCaptainHub, getDifferentialHub } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
+import { Reveal } from "@/components/scroll-reveal"
+import { HubCardExpand } from "@/components/hub-card-expand"
+import { HubHero } from "@/components/hub-hero"
 
 export const revalidate = 3600
 export const dynamic = "force-dynamic"
+
+const GREEN  = "#00FF87"
+const CYAN   = "#00FFFF"
+const MUTED  = "#8b949e"
+const SURFACE = "rgba(13,17,23,0.82)"
+const BORDER  = "rgba(255,255,255,0.07)"
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
@@ -27,160 +36,199 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-// ─── Comparison card ───────────────────────────────────────────────────────────
+// ─── Text generation ──────────────────────────────────────────────────────────
 
-function ComparisonCard({ pair, rank }: { pair: ComparisonHubPair; rank: number }) {
-  const GREEN = "#00FF87"
-  const winnerEp = pair.epA >= pair.epB ? "A" : "B"
+function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: number, randomBase: number): string {
+  const { nameA, nameB, epA, epB, formA, formB, totalPtsA, totalPtsB,
+          goalsA, goalsB, assistsA, assistsB, priceA, priceB,
+          ptsPerMillionA, ptsPerMillionB, ownershipA, ownershipB, position } = pair
+
+  const epWinner    = epA >= epB ? nameA : nameB
+  const epLoser     = epA >= epB ? nameB : nameA
+  const epLeader    = Math.max(epA, epB).toFixed(1)
+  const epTrailer   = Math.min(epA, epB).toFixed(1)
+  const gap         = Math.abs(epA - epB).toFixed(1)
+  const formWinner  = formA >= formB ? nameA : nameB
+  const formLoser   = formA >= formB ? nameB : nameA
+  const formLeader  = Math.max(formA, formB).toFixed(1)
+  const formTrailer = Math.min(formA, formB).toFixed(1)
+  const ptsWinner   = totalPtsA >= totalPtsB ? nameA : nameB
+  const valueWinner = ptsPerMillionA >= ptsPerMillionB ? nameA : nameB
+
+  const variant = (randomBase + rank) % 3
+
+  if (variant === 0) {
+    return `The expected points model has ${epWinner} at ${epLeader} for Gameweek ${gw}, against ${epTrailer} for ${epLoser}, a gap of ${gap} points heading into this gameweek. ` +
+      `Form supports that picture: ${formWinner} has averaged ${formLeader} points per game over the last six gameweeks, while ${formLoser} is averaging ${formTrailer}. ` +
+      `Both players are competing for budget space in millions of squads, and the decision often comes down to who carries better short-term momentum. ` +
+      `The full fixture run and detailed head-to-head breakdown are available on the comparison page.`
+  }
+
+  if (variant === 1) {
+    const totalGA_A = goalsA + assistsA
+    const totalGA_B = goalsB + assistsB
+    const gaWinner  = totalGA_A >= totalGA_B ? nameA : nameB
+    const gaLeader  = Math.max(totalGA_A, totalGA_B)
+    const ptsDiff   = Math.abs(totalPtsA - totalPtsB)
+    return `Across the season, ${ptsWinner} leads on total points and the gap stands at ${ptsDiff}. ` +
+      `On attacking output, ${gaWinner} edges the combined goals and assists count with ${gaLeader} direct contributions. ` +
+      `${nameA} has ${goalsA} goals and ${assistsA} assists this season; ${nameB} has ${goalsB} goals and ${assistsB} assists. ` +
+      `Ownership sits at ${ownershipA}% for ${nameA} and ${ownershipB}% for ${nameB}, meaning this is a decision with real rank implications across a significant slice of the field. ` +
+      `For Gameweek ${gw}, the model projects ${epLeader} expected points for ${epWinner}.`
+  }
+
+  const priceDiff = Math.abs(
+    parseFloat(priceA.replace(/[£m]/g, "")) - parseFloat(priceB.replace(/[£m]/g, ""))
+  ).toFixed(1)
+  return `Priced at ${priceA} and ${priceB}, there is a £${priceDiff}m differential between these two ${position}s. ` +
+    `On a pure value basis, ${valueWinner} generates more points per million this season. ` +
+    `${nameA} at ${ptsPerMillionA} against ${nameB} at ${ptsPerMillionB}. ` +
+    `The Gameweek ${gw} expected points model gives ${epWinner} the edge at ${epLeader} projected points. ` +
+    `With ownership at ${ownershipA}% and ${ownershipB}% respectively, picking the right one has meaningful rank consequences. ` +
+    `The full fixture-by-fixture comparison is on the dedicated head-to-head page.`
+}
+
+// ─── Stat row ─────────────────────────────────────────────────────────────────
+
+function StatRow({ label, valA, valB, winsA, winsB }: {
+  label: string; valA: string; valB: string; winsA: boolean; winsB: boolean
+}) {
+  return (
+    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-0">
+      <div className="flex items-center justify-center px-3 py-2"
+        style={{ fontSize: 13, fontWeight: 700, color: winsA ? GREEN : "white",
+          textShadow: winsA ? `0 0 12px ${GREEN}80` : "none",
+          background: winsA ? "rgba(0,255,135,0.05)" : "transparent",
+          borderRight: "1px solid rgba(255,255,255,0.05)" }}
+      >{valA}</div>
+      <div className="flex items-center justify-center px-3 py-2"
+        style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED, whiteSpace: "nowrap" }}
+      >{label}</div>
+      <div className="flex items-center justify-center px-3 py-2"
+        style={{ fontSize: 13, fontWeight: 700, color: winsB ? GREEN : "white",
+          textShadow: winsB ? `0 0 12px ${GREEN}80` : "none",
+          background: winsB ? "rgba(0,255,135,0.05)" : "transparent",
+          borderLeft: "1px solid rgba(255,255,255,0.05)" }}
+      >{valB}</div>
+    </div>
+  )
+}
+
+// ─── Comparison card ──────────────────────────────────────────────────────────
+
+function CompareCard({ pair, rank, gw, text }: {
+  pair: ComparisonHubPair; rank: number; gw: number | string; text: string
+}) {
+  const priceNumA = parseFloat(pair.priceA.replace(/[£m]/g, ""))
+  const priceNumB = parseFloat(pair.priceB.replace(/[£m]/g, ""))
 
   return (
-    <Link
-      href={`/fpl/compare/${pair.slugA}/${pair.slugB}`}
-      className="group block rounded-2xl transition-all hover:scale-[1.01]"
+    <div
+      className="compare-card group"
       style={{
-        border: "1px solid rgba(0,255,135,0.18)",
-        background: "rgba(0,255,135,0.03)",
+        background: SURFACE, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+        border: `1px solid ${BORDER}`, borderTop: "1px solid rgba(255,255,255,0.12)",
+        borderRadius: 16, boxShadow: "0 8px 32px 0 rgba(0,0,0,0.8)",
+        transition: "transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
+        overflow: "hidden",
       }}
     >
-      <div className="flex items-center gap-3 px-4 py-4 sm:px-5">
+      <div style={{ height: 2, background: `linear-gradient(to right,${GREEN},${CYAN})`, opacity: 0.6 }} />
+      <div className="flex flex-row">
 
-        {/* Rank */}
-        <div className="shrink-0 w-6 text-center">
-          <span
-            className="text-base font-bold tabular-nums"
-            style={{ color: "rgba(255,255,255,1)" }}
+        {/* Left photo */}
+        <div className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-52"
+          style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
+        >
+          <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
+            style={{ width: 20, height: 20, background: "rgba(0,0,0,0.8)", border: `1px solid rgba(0,255,135,0.2)` }}
           >
-            {rank}
-          </span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: "white" }}>{rank}</span>
+          </div>
+          <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5"
+            style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.2)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}
+          >{pair.position}</div>
+          <div className="flex flex-col items-center">
+            <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeA}.png`}
+              alt={pair.nameA} width={160} height={204} className="w-12 sm:w-[160px]"
+              style={{ objectFit: "contain" }} unoptimized />
+            <div className="w-12 sm:w-[160px]" style={{ height: 1,
+              background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
+          </div>
         </div>
 
-        {/* Player A photo */}
-        <div className="shrink-0 flex flex-col items-center" style={{ width: 46 }}>
-          <Image
-            src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeA}.png`}
-            alt={pair.nameA}
-            width={46}
-            height={58}
-            style={{ objectFit: "contain" }}
-            unoptimized
-          />
-          <div
-            style={{
-              height: 1,
-              width: 46,
-              background:
-                "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
-              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
-            }}
-          />
+        {/* Centre */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          <div className="grid grid-cols-2 border-b" style={{ borderColor: BORDER }}>
+            <div className="flex items-center gap-1.5 px-3 py-2.5 border-r" style={{ borderColor: BORDER }}>
+              <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeA}.png`}
+                alt={pair.clubA} width={16} height={16} style={{ objectFit: "contain", flexShrink: 0 }} unoptimized />
+              <span className="text-white font-bold truncate text-xs sm:text-sm">{pair.nameA}</span>
+            </div>
+            <div className="flex items-center justify-end gap-1.5 px-3 py-2.5">
+              <span className="text-white font-bold truncate text-xs sm:text-sm">{pair.nameB}</span>
+              <Image src={`https://resources.premierleague.com/premierleague/badges/70/t${pair.teamCodeB}.png`}
+                alt={pair.clubB} width={16} height={16} style={{ objectFit: "contain", flexShrink: 0 }} unoptimized />
+            </div>
+          </div>
+          <div className="flex flex-col divide-y" style={{ borderColor: BORDER }}>
+            <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
+              <StatRow label="xPTS" valA={pair.epA.toFixed(1)} valB={pair.epB.toFixed(1)}
+                winsA={pair.epA > pair.epB} winsB={pair.epB > pair.epA} />
+            </div>
+            <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
+              <StatRow label="FORM" valA={pair.formA.toFixed(1)} valB={pair.formB.toFixed(1)}
+                winsA={pair.formA > pair.formB} winsB={pair.formB > pair.formA} />
+            </div>
+            <div>
+              <StatRow label="PRICE" valA={pair.priceA} valB={pair.priceB}
+                winsA={priceNumA < priceNumB} winsB={priceNumB < priceNumA} />
+            </div>
+          </div>
+          <div className="flex items-center justify-center px-4 py-5 border-t" style={{ borderColor: BORDER }}>
+            <div className="rounded-full p-px transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.3)]"
+              style={{ background: `linear-gradient(to right, ${GREEN}, ${CYAN})` }}
+            >
+              <Link href={`/fpl/compare/${pair.slugA}/${pair.slugB}`}
+                className="block whitespace-nowrap font-bold rounded-full"
+                style={{ background: "#0d1117", padding: "5px 20px", fontSize: "clamp(9px, 1.1vw, 12px)" }}
+              >
+                <span style={{ backgroundImage: `linear-gradient(to right, ${GREEN}, ${CYAN})`,
+                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                  {`Full comparison: ${pair.nameA.split(" ").at(-1)} vs ${pair.nameB.split(" ").at(-1)}`}
+                </span>
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* VS divider */}
-        <div
-          className="shrink-0 text-[9px] font-black tracking-widest"
-          style={{ color: "rgba(255,255,255,0.2)" }}
+        {/* Right photo */}
+        <div className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-52"
+          style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
-          VS
-        </div>
-
-        {/* Player B photo */}
-        <div className="shrink-0 flex flex-col items-center" style={{ width: 46 }}>
-          <Image
-            src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeB}.png`}
-            alt={pair.nameB}
-            width={46}
-            height={58}
-            style={{ objectFit: "contain" }}
-            unoptimized
-          />
-          <div
-            style={{
-              height: 1,
-              width: 46,
-              background:
-                "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
-              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
-            }}
-          />
-        </div>
-
-        {/* Names + position */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-1.5 flex-wrap">
-            <span
-              className="font-bold text-sm leading-tight truncate group-hover:text-[#00FF87] transition-colors"
-              style={{ color: winnerEp === "A" ? GREEN : "rgba(255,255,255,0.9)" }}
-            >
-              {pair.nameA}
-            </span>
-            <span className="text-[10px] text-white/30 font-semibold shrink-0">vs</span>
-            <span
-              className="font-bold text-sm leading-tight truncate group-hover:text-[#00FF87] transition-colors"
-              style={{ color: winnerEp === "B" ? GREEN : "rgba(255,255,255,0.9)" }}
-            >
-              {pair.nameB}
-            </span>
-          </div>
-          <p className="text-[10px] text-white/45 mt-0.5">
-            {pair.position} · {pair.clubA} vs {pair.clubB}
-          </p>
-        </div>
-
-        {/* Stats — desktop */}
-        <div className="hidden sm:flex items-center gap-0 shrink-0">
-          {/* xPts A */}
-          <div className="w-16 text-center">
-            <p
-              className="text-base font-bold tabular-nums"
-              style={{ color: winnerEp === "A" ? GREEN : "rgba(255,255,255,0.7)" }}
-            >
-              {pair.epA.toFixed(1)}
-            </p>
-            <p className="text-[8px] uppercase tracking-wider text-white/40 mt-0.5">
-              {pair.nameA.split(" ").at(-1)} xPts
-            </p>
-          </div>
-          {/* xPts B */}
-          <div className="w-16 text-center">
-            <p
-              className="text-base font-bold tabular-nums"
-              style={{ color: winnerEp === "B" ? GREEN : "rgba(255,255,255,0.7)" }}
-            >
-              {pair.epB.toFixed(1)}
-            </p>
-            <p className="text-[8px] uppercase tracking-wider text-white/40 mt-0.5">
-              {pair.nameB.split(" ").at(-1)} xPts
-            </p>
-          </div>
-          {/* Gap */}
-          <div className="w-14 text-center">
-            <p className="text-base font-bold tabular-nums text-white">
-              {Math.abs(pair.epA - pair.epB).toFixed(1)}
-            </p>
-            <p className="text-[8px] uppercase tracking-wider text-white/40 mt-0.5">Gap</p>
+          <div className="flex flex-col items-center">
+            <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeB}.png`}
+              alt={pair.nameB} width={160} height={204} className="w-12 sm:w-[160px]"
+              style={{ objectFit: "contain" }} unoptimized />
+            <div className="w-12 sm:w-[160px]" style={{ height: 1,
+              background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
           </div>
         </div>
 
-        {/* Mobile stat — gap only */}
-        <div className="flex sm:hidden flex-col items-end shrink-0">
-          <p className="text-sm font-bold tabular-nums text-white/50">
-            {Math.abs(pair.epA - pair.epB).toFixed(1)}
-          </p>
-          <p className="text-[8px] uppercase tracking-wider text-white/40">Gap</p>
-        </div>
-
-        {/* Arrow */}
-        <svg
-          className="hidden sm:block shrink-0 h-4 w-4 text-white/20 group-hover:text-white/60 transition-colors"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
       </div>
-    </Link>
+
+      {/* Expand — full width */}
+      <div className="border-t px-4 py-1" style={{ borderColor: BORDER }}>
+        <HubCardExpand
+          slug={`${pair.slugA}-vs-${pair.slugB}`}
+          gw={gw}
+          text={text}
+          promptLabel={`Who should I pick: ${pair.nameA} or ${pair.nameB} in GW${gw}?`}
+        />
+      </div>
+    </div>
   )
 }
 
@@ -188,6 +236,8 @@ function ComparisonCard({ pair, rank }: { pair: ComparisonHubPair; rank: number 
 
 export default async function ComparisonsHubPage() {
   if (await isSeasonOver()) return <SeasonEnded />
+
+  const randomBase = Math.floor(Math.random() * 3)
 
   const [data, captainData, diffData] = await Promise.all([
     getComparisonHub(),
@@ -199,71 +249,40 @@ export default async function ComparisonsHubPage() {
   const { gw, pairs } = data
   const topCaptain = captainData?.players?.[0] ?? null
   const topDiff    = diffData?.players?.[0] ?? null
-  const GREEN = "#00FF87"
 
   return (
     <div className="flex min-h-screen flex-col bg-black overflow-x-hidden">
+      <style>{`
+        .compare-card:hover {
+          transform: scale(1.005);
+          border-color: rgba(0,255,135,0.25) !important;
+          box-shadow: 0 12px 40px 0 rgba(0,0,0,0.9), 0 0 0 1px rgba(0,255,135,0.1) !important;
+        }
+      `}</style>
+
       <DevHeader />
 
-      {/* Background glow */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,255,135,0.06) 0%, transparent 70%)",
-        }}
+      <HubHero
+        headingWhite="FPL Head-to-Head Picks for "
+        headingGradient={`Gameweek ${gw}`}
+        subtitle="Same-position matchups ranked by combined ownership. The stronger stat is highlighted. Click any pair for the full breakdown and AI chat."
       />
-
-      {/* Hero */}
-      <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
-        <h1
-          className="font-bold leading-[1.1] tracking-tighter mb-4"
-          style={{ fontSize: "clamp(24px, 4.5vw, 50px)", maxWidth: 860 }}
-        >
-          <span className="text-white">Fantasy Premier League Head-to-Head Player Comparisons. </span>
-          <span
-            className="text-transparent bg-clip-text"
-            style={{
-              backgroundImage: "linear-gradient(to right,#00ff85,#02efff)",
-              WebkitBackgroundClip: "text",
-            }}
-          >
-            Who Should You Pick?
-          </span>
-        </h1>
-
-        <p className="text-white/60 text-base max-w-2xl">
-          The most-owned FPL players going head-to-head for Gameweek {gw}. Ranked by combined ownership, the bigger the names, the higher up the list.
-        </p>
-      </section>
 
       {/* Main content */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
         <div className="w-full max-w-3xl">
 
-          {/* Column headers — desktop */}
-          <div className="hidden sm:flex items-center gap-3 px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/70">
-            <div className="w-6 shrink-0" />
-            <div className="shrink-0" style={{ width: 46 }} />
-            <div className="shrink-0 w-8 text-center" />
-            <div className="shrink-0" style={{ width: 46 }} />
-            <div className="flex-1">Matchup</div>
-            <div className="flex shrink-0">
-              <span className="w-16 text-center">Player A xPts</span>
-              <span className="w-16 text-center">Player B xPts</span>
-              <span className="w-14 text-center">Gap</span>
-            </div>
-            <div className="w-4 shrink-0" />
-          </div>
-
           {/* Comparison cards */}
           <div className="flex flex-col gap-3">
             {pairs.map((pair, i) => (
-              <ComparisonCard
-                key={`${pair.slugA}-${pair.slugB}`}
-                pair={pair}
-                rank={i + 1}
-              />
+              <Reveal key={`${pair.slugA}-${pair.slugB}`} delay={i * 0.04}>
+                <CompareCard
+                  pair={pair}
+                  rank={i + 1}
+                  gw={gw}
+                  text={buildCompareText(pair, gw, i + 1, randomBase)}
+                />
+              </Reveal>
             ))}
           </div>
 
