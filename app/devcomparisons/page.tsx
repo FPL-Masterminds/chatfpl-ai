@@ -293,7 +293,7 @@ export default async function DevComparisonsPage() {
   const pairs = data?.pairs ?? []
 
   return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden" style={{ background: "#05070a" }}>
+    <div className="flex min-h-screen flex-col overflow-x-hidden" style={{ background: "#000000" }}>
       <style>{`
         .compare-card:hover {
           transform: scale(1.005);
