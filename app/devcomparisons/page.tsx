@@ -77,7 +77,7 @@ function StatRow({ label, valA, valB, winsA, winsB }: {
     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-0">
       {/* Player A value */}
       <div
-        className="flex items-center justify-start pl-3 py-2"
+        className="flex items-center justify-center px-3 py-2"
         style={{
           fontSize: 13, fontWeight: 700,
           color: winsA ? GREEN : "white",
@@ -97,7 +97,7 @@ function StatRow({ label, valA, valB, winsA, winsB }: {
       </div>
       {/* Player B value */}
       <div
-        className="flex items-center justify-end pr-3 py-2"
+        className="flex items-center justify-center px-3 py-2"
         style={{
           fontSize: 13, fontWeight: 700,
           color: winsB ? GREEN : "white",
