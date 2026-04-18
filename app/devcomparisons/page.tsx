@@ -311,18 +311,6 @@ export default async function DevComparisonsPage() {
       {/* Hero */}
       <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
 
-        {/* System status badge */}
-        <div className="flex items-center gap-2 mb-6 rounded-full px-4 py-1.5"
-          style={{ background: "rgba(0,255,135,0.06)", border: "1px solid rgba(0,255,135,0.15)" }}
-        >
-          <span
-            className="rounded-full animate-pulse"
-            style={{ width: 7, height: 7, display: "inline-block", background: GREEN, boxShadow: `0 0 6px 2px ${GREEN}80` }}
-          />
-          <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: GREEN, fontFamily: "ui-monospace, monospace" }}>
-            Live Data Stream
-          </span>
-        </div>
 
         <h1
           className="font-bold leading-[1.1] tracking-tighter mb-4"
