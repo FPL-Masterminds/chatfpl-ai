@@ -253,8 +253,8 @@ export default async function InjuryPlayerPage({
 
                   {/* News / fitness verdict */}
                   <div style={{ background: "#1A1A1A", borderRadius: 4, padding: "10px 12px" }}>
-                    <div className="flex items-start gap-2">
-                      <span className="shrink-0 mt-1" style={{
+                    <div className="flex items-center gap-2">
+                      <span className="shrink-0" style={{
                         display: "inline-block", width: 8, height: 8, borderRadius: "50%",
                         background: "#00FF87", boxShadow: "0 0 6px 3px rgba(0,255,135,0.5)",
                       }} />

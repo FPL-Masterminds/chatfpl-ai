@@ -127,8 +127,8 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
           <div className="flex items-center justify-between gap-2"
             style={{ padding: "7px 10px", background: "#1A1A1A", borderRadius: 4 }}
           >
-            <div className="flex items-start gap-2 min-w-0 mr-2">
-              <span className="shrink-0 mt-[3px]" style={{
+            <div className="flex items-center gap-2 min-w-0 mr-2">
+              <span className="shrink-0" style={{
                 display: "inline-block", width: 7, height: 7, borderRadius: "50%",
                 background: "#00FF87", boxShadow: "0 0 5px 2px rgba(0,255,135,0.5)",
               }} />
