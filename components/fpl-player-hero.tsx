@@ -252,7 +252,7 @@ export function FplPlayerHero({ h1White, h1Gradient, subtitle, players, badgeLab
         </h1>
 
         {/* Subtitle */}
-        <p className="text-white/70 text-base">{subtitle}</p>
+        <p className="text-white text-base">{subtitle}</p>
 
         {/* Player card showcase */}
         <div

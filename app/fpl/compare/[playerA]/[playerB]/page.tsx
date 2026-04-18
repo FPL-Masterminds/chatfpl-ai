@@ -323,7 +323,7 @@ export default async function ComparisonPage({
       <ComparisonHero
         h1White={`${playerA.displayName} vs ${playerB.displayName}: Who should I pick for `}
         h1Gradient={`Fantasy Premier League Gameweek ${gw}?`}
-        subtitle={`${playerA.position} - GW${gw} comparison - ${playerA.club} vs ${playerB.club}`}
+        subtitle={`${playerA.position} · Gameweek ${gw} Fantasy Premier League Head-to-Head Comparison`}
         playerA={playerA}
         playerB={playerB}
         gw={gw}
