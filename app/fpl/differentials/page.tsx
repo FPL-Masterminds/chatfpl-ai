@@ -9,7 +9,6 @@ import { SeasonEnded } from "@/components/season-ended"
 import { Reveal } from "@/components/scroll-reveal"
 import { HubCardExpand } from "@/components/hub-card-expand"
 import { HubHero } from "@/components/hub-hero"
-import { HubHero } from "@/components/hub-hero"
 
 export const revalidate = 3600
 export const dynamic = "force-dynamic"

@@ -2,8 +2,8 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
-import { Reveal } from "@/components/scroll-reveal"
 import { HubHero } from "@/components/hub-hero"
+import { InjuryHubFilters } from "@/components/injury-hub-filters"
 import { getInjuryHub, statusLabel, type InjuryPlayer } from "@/lib/fpl-injury"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
@@ -172,15 +172,9 @@ export default async function InjuriesHubPage() {
         subtitle={`Every injured, doubtful, and suspended FPL player for Gameweek ${gw}. Updated hourly. Click any player for their full fitness update.`}
       />
 
-      {/* Cards */}
+      {/* Filters + Cards */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
-        <div className="w-full max-w-3xl flex flex-col gap-3">
-          {players.map((player, i) => (
-            <Reveal key={player.slug} delay={i * 0.04}>
-              <InjuryCard player={player} rank={i + 1} />
-            </Reveal>
-          ))}
-        </div>
+        <InjuryHubFilters players={players} />
       </main>
     </div>
   )
