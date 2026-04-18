@@ -145,7 +145,7 @@ function CompareCard({ pair, rank, gw, text }: {
 
         {/* Left photo strip */}
         <div
-          className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-44"
+          className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-52"
           style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
           {/* Rank badge */}
@@ -163,11 +163,11 @@ function CompareCard({ pair, rank, gw, text }: {
           <div className="flex flex-col items-center">
             <Image
               src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeA}.png`}
-              alt={pair.nameA} width={120} height={153}
-              className="w-12 sm:w-[120px]"
+              alt={pair.nameA} width={160} height={204}
+              className="w-12 sm:w-[160px]"
               style={{ objectFit: "contain" }} unoptimized
             />
-            <div className="w-12 sm:w-[120px]" style={{
+            <div className="w-12 sm:w-[160px]" style={{
               height: 1,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
@@ -224,7 +224,7 @@ function CompareCard({ pair, rank, gw, text }: {
           </div>
 
           {/* CTA row */}
-          <div className="flex items-center justify-center px-3 py-3 border-t" style={{ borderColor: BORDER }}>
+          <div className="flex items-center justify-center px-4 py-5 border-t" style={{ borderColor: BORDER }}>
             <div
               className="rounded-full p-px transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.3)]"
               style={{ background: `linear-gradient(to right, ${GREEN}, ${CYAN})` }}
@@ -250,17 +250,17 @@ function CompareCard({ pair, rank, gw, text }: {
 
         {/* Right photo strip */}
         <div
-          className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-44"
+          className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-52"
           style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
           <div className="flex flex-col items-center">
             <Image
               src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeB}.png`}
-              alt={pair.nameB} width={120} height={153}
-              className="w-12 sm:w-[120px]"
+              alt={pair.nameB} width={160} height={204}
+              className="w-12 sm:w-[160px]"
               style={{ objectFit: "contain" }} unoptimized
             />
-            <div className="w-12 sm:w-[120px]" style={{
+            <div className="w-12 sm:w-[160px]" style={{
               height: 1,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
@@ -271,7 +271,7 @@ function CompareCard({ pair, rank, gw, text }: {
       </div>
 
       {/* Expand — full card width */}
-      <div className="border-t" style={{ borderColor: BORDER }}>
+      <div className="border-t px-4 py-1" style={{ borderColor: BORDER }}>
         <HubCardExpand
           slug={`${pair.slugA}-vs-${pair.slugB}`}
           gw={gw}
