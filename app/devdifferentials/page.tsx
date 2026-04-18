@@ -204,16 +204,19 @@ function PlayerCard({ player, rank, even, gw, text }: { player: DifferentialHubP
             </Link>
           </div>
 
-          {/* Expandable analysis */}
-          <HubCardExpand
-            slug={player.slug}
-            gw={gw}
-            text={text}
-            promptLabel={`Is ${player.displayName} a good differential in GW${gw}?`}
-          />
-
         </div>
       </div>
+
+      {/* Expandable analysis — full card width */}
+      <div className="border-t px-4 py-1" style={{ borderColor: "rgba(0,255,135,0.18)" }}>
+        <HubCardExpand
+          slug={player.slug}
+          gw={gw}
+          text={text}
+          promptLabel={`Is ${player.displayName} a good differential in GW${gw}?`}
+        />
+      </div>
+
     </div>
   )
 }
