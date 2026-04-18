@@ -301,7 +301,7 @@ export default async function InjuryPlayerPage({
         {/* Alternatives */}
         {!isAvailable && alternatives.length > 0 && (
           <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
-            <h2 className="text-2xl font-bold leading-tight tracking-tight mb-2">
+            <h2 className="text-2xl font-bold leading-tight tracking-tight mb-2 text-center">
               <span className="text-white">{player.webName} Injury: FPL Alternatives for </span>
               <span
                 className="text-transparent bg-clip-text"
@@ -310,7 +310,7 @@ export default async function InjuryPlayerPage({
                 Gameweek {gw}
               </span>
             </h2>
-            <p className="text-white/50 text-sm mb-6">Fit replacements at a similar price point, ranked by expected points.</p>
+            <p className="text-white/50 text-sm mb-6 text-center">Fit replacements at a similar price point, ranked by expected points.</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {alternatives.map((alt) => (
                 <AltBox key={alt.slug} player={alt} />
