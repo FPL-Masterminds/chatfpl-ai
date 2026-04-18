@@ -48,10 +48,10 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
   const isAvailable = player.status === "a" && player.chance >= 100
 
   const stats = [
-    { label: "Chance",   value: isAvailable ? "100%" : player.chance === 0 ? "0%" : `${player.chance}%` },
-    { label: "Position", value: player.position },
-    { label: "Price",    value: player.price },
-    { label: "Minutes",  value: `${player.minutes}` },
+    { label: "Play Chance", value: isAvailable ? "100%" : player.chance === 0 ? "0%" : `${player.chance}%` },
+    { label: "Position",    value: player.position },
+    { label: "Price",       value: player.price },
+    { label: "Minutes",     value: `${player.minutes}` },
   ]
 
   return (
@@ -114,7 +114,10 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
             {stats.map(s => (
               <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 8px" }}>
-                <p className="font-bold tabular-nums text-sm sm:text-base text-white">{s.value}</p>
+                <p
+                  className="font-bold tabular-nums text-sm sm:text-base text-transparent bg-clip-text"
+                  style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
+                >{s.value}</p>
                 <p className="text-[10px] sm:text-[11px] mt-0.5 text-white">{s.label}</p>
               </div>
             ))}
@@ -124,9 +127,15 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
           <div className="flex items-center justify-between gap-2"
             style={{ padding: "7px 10px", background: "#1A1A1A", borderRadius: 4 }}
           >
-            <p className="text-[11px] sm:text-xs text-white leading-relaxed min-w-0 mr-2">
-              {player.news || `No injury concerns. ${player.displayName} is available for selection.`}
-            </p>
+            <div className="flex items-start gap-2 min-w-0 mr-2">
+              <span className="shrink-0 mt-[3px]" style={{
+                display: "inline-block", width: 7, height: 7, borderRadius: "50%",
+                background: "#00FF87", boxShadow: "0 0 5px 2px rgba(0,255,135,0.5)",
+              }} />
+              <p className="text-[11px] sm:text-xs text-white leading-relaxed">
+                {player.news || `No injury concerns. ${player.displayName} is available for selection.`}
+              </p>
+            </div>
             <Link
               href={`/fpl/injury/${player.slug}`}
               className="shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"

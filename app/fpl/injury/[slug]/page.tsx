@@ -70,48 +70,32 @@ function StatusPill({ status, chance }: { status: string; chance: number }) {
 function AltCard({ player }: { player: InjuryPlayer }) {
   return (
     <div style={{
-      background: "rgba(0,255,135,0.03)",
-      border: "1px solid rgba(0,255,135,0.18)",
-      borderRadius: 12,
+      background: "#1A1A1A",
+      border: "1px solid rgba(0,255,135,0.12)",
+      borderRadius: 8,
+      padding: "10px 12px",
     }}>
-      <div className="flex flex-row">
-        <div
-          className="relative shrink-0 w-20 sm:w-32 flex flex-col items-center justify-center"
-          style={{ minHeight: 130, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "12px 8px" }}
-        >
-          <div className="flex flex-col items-center">
-            <Image
-              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-              alt={player.displayName} width={70} height={90}
-              style={{ objectFit: "contain" }} unoptimized
-            />
-            <div style={{
-              height: 1, width: 70,
-              background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
-              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
-            }} />
-          </div>
-        </div>
-        <div className="flex-1 min-w-0 flex flex-col justify-center p-3 sm:p-4 gap-2">
+      <div className="flex items-center gap-3">
+        <Image
+          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+          alt={player.displayName} width={44} height={56}
+          style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+        />
+        <div className="flex-1 min-w-0 flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2 min-w-0">
-            <h3 className="text-white font-semibold truncate text-sm sm:text-base">{player.displayName}</h3>
+            <span className="text-white font-semibold text-sm truncate">{player.displayName}</span>
             <Image
               src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
-              alt={player.club} width={18} height={18}
+              alt={player.club} width={16} height={16}
               style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
             />
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span style={{ background: "#1A1A1A", borderRadius: 4, padding: "4px 8px" }}
-              className="text-[11px] text-white font-bold">{player.price}</span>
-            <span style={{ background: "#1A1A1A", borderRadius: 4, padding: "4px 8px" }}
-              className="text-[11px] text-white font-bold">{player.position}</span>
-            <span style={{ background: "#1A1A1A", borderRadius: 4, padding: "4px 8px" }}
-              className="text-[11px] text-white">{player.minutes} min</span>
+            <span className="text-white/40 text-xs shrink-0">{player.price}</span>
+            <span className="text-white/40 text-xs shrink-0">{player.position}</span>
+            <span className="text-white/40 text-xs shrink-0">{player.minutes} min</span>
           </div>
           <Link
             href={`/fpl/${player.slug}`}
-            className="self-start whitespace-nowrap text-[11px] font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
+            className="shrink-0 whitespace-nowrap text-[11px] font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
             style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "5px 12px" }}
           >
             Full analysis
@@ -138,10 +122,10 @@ export default async function InjuryPlayerPage({
   const isAvailable = player.status === "a" && player.chance >= 100
 
   const stats = [
-    { label: "Status",   value: statusLabel(player.status, player.chance) },
-    { label: "Chance",   value: isAvailable ? "100%" : `${player.chance}%` },
-    { label: "Price",    value: player.price },
-    { label: "Minutes",  value: `${player.minutes}` },
+    { label: "Status",       value: statusLabel(player.status, player.chance) },
+    { label: "Play Chance",  value: isAvailable ? "100%" : `${player.chance}%` },
+    { label: "Price",        value: player.price },
+    { label: "Minutes",      value: `${player.minutes}` },
   ]
 
   return (
@@ -228,7 +212,10 @@ export default async function InjuryPlayerPage({
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                     {stats.map(s => (
                       <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 8px" }}>
-                        <p className="font-bold tabular-nums text-sm sm:text-base text-white">{s.value}</p>
+                        <p
+                          className="font-bold tabular-nums text-sm sm:text-base text-transparent bg-clip-text"
+                          style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
+                        >{s.value}</p>
                         <p className="text-[10px] sm:text-[11px] mt-0.5 text-white">{s.label}</p>
                       </div>
                     ))}
@@ -236,11 +223,17 @@ export default async function InjuryPlayerPage({
 
                   {/* News / fitness verdict */}
                   <div style={{ background: "#1A1A1A", borderRadius: 4, padding: "10px 12px" }}>
-                    <p className="text-xs sm:text-sm text-white leading-relaxed">
-                      {player.news
-                        ? player.news
-                        : `No injury concerns. ${player.displayName} is available for Gameweek ${gw} and expected to start.`}
-                    </p>
+                    <div className="flex items-start gap-2">
+                      <span className="shrink-0 mt-1" style={{
+                        display: "inline-block", width: 8, height: 8, borderRadius: "50%",
+                        background: "#00FF87", boxShadow: "0 0 6px 3px rgba(0,255,135,0.5)",
+                      }} />
+                      <p className="text-xs sm:text-sm text-white leading-relaxed">
+                        {player.news
+                          ? player.news
+                          : `No injury concerns. ${player.displayName} is available for Gameweek ${gw} and expected to start.`}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Link to full player analysis */}
