@@ -291,7 +291,7 @@ export default async function DifferentialsHubPage() {
 
       {/* Main content */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
-        <div className="w-full max-w-6xl">
+        <div className="w-full max-w-3xl">
 
           {/* Player cards */}
           <div className="flex flex-col gap-3">

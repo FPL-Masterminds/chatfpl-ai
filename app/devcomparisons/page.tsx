@@ -272,7 +272,7 @@ export default async function DevComparisonsPage() {
 
       {/* Cards */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
-        <div className="w-full max-w-6xl flex flex-col gap-3">
+        <div className="w-full max-w-3xl flex flex-col gap-3">
           {pairs.map((pair, i) => (
             <Reveal key={`${pair.slugA}-${pair.slugB}`} delay={i * 0.05}>
               <CompareCard

@@ -275,7 +275,7 @@ export default async function CaptainsHubPage() {
 
       {/* Cards */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
-        <div className="w-full max-w-6xl flex flex-col gap-3">
+        <div className="w-full max-w-3xl flex flex-col gap-3">
           {players.map((player, i) => (
             <Reveal key={player.slug} delay={i * 0.06}>
               <PlayerCard player={player} rank={i + 1} even={(i + 1) % 2 === 0} gw={gw} text={buildCaptainText(player, gw, i + 1, randomBase)} />
