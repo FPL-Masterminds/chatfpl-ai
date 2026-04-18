@@ -68,68 +68,50 @@ function StatusPill({ status, chance }: { status: string; chance: number }) {
 // ─── Alternative player card ──────────────────────────────────────────────────
 
 function AltCard({ player }: { player: InjuryPlayer }) {
-  const altStats = [
-    { label: "PRICE",    value: player.price },
-    { label: "POSITION", value: player.position },
-    { label: "MINUTES",  value: `${player.minutes}` },
-  ]
   return (
-    <div style={{
-      background: "rgba(0,255,135,0.03)",
-      border: "1px solid rgba(0,255,135,0.18)",
-      borderRadius: 12,
-    }}>
-      <div className="flex flex-row">
-        {/* Photo strip */}
-        <div
-          className="relative shrink-0 w-16 sm:w-20 flex flex-col items-center justify-end"
-          style={{ background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", paddingBottom: 0 }}
-        >
-          <Image
-            src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-            alt={player.displayName} width={72} height={92}
-            style={{ objectFit: "contain", display: "block" }} unoptimized
-          />
-          <div style={{
-            height: 1, width: "100%",
-            background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
-            boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
-          }} />
-        </div>
+    <div style={{ position: "relative", paddingTop: 72 }}>
+      {/* Photo — floats above card */}
+      <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: 108, zIndex: 10, width: 110 }}>
+        <Image
+          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+          alt={player.displayName} width={110} height={140}
+          style={{ objectFit: "contain", display: "block" }} unoptimized
+        />
+        <div style={{
+          height: 1,
+          background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+          boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+        }} />
+      </div>
 
-        {/* Data */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between p-3 gap-2">
-          {/* Name + badge + CTA */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-white font-semibold text-sm sm:text-base truncate">{player.displayName}</span>
-              <Image
-                src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
-                alt={player.club} width={18} height={18}
-                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-              />
-            </div>
-            <Link
-              href={`/fpl/${player.slug}`}
-              className="shrink-0 whitespace-nowrap text-[11px] font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "5px 14px" }}
-            >
-              Full analysis
-            </Link>
-          </div>
+      {/* Card face */}
+      <div style={{
+        borderRadius: 16,
+        overflow: "hidden",
+        background: "linear-gradient(145deg, rgba(8,12,18,0.95) 0%, rgba(4,8,14,0.98) 100%)",
+        border: "1px solid rgba(0,255,135,0.18)",
+      }}>
+        {/* Green accent strip */}
+        <div style={{ height: 3, background: "linear-gradient(to right,#00FF87,#00FFFF)" }} />
 
-          {/* Stat boxes */}
-          <div className="grid grid-cols-3 gap-1.5">
-            {altStats.map(s => (
-              <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 6, padding: "6px 8px" }}>
-                <p
-                  className="font-bold tabular-nums text-sm text-transparent bg-clip-text"
-                  style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
-                >{s.value}</p>
-                <p className="text-[9px] sm:text-[10px] mt-0.5 text-white uppercase tracking-wide">{s.label}</p>
-              </div>
-            ))}
+        {/* Bottom info */}
+        <div className="flex flex-col items-center gap-2.5 px-3 pb-4 pt-20">
+          <div className="flex items-center gap-2">
+            <p className="text-white font-bold text-sm text-center leading-tight">{player.displayName}</p>
+            <Image
+              src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
+              alt={player.club} width={18} height={18}
+              style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+            />
           </div>
+          <p className="text-[11px] text-white/40 uppercase tracking-wide">{player.price} · {player.position}</p>
+          <Link
+            href={`/fpl/${player.slug}`}
+            className="whitespace-nowrap text-[11px] font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
+            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 16px" }}
+          >
+            Full analysis
+          </Link>
         </div>
       </div>
     </div>
@@ -290,7 +272,7 @@ export default async function InjuryPlayerPage({
                 <h2 className="text-white font-bold text-lg mb-4">
                   Fit alternatives at a similar price
                 </h2>
-                <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   {alternatives.map((alt) => (
                     <AltCard key={alt.slug} player={alt} />
                   ))}
