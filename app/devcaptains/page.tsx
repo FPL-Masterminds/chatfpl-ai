@@ -212,7 +212,7 @@ function PlayerCard({ player, rank, even, gw, text }: {
       </div>
 
       {/* Expandable analysis — full card width */}
-      <div className="border-t px-4 py-1" style={{ borderColor: "rgba(0,255,135,0.18)" }}>
+      <div className="border-t px-4 py-3" style={{ borderColor: "rgba(0,255,135,0.18)" }}>
         <HubCardExpand
           slug={player.slug}
           gw={gw}

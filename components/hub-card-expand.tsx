@@ -45,7 +45,7 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
   }, [open, text])
 
   return (
-    <div className="mt-2.5">
+    <div>
 
       {/* ── Trigger pill — collapses away when panel opens ── */}
       <div style={{
@@ -97,21 +97,23 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
             </div>
 
             {/* CTA */}
-            <Link
-              href="/chat"
-              className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-5 py-2.5 font-bold text-xs text-black transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(0,255,135,0.35)]"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-            >
-              <span
-                className="pointer-events-none absolute inset-0 rounded-full"
-                style={{
-                  background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 2.4s linear infinite",
-                }}
-              />
-              <span className="relative">Ask ChatFPL AI about your squad</span>
-            </Link>
+            <div className="flex justify-center">
+              <Link
+                href="/chat"
+                className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-5 py-2.5 font-bold text-xs text-black transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(0,255,135,0.35)]"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+              >
+                <span
+                  className="pointer-events-none absolute inset-0 rounded-full"
+                  style={{
+                    background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
+                    backgroundSize: "200% 100%",
+                    animation: "shimmer 2.4s linear infinite",
+                  }}
+                />
+                <span className="relative">Ask ChatFPL AI about your squad</span>
+              </Link>
+            </div>
 
             {/* Close button — bottom-right */}
             <button
