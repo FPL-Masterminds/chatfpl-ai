@@ -196,7 +196,7 @@ export default async function InjuriesHubPage() {
 
       {/* Cards */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
-        <div className="w-full max-w-3xl flex flex-col gap-3">
+        <div className="w-full max-w-6xl flex flex-col gap-3">
           {players.map((player, i) => (
             <Reveal key={player.slug} delay={i * 0.04}>
               <InjuryCard player={player} rank={i + 1} />

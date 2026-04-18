@@ -52,7 +52,7 @@ export function AltCarousel({ players }: { players: InjuryPlayer[] }) {
       {/* Stage */}
       <div
         className="relative mx-auto"
-        style={{ width: "100%", maxWidth: 900, height: 300, perspective: "1200px" }}
+        style={{ width: "100%", maxWidth: 1100, height: 300, perspective: "1200px" }}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
       >

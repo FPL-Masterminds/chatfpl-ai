@@ -239,7 +239,7 @@ export default async function ComparisonsHubPage() {
 
       {/* Main content */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
-        <div className="w-full max-w-3xl">
+        <div className="w-full max-w-6xl">
 
           {/* Column headers — desktop */}
           <div className="hidden sm:flex items-center gap-3 px-5 mb-2 text-[9px] uppercase tracking-[0.15em] text-white/70">

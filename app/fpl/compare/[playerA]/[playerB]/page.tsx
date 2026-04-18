@@ -338,7 +338,7 @@ export default async function ComparisonPage({
         />
 
         {/* Subheading */}
-        <div className="relative z-10 text-center mb-10 max-w-3xl">
+        <div className="relative z-10 text-center mb-10 max-w-6xl">
           <h2 className="text-2xl font-bold leading-tight tracking-tight">
             <span className="text-white">{playerA.displayName} vs {playerB.displayName}: </span>
             <span

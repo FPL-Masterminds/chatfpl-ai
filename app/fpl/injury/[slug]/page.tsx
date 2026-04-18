@@ -117,7 +117,7 @@ export default async function InjuryPlayerPage({
       </section>
 
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
-        <div className="w-full max-w-3xl flex flex-col gap-6">
+        <div className="w-full max-w-6xl flex flex-col gap-6">
 
           {/* ── Player card ── */}
           <Reveal>
