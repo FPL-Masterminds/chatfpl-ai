@@ -9,28 +9,26 @@ function PlayerPhoto({ code, name, width, height, className }: {
   code: number; name: string; width: number; height: number; className?: string
 }) {
   const [errored, setErrored] = useState(false)
-  const initials = name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
 
   if (errored) {
     return (
-      <div
-        className={className}
-        style={{
-          width, height, display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          background: "rgba(0,255,135,0.04)",
-          border: "1px solid rgba(0,255,135,0.12)",
-          borderRadius: 8,
-        }}
-      >
-        {/* Silhouette */}
-        <svg width={width * 0.45} height={height * 0.55} viewBox="0 0 44 56" fill="none" aria-hidden>
-          <circle cx="22" cy="14" r="10" fill="rgba(255,255,255,0.12)" />
-          <path d="M2 54c0-11 9-20 20-20s20 9 20 20" fill="rgba(255,255,255,0.08)" />
-        </svg>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 4, fontWeight: 600 }}>
-          {initials}
-        </span>
+      <div className={className} style={{ width, height, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* FPL missing-photo silhouette */}
+        <Image
+          src="https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png"
+          alt="" width={width} height={height}
+          style={{ objectFit: "contain", opacity: 0.4 }}
+          unoptimized
+        />
+        {/* ChatFPL logo overlay */}
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Image
+            src="https://www.chatfpl.ai/ChatFPL_AI_Logo.png"
+            alt="ChatFPL AI" width={Math.round(width * 0.7)} height={Math.round(width * 0.7 * 0.28)}
+            style={{ objectFit: "contain" }}
+            unoptimized
+          />
+        </div>
       </div>
     )
   }
