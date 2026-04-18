@@ -68,38 +68,68 @@ function StatusPill({ status, chance }: { status: string; chance: number }) {
 // ─── Alternative player card ──────────────────────────────────────────────────
 
 function AltCard({ player }: { player: InjuryPlayer }) {
+  const altStats = [
+    { label: "PRICE",    value: player.price },
+    { label: "POSITION", value: player.position },
+    { label: "MINUTES",  value: `${player.minutes}` },
+  ]
   return (
     <div style={{
-      background: "#1A1A1A",
-      border: "1px solid rgba(0,255,135,0.12)",
-      borderRadius: 8,
-      padding: "10px 12px",
+      background: "rgba(0,255,135,0.03)",
+      border: "1px solid rgba(0,255,135,0.18)",
+      borderRadius: 12,
     }}>
-      <div className="flex items-center gap-3">
-        <Image
-          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-          alt={player.displayName} width={44} height={56}
-          style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-        />
-        <div className="flex-1 min-w-0 flex items-center justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-white font-semibold text-sm truncate">{player.displayName}</span>
-            <Image
-              src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
-              alt={player.club} width={16} height={16}
-              style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-            />
-            <span className="text-white/40 text-xs shrink-0">{player.price}</span>
-            <span className="text-white/40 text-xs shrink-0">{player.position}</span>
-            <span className="text-white/40 text-xs shrink-0">{player.minutes} min</span>
+      <div className="flex flex-row">
+        {/* Photo strip */}
+        <div
+          className="relative shrink-0 w-16 sm:w-20 flex flex-col items-center justify-end"
+          style={{ background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", paddingBottom: 0 }}
+        >
+          <Image
+            src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+            alt={player.displayName} width={72} height={92}
+            style={{ objectFit: "contain", display: "block" }} unoptimized
+          />
+          <div style={{
+            height: 1, width: "100%",
+            background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+            boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+          }} />
+        </div>
+
+        {/* Data */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between p-3 gap-2">
+          {/* Name + badge + CTA */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-white font-semibold text-sm sm:text-base truncate">{player.displayName}</span>
+              <Image
+                src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
+                alt={player.club} width={18} height={18}
+                style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+              />
+            </div>
+            <Link
+              href={`/fpl/${player.slug}`}
+              className="shrink-0 whitespace-nowrap text-[11px] font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
+              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "5px 14px" }}
+            >
+              Full analysis
+            </Link>
           </div>
-          <Link
-            href={`/fpl/${player.slug}`}
-            className="shrink-0 whitespace-nowrap text-[11px] font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
-            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "5px 12px" }}
-          >
-            Full analysis
-          </Link>
+
+          {/* Stat boxes */}
+          <div className="grid grid-cols-3 gap-1.5">
+            {altStats.map(s => (
+              <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 6, padding: "6px 8px" }}>
+                <p
+                  className="font-bold tabular-nums text-sm text-transparent bg-clip-text"
+                  style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
+                >{s.value}</p>
+                <p className="text-[9px] sm:text-[10px] mt-0.5 text-white uppercase tracking-wide">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
