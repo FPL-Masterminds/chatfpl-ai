@@ -163,7 +163,7 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
       .sort((a: any, b: any) =>
         parseFloat(b.ep_next ?? "0") - parseFloat(a.ep_next ?? "0")
       )
-      .slice(0, 3)
+      .slice(0, 5)
       .map((p: any) => ({
         slug:        p._slug,
         displayName: getDisplayName(p),

@@ -3,11 +3,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { DevHeader } from "@/components/dev-header"
 import { Reveal } from "@/components/scroll-reveal"
+import { AltCarousel } from "@/components/alt-carousel"
 import {
   getInjuryPlayerData,
   getInjurySlugs,
   statusLabel,
-  type InjuryPlayer,
 } from "@/lib/fpl-injury"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
@@ -65,58 +65,6 @@ function StatusPill({ status, chance }: { status: string; chance: number }) {
   )
 }
 
-// ─── Alternative player card ──────────────────────────────────────────────────
-
-function AltCard({ player }: { player: InjuryPlayer }) {
-  return (
-    <div style={{ position: "relative", paddingTop: 72 }}>
-      {/* Photo — floats above card */}
-      <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: 108, zIndex: 10, width: 110 }}>
-        <Image
-          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-          alt={player.displayName} width={110} height={140}
-          style={{ objectFit: "contain", display: "block" }} unoptimized
-        />
-        <div style={{
-          height: 1,
-          background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
-          boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
-        }} />
-      </div>
-
-      {/* Card face */}
-      <div style={{
-        borderRadius: 16,
-        overflow: "hidden",
-        background: "linear-gradient(145deg, rgba(8,12,18,0.95) 0%, rgba(4,8,14,0.98) 100%)",
-        border: "1px solid rgba(0,255,135,0.18)",
-      }}>
-        {/* Green accent strip */}
-        <div style={{ height: 3, background: "linear-gradient(to right,#00FF87,#00FFFF)" }} />
-
-        {/* Bottom info */}
-        <div className="flex flex-col items-center gap-2.5 px-3 pb-4 pt-20">
-          <div className="flex items-center gap-2">
-            <p className="text-white font-bold text-sm text-center leading-tight">{player.displayName}</p>
-            <Image
-              src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
-              alt={player.club} width={18} height={18}
-              style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-            />
-          </div>
-          <p className="text-[11px] text-white/40 uppercase tracking-wide">{player.price} · {player.position}</p>
-          <Link
-            href={`/fpl/${player.slug}`}
-            className="whitespace-nowrap text-[11px] font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
-            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 16px" }}
-          >
-            Full analysis
-          </Link>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -269,14 +217,10 @@ export default async function InjuryPlayerPage({
           {!isAvailable && alternatives.length > 0 && (
             <Reveal delay={0.1}>
               <div>
-                <h2 className="text-white font-bold text-lg mb-4">
+                <h2 className="text-white font-bold text-lg mb-6">
                   Fit alternatives at a similar price
                 </h2>
-                <div className="grid grid-cols-3 gap-3">
-                  {alternatives.map((alt) => (
-                    <AltCard key={alt.slug} player={alt} />
-                  ))}
-                </div>
+                <AltCarousel players={alternatives} />
               </div>
             </Reveal>
           )}
