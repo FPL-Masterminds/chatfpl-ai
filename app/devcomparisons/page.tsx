@@ -145,7 +145,7 @@ function CompareCard({ pair, rank, gw, text }: {
 
         {/* Left photo strip */}
         <div
-          className="relative shrink-0 flex flex-col items-center justify-center w-28 sm:w-44"
+          className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-44"
           style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
           {/* Rank badge */}
@@ -164,10 +164,11 @@ function CompareCard({ pair, rank, gw, text }: {
             <Image
               src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeA}.png`}
               alt={pair.nameA} width={120} height={153}
+              className="w-12 sm:w-[120px]"
               style={{ objectFit: "contain" }} unoptimized
             />
-            <div style={{
-              height: 1, width: 120,
+            <div className="w-12 sm:w-[120px]" style={{
+              height: 1,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
             }} />
@@ -245,31 +246,22 @@ function CompareCard({ pair, rank, gw, text }: {
             </div>
           </div>
 
-          {/* Expand */}
-          <div className="border-t" style={{ borderColor: BORDER }}>
-            <HubCardExpand
-              slug={`${pair.slugA}-vs-${pair.slugB}`}
-              gw={gw}
-              text={text}
-              promptLabel={`Who should I pick: ${pair.nameA} or ${pair.nameB} in GW${gw}?`}
-            />
-          </div>
-
         </div>
 
         {/* Right photo strip */}
         <div
-          className="relative shrink-0 flex flex-col items-center justify-center w-28 sm:w-44"
+          className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-44"
           style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
           <div className="flex flex-col items-center">
             <Image
               src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeB}.png`}
               alt={pair.nameB} width={120} height={153}
+              className="w-12 sm:w-[120px]"
               style={{ objectFit: "contain" }} unoptimized
             />
-            <div style={{
-              height: 1, width: 120,
+            <div className="w-12 sm:w-[120px]" style={{
+              height: 1,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
             }} />
@@ -277,6 +269,17 @@ function CompareCard({ pair, rank, gw, text }: {
         </div>
 
       </div>
+
+      {/* Expand — full card width */}
+      <div className="border-t" style={{ borderColor: BORDER }}>
+        <HubCardExpand
+          slug={`${pair.slugA}-vs-${pair.slugB}`}
+          gw={gw}
+          text={text}
+          promptLabel={`Who should I pick: ${pair.nameA} or ${pair.nameB} in GW${gw}?`}
+        />
+      </div>
+
     </div>
   )
 }
