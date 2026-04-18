@@ -55,6 +55,8 @@ export async function GET() {
     if (!fplRes.ok) throw new Error("FPL API error")
     const data = await fplRes.json()
 
+    if (!data?.elements || !data?.teams) throw new Error("FPL API returned incomplete data")
+
     const nextGW =
       data.events?.find((e: any) => e.is_next) ||
       data.events?.find((e: any) => e.is_current)

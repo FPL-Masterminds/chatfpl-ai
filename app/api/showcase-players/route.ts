@@ -63,6 +63,10 @@ export async function GET() {
   const res = await fetch(FPL_URL, { next: { revalidate: 1800 } })
   const json = await res.json()
 
+  if (!json?.teams || !Array.isArray(json.teams)) {
+    return NextResponse.json({ error: "FPL API unavailable" }, { status: 503 })
+  }
+
   const teams: Record<number, string> = {}
   const teamFullNames: Record<number, string> = {}
   const teamCodes: Record<number, number> = {}
