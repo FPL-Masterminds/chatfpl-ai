@@ -182,7 +182,7 @@ export default async function InjuryPlayerPage({
           <span className="text-white"> in Fantasy Premier League?</span>
         </h1>
         <p className="text-white/60 text-base max-w-xl">
-          Live fitness and availability update for {player.displayName} — {player.club} {player.position}. Updated hourly from the official FPL API.
+          Live fitness and availability update for {player.displayName}.
         </p>
       </section>
 
