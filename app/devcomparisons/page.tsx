@@ -79,9 +79,7 @@ function StatRow({ label, valA, valB, winsA, winsB }: {
       <div
         className="flex items-center justify-start pl-3 py-2"
         style={{
-          fontFamily: "ui-monospace, monospace",
-          fontSize: 13,
-          fontWeight: 700,
+          fontSize: 13, fontWeight: 700,
           color: winsA ? GREEN : "white",
           textShadow: winsA ? `0 0 12px ${GREEN}80` : "none",
           background: winsA ? "rgba(0,255,135,0.05)" : "transparent",
@@ -101,9 +99,7 @@ function StatRow({ label, valA, valB, winsA, winsB }: {
       <div
         className="flex items-center justify-end pr-3 py-2"
         style={{
-          fontFamily: "ui-monospace, monospace",
-          fontSize: 13,
-          fontWeight: 700,
+          fontSize: 13, fontWeight: 700,
           color: winsB ? GREEN : "white",
           textShadow: winsB ? `0 0 12px ${GREEN}80` : "none",
           background: winsB ? "rgba(0,255,135,0.05)" : "transparent",
@@ -149,14 +145,14 @@ function CompareCard({ pair, rank, gw, text }: {
 
         {/* Left photo strip */}
         <div
-          className="relative shrink-0 flex flex-col items-center justify-center w-20 sm:w-36"
+          className="relative shrink-0 flex flex-col items-center justify-center w-28 sm:w-44"
           style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
           {/* Rank badge */}
           <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
             style={{ width: 20, height: 20, background: "rgba(0,0,0,0.8)", border: `1px solid rgba(0,255,135,0.2)` }}
           >
-            <span style={{ fontSize: 9, fontWeight: 700, color: "white", fontFamily: "ui-monospace, monospace" }}>{rank}</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: "white" }}>{rank}</span>
           </div>
           {/* Position badge */}
           <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5"
@@ -167,11 +163,11 @@ function CompareCard({ pair, rank, gw, text }: {
           <div className="flex flex-col items-center">
             <Image
               src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeA}.png`}
-              alt={pair.nameA} width={80} height={102}
+              alt={pair.nameA} width={120} height={153}
               style={{ objectFit: "contain" }} unoptimized
             />
             <div style={{
-              height: 1, width: 80,
+              height: 1, width: 120,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
             }} />
@@ -227,10 +223,7 @@ function CompareCard({ pair, rank, gw, text }: {
           </div>
 
           {/* CTA row */}
-          <div className="flex items-center justify-between px-3 py-2 border-t gap-3" style={{ borderColor: BORDER }}>
-            <span style={{ fontSize: 9, color: MUTED, fontFamily: "ui-monospace, monospace", letterSpacing: "0.04em" }}>
-              GET /compare/{pair.slugA}/{pair.slugB}
-            </span>
+          <div className="flex items-center justify-end px-3 py-2 border-t" style={{ borderColor: BORDER }}>
             <Link
               href={`/fpl/compare/${pair.slugA}/${pair.slugB}`}
               className="shrink-0 whitespace-nowrap font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)]"
@@ -246,7 +239,7 @@ function CompareCard({ pair, rank, gw, text }: {
               slug={`${pair.slugA}-vs-${pair.slugB}`}
               gw={gw}
               text={text}
-              promptLabel={`> query: Who should I pick, ${pair.nameA} or ${pair.nameB} in GW${gw}?`}
+              promptLabel={`Who should I pick: ${pair.nameA} or ${pair.nameB} in GW${gw}?`}
             />
           </div>
 
@@ -254,17 +247,17 @@ function CompareCard({ pair, rank, gw, text }: {
 
         {/* Right photo strip */}
         <div
-          className="relative shrink-0 flex flex-col items-center justify-center w-20 sm:w-36"
+          className="relative shrink-0 flex flex-col items-center justify-center w-28 sm:w-44"
           style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
           <div className="flex flex-col items-center">
             <Image
               src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeB}.png`}
-              alt={pair.nameB} width={80} height={102}
+              alt={pair.nameB} width={120} height={153}
               style={{ objectFit: "contain" }} unoptimized
             />
             <div style={{
-              height: 1, width: 80,
+              height: 1, width: 120,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
             }} />
