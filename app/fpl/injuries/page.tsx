@@ -3,6 +3,7 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
 import { Reveal } from "@/components/scroll-reveal"
+import { HubHero } from "@/components/hub-hero"
 import { getInjuryHub, statusLabel, type InjuryPlayer } from "@/lib/fpl-injury"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
@@ -165,35 +166,18 @@ export default async function InjuriesHubPage() {
     <div className="flex min-h-screen flex-col bg-black overflow-x-hidden">
       <DevHeader />
 
-      <div className="pointer-events-none fixed inset-0 z-0" style={{
-        background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,255,135,0.06) 0%, transparent 70%)",
-      }} />
-
-      {/* Hero */}
-      <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
-        <h1
-          className="font-bold leading-[1.1] tracking-tighter mb-4"
-          style={{ fontSize: "clamp(26px, 5vw, 52px)", maxWidth: 820 }}
-        >
-          <span className="text-white">FPL Injury News for </span>
-          <span
-            className="text-transparent bg-clip-text"
-            style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
-          >
-            Gameweek {gw}
-          </span>
-        </h1>
-        <p className="text-white/60 text-base max-w-xl">
-          Every injured, doubtful, and suspended FPL player for Gameweek {gw}. Updated hourly. Click any player for their full fitness update.
-        </p>
-        <div className="mt-3">
+      <HubHero
+        headingWhite="FPL Injury and Fitness Update: "
+        headingGradient={`Gameweek ${gw}`}
+        subtitle={`Every injured, doubtful, and suspended FPL player for Gameweek ${gw}. Updated hourly from the official API. Click any player for their full fitness update.`}
+        badge={
           <span className="rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-widest"
             style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
           >
             {players.length} players flagged
           </span>
-        </div>
-      </section>
+        }
+      />
 
       {/* Cards */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">

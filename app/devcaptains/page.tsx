@@ -6,6 +6,7 @@ import { getCaptainHub, type CaptainHubPlayer } from "@/lib/fpl-player-page"
 import { DevHeader } from "@/components/dev-header"
 import { Reveal } from "@/components/scroll-reveal"
 import { HubCardExpand } from "@/components/hub-card-expand"
+import { HubHero } from "@/components/hub-hero"
 
 export const dynamic = "force-dynamic"
 
@@ -240,39 +241,19 @@ export default async function DevCaptainsPage() {
     <div className="flex min-h-screen flex-col bg-black overflow-x-hidden">
       <DevHeader />
 
-      {/* Background glow */}
-      <div className="pointer-events-none fixed inset-0 z-0" style={{
-        background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,255,135,0.06) 0%, transparent 70%)",
-      }} />
-
-      {/* Hero */}
-      <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
-        <h1
-          className="font-bold leading-[1.1] tracking-tighter mb-4"
-          style={{ fontSize: "clamp(26px, 5vw, 52px)", maxWidth: 820 }}
-        >
-          <span className="text-white">The Best FPL Captain Picks for </span>
-          <span
-            className="text-transparent bg-clip-text"
-            style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
-          >
-            Gameweek {gw}
-          </span>
-        </h1>
-        <p className="text-white/60 text-base max-w-xl">
-          Ranked by expected points. Click any player for the full captaincy verdict, fixture analysis, and AI chat.
-        </p>
-        <div className="mt-3 flex items-center gap-2">
-          <span className="rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-widest"
-            style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-          >
-            Dev preview
-          </span>
-          <Link href="/fpl/captains" className="text-xs text-white/40 hover:text-white/70 transition-colors">
-            View live page →
-          </Link>
-        </div>
-      </section>
+      <HubHero
+        headingWhite="The Best FPL Captain Picks for "
+        headingGradient={`Gameweek ${gw}`}
+        subtitle="Ranked by expected points, form, and fixture difficulty. Click any player for the full captaincy verdict and AI chat."
+        badge={
+          <div className="flex items-center gap-2">
+            <span className="rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-widest"
+              style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
+            >Dev preview</span>
+            <Link href="/fpl/captains" className="text-xs text-white/40 hover:text-white/70 transition-colors">View live page</Link>
+          </div>
+        }
+      />
 
       {/* Cards */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">

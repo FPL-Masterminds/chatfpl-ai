@@ -6,6 +6,7 @@ import { getComparisonHub, type ComparisonHubPair } from "@/lib/fpl-comparison"
 import { DevHeader } from "@/components/dev-header"
 import { Reveal } from "@/components/scroll-reveal"
 import { HubCardExpand } from "@/components/hub-card-expand"
+import { HubHero } from "@/components/hub-hero"
 
 export const dynamic = "force-dynamic"
 
@@ -307,42 +308,19 @@ export default async function DevComparisonsPage() {
 
       <DevHeader />
 
-      <div className="pointer-events-none fixed inset-0 z-0" style={{
-        background: "radial-gradient(ellipse 60% 50% at 50% 20%, rgba(0,255,135,0.04) 0%, transparent 70%)",
-      }} />
-
-      {/* Hero */}
-      <section className="relative z-10 flex flex-col items-center text-center px-4 pt-28 pb-14">
-
-
-        <h1
-          className="font-bold leading-[1.1] tracking-tighter mb-4"
-          style={{ fontSize: "clamp(26px, 5vw, 52px)", maxWidth: 820 }}
-        >
-          <span className="text-white">FPL Head-to-Head Picks for </span>
-          <span
-            className="text-transparent bg-clip-text"
-            style={{ backgroundImage: `linear-gradient(to right,${GREEN},${CYAN})`, WebkitBackgroundClip: "text" }}
-          >
-            Gameweek {gw}
-          </span>
-        </h1>
-
-        <p className="text-white/60 text-base max-w-xl mb-4">
-          Same-position matchups ranked by combined ownership. Monospace values highlight the stronger stat. Click any pair for the full breakdown.
-        </p>
-
-        <div className="flex items-center gap-2">
-          <span className="rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-widest"
-            style={{ background: "rgba(0,255,135,0.08)", color: GREEN, border: "1px solid rgba(0,255,135,0.2)", fontFamily: "ui-monospace, monospace" }}
-          >
-            Dev preview
-          </span>
-          <Link href="/fpl/comparisons" className="text-xs transition-colors" style={{ color: MUTED }}>
-            View live page
-          </Link>
-        </div>
-      </section>
+      <HubHero
+        headingWhite="FPL Head-to-Head Picks for "
+        headingGradient={`Gameweek ${gw}`}
+        subtitle="Same-position matchups ranked by combined ownership. The stronger stat is highlighted. Click any pair for the full breakdown and AI chat."
+        badge={
+          <div className="flex items-center gap-2">
+            <span className="rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-widest"
+              style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
+            >Dev preview</span>
+            <Link href="/fpl/comparisons" className="text-xs text-white/40 hover:text-white/70 transition-colors">View live page</Link>
+          </div>
+        }
+      />
 
       {/* Cards */}
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
