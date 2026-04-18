@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { getEligibleSlugs } from '@/lib/fpl-player-page'
 import { getComparisonSlugs } from '@/lib/fpl-comparison'
+import { getInjurySlugs } from '@/lib/fpl-injury'
 
 const baseUrl = 'https://www.chatfpl.ai'
 
@@ -22,6 +23,7 @@ const excludedRoutes = [
   '/reset-password',
   '/forgot-password',
   '/fpl',           // exclude the /fpl parent — only include /fpl/[slug] entries
+  '/fpl/injury',    // exclude parent — individual pages handled via injuryRoutes above
 ]
 
 // Recursively find all static page routes from the filesystem
@@ -97,16 +99,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ({ playerA, playerB }) => `/fpl/compare/${playerA}/${playerB}`
   )
 
+  // Injury routes — only currently flagged players
+  const injurySlugsData = await getInjurySlugs()
+  const injuryRoutes = injurySlugsData.map(({ slug }) => `/fpl/injury/${slug}`)
+
   const allRoutes = [
     ...staticRoutes,
     "/fpl/captains",      // Captains hub — high priority, changes every GW
     "/fpl/differentials", // Differentials hub — high priority, changes every GW
     "/fpl/comparisons",   // Head-to-Head hub — high priority, changes every GW
+    "/fpl/injuries",      // Injuries hub — high priority, changes every GW
     ...captainRoutes,
     ...transferRoutes,
     ...sellRoutes,
     ...differentialRoutes,
     ...comparisonRoutes,
+    ...injuryRoutes,
   ]
 
   return allRoutes.map((route) => {
