@@ -43,8 +43,8 @@ export async function generateMetadata({
     openGraph: {
       title: `Is ${player.displayName} fit for GW${gw}? | ChatFPL AI`,
       description: isAvailable
-        ? `${player.displayName} — no injury concerns for Gameweek ${gw}.`
-        : `${player.displayName} — ${statusLabel(player.status, player.chance)} for GW${gw}.`,
+        ? `${player.displayName}: no injury concerns for Gameweek ${gw}.`
+        : `${player.displayName}: ${statusLabel(player.status, player.chance)} for GW${gw}.`,
       url: `https://www.chatfpl.ai/fpl/injury/${slug}`,
     },
   }
@@ -81,8 +81,8 @@ function buildVerdict(player: InjuryPlayer, gw: number) {
     verdictLabel = "AVAILABLE"
     verdict = `${displayName} has no current injury concerns and is expected to be available for Gameweek ${gw}.`
     bullets = [
-      `Fully fit — no FPL news flags heading into GW${gw}`,
-      `${minutes} minutes accumulated this season — regular starter`,
+      `Fully fit with no FPL news flags heading into GW${gw}`,
+      `${minutes} minutes accumulated this season as a regular starter`,
       `Form: ${form} pts/game over recent gameweeks`,
     ]
     context = `With ${totalPts} total points this season at ${player.price}, ${displayName} remains a reliable asset. No action required from an injury perspective.`
@@ -91,7 +91,7 @@ function buildVerdict(player: InjuryPlayer, gw: number) {
     verdict = `${displayName} is suspended and unavailable for Gameweek ${gw}.`
     bullets = [
       news ? `FPL news: ${news}` : `${displayName} is serving a suspension for GW${gw}`,
-      `Suspension typically clears after one gameweek — check official FPL for the exact ban length`,
+      `Suspension typically clears after one gameweek. Check official FPL for the exact ban length`,
       `Consider one of the alternatives below while they serve the ban`,
     ]
     context = `Suspensions are short-term. If ${displayName} is central to your team, holding is usually the right call unless the alternatives below represent a clear upgrade.`
@@ -100,18 +100,18 @@ function buildVerdict(player: InjuryPlayer, gw: number) {
     verdict = `${displayName} is currently unavailable for Gameweek ${gw} with a ${chance}% chance of playing.`
     bullets = [
       news ? `FPL news: ${news}` : `${displayName} has a ${chance}% chance of playing in GW${gw}`,
-      `${minutes} minutes this season — a significant loss if they are a regular starter`,
+      `${minutes} minutes this season. A significant loss if they are a regular starter`,
       `Monitor official club and FPL news ahead of the GW${gw} deadline`,
     ]
     context = `With a ${chance}% chance of playing, selecting ${displayName} this week carries real risk. The alternatives below are the best available options at a similar price point.`
   } else {
     verdictLabel = chance >= 75 ? "FITNESS CONCERN" : "INJURY DOUBT"
-    verdict = `${displayName} is a ${chance >= 75 ? "fitness concern" : "significant doubt"} for Gameweek ${gw} — ${chance}% chance of playing.`
+    verdict = `${displayName} is a ${chance >= 75 ? "fitness concern" : "significant doubt"} for Gameweek ${gw} with a ${chance}% chance of playing.`
     bullets = [
       news ? `FPL news: ${news}` : `${displayName} has a ${chance}% chance of playing`,
       chance >= 75
         ? `A ${chance}% chance is worth risking if you are short on budget for alternatives`
-        : `A ${chance}% chance is a significant risk — having a cover option is advisable`,
+        : `A ${chance}% chance is a significant risk. Having a cover option is advisable`,
       `Check for updates in the 24 hours before the GW${gw} deadline`,
     ]
     context = `${displayName} has a ${chance}% chance of playing. ${
@@ -302,7 +302,7 @@ export default async function InjuryPlayerPage({
         {!isAvailable && alternatives.length > 0 && (
           <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
             <h2 className="text-2xl font-bold leading-tight tracking-tight mb-2">
-              <span className="text-white">{player.webName} Injury — FPL Alternatives for </span>
+              <span className="text-white">{player.webName} Injury: FPL Alternatives for </span>
               <span
                 className="text-transparent bg-clip-text"
                 style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}

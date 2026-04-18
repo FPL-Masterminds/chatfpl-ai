@@ -1,0 +1,31 @@
+---
+description: Never use em-dashes in any content
+alwaysApply: true
+---
+
+# No Em-Dashes
+
+Never use the em-dash character (—) anywhere in the codebase — not in strings, static text, JSX content, comments, or commit messages.
+
+## Replace with:
+- A period or new sentence: `significant loss — check` → `significant loss. Check`
+- A colon: `Status — Injured` → `Status: Injured`
+- A hyphen with spaces where a pause is needed: use ` - ` sparingly
+
+## Examples
+
+❌ BAD
+```tsx
+`${minutes} minutes this season — a significant loss`
+`Fully fit — no concerns`
+<span>Injury — FPL Alternatives</span>
+```
+
+✅ GOOD
+```tsx
+`${minutes} minutes this season. A significant loss`
+`Fully fit with no concerns`
+<span>Injury: FPL Alternatives</span>
+```
+
+This rule exists because the site owner has explicitly and repeatedly requested no em-dashes in any output.
