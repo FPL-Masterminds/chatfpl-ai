@@ -1,0 +1,30 @@
+---
+description: Always provide full URLs, never bare slugs
+alwaysApply: true
+---
+
+# Always Use Full URLs
+
+When providing links or page references to the user, always include the full URL with domain.
+
+## Rules
+
+- Always prefix paths with `https://www.chatfpl.ai`
+- Never give bare slugs like `/fpl/injuries` or `devcaptains`
+- Always give clickable full URLs like `https://www.chatfpl.ai/fpl/injuries`
+
+## Examples
+
+❌ BAD
+```
+/fpl/injuries
+devcaptains
+/fpl/compare/haaland/salah
+```
+
+✅ GOOD
+```
+https://www.chatfpl.ai/fpl/injuries
+https://www.chatfpl.ai/devcaptains
+https://www.chatfpl.ai/fpl/compare/haaland/salah
+```

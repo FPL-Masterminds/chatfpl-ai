@@ -113,7 +113,7 @@ function PlayerCard({ player, rank, even, gw, text }: {
       <div className="flex flex-row">
 
         {/* Left — photo strip */}
-        <div className="relative shrink-0 w-24 sm:w-40 flex flex-col items-center justify-center"
+        <div className="relative shrink-0 w-20 sm:w-52 flex flex-col items-center justify-center"
           style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
         >
           <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
@@ -130,12 +130,13 @@ function PlayerCard({ player, rank, even, gw, text }: {
             <Image
               src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
               alt={player.displayName}
-              width={88} height={112}
+              width={160} height={204}
+              className="w-14 sm:w-[160px]"
               style={{ objectFit: "contain" }}
               unoptimized
             />
-            <div style={{
-              height: 1, width: 88,
+            <div className="w-14 sm:w-[160px]" style={{
+              height: 1,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
               boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
             }} />
