@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import type { InjuryPlayer } from "@/lib/fpl-injury"
@@ -8,7 +8,7 @@ import type { InjuryPlayer } from "@/lib/fpl-injury"
 const GREEN = "#00FF87"
 const CYAN  = "#00FFFF"
 
-// ─── Status pill ──────────────────────────────────────────────────────────────
+// ─── Status helpers ───────────────────────────────────────────────────────────
 
 function statusLabel(status: string, chance: number): string {
   if (status === "i") return "Injured"
@@ -30,6 +30,105 @@ function StatusPill({ status, chance }: { status: string; chance: number }) {
   )
 }
 
+// ─── Custom dropdown ──────────────────────────────────────────────────────────
+
+interface DropdownOption {
+  value: string
+  label: string
+  teamCode?: number
+}
+
+function CustomDropdown({ value, onChange, options }: {
+  value: string
+  onChange: (v: string) => void
+  options: DropdownOption[]
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const selected = options.find(o => o.value === value) ?? options[0]
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener("mousedown", onClickOutside)
+    return () => document.removeEventListener("mousedown", onClickOutside)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative w-full">
+      {/* Trigger */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center gap-2 rounded-full px-4 py-2.5 text-xs font-semibold text-white transition-all"
+        style={{
+          background: "rgba(0,0,0,0.7)",
+          border: `1px solid ${open ? GREEN : "rgba(0,255,135,0.3)"}`,
+          backdropFilter: "blur(8px)",
+          boxShadow: open ? `0 0 12px rgba(0,255,135,0.2)` : "none",
+        }}
+      >
+        {selected.teamCode && (
+          <Image
+            src={`https://resources.premierleague.com/premierleague/badges/70/t${selected.teamCode}.png`}
+            alt={selected.label} width={14} height={14}
+            style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+          />
+        )}
+        <span className="flex-1 text-left truncate">{selected.label}</span>
+        <svg
+          width="10" height="6" viewBox="0 0 10 6" fill="none"
+          style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
+        >
+          <path d="M1 1l4 4 4-4" stroke={GREEN} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {/* Panel */}
+      {open && (
+        <div
+          className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 rounded-2xl overflow-hidden py-1"
+          style={{
+            background: "rgba(10,14,20,0.97)",
+            border: `1px solid rgba(0,255,135,0.25)`,
+            backdropFilter: "blur(16px)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.8)",
+          }}
+        >
+          {options.map(o => (
+            <button
+              key={o.value}
+              onClick={() => { onChange(o.value); setOpen(false) }}
+              className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-left transition-colors"
+              style={{
+                color: o.value === value ? GREEN : "white",
+                background: o.value === value ? "rgba(0,255,135,0.08)" : "transparent",
+                fontWeight: o.value === value ? 700 : 400,
+              }}
+              onMouseEnter={e => { if (o.value !== value) (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,255,135,0.05)" }}
+              onMouseLeave={e => { if (o.value !== value) (e.currentTarget as HTMLButtonElement).style.background = "transparent" }}
+            >
+              {o.teamCode && (
+                <Image
+                  src={`https://resources.premierleague.com/premierleague/badges/70/t${o.teamCode}.png`}
+                  alt={o.label} width={14} height={14}
+                  style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
+                />
+              )}
+              {o.value === value && (
+                <svg width="8" height="6" viewBox="0 0 8 6" fill="none" style={{ flexShrink: 0 }}>
+                  <path d="M1 3l2 2 4-4" stroke={GREEN} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Injury card ──────────────────────────────────────────────────────────────
 
 function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
@@ -44,7 +143,6 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
   return (
     <div style={{ background: "rgba(0,255,135,0.03)", border: "1px solid rgba(0,255,135,0.18)", borderRadius: 12 }}>
       <div className="flex flex-row">
-        {/* Photo strip */}
         <div
           className="relative shrink-0 w-20 sm:w-52 flex flex-col items-center justify-center"
           style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
@@ -73,9 +171,7 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
           </div>
         </div>
 
-        {/* Data */}
         <div className="flex-1 min-w-0 flex flex-col justify-between p-3 sm:p-4 gap-2.5">
-          {/* Name + badge + status */}
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 min-w-0">
               <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{player.displayName}</h2>
@@ -87,7 +183,6 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
             <StatusPill status={player.status} chance={player.chance} />
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
             {stats.map(s => (
               <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 8px" }}>
@@ -99,12 +194,11 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
             ))}
           </div>
 
-          {/* News + CTA */}
           <div className="flex items-center justify-between gap-2"
             style={{ padding: "7px 10px", background: "#1A1A1A", borderRadius: 4 }}
           >
-            <div className="flex items-start gap-2 min-w-0 flex-1">
-              <span className="mt-[3px] shrink-0 rounded-full" style={{
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="shrink-0 rounded-full" style={{
                 width: 7, height: 7, display: "inline-block",
                 background: GREEN, boxShadow: `0 0 6px 2px ${GREEN}80`,
               }} />
@@ -124,56 +218,13 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
   )
 }
 
-// ─── Dropdown ─────────────────────────────────────────────────────────────────
-
-function Dropdown({ value, onChange, options }: {
-  value: string
-  onChange: (v: string) => void
-  options: { value: string; label: string; img?: string }[]
-}) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="w-full appearance-none cursor-pointer rounded-full pl-4 pr-8 py-2.5 text-xs font-semibold text-white outline-none transition-all"
-        style={{
-          background: "rgba(0,0,0,0.7)",
-          border: "1px solid rgba(0,255,135,0.3)",
-          backdropFilter: "blur(8px)",
-          color: "white",
-        }}
-      >
-        {options.map(o => (
-          <option key={o.value} value={o.value} style={{ background: "#0d1117", color: "white" }}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      {/* Chevron */}
-      <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-        <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-          <path d="M1 1l4 4 4-4" stroke={GREEN} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-      {/* Crest overlay for team filter — shows next to selected value */}
-      {options.find(o => o.value === value)?.img && (
-        <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
-          {/* handled via option label */}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── Main filter component ────────────────────────────────────────────────────
+// ─── Main export ──────────────────────────────────────────────────────────────
 
 export function InjuryHubFilters({ players }: { players: InjuryPlayer[] }) {
   const [position, setPosition] = useState("all")
   const [team, setTeam]         = useState("all")
   const [status, setStatus]     = useState("all")
 
-  // Unique sorted teams
   const teams = useMemo(() => {
     const map = new Map<string, { name: string; code: number }>()
     players.forEach(p => { if (!map.has(p.club)) map.set(p.club, { name: p.club, code: p.teamCode }) })
@@ -183,22 +234,21 @@ export function InjuryHubFilters({ players }: { players: InjuryPlayer[] }) {
   const filtered = useMemo(() => players.filter(p => {
     if (position !== "all" && p.position !== position) return false
     if (team !== "all" && p.club !== team) return false
-    if (status !== "all") {
-      if (status === "injured"   && p.status !== "i") return false
-      if (status === "doubtful"  && p.status !== "d") return false
-      if (status === "suspended" && p.status !== "s") return false
-    }
+    if (status === "injured"   && p.status !== "i") return false
+    if (status === "doubtful"  && p.status !== "d") return false
+    if (status === "suspended" && p.status !== "s") return false
     return true
   }), [players, position, team, status])
 
-  const selectedTeamCode = teams.find(t => t.name === team)?.code
+  const teamOptions: DropdownOption[] = [
+    { value: "all", label: "All Teams" },
+    ...teams.map(t => ({ value: t.name, label: t.name, teamCode: t.code })),
+  ]
 
   return (
     <>
-      {/* Filter bar */}
-      <div className="w-full max-w-3xl mb-6 grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {/* Position */}
-        <Dropdown
+      <div className="w-full max-w-3xl mb-8 grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <CustomDropdown
           value={position}
           onChange={setPosition}
           options={[
@@ -209,39 +259,8 @@ export function InjuryHubFilters({ players }: { players: InjuryPlayer[] }) {
             { value: "FWD", label: "Forwards" },
           ]}
         />
-
-        {/* Team */}
-        <div className="relative">
-          <div className="flex items-center gap-2 rounded-full pl-3 pr-8 py-2.5 cursor-pointer relative"
-            style={{ background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.3)", backdropFilter: "blur(8px)" }}
-          >
-            {selectedTeamCode && (
-              <Image
-                src={`https://resources.premierleague.com/premierleague/badges/70/t${selectedTeamCode}.png`}
-                alt={team} width={14} height={14} style={{ objectFit: "contain", flexShrink: 0 }} unoptimized
-              />
-            )}
-            <select
-              value={team}
-              onChange={e => setTeam(e.target.value)}
-              className="absolute inset-0 w-full h-full appearance-none cursor-pointer bg-transparent text-xs font-semibold text-white outline-none"
-              style={{ paddingLeft: selectedTeamCode ? "2.2rem" : "0.75rem", paddingRight: "2rem", color: "white" }}
-            >
-              <option value="all" style={{ background: "#0d1117", color: "white" }}>All Teams</option>
-              {teams.map(t => (
-                <option key={t.name} value={t.name} style={{ background: "#0d1117", color: "white" }}>{t.name}</option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-              <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
-                <path d="M1 1l4 4 4-4" stroke={GREEN} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Status */}
-        <Dropdown
+        <CustomDropdown value={team} onChange={setTeam} options={teamOptions} />
+        <CustomDropdown
           value={status}
           onChange={setStatus}
           options={[
@@ -253,12 +272,6 @@ export function InjuryHubFilters({ players }: { players: InjuryPlayer[] }) {
         />
       </div>
 
-      {/* Result count */}
-      <p className="w-full max-w-3xl text-xs text-white/40 mb-3">
-        {filtered.length} player{filtered.length !== 1 ? "s" : ""} shown
-      </p>
-
-      {/* Cards */}
       <div className="w-full max-w-3xl flex flex-col gap-3">
         {filtered.length === 0 ? (
           <p className="text-center text-white/40 py-12 text-sm">No players match these filters.</p>
