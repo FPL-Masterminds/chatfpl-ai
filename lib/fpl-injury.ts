@@ -159,19 +159,26 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
     }
 
     // Suggest 4 fit alternatives — same position, similar price, fully fit
+    // Try progressively wider windows until we have enough candidates
     const playerCost = el.now_cost
-    const alternatives: InjuryPlayer[] = allMapped
-      .filter((p: any) =>
-        p.id !== el.id &&
-        p.element_type === el.element_type &&
-        (p.status ?? "a") === "a" &&
-        (p.chance_of_playing_next_round ?? 100) >= 75 &&
-        p.minutes > 200 &&
-        Math.abs(p.now_cost - playerCost) <= 20  // within £2.0m
-      )
-      .sort((a: any, b: any) =>
-        parseFloat(b.ep_next ?? "0") - parseFloat(a.ep_next ?? "0")
-      )
+    const fitPool = allMapped.filter((p: any) =>
+      p.id !== el.id &&
+      p.element_type === el.element_type &&
+      (p.status ?? "a") === "a" &&
+      (p.chance_of_playing_next_round ?? 100) >= 75 &&
+      p.minutes > 200
+    ).sort((a: any, b: any) =>
+      parseFloat(b.ep_next ?? "0") - parseFloat(a.ep_next ?? "0")
+    )
+
+    const windows = [10, 15, 20, 30] // £1.0m, £1.5m, £2.0m, £3.0m
+    let filtered: typeof fitPool = []
+    for (const w of windows) {
+      filtered = fitPool.filter((p: any) => Math.abs(p.now_cost - playerCost) <= w)
+      if (filtered.length >= 4) break
+    }
+
+    const alternatives: InjuryPlayer[] = filtered
       .slice(0, 4)
       .map((p: any) => ({
         slug:        p._slug,
