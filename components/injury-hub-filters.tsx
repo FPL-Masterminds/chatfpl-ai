@@ -2,6 +2,50 @@
 
 import { useState, useMemo, useRef, useEffect } from "react"
 import Image from "next/image"
+
+// ─── Player photo with fallback ───────────────────────────────────────────────
+
+function PlayerPhoto({ code, name, width, height, className }: {
+  code: number; name: string; width: number; height: number; className?: string
+}) {
+  const [errored, setErrored] = useState(false)
+  const initials = name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
+
+  if (errored) {
+    return (
+      <div
+        className={className}
+        style={{
+          width, height, display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          background: "rgba(0,255,135,0.04)",
+          border: "1px solid rgba(0,255,135,0.12)",
+          borderRadius: 8,
+        }}
+      >
+        {/* Silhouette */}
+        <svg width={width * 0.45} height={height * 0.55} viewBox="0 0 44 56" fill="none" aria-hidden>
+          <circle cx="22" cy="14" r="10" fill="rgba(255,255,255,0.12)" />
+          <path d="M2 54c0-11 9-20 20-20s20 9 20 20" fill="rgba(255,255,255,0.08)" />
+        </svg>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 4, fontWeight: 600 }}>
+          {initials}
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <Image
+      src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`}
+      alt={name} width={width} height={height}
+      className={className}
+      style={{ objectFit: "contain" }}
+      unoptimized
+      onError={() => setErrored(true)}
+    />
+  )
+}
 import Link from "next/link"
 import type { InjuryPlayer } from "@/lib/fpl-injury"
 
@@ -158,10 +202,9 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
             {player.position}
           </div>
           <div className="flex flex-col items-center">
-            <Image
-              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-              alt={player.displayName} width={160} height={204}
-              className="w-14 sm:w-[160px]" style={{ objectFit: "contain" }} unoptimized
+            <PlayerPhoto
+              code={player.code} name={player.displayName}
+              width={160} height={204} className="w-14 sm:w-[160px]"
             />
             <div className="w-14 sm:w-[160px]" style={{
               height: 1,
