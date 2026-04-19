@@ -312,7 +312,7 @@ export default async function FplPlayerPage({
               style={{ background: "rgba(0,0,0,0.9)" }}
             >
               <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                Captain Picks →
+                Captain Picks
               </span>
             </Link>
           </div>
@@ -333,7 +333,7 @@ export default async function FplPlayerPage({
                 style={{ background: "rgba(0,0,0,0.9)" }}
               >
                 <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                  {bestValueLink.label} →
+                  {bestValueLink.label}
                 </span>
               </Link>
             </div>
