@@ -1714,11 +1714,15 @@ export function getBestValueHubLink(
   if (isNaN(priceVal)) return null
   const nowCost = Math.round(priceVal * 10)
 
-  const match = BEST_VALUE_COMBOS
+  const positionCombos = BEST_VALUE_COMBOS
     .filter((c) => c.position === positionSlug)
     .map((c) => ({ ...c, cap: PRICE_META[c.price].cap }))
-    .filter((c) => c.cap >= nowCost)
-    .sort((a, b) => a.cap - b.cap)[0]
+
+  // Pick the tightest bracket that fits; fall back to the highest bracket so
+  // premium players (e.g. Salah) still get a link to the position hub.
+  const match =
+    positionCombos.filter((c) => c.cap >= nowCost).sort((a, b) => a.cap - b.cap)[0] ??
+    positionCombos.sort((a, b) => b.cap - a.cap)[0]
 
   if (!match) return null
 
