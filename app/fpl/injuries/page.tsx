@@ -179,48 +179,47 @@ export default async function InjuriesHubPage() {
         {/* Browse by budget */}
         <div className="w-full max-w-4xl mt-16">
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-6 text-center">Browse by budget</p>
-          <div className="space-y-3">
+          <div className="flex flex-wrap justify-center gap-3">
             {[
-              { label: "Goalkeepers", links: [
-                { href: "/fpl/best/goalkeepers/under-4m",   text: "Under £4.0m" },
-                { href: "/fpl/best/goalkeepers/under-4-5m", text: "Under £4.5m" },
-                { href: "/fpl/best/goalkeepers/under-5m",   text: "Under £5.0m" },
-              ]},
-              { label: "Defenders", links: [
-                { href: "/fpl/best/defenders/under-4m",   text: "Under £4.0m" },
-                { href: "/fpl/best/defenders/under-4-5m", text: "Under £4.5m" },
-                { href: "/fpl/best/defenders/under-5m",   text: "Under £5.0m" },
-                { href: "/fpl/best/defenders/under-5-5m", text: "Under £5.5m" },
-                { href: "/fpl/best/defenders/under-6m",   text: "Under £6.0m" },
-              ]},
-              { label: "Midfielders", links: [
-                { href: "/fpl/best/midfielders/under-5m",   text: "Under £5.0m" },
-                { href: "/fpl/best/midfielders/under-5-5m", text: "Under £5.5m" },
-                { href: "/fpl/best/midfielders/under-6m",   text: "Under £6.0m" },
-                { href: "/fpl/best/midfielders/under-6-5m", text: "Under £6.5m" },
-                { href: "/fpl/best/midfielders/under-7m",   text: "Under £7.0m" },
-              ]},
-              { label: "Forwards", links: [
-                { href: "/fpl/best/forwards/under-6m",   text: "Under £6.0m" },
-                { href: "/fpl/best/forwards/under-6-5m", text: "Under £6.5m" },
-                { href: "/fpl/best/forwards/under-7m",   text: "Under £7.0m" },
-                { href: "/fpl/best/forwards/under-7-5m", text: "Under £7.5m" },
-                { href: "/fpl/best/forwards/under-8m",   text: "Under £8.0m" },
-              ]},
-            ].map(({ label, links }) => (
-              <div key={label} className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] text-white/40 w-24 shrink-0">{label}</span>
-                <div className="flex flex-wrap gap-2">
-                  {links.map(({ href, text }) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/60 transition-all hover:border-[#00FF87]/40 hover:text-[#00FF87] hover:bg-[#00FF87]/[0.06]"
-                    >
-                      {text}
-                    </Link>
-                  ))}
-                </div>
+              { href: "/fpl/best/goalkeepers/under-4m",   text: "GKP Under £4.0m" },
+              { href: "/fpl/best/goalkeepers/under-4-5m", text: "GKP Under £4.5m" },
+              { href: "/fpl/best/goalkeepers/under-5m",   text: "GKP Under £5.0m" },
+              { href: "/fpl/best/defenders/under-4m",     text: "DEF Under £4.0m" },
+              { href: "/fpl/best/defenders/under-4-5m",   text: "DEF Under £4.5m" },
+              { href: "/fpl/best/defenders/under-5m",     text: "DEF Under £5.0m" },
+              { href: "/fpl/best/defenders/under-5-5m",   text: "DEF Under £5.5m" },
+              { href: "/fpl/best/defenders/under-6m",     text: "DEF Under £6.0m" },
+              { href: "/fpl/best/midfielders/under-5m",   text: "MID Under £5.0m" },
+              { href: "/fpl/best/midfielders/under-5-5m", text: "MID Under £5.5m" },
+              { href: "/fpl/best/midfielders/under-6m",   text: "MID Under £6.0m" },
+              { href: "/fpl/best/midfielders/under-6-5m", text: "MID Under £6.5m" },
+              { href: "/fpl/best/midfielders/under-7m",   text: "MID Under £7.0m" },
+              { href: "/fpl/best/forwards/under-6m",      text: "FWD Under £6.0m" },
+              { href: "/fpl/best/forwards/under-6-5m",    text: "FWD Under £6.5m" },
+              { href: "/fpl/best/forwards/under-7m",      text: "FWD Under £7.0m" },
+              { href: "/fpl/best/forwards/under-7-5m",    text: "FWD Under £7.5m" },
+              { href: "/fpl/best/forwards/under-8m",      text: "FWD Under £8.0m" },
+            ].map(({ href, text }) => (
+              <div
+                key={href}
+                className="inline-block"
+                style={{
+                  padding: "1.5px",
+                  borderRadius: "9999px",
+                  background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+                  backgroundSize: "200% 200%",
+                  animation: "glow_scroll 3.5s linear infinite",
+                }}
+              >
+                <Link
+                  href={href}
+                  className="flex items-center rounded-full px-4 py-2 text-xs font-semibold"
+                  style={{ background: "rgba(0,0,0,0.9)" }}
+                >
+                  <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                    {text}
+                  </span>
+                </Link>
               </div>
             ))}
           </div>
