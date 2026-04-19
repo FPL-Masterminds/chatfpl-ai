@@ -346,7 +346,7 @@ export default async function TeamOverviewPage({
 
       <HubHero
         headingWhite="Best FPL "
-        headingGradient={`${teamName} Players: GW${gw}`}
+        headingGradient={`${teamName} Players: Gameweek ${gw}`}
         subtitle={`All ${teamName} players ranked by expected points for Gameweek ${gw}. Click any player for their full transfer analysis.`}
       />
 

@@ -364,7 +364,7 @@ export default async function TeamPositionPage({
           )}
 
           <p className="mt-4 text-center text-[11px] text-white/40 leading-relaxed">
-            Ranked by expected points for GW{gw}. All available {teamName} {(positionLabel ?? "").toLowerCase()} with projected returns. Updated hourly.
+            Ranked by expected points for Gameweek {gw}. All available {teamName} {(positionLabel ?? "").toLowerCase()} with projected returns. Updated hourly.
           </p>
 
           <RelatedPositions teamSlug={team} teamName={teamName} currentPosition={position} />

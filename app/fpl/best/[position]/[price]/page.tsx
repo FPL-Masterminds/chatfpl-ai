@@ -370,7 +370,7 @@ export default async function BestValueHubPage({
           )}
 
           <p className="mt-4 text-center text-[11px] text-white/40 leading-relaxed">
-            Ranked by expected points for GW{gw}. Includes all fit {positionLabel.toLowerCase()} priced at or below {priceLabel}. Updated hourly.
+            Ranked by expected points for Gameweek {gw}. Includes all fit {positionLabel.toLowerCase()} priced at or below {priceLabel}. Updated hourly.
           </p>
 
           {/* Related price brackets */}
