@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useState } from "react"
 import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
@@ -40,7 +41,11 @@ const SLOT_CFG = [
   { scale: 0.66, opacity: 0.35 },
 ]
 
+const SILHOUETTE = "https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png"
+
 function PlayerCard({ player, isCenter }: { player: FplCardPlayer; isCenter: boolean }) {
+  const [photoSrc, setPhotoSrc] = useState(photoUrl(player.code))
+
   return (
     // Outer — gives coordinate system; overflow:visible lets photo float above
     <div style={{ position: "relative", width: CARD_W, height: CARD_H }}>
@@ -69,11 +74,13 @@ function PlayerCard({ player, isCenter }: { player: FplCardPlayer; isCenter: boo
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={photoUrl(player.code)}
+            src={photoSrc}
             alt={player.name}
             draggable={false}
+            onError={() => setPhotoSrc(SILHOUETTE)}
             style={{
               width: 130, height: "auto", objectFit: "contain",
+              opacity: photoSrc === SILHOUETTE ? 0.4 : 1,
               filter: isCenter
                 ? "drop-shadow(0 8px 20px rgba(0,255,133,0.25))"
                 : "drop-shadow(0 4px 8px rgba(0,0,0,0.5))",
