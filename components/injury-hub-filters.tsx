@@ -12,24 +12,13 @@ function PlayerPhoto({ code, name, width, height, className }: {
 
   if (errored) {
     return (
-      <div className={className} style={{ width, height, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {/* FPL missing-photo silhouette */}
-        <Image
-          src="https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png"
-          alt="" width={width} height={height}
-          style={{ objectFit: "contain", opacity: 0.4 }}
-          unoptimized
-        />
-        {/* ChatFPL logo overlay */}
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Image
-            src="https://www.chatfpl.ai/ChatFPL_AI_Logo.png"
-            alt="ChatFPL AI" width={Math.round(width * 0.7)} height={Math.round(width * 0.7 * 0.28)}
-            style={{ objectFit: "contain" }}
-            unoptimized
-          />
-        </div>
-      </div>
+      <Image
+        src="https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png"
+        alt="" width={width} height={height}
+        className={className}
+        style={{ objectFit: "contain", opacity: 0.4 }}
+        unoptimized
+      />
     )
   }
 
