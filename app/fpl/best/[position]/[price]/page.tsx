@@ -58,7 +58,7 @@ export async function generateMetadata({
   }
 }
 
-// ─── Analysis text — 3 rotating templates ─────────────────────────────────────
+// ─── Analysis text - 3 rotating templates ─────────────────────────────────────
 
 function buildValueText(
   player: CaptainHubPlayer,
@@ -86,12 +86,12 @@ function buildValueText(
       `At ${price}, that is one of the stronger expected-points-per-pound returns in this bracket. ` +
       `Form of ${form} points per game over six gameweeks backs the projection, ` +
       `and a ${fdrLabel} rated fixture against ${fixture} provides a clear pathway to a return. ` +
-      `Owned by ${ownership}% of managers, ${name} sits in a useful ownership bracket — ` +
-      `not so template that missing a return costs rank, not so obscure that a haul goes unnoticed.`
+      `Owned by ${ownership}% of managers, ${name} sits in a useful ownership bracket. ` +
+      `Not so template that missing a return costs rank, not so obscure that a haul goes unnoticed.`
   }
 
   if (variant === 1) {
-    return `At ${price}, ${name} faces ${fixture} in Gameweek ${gw} — a fixture rated ${fdrLabel} for difficulty. ` +
+    return `At ${price}, ${name} faces ${fixture} in Gameweek ${gw}, a fixture rated ${fdrLabel} for difficulty. ` +
       `The model projects ${ep} expected points, and form of ${form} per game over the last six gameweeks ` +
       `suggests consistent involvement rather than a one-week spike. ` +
       `Within the under-${priceLabel} ${positionSingular.toLowerCase()} bracket, ` +
@@ -165,7 +165,7 @@ function PlayerCard({
     }}>
       <div className="flex flex-row">
 
-        {/* Left — photo strip */}
+        {/* Left - photo strip */}
         <div
           className="relative shrink-0 w-20 sm:w-52 flex flex-col items-center justify-center"
           style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
@@ -199,7 +199,7 @@ function PlayerCard({
           </div>
         </div>
 
-        {/* Right — data */}
+        {/* Right - data */}
         <div className="flex-1 min-w-0 flex flex-col justify-between p-3 sm:p-4 gap-2.5">
 
           {/* Row 1: name + badge + price */}
@@ -344,7 +344,7 @@ export default async function BestValueHubPage({
 
       <HubHero
         headingWhite={`Best FPL ${positionLabel} Under `}
-        headingGradient={`${priceLabel} — Gameweek ${gw}`}
+        headingGradient={`${priceLabel}: Gameweek ${gw}`}
         subtitle={`All fit FPL ${positionLabel.toLowerCase()} under ${priceLabel} ranked by expected points for Gameweek ${gw}. Form, fixture difficulty and ownership updated hourly.`}
       />
 
@@ -415,7 +415,7 @@ export default async function BestValueHubPage({
               Not sure which {positionSingular.toLowerCase()} fits your squad?
             </h2>
             <p className="text-sm text-white/60 mb-7">
-              ChatFPL AI analyses your actual squad, budget, and rivals to recommend the best {positionSingular.toLowerCase()} under {priceLabel} for your specific team. Try it free — no credit card required.
+              ChatFPL AI analyses your actual squad, budget, and rivals to recommend the best {positionSingular.toLowerCase()} under {priceLabel} for your specific team. Try it free. No credit card required.
             </p>
             <Link
               href="/signup"
