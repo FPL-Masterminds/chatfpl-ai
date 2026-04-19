@@ -80,7 +80,7 @@ function CheckIcon({ color }: { color: string }) {
   return (
     <div className="flex items-center justify-center h-5 w-5 rounded-full shrink-0" style={{ background: color }}>
       <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none">
-        <path d="M10 3L4.5 8.5L2 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M10 3L4.5 8.5L2 6" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
   )
