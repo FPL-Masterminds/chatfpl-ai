@@ -287,7 +287,10 @@ export default async function ComparisonsHubPage() {
 
           {/* Browse by budget */}
           <div className="mt-12 mb-2">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-6 text-center">Browse by budget</p>
+            <h2 className="text-2xl font-bold leading-tight tracking-tight mb-6 text-center">
+              <span className="text-white">Browse by </span>
+              <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>Budget</span>
+            </h2>
             <div className="flex flex-wrap justify-center gap-3">
               {[
                 { href: "/fpl/best/goalkeepers/under-4m",   text: "GKP Under £4.0m" },
