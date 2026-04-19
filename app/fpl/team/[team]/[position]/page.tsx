@@ -265,6 +265,31 @@ function PlayerCard({
 
 // ─── Related positions nav ─────────────────────────────────────────────────────
 
+function GlowButton({ href, label }: { href: string; label: string }) {
+  return (
+    <div
+      className="inline-block"
+      style={{
+        padding: "1.5px",
+        borderRadius: "9999px",
+        background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+        backgroundSize: "200% 200%",
+        animation: "glow_scroll 3.5s linear infinite",
+      }}
+    >
+      <Link
+        href={href}
+        className="flex items-center rounded-full px-4 py-2 text-xs font-semibold"
+        style={{ background: "rgba(0,0,0,0.9)" }}
+      >
+        <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          {label}
+        </span>
+      </Link>
+    </div>
+  )
+}
+
 function RelatedPositions({
   teamSlug,
   teamName,
@@ -277,29 +302,15 @@ function RelatedPositions({
   const others = TEAM_POSITION_SLUGS.filter((p) => p !== currentPosition)
   return (
     <div className="mt-10">
-      <p className="text-[10px] uppercase tracking-widest text-white/40 mb-3 text-center">
-        Other {teamName} positions
-      </p>
-      <div className="flex flex-wrap justify-center gap-2">
-        <Link
-          href={`/fpl/team/${teamSlug}`}
-          className="rounded-full px-4 py-1.5 text-xs font-semibold transition-all hover:scale-105"
-          style={{ border: "1px solid rgba(0,255,135,0.25)", background: "rgba(0,255,135,0.06)", color: GREEN }}
-        >
-          All {teamName} players
-        </Link>
+      <h2 className="text-2xl font-bold leading-tight tracking-tight mb-6 text-center">
+        <span className="text-white">Other {teamName} </span>
+        <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>Positions</span>
+      </h2>
+      <div className="flex flex-wrap justify-center gap-3">
+        <GlowButton href={`/fpl/team/${teamSlug}`} label={`All ${teamName} players`} />
         {others.map((pos) => {
           const pm = POSITION_META[pos]
-          return (
-            <Link
-              key={pos}
-              href={`/fpl/team/${teamSlug}/${pos}`}
-              className="rounded-full px-4 py-1.5 text-xs font-semibold transition-all hover:scale-105"
-              style={{ border: "1px solid rgba(0,255,135,0.25)", background: "rgba(0,255,135,0.06)", color: GREEN }}
-            >
-              {pm.label}
-            </Link>
-          )
+          return <GlowButton key={pos} href={`/fpl/team/${teamSlug}/${pos}`} label={pm.label} />
         })}
       </div>
     </div>
@@ -354,10 +365,6 @@ export default async function TeamPositionPage({
               </Reveal>
             ))
           )}
-
-          <p className="mt-4 text-center text-[11px] text-white/40 leading-relaxed">
-            Ranked by expected points for Gameweek {gw}. All available {teamName} {(positionLabel ?? "").toLowerCase()} with projected returns. Updated hourly.
-          </p>
 
           <RelatedPositions teamSlug={team} teamName={teamName} currentPosition={position} />
 
