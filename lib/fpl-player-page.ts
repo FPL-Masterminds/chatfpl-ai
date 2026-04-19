@@ -1635,3 +1635,163 @@ export async function getDifferentialHub(): Promise<DifferentialHubData | null> 
     return null
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BEST VALUE HUB — position + price bracket pages
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const POSITION_META: Record<string, {
+  elementType: number
+  label: string
+  singular: string
+  posCode: string
+}> = {
+  goalkeepers: { elementType: 1, label: "Goalkeepers", singular: "Goalkeeper", posCode: "GKP" },
+  defenders:   { elementType: 2, label: "Defenders",   singular: "Defender",   posCode: "DEF" },
+  midfielders: { elementType: 3, label: "Midfielders", singular: "Midfielder", posCode: "MID" },
+  forwards:    { elementType: 4, label: "Forwards",    singular: "Forward",    posCode: "FWD" },
+}
+
+export const PRICE_META: Record<string, { cap: number; label: string }> = {
+  "under-4m":   { cap: 40, label: "£4.0m" },
+  "under-4-5m": { cap: 45, label: "£4.5m" },
+  "under-5m":   { cap: 50, label: "£5.0m" },
+  "under-5-5m": { cap: 55, label: "£5.5m" },
+  "under-6m":   { cap: 60, label: "£6.0m" },
+  "under-6-5m": { cap: 65, label: "£6.5m" },
+  "under-7m":   { cap: 70, label: "£7.0m" },
+  "under-7-5m": { cap: 75, label: "£7.5m" },
+  "under-8m":   { cap: 80, label: "£8.0m" },
+}
+
+export const BEST_VALUE_COMBOS: { position: string; price: string }[] = [
+  { position: "goalkeepers", price: "under-4m"   },
+  { position: "goalkeepers", price: "under-4-5m" },
+  { position: "goalkeepers", price: "under-5m"   },
+  { position: "defenders",   price: "under-4m"   },
+  { position: "defenders",   price: "under-4-5m" },
+  { position: "defenders",   price: "under-5m"   },
+  { position: "defenders",   price: "under-5-5m" },
+  { position: "defenders",   price: "under-6m"   },
+  { position: "midfielders", price: "under-5m"   },
+  { position: "midfielders", price: "under-5-5m" },
+  { position: "midfielders", price: "under-6m"   },
+  { position: "midfielders", price: "under-6-5m" },
+  { position: "midfielders", price: "under-7m"   },
+  { position: "forwards",    price: "under-6m"   },
+  { position: "forwards",    price: "under-6-5m" },
+  { position: "forwards",    price: "under-7m"   },
+  { position: "forwards",    price: "under-8m"   },
+]
+
+export interface BestValueHubData {
+  gw: number
+  players: CaptainHubPlayer[]
+  positionSlug: string
+  priceSlug: string
+  positionLabel: string
+  positionSingular: string
+  priceCap: number
+  priceLabel: string
+}
+
+export async function getBestValueHub(
+  positionSlug: string,
+  priceSlug: string,
+): Promise<BestValueHubData | null> {
+  try {
+    const posMeta   = POSITION_META[positionSlug]
+    const priceMeta = PRICE_META[priceSlug]
+    if (!posMeta || !priceMeta) return null
+
+    const bootstrap = await getBootstrap()
+    const events: any[] = bootstrap.events ?? []
+    const nextEvent    = events.find((e: any) => e.is_next)
+    const currentEvent = events.find((e: any) => e.is_current)
+    const gw: number   =
+      nextEvent?.id ?? (currentEvent ? currentEvent.id + 1 : 1)
+
+    const teamMap: Record<number, { name: string; short: string; code: number }> = {}
+    const posMap:  Record<number, string> = {}
+    ;(bootstrap.teams ?? []).forEach((t: any) => {
+      teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code }
+    })
+    ;(bootstrap.element_types ?? []).forEach((et: any) => {
+      posMap[et.id] = et.singular_name_short
+    })
+
+    let fdrByTeam:      Record<number, number> = {}
+    let opponentByTeam: Record<number, { short: string; name: string; code: number; isHome: boolean }> = {}
+    try {
+      const fixtRes  = await fetch(
+        `https://fantasy.premierleague.com/api/fixtures/?event=${gw}`,
+        { headers: FPL_HEADERS, next: { revalidate: 900 } }
+      )
+      const fixtures = fixtRes.ok ? await fixtRes.json() : []
+      fixtures.forEach((f: any) => {
+        if (fdrByTeam[f.team_h] === undefined) fdrByTeam[f.team_h] = f.team_h_difficulty
+        if (fdrByTeam[f.team_a] === undefined) fdrByTeam[f.team_a] = f.team_a_difficulty
+        if (!opponentByTeam[f.team_h]) opponentByTeam[f.team_h] = { short: teamMap[f.team_a]?.short ?? "?", name: teamMap[f.team_a]?.name ?? "?", code: teamMap[f.team_a]?.code ?? 0, isHome: true }
+        if (!opponentByTeam[f.team_a]) opponentByTeam[f.team_a] = { short: teamMap[f.team_h]?.short ?? "?", name: teamMap[f.team_h]?.name ?? "?", code: teamMap[f.team_h]?.code ?? 0, isHome: false }
+      })
+    } catch { /* fixtures optional */ }
+
+    const eligible   = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const idToSlug   = new Map<number, string>()
+    for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
+
+    const candidates = eligible
+      .filter((p: any) =>
+        p.element_type === posMeta.elementType &&
+        p.now_cost <= priceMeta.cap &&
+        (p.chance_of_playing_next_round ?? 100) >= 75 &&
+        parseFloat(p.ep_next ?? "0") > 0
+      )
+      .sort((a: any, b: any) => {
+        const epDiff = parseFloat(b.ep_next ?? "0") - parseFloat(a.ep_next ?? "0")
+        if (Math.abs(epDiff) > 0.05) return epDiff
+        return parseFloat(b.form ?? "0") - parseFloat(a.form ?? "0")
+      })
+      .slice(0, 30)
+
+    const players: CaptainHubPlayer[] = candidates.map((p: any) => {
+      const team = teamMap[p.team] ?? { name: "", short: "?", code: 0 }
+      const slug = idToSlug.get(p.id) ?? toSlug(p.web_name)
+      return {
+        slug,
+        displayName:   getDisplayName(p),
+        webName:       p.web_name,
+        code:          p.code,
+        club:          team.short,
+        teamCode:      team.code,
+        position:      posMap[p.element_type] ?? "",
+        price:         `£${(p.now_cost / 10).toFixed(1)}m`,
+        form:          p.form ?? "0.0",
+        ep_next:       parseFloat(p.ep_next ?? "0"),
+        ownership:     p.selected_by_percent ?? "0.0",
+        news:          p.news ?? "",
+        chance:        p.chance_of_playing_next_round ?? 100,
+        fdrNext:       fdrByTeam[p.team] ?? null,
+        transfersIn:   p.transfers_in_event ?? 0,
+        opponentShort: opponentByTeam[p.team]?.short ?? "",
+        opponentName:  opponentByTeam[p.team]?.name  ?? "",
+        opponentCode:  opponentByTeam[p.team]?.code ?? null,
+        isHome:        opponentByTeam[p.team]?.isHome ?? null,
+      }
+    })
+
+    return {
+      gw,
+      players,
+      positionSlug,
+      priceSlug,
+      positionLabel:    posMeta.label,
+      positionSingular: posMeta.singular,
+      priceCap:         priceMeta.cap,
+      priceLabel:       priceMeta.label,
+    }
+  } catch {
+    return null
+  }
+}
