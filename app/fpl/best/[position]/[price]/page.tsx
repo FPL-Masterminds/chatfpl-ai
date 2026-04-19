@@ -7,6 +7,7 @@ import { HubHero } from "@/components/hub-hero"
 import { HubCardExpand } from "@/components/hub-card-expand"
 import { Reveal } from "@/components/scroll-reveal"
 import { SeasonEnded } from "@/components/season-ended"
+import { HubPlayerPhoto } from "@/components/hub-player-photo"
 import {
   getBestValueHub,
   isSeasonOver,
@@ -183,14 +184,9 @@ function PlayerCard({
             {player.position}
           </div>
           <div className="flex flex-col items-center">
-            <Image
-              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-              alt={player.displayName}
-              width={160} height={204}
-              className="w-14 sm:w-[160px]"
-              style={{ objectFit: "contain" }}
-              unoptimized
-            />
+            <div className="w-14 sm:w-[160px]">
+              <HubPlayerPhoto code={player.code} name={player.displayName} />
+            </div>
             <div className="w-14 sm:w-[160px]" style={{
               height: 1,
               background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
