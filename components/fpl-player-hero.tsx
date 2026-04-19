@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
@@ -44,7 +44,16 @@ const SLOT_CFG = [
 const SILHOUETTE = "https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png"
 
 function PlayerCard({ player, isCenter }: { player: FplCardPlayer; isCenter: boolean }) {
-  const [photoSrc, setPhotoSrc] = useState(photoUrl(player.code))
+  const [errored, setErrored] = useState(false)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  // Catch the case where the error fires before React hydration attaches onError
+  useEffect(() => {
+    const img = imgRef.current
+    if (img && img.complete && img.naturalWidth === 0) {
+      setErrored(true)
+    }
+  }, [])
 
   return (
     // Outer — gives coordinate system; overflow:visible lets photo float above
@@ -74,13 +83,14 @@ function PlayerCard({ player, isCenter }: { player: FplCardPlayer; isCenter: boo
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={photoSrc}
+            ref={imgRef}
+            src={errored ? SILHOUETTE : photoUrl(player.code)}
             alt={player.name}
             draggable={false}
-            onError={() => setPhotoSrc(SILHOUETTE)}
+            onError={() => setErrored(true)}
             style={{
               width: 130, height: "auto", objectFit: "contain",
-              opacity: photoSrc === SILHOUETTE ? 0.4 : 1,
+              opacity: errored ? 0.4 : 1,
               filter: isCenter
                 ? "drop-shadow(0 8px 20px rgba(0,255,133,0.25))"
                 : "drop-shadow(0 4px 8px rgba(0,0,0,0.5))",
