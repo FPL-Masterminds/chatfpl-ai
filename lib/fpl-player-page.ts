@@ -1695,6 +1695,41 @@ export interface BestValueHubData {
   priceLabel: string
 }
 
+/**
+ * Given a player's position code ("MID", "DEF", etc.) and price string ("£5.8m"),
+ * returns the href and label for the tightest best-value hub bracket that fits,
+ * or null if the player is priced above all available brackets for their position.
+ */
+export function getBestValueHubLink(
+  positionCode: string,
+  priceString: string,
+): { href: string; label: string } | null {
+  const posSlugMap: Record<string, string> = {
+    GKP: "goalkeepers", DEF: "defenders", MID: "midfielders", FWD: "forwards",
+  }
+  const positionSlug = posSlugMap[positionCode]
+  if (!positionSlug) return null
+
+  const priceVal = parseFloat(priceString.replace("£", "").replace("m", ""))
+  if (isNaN(priceVal)) return null
+  const nowCost = Math.round(priceVal * 10)
+
+  const match = BEST_VALUE_COMBOS
+    .filter((c) => c.position === positionSlug)
+    .map((c) => ({ ...c, cap: PRICE_META[c.price].cap }))
+    .filter((c) => c.cap >= nowCost)
+    .sort((a, b) => a.cap - b.cap)[0]
+
+  if (!match) return null
+
+  const pm  = PRICE_META[match.price]
+  const pos = POSITION_META[positionSlug]
+  return {
+    href:  `/fpl/best/${positionSlug}/${match.price}`,
+    label: `Best FPL ${pos.label} Under ${pm.label}`,
+  }
+}
+
 export async function getBestValueHub(
   positionSlug: string,
   priceSlug: string,

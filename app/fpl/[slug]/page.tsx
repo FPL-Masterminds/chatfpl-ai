@@ -7,6 +7,7 @@ import {
   getPlayerPageData,
   buildPageText,
   getEligibleSlugs,
+  getBestValueHubLink,
   isSeasonOver,
 } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
@@ -60,6 +61,7 @@ export default async function FplPlayerPage({
   if (!data) notFound()
 
   const { gw, player, showcasePlayers, relatedPlayers } = data
+  const bestValueLink = getBestValueHubLink(player.position, player.price)
   const {
     verdict, verdictLabel, verdictColor, verdictBullets,
     caseFor, caseAgainst, caseHeading,
@@ -292,8 +294,8 @@ export default async function FplPlayerPage({
           </div>
         </div>
 
-        {/* Captain hub back-link */}
-        <div className="relative z-10 w-full max-w-4xl mx-auto mt-10 text-center">
+        {/* Hub back-links */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mt-10 flex flex-wrap justify-center gap-3">
           <div
             className="inline-block"
             style={{
@@ -310,10 +312,32 @@ export default async function FplPlayerPage({
               style={{ background: "rgba(0,0,0,0.9)" }}
             >
               <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                Top captain picks for Gameweek {gw} →
+                Captain Picks →
               </span>
             </Link>
           </div>
+          {bestValueLink && (
+            <div
+              className="inline-block"
+              style={{
+                padding: "1.5px",
+                borderRadius: "9999px",
+                background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+                backgroundSize: "200% 200%",
+                animation: "glow_scroll 3.5s linear infinite",
+              }}
+            >
+              <Link
+                href={bestValueLink.href}
+                className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
+                style={{ background: "rgba(0,0,0,0.9)" }}
+              >
+                <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                  {bestValueLink.label} →
+                </span>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Also analyse */}
