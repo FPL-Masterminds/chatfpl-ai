@@ -67,13 +67,14 @@ export async function generateMetadata({
 function buildTeamText(
   player: CaptainHubPlayer,
   gw: number | string,
-  rank: number,
   teamName: string,
   positionSingular: string,
+  index: number,
   randomBase: number,
 ): string {
   const name      = player.displayName
   const ep        = player.ep_next.toFixed(1)
+  const formNum   = parseFloat(player.form)
   const form      = player.form
   const price     = player.price
   const ownership = player.ownership
@@ -81,30 +82,32 @@ function buildTeamText(
   const fixture   = player.opponentName
     ? `${player.opponentName} (${player.isHome ? "H" : "A"})`
     : "their next opponent"
+  const formLine  = formNum > 0
+    ? `Form of ${form} points per game over the last six gameweeks backs the projection.`
+    : `Recent form returns have been limited, making the fixture the primary case.`
 
-  const variant = (randomBase + rank) % 3
+  const variant = (randomBase + index) % 3
 
   if (variant === 0) {
-    return `${name} is ${teamName}'s number ${rank} ranked ${positionSingular.toLowerCase()} by expected points heading into Gameweek ${gw}. ` +
-      `The model projects ${ep} expected points, with form of ${form} points per game over the last six gameweeks. ` +
+    return `${name} is one of ${teamName}'s stronger ${positionSingular.toLowerCase()} options heading into Gameweek ${gw}, ` +
+      `with the model projecting ${ep} expected points. ` +
+      `${formLine} ` +
       `A ${fdrLabel} rated fixture against ${fixture} provides a clear route to a return. ` +
-      `At ${price} and ${ownership}% ownership, ${name} sits in a useful bracket for FPL managers considering ${teamName} assets.`
+      `At ${price} and ${ownership}% ownership, ${name} is worth considering among ${teamName} assets this week.`
   }
 
   if (variant === 1) {
     return `At ${price}, ${name} faces ${fixture} in Gameweek ${gw}, a fixture rated ${fdrLabel} for difficulty. ` +
-      `The model projects ${ep} expected points, and form of ${form} per game over the last six gameweeks ` +
-      `suggests consistent involvement. ` +
-      `Among ${teamName} ${positionSingular.toLowerCase()}s, ${name} ranks ${rank} by expected points this gameweek. ` +
+      `The model projects ${ep} expected points. ` +
+      `${formLine} ` +
       `At ${ownership}% ownership the rank impact of a return is real.`
   }
 
-  return `The case for ${name} among ${teamName}'s ${positionSingular.toLowerCase()}s comes down to three things: ` +
-    `a ${fdrLabel} fixture against ${fixture} in Gameweek ${gw}, ` +
-    `form of ${form} points per game over the last six gameweeks, ` +
+  return `The case for ${name} among ${teamName}'s ${positionSingular.toLowerCase()}s this week: ` +
+    `a ${fdrLabel} fixture against ${fixture} in Gameweek ${gw} ` +
     `and ${ep} expected points from the model. ` +
-    `At ${price}, ${name} is ranked number ${rank} among ${teamName}'s ${positionSingular.toLowerCase()}s this week. ` +
-    `Owned by ${ownership}% of managers.`
+    `${formLine} ` +
+    `At ${price}, owned by ${ownership}% of managers.`
 }
 
 // ─── FDR helpers ──────────────────────────────────────────────────────────────
@@ -131,10 +134,9 @@ function FdrLabel({ fdr }: { fdr: number | null }) {
 // ─── Player card ──────────────────────────────────────────────────────────────
 
 function PlayerCard({
-  player, rank, even, gw, text,
+  player, even, gw, text,
 }: {
   player: CaptainHubPlayer
-  rank: number
   even: boolean
   gw: number | string
   text: string
@@ -166,11 +168,8 @@ function PlayerCard({
           style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
         >
           <div
-            className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
-            style={{ width: 22, height: 22, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
+            className="hidden"
           >
-            <span className="text-[10px] font-bold tabular-nums text-white">{rank}</span>
-          </div>
           <div
             className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
             style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
@@ -350,10 +349,9 @@ export default async function TeamPositionPage({
               <Reveal key={player.slug} delay={i * 0.05}>
                 <PlayerCard
                   player={player}
-                  rank={i + 1}
-                  even={(i + 1) % 2 === 0}
+                  even={i % 2 === 0}
                   gw={gw}
-                  text={buildTeamText(player, gw, i + 1, teamName, posMeta.singular, randomBase)}
+                  text={buildTeamText(player, gw, teamName, posMeta.singular, i, randomBase)}
                 />
               </Reveal>
             ))

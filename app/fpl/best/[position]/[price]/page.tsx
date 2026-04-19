@@ -71,6 +71,7 @@ function buildValueText(
 ): string {
   const name      = player.displayName
   const ep        = player.ep_next.toFixed(1)
+  const formNum   = parseFloat(player.form)
   const form      = player.form
   const price     = player.price
   const ownership = player.ownership
@@ -78,6 +79,9 @@ function buildValueText(
   const fixture   = player.opponentName
     ? `${player.opponentName} (${player.isHome ? "H" : "A"})`
     : "their next opponent"
+  const formLine  = formNum > 0
+    ? `Form of ${form} points per game over the last six gameweeks backs the projection.`
+    : `Recent form returns have been limited, making the fixture the primary case.`
 
   const variant = (randomBase + rank) % 3
 
@@ -85,16 +89,15 @@ function buildValueText(
     return `${name} is the number ${rank} ranked ${positionSingular.toLowerCase()} under ${priceLabel} heading into Gameweek ${gw}, ` +
       `with the model projecting ${ep} expected points. ` +
       `At ${price}, that is one of the stronger expected-points-per-pound returns in this bracket. ` +
-      `Form of ${form} points per game over six gameweeks backs the projection, ` +
-      `and a ${fdrLabel} rated fixture against ${fixture} provides a clear pathway to a return. ` +
-      `Owned by ${ownership}% of managers, ${name} sits in a useful ownership bracket. ` +
-      `Not so template that missing a return costs rank, not so obscure that a haul goes unnoticed.`
+      `${formLine} ` +
+      `A ${fdrLabel} rated fixture against ${fixture} provides a clear pathway to a return. ` +
+      `Owned by ${ownership}% of managers, ${name} sits in a useful ownership bracket.`
   }
 
   if (variant === 1) {
     return `At ${price}, ${name} faces ${fixture} in Gameweek ${gw}, a fixture rated ${fdrLabel} for difficulty. ` +
-      `The model projects ${ep} expected points, and form of ${form} per game over the last six gameweeks ` +
-      `suggests consistent involvement rather than a one-week spike. ` +
+      `The model projects ${ep} expected points. ` +
+      `${formLine} ` +
       `Within the under-${priceLabel} ${positionSingular.toLowerCase()} bracket, ` +
       `${ep} xPts places ${name} near the top of what this price range currently offers. ` +
       `At ${ownership}% ownership the rank impact of a return is real but manageable.`
@@ -102,7 +105,7 @@ function buildValueText(
 
   return `The case for ${name} in the under-${priceLabel} ${positionSingular.toLowerCase()} bracket comes down to three things: ` +
     `a ${fdrLabel} fixture against ${fixture} in Gameweek ${gw}, ` +
-    `form of ${form} points per game over the last six gameweeks, ` +
+    `${formNum > 0 ? `form of ${form} points per game over the last six gameweeks,` : `limited recent form returns,`} ` +
     `and ${ep} expected points from the model. ` +
     `At ${price}, ${name} does not require you to sacrifice depth elsewhere in the squad ` +
     `to the same degree as premium options. ` +
