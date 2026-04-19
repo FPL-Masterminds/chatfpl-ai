@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import fs from 'fs'
 import path from 'path'
-import { getEligibleSlugs } from '@/lib/fpl-player-page'
+import { getEligibleSlugs, BEST_VALUE_COMBOS } from '@/lib/fpl-player-page'
 import { getComparisonSlugs } from '@/lib/fpl-comparison'
 import { getInjurySlugs } from '@/lib/fpl-injury'
 
@@ -66,6 +66,7 @@ function getRouteMetadata(route: string) {
   if (route === '') return { priority: 1.0, changeFrequency: 'daily' as const }
   if (['/chat', '/signup'].includes(route)) return { priority: 0.9, changeFrequency: 'always' as const }
   if (['/fpl/captains', '/fpl/differentials', '/fpl/comparisons'].includes(route)) return { priority: 1.0, changeFrequency: 'always' as const }
+  if (route.startsWith('/fpl/best/')) return { priority: 0.95, changeFrequency: 'daily' as const }
   if (['/about', '/faq', '/contact'].includes(route)) return { priority: 0.8, changeFrequency: 'weekly' as const }
   if (['/terms', '/privacy'].includes(route)) return { priority: 0.5, changeFrequency: 'monthly' as const }
   if (['/login'].includes(route)) return { priority: 0.6, changeFrequency: 'monthly' as const }
@@ -103,12 +104,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const injurySlugsData = await getInjurySlugs()
   const injuryRoutes = injurySlugsData.map(({ slug }) => `/fpl/injury/${slug}`)
 
+  // Best value hub pages — position + price bracket (skipped by filesystem crawler)
+  const bestValueRoutes = BEST_VALUE_COMBOS.map(
+    ({ position, price }) => `/fpl/best/${position}/${price}`
+  )
+
   const allRoutes = [
     ...staticRoutes,
-    "/fpl/captains",      // Captains hub — high priority, changes every GW
-    "/fpl/differentials", // Differentials hub — high priority, changes every GW
-    "/fpl/comparisons",   // Head-to-Head hub — high priority, changes every GW
-    "/fpl/injuries",      // Injuries hub — high priority, changes every GW
+    "/fpl/captains",
+    "/fpl/differentials",
+    "/fpl/comparisons",
+    "/fpl/injuries",
+    ...bestValueRoutes,
     ...captainRoutes,
     ...transferRoutes,
     ...sellRoutes,

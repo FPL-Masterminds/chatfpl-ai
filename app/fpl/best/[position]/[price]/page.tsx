@@ -256,11 +256,11 @@ function PlayerCard({
               )}
             </div>
             <Link
-              href={`/fpl/${player.slug}`}
+              href={`/fpl/${player.slug}/transfer`}
               className="shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
               style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 14px" }}
             >
-              Full analysis
+              Transfer analysis
             </Link>
           </div>
 
@@ -378,32 +378,6 @@ export default async function BestValueHubPage({
 
           {/* Divider */}
           <div className="my-10 h-px w-full" style={{ background: "linear-gradient(to right, transparent, rgba(0,255,135,0.2), transparent)" }} />
-
-          {/* Other hubs */}
-          <div className="grid gap-4 sm:grid-cols-2 mb-2">
-            <Link
-              href="/fpl/captains"
-              className="group relative overflow-hidden rounded-2xl transition-all hover:scale-[1.01]"
-              style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)", minHeight: 96 }}
-            >
-              <div className="px-6 py-5">
-                <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
-                <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">Captains Hub →</p>
-                <p className="text-[11px] text-white/50 mt-0.5">Top captain picks for GW{gw}</p>
-              </div>
-            </Link>
-            <Link
-              href="/fpl/differentials"
-              className="group relative overflow-hidden rounded-2xl transition-all hover:scale-[1.01]"
-              style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)", minHeight: 96 }}
-            >
-              <div className="px-6 py-5">
-                <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
-                <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">Differentials Hub →</p>
-                <p className="text-[11px] text-white/50 mt-0.5">Low-ownership gems for GW{gw}</p>
-              </div>
-            </Link>
-          </div>
 
           {/* CTA */}
           <div
