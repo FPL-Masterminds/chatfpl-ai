@@ -287,6 +287,56 @@ export default async function DifferentialsHubPage() {
             Ranked by expected points divided by ownership percentage. Excludes goalkeepers, ruled-out players, and anyone with more than 20% ownership. Updated hourly.
           </p>
 
+          {/* Browse by budget */}
+          <div className="mt-12 mb-2">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-6 text-center">Browse by budget</p>
+            <div className="space-y-3">
+              {[
+                { label: "Goalkeepers", links: [
+                  { href: "/fpl/best/goalkeepers/under-4m",   text: "Under £4.0m" },
+                  { href: "/fpl/best/goalkeepers/under-4-5m", text: "Under £4.5m" },
+                  { href: "/fpl/best/goalkeepers/under-5m",   text: "Under £5.0m" },
+                ]},
+                { label: "Defenders", links: [
+                  { href: "/fpl/best/defenders/under-4m",   text: "Under £4.0m" },
+                  { href: "/fpl/best/defenders/under-4-5m", text: "Under £4.5m" },
+                  { href: "/fpl/best/defenders/under-5m",   text: "Under £5.0m" },
+                  { href: "/fpl/best/defenders/under-5-5m", text: "Under £5.5m" },
+                  { href: "/fpl/best/defenders/under-6m",   text: "Under £6.0m" },
+                ]},
+                { label: "Midfielders", links: [
+                  { href: "/fpl/best/midfielders/under-5m",   text: "Under £5.0m" },
+                  { href: "/fpl/best/midfielders/under-5-5m", text: "Under £5.5m" },
+                  { href: "/fpl/best/midfielders/under-6m",   text: "Under £6.0m" },
+                  { href: "/fpl/best/midfielders/under-6-5m", text: "Under £6.5m" },
+                  { href: "/fpl/best/midfielders/under-7m",   text: "Under £7.0m" },
+                ]},
+                { label: "Forwards", links: [
+                  { href: "/fpl/best/forwards/under-6m",   text: "Under £6.0m" },
+                  { href: "/fpl/best/forwards/under-6-5m", text: "Under £6.5m" },
+                  { href: "/fpl/best/forwards/under-7m",   text: "Under £7.0m" },
+                  { href: "/fpl/best/forwards/under-7-5m", text: "Under £7.5m" },
+                  { href: "/fpl/best/forwards/under-8m",   text: "Under £8.0m" },
+                ]},
+              ].map(({ label, links }) => (
+                <div key={label} className="flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] text-white/40 w-24 shrink-0">{label}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {links.map(({ href, text }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/60 transition-all hover:border-[#00FF87]/40 hover:text-[#00FF87] hover:bg-[#00FF87]/[0.06]"
+                      >
+                        {text}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div
             className="my-10 h-px w-full"
             style={{ background: "linear-gradient(to right, transparent, rgba(0,255,135,0.2), transparent)" }}
