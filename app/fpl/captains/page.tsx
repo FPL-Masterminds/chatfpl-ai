@@ -114,7 +114,9 @@ function PlayerCard({ player, rank, even, gw, text }: { player: CaptainHubPlayer
         : "rgba(0,255,135,0.03)",
       border: "1px solid rgba(0,255,135,0.18)",
       borderRadius: 12,
+      overflow: "hidden",
     }}>
+      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.6 }} />
       <div className="flex flex-row">
 
         {/* Left — photo strip */}
