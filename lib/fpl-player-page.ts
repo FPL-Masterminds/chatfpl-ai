@@ -1834,3 +1834,133 @@ export async function getBestValueHub(
     return null
   }
 }
+
+// ─── Team Hub ─────────────────────────────────────────────────────────────────
+
+export const TEAM_POSITION_SLUGS = ["goalkeepers", "defenders", "midfielders", "forwards"] as const
+
+export interface TeamHubData {
+  gw: number
+  teamName: string
+  teamShort: string
+  teamCode: number
+  teamSlug: string
+  positionSlug: string | null
+  positionLabel: string | null
+  players: CaptainHubPlayer[]
+}
+
+export async function getTeamSlugs(): Promise<{ teamSlug: string; teamName: string }[]> {
+  try {
+    const bootstrap = await getBootstrap()
+    return (bootstrap.teams ?? []).map((t: any) => ({
+      teamSlug: toSlug(t.name),
+      teamName: t.name,
+    }))
+  } catch {
+    return []
+  }
+}
+
+export async function getTeamHub(
+  teamSlug: string,
+  positionSlug: string | null,
+): Promise<TeamHubData | null> {
+  try {
+    const bootstrap = await getBootstrap()
+    const events    = bootstrap.events ?? []
+    const nextEvent    = events.find((e: any) => e.is_next)
+    const currentEvent = events.find((e: any) => e.is_current)
+    const gw: number   = nextEvent?.id ?? (currentEvent ? currentEvent.id + 1 : 1)
+
+    const teamMap: Record<number, { name: string; short: string; code: number }> = {}
+    const posMap:  Record<number, string> = {}
+    ;(bootstrap.teams ?? []).forEach((t: any) => {
+      teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code }
+    })
+    ;(bootstrap.element_types ?? []).forEach((et: any) => {
+      posMap[et.id] = et.singular_name_short
+    })
+
+    const team = (bootstrap.teams ?? []).find((t: any) => toSlug(t.name) === teamSlug)
+    if (!team) return null
+
+    let fdrByTeam:      Record<number, number> = {}
+    let opponentByTeam: Record<number, { short: string; name: string; code: number; isHome: boolean }> = {}
+    try {
+      const fixtRes  = await fetch(
+        `https://fantasy.premierleague.com/api/fixtures/?event=${gw}`,
+        { headers: FPL_HEADERS, next: { revalidate: 900 } }
+      )
+      const fixtures = fixtRes.ok ? await fixtRes.json() : []
+      fixtures.forEach((f: any) => {
+        if (fdrByTeam[f.team_h] === undefined) fdrByTeam[f.team_h] = f.team_h_difficulty
+        if (fdrByTeam[f.team_a] === undefined) fdrByTeam[f.team_a] = f.team_a_difficulty
+        if (!opponentByTeam[f.team_h]) opponentByTeam[f.team_h] = { short: teamMap[f.team_a]?.short ?? "?", name: teamMap[f.team_a]?.name ?? "?", code: teamMap[f.team_a]?.code ?? 0, isHome: true }
+        if (!opponentByTeam[f.team_a]) opponentByTeam[f.team_a] = { short: teamMap[f.team_h]?.short ?? "?", name: teamMap[f.team_h]?.name ?? "?", code: teamMap[f.team_h]?.code ?? 0, isHome: false }
+      })
+    } catch { /* fixtures optional */ }
+
+    const allElements      = bootstrap.elements ?? []
+    const eligibleElements = allElements.filter(isEligiblePlayer)
+    const slugLookup       = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
+    const idToSlug         = new Map<number, string>()
+    for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
+
+    const posMeta = positionSlug ? POSITION_META[positionSlug] : null
+
+    const candidates = allElements
+      .filter((p: any) => {
+        if (p.team !== team.id) return false
+        if (p.status === "u") return false
+        if (parseFloat(p.ep_next ?? "0") <= 0) return false
+        if (posMeta && p.element_type !== posMeta.elementType) return false
+        return true
+      })
+      .sort((a: any, b: any) => {
+        const epDiff = parseFloat(b.ep_next ?? "0") - parseFloat(a.ep_next ?? "0")
+        if (Math.abs(epDiff) > 0.05) return epDiff
+        return parseFloat(b.form ?? "0") - parseFloat(a.form ?? "0")
+      })
+
+    const players: CaptainHubPlayer[] = candidates.map((p: any) => {
+      const t    = teamMap[p.team] ?? { name: "", short: "?", code: 0 }
+      const slug = idToSlug.get(p.id) ?? toSlug(p.web_name)
+      const opp  = opponentByTeam[p.team]
+      return {
+        slug,
+        displayName:   getDisplayName(p),
+        webName:       p.web_name,
+        code:          p.code,
+        club:          t.short,
+        teamCode:      t.code,
+        position:      posMap[p.element_type] ?? "",
+        price:         `£${(p.now_cost / 10).toFixed(1)}m`,
+        form:          p.form ?? "0.0",
+        ep_next:       parseFloat(p.ep_next ?? "0"),
+        ownership:     p.selected_by_percent ?? "0.0",
+        news:          p.news ?? "",
+        chance:        p.chance_of_playing_next_round ?? 100,
+        fdrNext:       fdrByTeam[p.team] ?? null,
+        transfersIn:   p.transfers_in_event ?? 0,
+        opponentShort: opp?.short ?? "",
+        opponentName:  opp?.name  ?? "",
+        opponentCode:  opp?.code  ?? null,
+        isHome:        opp?.isHome ?? null,
+      }
+    })
+
+    return {
+      gw,
+      teamName:     team.name,
+      teamShort:    team.short_name,
+      teamCode:     team.code,
+      teamSlug,
+      positionSlug,
+      positionLabel: posMeta?.label ?? null,
+      players,
+    }
+  } catch {
+    return null
+  }
+}

@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import fs from 'fs'
 import path from 'path'
-import { getEligibleSlugs, BEST_VALUE_COMBOS } from '@/lib/fpl-player-page'
+import { getEligibleSlugs, BEST_VALUE_COMBOS, getTeamSlugs, TEAM_POSITION_SLUGS } from '@/lib/fpl-player-page'
 import { getComparisonSlugs } from '@/lib/fpl-comparison'
 import { getInjurySlugs } from '@/lib/fpl-injury'
 
@@ -67,6 +67,7 @@ function getRouteMetadata(route: string) {
   if (['/chat', '/signup'].includes(route)) return { priority: 0.9, changeFrequency: 'always' as const }
   if (['/fpl/captains', '/fpl/differentials', '/fpl/comparisons'].includes(route)) return { priority: 1.0, changeFrequency: 'always' as const }
   if (route.startsWith('/fpl/best/')) return { priority: 0.95, changeFrequency: 'daily' as const }
+  if (route.startsWith('/fpl/team/')) return { priority: 0.9, changeFrequency: 'daily' as const }
   if (['/about', '/faq', '/contact'].includes(route)) return { priority: 0.8, changeFrequency: 'weekly' as const }
   if (['/terms', '/privacy'].includes(route)) return { priority: 0.5, changeFrequency: 'monthly' as const }
   if (['/login'].includes(route)) return { priority: 0.6, changeFrequency: 'monthly' as const }
@@ -109,6 +110,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ({ position, price }) => `/fpl/best/${position}/${price}`
   )
 
+  // Team hub pages — overview + position breakdown (skipped by filesystem crawler)
+  const teamSlugsData = await getTeamSlugs()
+  const teamOverviewRoutes  = teamSlugsData.map(({ teamSlug }) => `/fpl/team/${teamSlug}`)
+  const teamPositionRoutes  = teamSlugsData.flatMap(({ teamSlug }) =>
+    TEAM_POSITION_SLUGS.map((pos) => `/fpl/team/${teamSlug}/${pos}`)
+  )
+
   const allRoutes = [
     ...staticRoutes,
     "/fpl/captains",
@@ -116,6 +124,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/fpl/comparisons",
     "/fpl/injuries",
     ...bestValueRoutes,
+    ...teamOverviewRoutes,
+    ...teamPositionRoutes,
     ...captainRoutes,
     ...transferRoutes,
     ...sellRoutes,
