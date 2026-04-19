@@ -76,31 +76,32 @@ function buildTeamText(
   const fixture   = player.opponentName
     ? `${player.opponentName} (${player.isHome ? "H" : "A"})`
     : "their next opponent"
+  const epNum     = parseFloat(ep)
+  const prospect  = epNum >= 5 ? "a strong return candidate" : epNum >= 3 ? "a reasonable option" : "a speculative pick"
   const formLine  = formNum > 0
-    ? `Form of ${form} points per game over the last six gameweeks backs the projection.`
-    : `Recent form returns have been limited, making the fixture the primary case.`
+    ? `Form of ${form} points per game over the last six gameweeks.`
+    : `No recent form returns over the last six gameweeks.`
   const variant = (randomBase + index) % 3
 
   if (variant === 0) {
-    return `${name} is one of ${teamName}'s notable FPL options heading into Gameweek ${gw}, ` +
-      `with the model projecting ${ep} expected points. ` +
+    return `${name} faces ${fixture} in Gameweek ${gw}, rated ${fdrLabel} for difficulty. ` +
+      `The model projects ${ep} expected points, making ${name} ${prospect} among ${teamName} assets this week. ` +
       `${formLine} ` +
-      `A ${fdrLabel} rated fixture against ${fixture} provides a clear route to a return. ` +
-      `At ${price} and ${ownership}% ownership, ${name} is worth considering among ${teamName} assets this week.`
+      `At ${price} and ${ownership}% ownership.`
   }
 
   if (variant === 1) {
-    return `At ${price}, ${name} faces ${fixture} in Gameweek ${gw}, a fixture rated ${fdrLabel} for difficulty. ` +
+    return `At ${price}, ${name} faces ${fixture} in Gameweek ${gw}, a ${fdrLabel} rated fixture. ` +
       `The model projects ${ep} expected points. ` +
       `${formLine} ` +
-      `At ${ownership}% ownership the rank impact of a return is real.`
+      `${ownership}% of managers currently own ${name}.`
   }
 
-  return `The case for ${name} among ${teamName}'s FPL assets this week: ` +
-    `a ${fdrLabel} fixture against ${fixture} in Gameweek ${gw} ` +
-    `and ${ep} expected points from the model. ` +
+  return `${name} is ${prospect} among ${teamName}'s FPL assets heading into Gameweek ${gw}. ` +
+    `Fixture: ${fixture} (${fdrLabel}). ` +
+    `Expected points: ${ep}. ` +
     `${formLine} ` +
-    `At ${price}, owned by ${ownership}% of managers.`
+    `Price: ${price}. Ownership: ${ownership}%.`
 }
 
 // ─── FDR helpers ──────────────────────────────────────────────────────────────
