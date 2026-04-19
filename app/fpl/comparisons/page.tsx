@@ -4,7 +4,7 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
 import { getComparisonHub, type ComparisonHubPair } from "@/lib/fpl-comparison"
-import { isSeasonOver, getCaptainHub, getDifferentialHub } from "@/lib/fpl-player-page"
+import { isSeasonOver } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
 import { Reveal } from "@/components/scroll-reveal"
 import { HubCardExpand } from "@/components/hub-card-expand"
@@ -239,16 +239,10 @@ export default async function ComparisonsHubPage() {
 
   const randomBase = Math.floor(Math.random() * 3)
 
-  const [data, captainData, diffData] = await Promise.all([
-    getComparisonHub(),
-    getCaptainHub(),
-    getDifferentialHub(),
-  ])
+  const data = await getComparisonHub()
   if (!data) notFound()
 
   const { gw, pairs } = data
-  const topCaptain = captainData?.players?.[0] ?? null
-  const topDiff    = diffData?.players?.[0] ?? null
 
   return (
     <div className="flex min-h-screen flex-col bg-black overflow-x-hidden">
@@ -296,55 +290,6 @@ export default async function ComparisonsHubPage() {
             className="my-10 h-px w-full"
             style={{ background: "linear-gradient(to right, transparent, rgba(0,255,135,0.2), transparent)" }}
           />
-
-          {/* Other hubs */}
-          <div className="grid gap-4 sm:grid-cols-2 mb-10">
-            {/* Captains Hub panel */}
-            <Link
-              href="/fpl/captains"
-              className="group relative overflow-hidden rounded-2xl transition-all hover:scale-[1.01]"
-              style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)", minHeight: 96 }}
-            >
-              <div className="px-6 py-5 relative z-10" style={{ paddingRight: topCaptain ? 70 : undefined }}>
-                <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
-                <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">
-                  Captains Hub →
-                </p>
-                <p className="text-[11px] text-white/50 mt-0.5">Top captain picks for GW{gw}</p>
-              </div>
-              {topCaptain && (
-                <div className="absolute right-4 inset-y-0 flex items-center justify-center z-0" style={{ width: 56 }}>
-                  <div className="flex flex-col items-center">
-                    <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topCaptain.code}.png`} alt={topCaptain.displayName} width={56} height={70} style={{ objectFit: "contain" }} unoptimized />
-                    <div style={{ height: 1, width: 56, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
-                  </div>
-                </div>
-              )}
-            </Link>
-
-            {/* Differentials Hub panel */}
-            <Link
-              href="/fpl/differentials"
-              className="group relative overflow-hidden rounded-2xl transition-all hover:scale-[1.01]"
-              style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)", minHeight: 96 }}
-            >
-              <div className="px-6 py-5 relative z-10" style={{ paddingRight: topDiff ? 70 : undefined }}>
-                <p className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Also see</p>
-                <p className="font-bold text-white text-sm group-hover:text-[#00FF87] transition-colors">
-                  Differentials Hub →
-                </p>
-                <p className="text-[11px] text-white/50 mt-0.5">Low-ownership gems for GW{gw}</p>
-              </div>
-              {topDiff && (
-                <div className="absolute right-4 inset-y-0 flex items-center justify-center z-0" style={{ width: 56 }}>
-                  <div className="flex flex-col items-center">
-                    <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${topDiff.code}.png`} alt={topDiff.displayName} width={56} height={70} style={{ objectFit: "contain" }} unoptimized />
-                    <div style={{ height: 1, width: 56, background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)", boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)" }} />
-                  </div>
-                </div>
-              )}
-            </Link>
-          </div>
 
           {/* CTA */}
           <div
