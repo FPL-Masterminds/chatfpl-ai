@@ -50,18 +50,19 @@ function StatRow({ label, valA, valB, winsA, winsB }: {
   label: string; valA: string; valB: string; winsA: boolean; winsB: boolean
 }) {
   return (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-0">
-      <div className="flex items-center justify-center px-3 py-2"
-        style={{ fontSize: 13, fontWeight: 700, color: winsA ? GREEN : "white",
+    <div className="grid items-stretch gap-0" style={{ gridTemplateColumns: "1fr 110px 1fr" }}>
+      <div className="flex items-center justify-center px-3"
+        style={{ minHeight: 44, fontSize: 13, fontWeight: 700, color: winsA ? GREEN : "white",
           textShadow: winsA ? `0 0 12px ${GREEN}80` : "none",
           background: winsA ? "rgba(0,255,135,0.05)" : "transparent",
           borderRight: "1px solid rgba(255,255,255,0.05)" }}
       >{valA}</div>
-      <div className="flex items-center justify-center px-3 py-2"
-        style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED, whiteSpace: "nowrap" }}
+      <div className="flex items-center justify-center px-2"
+        style={{ minHeight: 44, fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED,
+          textAlign: "center", lineHeight: 1.3 }}
       >{label}</div>
-      <div className="flex items-center justify-center px-3 py-2"
-        style={{ fontSize: 13, fontWeight: 700, color: winsB ? GREEN : "white",
+      <div className="flex items-center justify-center px-3"
+        style={{ minHeight: 44, fontSize: 13, fontWeight: 700, color: winsB ? GREEN : "white",
           textShadow: winsB ? `0 0 12px ${GREEN}80` : "none",
           background: winsB ? "rgba(0,255,135,0.05)" : "transparent",
           borderLeft: "1px solid rgba(255,255,255,0.05)" }}
@@ -112,13 +113,8 @@ function TransferCard({ pair, rank, gw, text }: {
         <div className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-52"
           style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
-          <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
-            style={{ width: 20, height: 20, background: "rgba(0,0,0,0.8)", border: `1px solid rgba(0,255,135,0.2)` }}
-          >
-            <span style={{ fontSize: 9, fontWeight: 700, color: "white" }}>{rank}</span>
-          </div>
           <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5"
-            style={{ background: "rgba(255,50,50,0.12)", color: "#ff6b6b", border: "1px solid rgba(255,100,100,0.25)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}
+            style={{ background: "rgba(0,255,135,0.12)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}
           >OUT</div>
           <div className="flex flex-col items-center">
             <Image
@@ -216,7 +212,7 @@ function TransferCard({ pair, rank, gw, text }: {
       </div>
 
       {/* Expand — full width */}
-      <div className="border-t px-4 py-1" style={{ borderColor: BORDER }}>
+      <div className="border-t px-4 py-3" style={{ borderColor: BORDER }}>
         <HubCardExpand
           slug={`${pOut.slug}-to-${pIn.slug}`}
           gw={gw}

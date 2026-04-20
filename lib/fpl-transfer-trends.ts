@@ -30,6 +30,8 @@ export interface TransferTrendPlayer {
   opponentName: string
   opponentCode: number | null
   isHome: boolean | null
+  chance: number        // chance_of_playing_next_round (0-100, 100 = fully available)
+  news: string          // FPL news string (injury description etc.)
 }
 
 export interface TransferTrendPair {
@@ -95,6 +97,8 @@ function buildTransferPlayer(
     opponentName: opponentByTeam[el.team]?.name ?? "",
     opponentCode: opponentByTeam[el.team]?.code ?? null,
     isHome: opponentByTeam[el.team]?.isHome ?? null,
+    chance: el.chance_of_playing_next_round ?? 100,
+    news: el.news ?? "",
   }
 }
 
@@ -307,8 +311,6 @@ export function buildTransferHubText(
   const combined = fmtTransfers(pair.netTransfers)
   const outOwn   = pOut.ownership
   const inOwn    = pIn.ownership
-  const outEp    = pOut.ep_next.toFixed(1)
-  const inEp     = pIn.ep_next.toFixed(1)
   const outFix   = pOut.opponentName ? `${pOut.opponentName} (${pOut.isHome ? "H" : "A"})` : "their next opponent"
   const inFix    = pIn.opponentName  ? `${pIn.opponentName} (${pIn.isHome ? "H" : "A"})`  : "their next opponent"
   const inFdr    = fdrLabel(pIn.fdrNext)
@@ -320,19 +322,44 @@ export function buildTransferHubText(
     ? `frees up £${delta}m in the bank`
     : "is a like-for-like price swap"
 
+  // ── Availability context ──────────────────────────────────────────────────
+  const outBlank   = !pOut.opponentName
+  const inBlank    = !pIn.opponentName
+  const outDoubt   = !outBlank && pOut.chance < 75
+  const inDoubt    = !inBlank  && pIn.chance  < 75
+
+  const outEp = outBlank ? "--" : pOut.ep_next.toFixed(1)
+  const inEp  = inBlank  ? "--" : pIn.ep_next.toFixed(1)
+
+  // Build a single availability sentence that can be injected into any variant
+  let availNote = ""
+  if (outBlank && inBlank) {
+    availNote = `Both ${pOut.webName} and ${pIn.webName} have a Blank Gameweek ${gw}, so managers are rotating around the fixture gap rather than reacting to form. `
+  } else if (outBlank) {
+    availNote = `${pOut.webName} has a Blank Gameweek ${gw} with no fixture - that is the primary driver behind the exit volume, not a collapse in form. `
+  } else if (inBlank) {
+    availNote = `Note: ${pIn.webName} also has a Blank Gameweek ${gw}, so managers buying in are planning ahead for the following week. `
+  }
+
+  if (outDoubt) {
+    availNote += `${pOut.webName} is currently listed as ${pOut.chance <= 25 ? "a major injury doubt" : "an injury concern"}, which is accelerating the transfer out. `
+  } else if (inDoubt) {
+    availNote += `${pIn.webName} carries a fitness question with ${pIn.chance}% availability - worth checking before committing. `
+  }
+
   const variant = (randomBase + rank) % 3
 
   if (variant === 0) {
     return `A combined ${combined} moves define ${outName}-to-${inName} as one of Gameweek ${gw}'s most active transfer routes. ` +
       `${outSold} managers have exited ${outName} while ${inBought} have moved into ${pIn.webName} - ` +
       `when that volume of managers reaches the same conclusion simultaneously, the market signal carries real weight. ` +
-      `At ${inOwn}% ownership, failing to hold ${inName} while they return costs rank directly against every manager who made the switch. ` +
+      (availNote ? availNote : `At ${inOwn}% ownership, failing to hold ${inName} while they return costs rank against every manager who made the switch. `) +
       `The full transfer breakdown and AI verdict are on the dedicated page.`
   }
 
   if (variant === 1) {
     return `Moving from ${outName} (${pOut.price}) to ${inName} (${pIn.price}) ${budgetLine} heading into Gameweek ${gw}. ` +
-      `Beyond the financials, the fixture window is what ${inBought} managers have already priced in. ` +
+      (availNote ? availNote : `Beyond the financials, the fixture window is what ${inBought} managers have already priced in. `) +
       `${inName} lines up against ${inFix} - rated ${inFdr} for difficulty - while ${outName} faces ${outFix}. ` +
       `The expected points projection sits at ${inEp} for ${pIn.webName} against ${outEp} for ${pOut.webName}. ` +
       `The full transfer analysis is on the dedicated page.`
@@ -340,7 +367,7 @@ export function buildTransferHubText(
 
   return `${outName} is currently owned by ${outOwn}% of FPL managers; ${inName} by ${inOwn}%. ` +
     `That ownership gap quantifies the rank exposure of being on the wrong side of this trade heading into Gameweek ${gw}. ` +
-    `The ${outSold} managers selling ${outName} and ${inBought} buying ${pIn.webName} this week have already worked through the numbers. ` +
+    (availNote ? availNote : `The ${outSold} managers selling ${outName} and ${inBought} buying ${pIn.webName} this week have already worked through the numbers. `) +
     `The model projects ${inEp} expected points for ${inName} against ${outEp} for ${pOut.webName}. ` +
     `The full ownership and fixture breakdown is on the dedicated analysis page.`
 }
@@ -365,29 +392,53 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
   const inBought = fmtTransfers(pIn.transfersIn)
   const outOwn   = pOut.ownership
   const inOwn    = pIn.ownership
-  const outEp    = pOut.ep_next.toFixed(1)
-  const inEp     = pIn.ep_next.toFixed(1)
   const outForm  = pOut.form
   const inForm   = pIn.form
-  const outFix   = pOut.opponentName ? `${pOut.opponentName} (${pOut.isHome ? "H" : "A"})` : "no confirmed fixture"
-  const inFix    = pIn.opponentName  ? `${pIn.opponentName} (${pIn.isHome ? "H" : "A"})`   : "no confirmed fixture"
-  const outFdr   = fdrLabel(pOut.fdrNext)
-  const inFdr    = fdrLabel(pIn.fdrNext)
   const delta    = Math.abs(pair.budgetDelta).toFixed(1)
 
+  // ── Availability detection ──────────────────────────────────────────────
+  const outBlank = !pOut.opponentName
+  const inBlank  = !pIn.opponentName
+  const outDoubt = !outBlank && pOut.chance < 75
+  const inDoubt  = !inBlank  && pIn.chance  < 75
+
+  const outFix = outBlank
+    ? `a Blank Gameweek ${gw} (no fixture)`
+    : `${pOut.opponentName} (${pOut.isHome ? "H" : "A"})`
+  const inFix = inBlank
+    ? `a Blank Gameweek ${gw} (no fixture)`
+    : `${pIn.opponentName} (${pIn.isHome ? "H" : "A"})`
+
+  const outFdr  = fdrLabel(pOut.fdrNext)
+  const inFdr   = fdrLabel(pIn.fdrNext)
+  const outEp   = outBlank ? "--" : pOut.ep_next.toFixed(1)
+  const inEp    = inBlank  ? "--" : pIn.ep_next.toFixed(1)
+
   // ── Market Movement panel ──
+  const outAvailNote = outBlank
+    ? `${pOut.webName} has a Blank Gameweek ${gw} with no fixture, which is the primary driver behind the exit volume. `
+    : outDoubt
+    ? `${pOut.webName} is currently listed as ${pOut.chance <= 25 ? "a major injury doubt" : "an injury concern"} - this is contributing to the selling pressure. `
+    : ""
+  const inAvailNote = inBlank
+    ? `${pIn.webName} also has a Blank Gameweek ${gw}, so managers buying in are planning for the following week rather than this one. `
+    : inDoubt
+    ? `${pIn.webName} carries a fitness concern (${pIn.chance}% availability) - verify their status before committing. `
+    : ""
+
   const marketPanel = pIn.transfersIn > pOut.transfersOut
     ? `${inBought} managers have moved into ${inName} this gameweek while ${outSold} have left ${outName}. ` +
-      `The net direction of travel is clear: the FPL market is pricing ${inName} as the better short-term asset heading into Gameweek ${gw}. ` +
-      `Mass transfer activity of this scale is typically driven by a combination of fixture awareness, expected returns, and ownership risk - ` +
-      `all three of which feed into the analysis below.`
+      (outAvailNote || `The net direction of travel is clear: the FPL market is pricing ${inName} as the better short-term asset heading into Gameweek ${gw}. `) +
+      (inAvailNote || `Mass transfer activity of this scale is typically driven by a combination of fixture awareness, expected returns, and ownership risk - ` +
+      `all three of which feed into the analysis below.`)
     : pOut.transfersOut > pIn.transfersIn
     ? `${outSold} managers have sold ${outName} this gameweek - a volume that reflects meaningful market concern rather than isolated decisions. ` +
-      `${inBought} have moved into ${inName} as an alternative, though the exit from ${pOut.webName} is the stronger market signal in this pairing. ` +
+      (outAvailNote || `${inBought} have moved into ${inName} as an alternative, though the exit from ${pOut.webName} is the stronger market signal in this pairing. `) +
       `Understanding what is driving those ${outSold} sales is the key question heading into Gameweek ${gw}.`
     : `${outSold} exits from ${outName} and ${inBought} entries into ${inName} tell a consistent story heading into Gameweek ${gw}. ` +
+      (outAvailNote + inAvailNote ||
       `The transfer market is not dramatically favouring one option over the other in raw volume terms, ` +
-      `which means the decision comes down to fixtures, expected points, and your own squad context. ` +
+      `which means the decision comes down to fixtures, expected points, and your own squad context. `) +
       `The panels below break down each of those factors.`
 
   // ── Ownership & Rank panel ──
@@ -408,25 +459,46 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
       `rather than any ownership-driven fear of missing out.`
 
   // ── Budget Impact panel ──
+  const epCompare = (!outBlank && !inBlank)
+    ? ` At ${inEp} projected points for ${inName} against ${outEp} for ${pOut.webName}, the model ${pIn.ep_next > pOut.ep_next ? "backs the premium" : "does not strongly support the additional spend"} this gameweek.`
+    : outBlank
+    ? ` ${pOut.webName} has a Blank Gameweek ${gw}, so the budget case is evaluated on the following gameweek's fixture quality rather than immediate return.`
+    : inBlank
+    ? ` ${pIn.webName} has a Blank Gameweek ${gw}, so any premium paid is for medium-term fixtures rather than an immediate return in Gameweek ${gw}.`
+    : ""
+
   const budgetPanel = pair.budgetDelta > 0.05
     ? `This transfer costs £${delta}m extra, moving from ${outName} at ${pOut.price} to ${inName} at ${pIn.price}. ` +
       `That upgrade cost needs to be funded from elsewhere in your squad or your bank. ` +
-      `The question is whether ${pIn.price} represents a price point that justifies the outlay relative to the expected return differential. ` +
-      `At ${inEp} projected points for ${inName} against ${outEp} for ${pOut.webName}, ` +
-      `the model ${parseFloat(inEp) > parseFloat(outEp) ? "backs the premium" : "does not strongly support the additional spend"} this gameweek.`
+      `The question is whether ${pIn.price} represents a price point that justifies the outlay relative to the expected return differential.` +
+      epCompare
     : pair.budgetDelta < -0.05
     ? `Selling ${outName} at ${pOut.price} for ${inName} at ${pIn.price} frees up £${delta}m in your transfer bank. ` +
       `That freed budget can be redirected to a stronger position elsewhere in your squad, ` +
-      `effectively making this move a two-stage value play: swapping ${pOut.webName} for ${pIn.webName} while strengthening another area. ` +
-      `The return differential - ${outEp} projected points for ${pOut.webName} versus ${inEp} for ${pIn.webName} in Gameweek ${gw} - ` +
-      `determines whether the saving is paired with a points gain or a marginal concession.`
+      `effectively making this move a two-stage value play: swapping ${pOut.webName} for ${pIn.webName} while strengthening another area.` +
+      epCompare
     : `${outName} at ${pOut.price} and ${inName} at ${pIn.price} represent a price-neutral transfer this gameweek. ` +
       `No budget is freed or spent - this is a direct swap between two assets at similar valuations. ` +
-      `That simplifies the decision: it comes down purely to which player gives you the better return in Gameweek ${gw} and beyond. ` +
-      `The model projects ${inEp} expected points for ${inName} against ${outEp} for ${pOut.webName}.`
+      `That simplifies the decision: it comes down purely to which player gives you the better return in Gameweek ${gw} and beyond.` +
+      epCompare
 
   // ── Fixture Window panel ──
-  const fixturePanel = (pIn.fdrNext ?? 3) < (pOut.fdrNext ?? 3)
+  const fixturePanel = (outBlank && inBlank)
+    ? `Both ${outName} and ${inName} have a Blank Gameweek ${gw} with no fixture scheduled. ` +
+      `The fixture comparison cannot be used to decide this transfer for the immediate gameweek. ` +
+      `Any decision here is purely based on squad rotation and planning for future weeks. ` +
+      `Check the upcoming fixture lists for both players before committing.`
+    : outBlank
+    ? `${outName} has a Blank Gameweek ${gw} with no fixture - they will not play this week. ` +
+      `${inName} draws ${inFix}, rated ${inFdr}. ` +
+      `The fixture argument strongly favours making the move before Gameweek ${gw} kicks off. ` +
+      `The ${inBought} managers who have already transferred in have factored this blank directly into their decision.`
+    : inBlank
+    ? `${outName} faces ${outFix} in Gameweek ${gw}, rated ${outFdr}, while ${inName} has a Blank Gameweek ${gw} with no fixture. ` +
+      `From a pure Gameweek ${gw} perspective, ${outName} holds the fixture advantage. ` +
+      `Managers transferring to ${inName} are backing their longer-term schedule rather than looking for points this week. ` +
+      `Weigh whether the longer-term upside justifies missing ${pOut.webName}'s returns in Gameweek ${gw}.`
+    : (pIn.fdrNext ?? 3) < (pOut.fdrNext ?? 3)
     ? `${inName} faces ${inFix} in Gameweek ${gw} - a ${inFdr} rated fixture. ` +
       `${outName} draws ${outFix}, rated ${outFdr}. ` +
       `The fixture swing is the clearest argument for making this move now rather than waiting. ` +
@@ -444,10 +516,15 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
       `The full AI verdict factors in all of these simultaneously.`
 
   // ── Verdict ──
-  const epAdvantage  = pIn.ep_next - pOut.ep_next
+  const epNumOut     = outBlank ? 0 : pOut.ep_next
+  const epNumIn      = inBlank  ? 0 : pIn.ep_next
+  const epAdvantage  = epNumIn - epNumOut
   const fdrAdvantage = (pOut.fdrNext ?? 3) - (pIn.fdrNext ?? 3)
   const mktMomentum  = pIn.transfersIn > pOut.transfersOut ? 1 : 0
-  const score        = (epAdvantage > 0.5 ? 1 : 0) + (fdrAdvantage > 0 ? 1 : 0) + mktMomentum
+  // If OUT has blank GW it's a strong reason to sell; if IN has blank GW reduce the score
+  const blankBonus   = outBlank ? 1 : 0
+  const blankPenalty = inBlank  ? 1 : 0
+  const score        = (epAdvantage > 0.5 ? 1 : 0) + (fdrAdvantage > 0 ? 1 : 0) + mktMomentum + blankBonus - blankPenalty
 
   const verdictLabel: TransferPageText["verdictLabel"] =
     score >= 2 ? "BACK THE MARKET"
@@ -457,18 +534,21 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
   const verdict =
     score >= 2
       ? `The evidence points toward making this transfer. ${inName} holds advantages in expected points ` +
-        `(${inEp} vs ${outEp}), fixture difficulty${fdrAdvantage > 0 ? ` (${inFdr} vs ${outFdr})` : ""}, ` +
-        `and transfer market momentum (${inBought} bought vs ${outSold} sold). ` +
+        `(${inEp} vs ${outEp}), fixture difficulty${fdrAdvantage > 0 ? ` (${inFdr} vs ${outFdr})` : ""}` +
+        `${outBlank ? `, and ${pOut.webName} has a Blank Gameweek ${gw}` : ""}, ` +
+        `supported by transfer market momentum (${inBought} bought vs ${outSold} sold). ` +
         `Making the move before the Gameweek ${gw} deadline aligns you with the direction the market has moved. ` +
         `ChatFPL AI can factor in your specific squad, transfer budget, and mini-league rivals to give a personalised verdict.`
       : score === 1
       ? `The case for this transfer is mixed. Some metrics favour ${inName} - ` +
-        `${epAdvantage > 0 ? `expected points (${inEp} vs ${outEp})` : `market momentum (${inBought} transfers in)`} - ` +
+        `${epAdvantage > 0 || outBlank ? `expected points advantage${outBlank ? ` (${pOut.webName} has a Blank Gameweek ${gw})` : ` (${inEp} vs ${outEp})`}` : `market momentum (${inBought} transfers in)`} - ` +
         `but other factors are less conclusive. ` +
+        `${inBlank ? `${pIn.webName} also has a Blank Gameweek ${gw}, which tempers the immediate appeal. ` : ""}` +
         `This is a transfer worth considering but not acting on without a clear squad need in Gameweek ${gw}. ` +
         `ChatFPL AI can weigh your actual squad context before you commit a transfer.`
       : `On the current data, the case for selling ${outName} for ${inName} is not compelling this gameweek. ` +
         `${pOut.webName} holds comparable or better metrics across expected points, fixture, and market direction. ` +
+        `${inBlank ? `${pIn.webName} has a Blank Gameweek ${gw} which further reduces the short-term appeal. ` : ""}` +
         `The ${outSold} exits may reflect short-term sentiment rather than a fundamental shift in value. ` +
         `ChatFPL AI can assess whether there is a squad-specific reason to make this move in Gameweek ${gw}.`
 
