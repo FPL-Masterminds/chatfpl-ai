@@ -38,11 +38,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const GREEN  = "#00FF87"
-const CYAN   = "#00FFFF"
-const BORDER = "rgba(0,255,135,0.18)"
-const SURFACE = "rgba(4,14,9,0.92)"
-const MUTED   = "rgba(255,255,255,0.35)"
+const GREEN   = "#00FF87"
+const CYAN    = "#00FFFF"
+const MUTED   = "#8b949e"
+const SURFACE = "rgba(13,17,23,0.82)"
+const BORDER  = "rgba(255,255,255,0.07)"
 
 // ─── Stat row — mirrors comparisons hub exactly ───────────────────────────────
 
@@ -50,19 +50,18 @@ function StatRow({ label, valA, valB, winsA, winsB }: {
   label: string; valA: string; valB: string; winsA: boolean; winsB: boolean
 }) {
   return (
-    <div className="grid items-stretch gap-0" style={{ gridTemplateColumns: "1fr 110px 1fr" }}>
-      <div className="flex items-center justify-center px-3"
-        style={{ minHeight: 44, fontSize: 13, fontWeight: 700, color: winsA ? GREEN : "white",
+    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-0">
+      <div className="flex items-center justify-center px-3 py-2"
+        style={{ fontSize: 13, fontWeight: 700, color: winsA ? GREEN : "white",
           textShadow: winsA ? `0 0 12px ${GREEN}80` : "none",
           background: winsA ? "rgba(0,255,135,0.05)" : "transparent",
           borderRight: "1px solid rgba(255,255,255,0.05)" }}
       >{valA}</div>
-      <div className="flex items-center justify-center px-2"
-        style={{ minHeight: 44, fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED,
-          textAlign: "center", lineHeight: 1.3 }}
+      <div className="flex items-center justify-center px-3 py-2"
+        style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED, whiteSpace: "nowrap" }}
       >{label}</div>
-      <div className="flex items-center justify-center px-3"
-        style={{ minHeight: 44, fontSize: 13, fontWeight: 700, color: winsB ? GREEN : "white",
+      <div className="flex items-center justify-center px-3 py-2"
+        style={{ fontSize: 13, fontWeight: 700, color: winsB ? GREEN : "white",
           textShadow: winsB ? `0 0 12px ${GREEN}80` : "none",
           background: winsB ? "rgba(0,255,135,0.05)" : "transparent",
           borderLeft: "1px solid rgba(255,255,255,0.05)" }}
