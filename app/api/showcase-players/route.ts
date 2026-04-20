@@ -89,7 +89,7 @@ export async function GET() {
 
   const toPlayer = (p: any): ShowcasePlayer => ({
     name: p.web_name,
-    club: teams[p.team] ?? "???",
+    club: teamFullNames[p.team] ?? "???",
     position: posMap[p.element_type] ?? "MID",
     price: `£${(p.now_cost / 10).toFixed(1)}m`,
     totalPts: p.total_points,
@@ -141,7 +141,7 @@ export async function GET() {
 
   const toEdge = (p: any, value: string): EdgePlayer => ({
     name: p.web_name,
-    team: teams[p.team] ?? "???",
+    team: teamFullNames[p.team] ?? "???",
     teamCode: teamCodes[p.team] ?? 0,
     value,
   })
@@ -162,7 +162,7 @@ export async function GET() {
     .slice(0, 3)
     .map((p: any): InjuryItem => ({
       name: p.web_name,
-      team: teams[p.team] ?? "???",
+      team: teamFullNames[p.team] ?? "???",
       teamCode: teamCodes[p.team] ?? 0,
       news: p.news,
       isNew: (Date.now() - new Date(p.news_added).getTime()) < 48 * 3600 * 1000,
