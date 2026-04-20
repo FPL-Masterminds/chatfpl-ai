@@ -44,32 +44,6 @@ const MUTED   = "#8b949e"
 const SURFACE = "rgba(13,17,23,0.82)"
 const BORDER  = "rgba(255,255,255,0.07)"
 
-// ─── Stat row — mirrors comparisons hub exactly ───────────────────────────────
-
-function StatRow({ label, valA, valB, winsA, winsB }: {
-  label: string; valA: string; valB: string; winsA: boolean; winsB: boolean
-}) {
-  return (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-0">
-      <div className="flex items-center justify-center px-3 py-2"
-        style={{ fontSize: 13, fontWeight: 700, color: winsA ? GREEN : "white",
-          textShadow: winsA ? `0 0 12px ${GREEN}80` : "none",
-          background: winsA ? "rgba(0,255,135,0.05)" : "transparent",
-          borderRight: "1px solid rgba(255,255,255,0.05)" }}
-      >{valA}</div>
-      <div className="flex items-center justify-center px-3 py-2"
-        style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED, whiteSpace: "nowrap" }}
-      >{label}</div>
-      <div className="flex items-center justify-center px-3 py-2"
-        style={{ fontSize: 13, fontWeight: 700, color: winsB ? GREEN : "white",
-          textShadow: winsB ? `0 0 12px ${GREEN}80` : "none",
-          background: winsB ? "rgba(0,255,135,0.05)" : "transparent",
-          borderLeft: "1px solid rgba(255,255,255,0.05)" }}
-      >{valB}</div>
-    </div>
-  )
-}
-
 // ─── Transfer direction badge ─────────────────────────────────────────────────
 
 function TransferArrow() {
@@ -146,31 +120,46 @@ function TransferCard({ pair, rank, gw, text }: {
           <div className="border-b" style={{ borderColor: BORDER }}>
             <TransferArrow />
           </div>
-          {/* Stats */}
-          <div className="flex flex-col divide-y" style={{ borderColor: BORDER }}>
-            <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
-              <StatRow label="SOLD / BOUGHT"
-                valA={soldFmt} valB={boughtFmt}
-                winsA={false} winsB={pIn.transfersIn > pOut.transfersOut} />
-            </div>
-            <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
-              <StatRow label="OWNED %"
-                valA={`${pOut.ownership}%`} valB={`${pIn.ownership}%`}
-                winsA={false} winsB={false} />
-            </div>
-            <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
-              <StatRow label="PRICE"
-                valA={pOut.price} valB={pIn.price}
-                winsA={priceOut < priceIn} winsB={priceIn < priceOut} />
-            </div>
-            <div>
-              <StatRow label="xPTS"
-                valA={pOut.ep_next === 0 ? "--" : pOut.ep_next.toFixed(1)}
-                valB={pIn.ep_next === 0 ? "--" : pIn.ep_next.toFixed(1)}
-                winsA={pOut.ep_next > pIn.ep_next && pOut.ep_next > 0}
-                winsB={pIn.ep_next > pOut.ep_next && pIn.ep_next > 0} />
-            </div>
-          </div>
+          {/* Stats — single grid so auto center column sizes once to widest label */}
+          {(() => {
+            const bSold = `1px solid ${BORDER}`
+            const bInner = "1px solid rgba(255,255,255,0.05)"
+            const cell = (wins: boolean, last = false) => ({
+              fontSize: 13, fontWeight: 700,
+              color: wins ? GREEN : "white",
+              textShadow: wins ? `0 0 12px ${GREEN}80` : "none",
+              background: wins ? "rgba(0,255,135,0.05)" : "transparent",
+              borderBottom: last ? "none" : bSold,
+            } as React.CSSProperties)
+            const lbl = (last = false) => ({
+              fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const,
+              color: MUTED, whiteSpace: "nowrap" as const,
+              borderBottom: last ? "none" : bSold,
+            })
+            const outEp = pOut.ep_next; const inEp = pIn.ep_next
+            const epOutWins = outEp > inEp && outEp > 0
+            const epInWins  = inEp > outEp && inEp > 0
+            return (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr" }}>
+                {/* SOLD / BOUGHT */}
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(false), borderRight: bInner }}>{soldFmt}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={lbl()}>SOLD / BOUGHT</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(pIn.transfersIn > pOut.transfersOut), borderLeft: bInner }}>{boughtFmt}</div>
+                {/* OWNED % */}
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(false), borderRight: bInner }}>{pOut.ownership}%</div>
+                <div className="flex items-center justify-center px-3 py-2" style={lbl()}>OWNED %</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(false), borderLeft: bInner }}>{pIn.ownership}%</div>
+                {/* PRICE */}
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(priceOut < priceIn), borderRight: bInner }}>{pOut.price}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={lbl()}>PRICE</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(priceIn < priceOut), borderLeft: bInner }}>{pIn.price}</div>
+                {/* xPTS */}
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(epOutWins, true), borderRight: bInner }}>{outEp === 0 ? "--" : outEp.toFixed(1)}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={lbl(true)}>xPTS</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(epInWins, true), borderLeft: bInner }}>{inEp === 0 ? "--" : inEp.toFixed(1)}</div>
+              </div>
+            )
+          })()}
           {/* Link */}
           <div className="flex items-center justify-center px-4 py-5 border-t" style={{ borderColor: BORDER }}>
             <div className="rounded-full p-px transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.3)]"
