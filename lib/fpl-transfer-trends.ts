@@ -62,7 +62,7 @@ export function fmtTransfers(n: number): string {
 const FDR_LABELS = ["", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"]
 
 export function fdrLabel(fdr: number | null): string {
-  return fdr ? (FDR_LABELS[fdr] ?? "Unknown") : "Unknown"
+  return fdr ? (FDR_LABELS[fdr] ?? "No Fixture") : "No Fixture"
 }
 
 function buildTransferPlayer(
