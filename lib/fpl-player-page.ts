@@ -518,24 +518,36 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
     {
       id: "captain",
       question: `Should I captain ${p.webName} in Gameweek ${gw}?`,
-      answer: [verdict, "", formText, fixtureText, "", ownershipText, "", availabilityText, "", closingText].join("\n"),
+      answer: hasImmediateBlank
+        ? [verdict, "", formText, fixtureText, "", closingText].join("\n")
+        : [verdict, "", formText, fixtureText, "", ownershipText, "", availabilityText, "", closingText].join("\n"),
     },
     {
       id: "transfer",
       question: `Should I transfer ${p.webName} in before Gameweek ${gw}?`,
-      answer: [
-        p.ep_next >= 6
-          ? `If you have the budget, yes - the timing makes sense.`
-          : `It is worth considering, but the case is not as clear-cut as it might appear.`,
-        "",
-        `At ${p.price}, ${p.webName} has registered ${p.goals} goals and ${p.assists} assists this season for ${p.totalPts} points in total. ${formText}`,
-        "",
-        fixtureText,
-        "",
-        `The main argument against bringing him in is the price point. At ${p.price}, you need to make cuts elsewhere in your squad. Whether that trade-off is worth it depends on who you would be selling and what your budget looks like.`,
-        "",
-        `ChatFPL AI can look at your specific squad and tell you whether the transfer makes sense for your team right now.`,
-      ].join("\n"),
+      answer: hasImmediateBlank
+        ? [
+            `Not this gameweek - ${p.webName} has a Blank Gameweek ${gw} with no fixture scheduled.`,
+            "",
+            `At ${p.price}, ${p.webName} has registered ${p.goals} goals and ${p.assists} assists this season for ${p.totalPts} points. ${formText}`,
+            "",
+            `With no fixture in Gameweek ${gw}, bringing ${p.webName} in now means missing a week of returns immediately. Unless your squad is already well covered for the blank, it is worth waiting until his fixtures resume.`,
+            "",
+            `ChatFPL AI can assess your squad and find the best time to make this transfer.`,
+          ].join("\n")
+        : [
+            p.ep_next >= 6
+              ? `If you have the budget, yes - the timing makes sense.`
+              : `It is worth considering, but the case is not as clear-cut as it might appear.`,
+            "",
+            `At ${p.price}, ${p.webName} has registered ${p.goals} goals and ${p.assists} assists this season for ${p.totalPts} points in total. ${formText}`,
+            "",
+            fixtureText,
+            "",
+            `The main argument against bringing him in is the price point. At ${p.price}, you need to make cuts elsewhere in your squad. Whether that trade-off is worth it depends on who you would be selling and what your budget looks like.`,
+            "",
+            `ChatFPL AI can look at your specific squad and tell you whether the transfer makes sense for your team right now.`,
+          ].join("\n"),
     },
     {
       id: "fixtures",
