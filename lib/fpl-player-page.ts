@@ -377,17 +377,21 @@ export async function getPlayerPageData(
 
 export function buildPageText(d: PlayerPageData): PageTextResult {
   const { gw, player: p, opponent, isHome, fdr } = d
-  const fixture = `${opponent} (${isHome ? "H" : "A"})`
+  const hasImmediateBlank = opponent === "TBD"
+  const fixture = hasImmediateBlank ? "no fixture" : `${opponent} (${isHome ? "H" : "A"})`
   const formVal = parseFloat(p.form)
 
   const verdict =
-    p.ep_next >= 8 ? `Yes - ${p.webName} is one of the strongest captaincy options in Gameweek ${gw}.`
+    hasImmediateBlank
+      ? `${p.webName} has a Blank Gameweek ${gw} with no fixture scheduled. There is no captaincy case this week.`
+    : p.ep_next >= 8 ? `Yes - ${p.webName} is one of the strongest captaincy options in Gameweek ${gw}.`
     : p.ep_next >= 6 ? `Probably yes - ${p.webName} is a solid captaincy pick for Gameweek ${gw}.`
     : p.ep_next >= 4 ? `It depends - ${p.webName} is a reasonable option but not the obvious armband choice this week.`
     : `Probably not - there are stronger captaincy options available for Gameweek ${gw}, but here is the case for ${p.webName}.`
 
   const verdictLabel =
-    p.ep_next >= 8 ? "YES"
+    hasImmediateBlank ? "BLANK GAMEWEEK"
+    : p.ep_next >= 8 ? "YES"
     : p.ep_next >= 6 ? "PROBABLY YES"
     : p.ep_next >= 4 ? "MAYBE"
     : "PROBABLY NOT"
@@ -401,7 +405,9 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
     : `${p.webName} has been out of form recently, averaging just ${p.form} pts/game over the last 6 gameweeks.`
 
   const fixtureText =
-    fdr <= 2 ? `${p.webName} faces ${fixture} in Gameweek ${gw} - one of the more favourable fixtures this week.`
+    hasImmediateBlank
+      ? `${p.webName} has a Blank Gameweek ${gw} - no fixture is scheduled for their club this week.`
+    : fdr <= 2 ? `${p.webName} faces ${fixture} in Gameweek ${gw} - one of the more favourable fixtures this week.`
     : fdr === 3 ? `${p.webName} faces ${fixture} in Gameweek ${gw} - a workable fixture, neither easy nor particularly tough.`
     : `${p.webName} faces ${fixture} in Gameweek ${gw} - a difficult fixture on paper, which is the main reason to hesitate.`
 
@@ -417,7 +423,9 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
     : `No injury concerns flagged at the time of writing.`
 
   const closingText =
-    p.ep_next >= 6 && fdr <= 3
+    hasImmediateBlank
+      ? `${p.webName} has a Blank Gameweek ${gw}. Hold off on the armband and consider them again when their fixtures resume.`
+      : p.ep_next >= 6 && fdr <= 3
       ? `The combination of strong expected points and a manageable fixture makes ${p.webName} a captain pick you can make with confidence.`
       : p.ep_next >= 6 && fdr >= 4
       ? `${p.webName}'s expected output is strong, but the fixture is tough. A viable captain pick for those willing to back him against the odds.`
@@ -426,7 +434,9 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
       : `With a tough fixture and modest expected points, ${p.webName} is not a captain recommendation this week unless your options are limited.`
 
   const ctaLeadin =
-    p.ep_next >= 6
+    hasImmediateBlank
+      ? `${p.webName} has a Blank Gameweek this week. ChatFPL AI can help you find the best captaincy option from the players who do have a fixture.`
+      : p.ep_next >= 6
       ? `Want to know how ${p.webName} compares against the other top captaincy options this week? ChatFPL AI can compare your specific options based on your squad.`
       : `Not convinced ${p.webName} is the right call? ChatFPL AI can suggest the strongest captaincy option for your squad and budget.`
 
@@ -436,7 +446,9 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
       : formVal >= 4
       ? `Form: ${p.form} pts/game over the last 6 gameweeks - moderate returns`
       : `Form: ${p.form} pts/game over the last 6 gameweeks - below expectations`,
-    fdr <= 2
+    hasImmediateBlank
+      ? `Fixture: Blank Gameweek ${gw} - no fixture scheduled this week`
+      : fdr <= 2
       ? `Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} - one of the easier fixtures this week`
       : fdr === 3
       ? `Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} - a workable fixture`
@@ -457,14 +469,18 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
   else
     caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - poor recent returns make him a risky armband choice.`)
 
-  if (fdr <= 2)
+  if (hasImmediateBlank) {
+    caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in Gameweek ${gw}. There is no captaincy case this week.`)
+  } else if (fdr <= 2)
     caseFor.push(`Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} is one of the more inviting matchups available to premium assets this week.`)
   else if (fdr === 3)
     caseFor.push(`Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} is workable - not elite, but not a reason to avoid him.`)
   else
     caseAgainst.push(`Fixture: ${opponent} (${isHome ? "H" : "A"}) in GW${gw} is a tough assignment - better-fixture alternatives exist this week.`)
 
-  if (p.ep_next >= 7)
+  if (hasImmediateBlank) {
+    // blank GW already covered above; skip ep_next line to avoid redundant "0.0" message
+  } else if (p.ep_next >= 7)
     caseFor.push(`Expected points: ${p.ep_next} xPts for GW${gw} is among the highest of any player this week.`)
   else if (p.ep_next >= 5)
     caseFor.push(`Expected points: ${p.ep_next} xPts for GW${gw} - a solid projected return.`)
@@ -916,7 +932,9 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   else if (hasBlankInRun) caseAgainst.push(`Blank Gameweek ahead: ${p.webName} has no fixture in GW${blankGWs[0].gw}. Factor this into your squad planning.`)
 
   // ep_next
-  if (p.ep_next >= 7) caseFor.push(`Expected points: ${p.ep_next} xPts for GW${gw} - among the highest of any player in the game this week.`)
+  if (hasImmediateBlank) {
+    caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in Gameweek ${gw}. Transferring him in this week means starting with a blank return.`)
+  } else if (p.ep_next >= 7) caseFor.push(`Expected points: ${p.ep_next} xPts for GW${gw} - among the highest of any player in the game this week.`)
   else if (p.ep_next >= 5) caseFor.push(`Expected points: ${p.ep_next} xPts projected for GW${gw} - a solid return expectation.`)
   else caseAgainst.push(`Expected points: only ${p.ep_next} xPts projected for GW${gw} - the model does not back a high-scoring week immediately.`)
 
@@ -1336,9 +1354,9 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
   if (isNotDiff) caseAgainst.push(`Ownership: at ${p.ownership}%, ${p.webName} is a template player. Not owning him is the differential decision - and it carries significant rank risk if he returns.`)
   if (formVal < 3) caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - low ownership can reflect what the broader game has already assessed.`)
   else if (formVal < 4 && !isNotDiff) caseAgainst.push(`Form: ${p.form} pts/game - below what you want from a differential who needs to deliver to justify the squad spot.`)
-  if (p.ep_next < 4) caseAgainst.push(`Expected points: only ${p.ep_next} xPts projected for GW${gw}. A differential needs some return floor to be viable - the model does not back one this week.`)
+  if (hasImmediateBlank) caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in Gameweek ${gw}. There is no differential opportunity this week.`)
+  else if (p.ep_next < 4) caseAgainst.push(`Expected points: only ${p.ep_next} xPts projected for GW${gw}. A differential needs some return floor to be viable - the model does not back one this week.`)
   if (hardCount >= 3) caseAgainst.push(`Fixture run: ${hardCount} tough fixtures in the next 4 gameweeks. A differential pick with a hard schedule is a short-term gamble rather than a planned hold.`)
-  if (hasImmediateBlank) caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in GW${gw}. There is no differential opportunity this week.`)
   if (p.chance < 75) caseAgainst.push(`${p.news ? formatFplNews(p.news) : "Fitness doubt"} - a differential pick who does not play delivers zero rank benefit.`)
   if (!isNotDiff && formVal < 4 && hardCount >= 2) caseAgainst.push(`Low ownership may reflect consensus: when most managers avoid a player, it is worth understanding why before framing it as an opportunity.`)
 

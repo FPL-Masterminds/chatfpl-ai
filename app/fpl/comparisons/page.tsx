@@ -43,6 +43,28 @@ function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: nu
           goalsA, goalsB, assistsA, assistsB, priceA, priceB,
           ptsPerMillionA, ptsPerMillionB, ownershipA, ownershipB, position } = pair
 
+  const blankA = epA === 0
+  const blankB = epB === 0
+
+  // Handle Blank Gameweek cases first
+  if (blankA && blankB) {
+    return `Both ${nameA} and ${nameB} have a Blank Gameweek ${gw} with no fixture scheduled. Neither player is expected to return this week. ` +
+      `Compare their form and season stats, but hold off on any captaincy or transfer decision until their fixtures resume. ` +
+      `The full head-to-head breakdown is available on the comparison page.`
+  }
+  if (blankA) {
+    const activeFm = formB.toFixed(1)
+    return `${nameA} has a Blank Gameweek ${gw} with no fixture scheduled, making ${nameB} the clear short-term pick. ` +
+      `${nameB} carries ${epB.toFixed(1)} expected points and ${activeFm} recent form into this gameweek. ` +
+      `The full head-to-head breakdown including form and fixture run is available on the comparison page.`
+  }
+  if (blankB) {
+    const activeFm = formA.toFixed(1)
+    return `${nameB} has a Blank Gameweek ${gw} with no fixture scheduled, making ${nameA} the clear short-term pick. ` +
+      `${nameA} carries ${epA.toFixed(1)} expected points and ${activeFm} recent form into this gameweek. ` +
+      `The full head-to-head breakdown including form and fixture run is available on the comparison page.`
+  }
+
   const epWinner    = epA >= epB ? nameA : nameB
   const epLoser     = epA >= epB ? nameB : nameA
   const epLeader    = Math.max(epA, epB).toFixed(1)
@@ -174,8 +196,11 @@ function CompareCard({ pair, rank, gw, text }: {
           </div>
           <div className="flex flex-col divide-y" style={{ borderColor: BORDER }}>
             <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
-              <StatRow label="xPTS" valA={pair.epA.toFixed(1)} valB={pair.epB.toFixed(1)}
-                winsA={pair.epA > pair.epB} winsB={pair.epB > pair.epA} />
+              <StatRow label="xPTS"
+                valA={pair.epA === 0 ? "--" : pair.epA.toFixed(1)}
+                valB={pair.epB === 0 ? "--" : pair.epB.toFixed(1)}
+                winsA={pair.epA > pair.epB && pair.epA > 0}
+                winsB={pair.epB > pair.epA && pair.epB > 0} />
             </div>
             <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
               <StatRow label="FORM" valA={pair.formA.toFixed(1)} valB={pair.formB.toFixed(1)}
