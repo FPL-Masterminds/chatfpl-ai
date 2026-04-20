@@ -8,8 +8,8 @@ import type { TransferTrendPlayer } from "@/lib/fpl-transfer-trends"
 
 const GREEN = "#00FF87"
 const CYAN  = "#00FFFF"
-const CARD_W = 200
-const CARD_H = 300
+const CARD_W = 220
+const CARD_H = 310
 
 function photoUrl(code: number) {
   return `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
@@ -26,11 +26,11 @@ function PlayerCard({ player, label, labelColor }: {
   return (
     <div style={{ position: "relative", width: CARD_W, height: CARD_H }}>
       {/* Floating shadow */}
-      <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: 142, width: 120, zIndex: 10 }}>
+      <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: 148, width: 130, zIndex: 10 }}>
         <motion.div
           className="mx-auto rounded-full"
           style={{
-            width: 60, height: 10,
+            width: 70, height: 12,
             background: "radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, transparent 80%)",
             filter: "blur(4px)", marginBottom: -6,
           }}
@@ -47,7 +47,7 @@ function PlayerCard({ player, label, labelColor }: {
             alt={player.webName}
             draggable={false}
             style={{
-              width: 120, height: "auto", objectFit: "contain",
+              width: 130, height: "auto", objectFit: "contain",
               filter: "drop-shadow(0 8px 20px rgba(0,255,133,0.25))",
             }}
           />
