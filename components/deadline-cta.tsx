@@ -67,16 +67,20 @@ export function DeadlineCTA() {
   const [gw, setGw] = useState<number | null>(null)
   const [deadline, setDeadline] = useState<Date | null>(null)
   const [remaining, setRemaining] = useState<ReturnType<typeof calcRemaining>>(null)
+  const [seasonOver, setSeasonOver] = useState<boolean>(false)
+  const [loaded, setLoaded] = useState(false)
 
   // Fetch next deadline from FPL API (via our route)
   useEffect(() => {
     fetch("/api/next-deadline")
       .then((r) => r.json())
-      .then(({ gw, deadline }: { gw: number | null; deadline: string | null }) => {
+      .then(({ gw, deadline, seasonOver }: { gw: number | null; deadline: string | null; seasonOver: boolean }) => {
         setGw(gw)
         setDeadline(deadline ? new Date(deadline) : null)
+        setSeasonOver(!!seasonOver)
+        setLoaded(true)
       })
-      .catch(() => {})
+      .catch(() => { setLoaded(true) })
   }, [])
 
   // Tick every second once we have a deadline
@@ -89,6 +93,11 @@ export function DeadlineCTA() {
 
   const urgent = remaining?.urgent ?? false
 
+  // Three display states
+  const hasCounting  = !!remaining            // active countdown
+  const betweenGWs   = loaded && !remaining && !seasonOver  // API updating / between GWs
+  const isSeasonOver = loaded && !remaining && seasonOver   // genuine end of season
+
   return (
     <section className="relative bg-black px-4 py-24 overflow-hidden">
       {/* Background radial — deep emerald centre */}
@@ -98,7 +107,6 @@ export function DeadlineCTA() {
           background: "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(0,40,20,0.6) 0%, rgba(0,0,0,0) 70%)",
         }}
       />
-
 
       <div className="relative mx-auto max-w-4xl text-center">
 
@@ -110,7 +118,7 @@ export function DeadlineCTA() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl"
         >
-          {remaining ? (
+          {hasCounting ? (
             <>
               <span className="text-white">Gameweek </span>
               <span
@@ -120,7 +128,17 @@ export function DeadlineCTA() {
                 {gw ?? "Next"}
               </span>
             </>
-          ) : (
+          ) : betweenGWs ? (
+            <>
+              <span className="text-white">Next Gameweek </span>
+              <span
+                className="text-transparent bg-clip-text"
+                style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
+              >
+                Coming Soon.
+              </span>
+            </>
+          ) : isSeasonOver ? (
             <>
               <span className="text-white">New Season. </span>
               <span
@@ -130,7 +148,7 @@ export function DeadlineCTA() {
                 Same Rivals. Head Start.
               </span>
             </>
-          )}
+          ) : null}
         </motion.h2>
 
         {/* Subheading */}
@@ -141,13 +159,17 @@ export function DeadlineCTA() {
           transition={{ duration: 0.6, delay: 0.18 }}
           className="text-lg text-gray-300 max-w-xl mx-auto mb-10"
         >
-          {remaining
+          {hasCounting
             ? "Ready When You Are."
-            : "The season's done. But the managers who finish top next year are already thinking. Don't start on the back foot."
+            : betweenGWs
+            ? "Results are being processed. The next deadline will be confirmed shortly."
+            : isSeasonOver
+            ? "The season's done. But the managers who finish top next year are already thinking. Don't start on the back foot."
+            : null
           }
         </motion.p>
 
-        {/* Countdown boxes */}
+        {/* Countdown boxes or placeholder notice */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -155,16 +177,46 @@ export function DeadlineCTA() {
           transition={{ duration: 0.6, delay: 0.26 }}
           className="flex justify-center gap-3 sm:gap-4 mb-12"
         >
-          {remaining ? (
+          {hasCounting ? (
             <>
-              <Unit value={pad(remaining.days)}    label="Days"    urgent={urgent} speed={7} />
-              <Unit value={pad(remaining.hours)}   label="Hours"   urgent={urgent} speed={9} />
-              <Unit value={pad(remaining.minutes)} label="Mins"    urgent={urgent} speed={11} />
-              <Unit value={pad(remaining.seconds)} label="Secs"    urgent={urgent} speed={8} />
+              <Unit value={pad(remaining!.days)}    label="Days"    urgent={urgent} speed={7} />
+              <Unit value={pad(remaining!.hours)}   label="Hours"   urgent={urgent} speed={9} />
+              <Unit value={pad(remaining!.minutes)} label="Mins"    urgent={urgent} speed={11} />
+              <Unit value={pad(remaining!.seconds)} label="Secs"    urgent={urgent} speed={8} />
             </>
-          ) : (
-            <p className="text-white/40 text-base italic">GW1 deadline date to be confirmed by the Premier League.</p>
-          )}
+          ) : betweenGWs ? (
+            <div
+              className="inline-flex items-center gap-2.5 rounded-full px-5 py-2.5"
+              style={{
+                background: "rgba(0,255,135,0.08)",
+                border: "1px solid rgba(0,255,135,0.25)",
+              }}
+            >
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", flexShrink: 0 }}
+              />
+              <span className="text-sm font-medium text-white/80">
+                Next deadline date to be confirmed
+              </span>
+            </div>
+          ) : isSeasonOver ? (
+            <div
+              className="inline-flex items-center gap-2.5 rounded-full px-5 py-2.5"
+              style={{
+                background: "rgba(0,255,135,0.08)",
+                border: "1px solid rgba(0,255,135,0.25)",
+              }}
+            >
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", flexShrink: 0 }}
+              />
+              <span className="text-sm font-medium text-white/80">
+                Gameweek 1 deadline to be confirmed by the Premier League
+              </span>
+            </div>
+          ) : null}
         </motion.div>
 
         {/* CTA button with shimmer */}
@@ -197,7 +249,7 @@ export function DeadlineCTA() {
                   animation: "shimmer 2.4s linear infinite",
                 }}
               />
-              {remaining ? "Start Your Free Trial Now" : "Start Your Free Trial Now"}
+              Start Your Free Trial Now
             </Link>
           </div>
           <p className="mt-3 text-xs text-white/60">Free trial · No credit card required</p>
