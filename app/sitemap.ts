@@ -4,6 +4,7 @@ import path from 'path'
 import { getEligibleSlugs, BEST_VALUE_COMBOS, getTeamSlugs, TEAM_POSITION_SLUGS } from '@/lib/fpl-player-page'
 import { getComparisonSlugs } from '@/lib/fpl-comparison'
 import { getInjurySlugs } from '@/lib/fpl-injury'
+import { getTransferTrendSlugs } from '@/lib/fpl-transfer-trends'
 
 const baseUrl = 'https://www.chatfpl.ai'
 
@@ -65,7 +66,8 @@ function getAllPageRoutes(dir: string, baseRoute: string = ''): string[] {
 function getRouteMetadata(route: string) {
   if (route === '') return { priority: 1.0, changeFrequency: 'daily' as const }
   if (['/chat', '/signup'].includes(route)) return { priority: 0.9, changeFrequency: 'always' as const }
-  if (['/fpl/captains', '/fpl/differentials', '/fpl/comparisons'].includes(route)) return { priority: 1.0, changeFrequency: 'always' as const }
+  if (['/fpl/captains', '/fpl/differentials', '/fpl/comparisons', '/fpl/transfer-trends'].includes(route)) return { priority: 1.0, changeFrequency: 'always' as const }
+  if (route.startsWith('/fpl/transfer-trends/')) return { priority: 0.92, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/best/')) return { priority: 0.95, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/team/')) return { priority: 0.9, changeFrequency: 'daily' as const }
   if (['/about', '/faq', '/contact'].includes(route)) return { priority: 0.8, changeFrequency: 'weekly' as const }
@@ -101,6 +103,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ({ playerA, playerB }) => `/fpl/compare/${playerA}/${playerB}`
   )
 
+  // Transfer trends — top 400 same-position sell/buy pairs by combined activity
+  const transferTrendPairs = await getTransferTrendSlugs(400)
+  const transferTrendRoutes = transferTrendPairs.map(
+    ({ player_out, player_in }) => `/fpl/transfer-trends/${player_out}/${player_in}`
+  )
+
   // Injury routes — only currently flagged players
   const injurySlugsData = await getInjurySlugs()
   const injuryRoutes = injurySlugsData.map(({ slug }) => `/fpl/injury/${slug}`)
@@ -122,6 +130,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/fpl/captains",
     "/fpl/differentials",
     "/fpl/comparisons",
+    "/fpl/transfer-trends",
     "/fpl/injuries",
     ...bestValueRoutes,
     ...teamOverviewRoutes,
@@ -132,6 +141,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...differentialRoutes,
     ...comparisonRoutes,
     ...injuryRoutes,
+    ...transferTrendRoutes,
   ]
 
   return allRoutes.map((route) => {
