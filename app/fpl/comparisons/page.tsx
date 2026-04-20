@@ -110,31 +110,6 @@ function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: nu
     `The full fixture-by-fixture comparison is on the dedicated head-to-head page.`
 }
 
-// ─── Stat row ─────────────────────────────────────────────────────────────────
-
-function StatRow({ label, valA, valB, winsA, winsB }: {
-  label: string; valA: string; valB: string; winsA: boolean; winsB: boolean
-}) {
-  return (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-0">
-      <div className="flex items-center justify-center px-3 py-2"
-        style={{ fontSize: 13, fontWeight: 700, color: winsA ? GREEN : "white",
-          textShadow: winsA ? `0 0 12px ${GREEN}80` : "none",
-          background: winsA ? "rgba(0,255,135,0.05)" : "transparent",
-          borderRight: "1px solid rgba(255,255,255,0.05)" }}
-      >{valA}</div>
-      <div className="flex items-center justify-center px-3 py-2"
-        style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED, whiteSpace: "nowrap" }}
-      >{label}</div>
-      <div className="flex items-center justify-center px-3 py-2"
-        style={{ fontSize: 13, fontWeight: 700, color: winsB ? GREEN : "white",
-          textShadow: winsB ? `0 0 12px ${GREEN}80` : "none",
-          background: winsB ? "rgba(0,255,135,0.05)" : "transparent",
-          borderLeft: "1px solid rgba(255,255,255,0.05)" }}
-      >{valB}</div>
-    </div>
-  )
-}
 
 // ─── Comparison card ──────────────────────────────────────────────────────────
 
@@ -194,23 +169,40 @@ function CompareCard({ pair, rank, gw, text }: {
                 alt={pair.clubB} width={16} height={16} style={{ objectFit: "contain", flexShrink: 0 }} unoptimized />
             </div>
           </div>
-          <div className="flex flex-col divide-y" style={{ borderColor: BORDER }}>
-            <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
-              <StatRow label="xPTS"
-                valA={pair.epA === 0 ? "--" : pair.epA.toFixed(1)}
-                valB={pair.epB === 0 ? "--" : pair.epB.toFixed(1)}
-                winsA={pair.epA > pair.epB && pair.epA > 0}
-                winsB={pair.epB > pair.epA && pair.epB > 0} />
-            </div>
-            <div style={{ borderColor: BORDER, borderBottomWidth: 1, borderBottomStyle: "solid" }}>
-              <StatRow label="FORM" valA={pair.formA.toFixed(1)} valB={pair.formB.toFixed(1)}
-                winsA={pair.formA > pair.formB} winsB={pair.formB > pair.formA} />
-            </div>
-            <div>
-              <StatRow label="PRICE" valA={pair.priceA} valB={pair.priceB}
-                winsA={priceNumA < priceNumB} winsB={priceNumB < priceNumA} />
-            </div>
-          </div>
+          {/* Stats — single grid so auto center column sizes once to widest label */}
+          {(() => {
+            const bSold  = `1px solid ${BORDER}`
+            const bInner = "1px solid rgba(255,255,255,0.05)"
+            const val = (wins: boolean, last = false) => ({
+              fontSize: 13, fontWeight: 700,
+              color: wins ? GREEN : "white",
+              textShadow: wins ? `0 0 12px ${GREEN}80` : "none",
+              background: wins ? "rgba(0,255,135,0.05)" : "transparent",
+              borderBottom: last ? "none" : bSold,
+            } as React.CSSProperties)
+            const lbl = (last = false) => ({
+              fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase" as const,
+              color: MUTED, whiteSpace: "nowrap" as const,
+              borderBottom: last ? "none" : bSold,
+            })
+            const epA = pair.epA; const epB = pair.epB
+            return (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr" }}>
+                {/* xPTS */}
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(epA > epB && epA > 0), borderRight: bInner }}>{epA === 0 ? "--" : epA.toFixed(1)}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={lbl()}>xPTS</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(epB > epA && epB > 0), borderLeft: bInner }}>{epB === 0 ? "--" : epB.toFixed(1)}</div>
+                {/* FORM */}
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(pair.formA > pair.formB), borderRight: bInner }}>{pair.formA.toFixed(1)}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={lbl()}>FORM</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(pair.formB > pair.formA), borderLeft: bInner }}>{pair.formB.toFixed(1)}</div>
+                {/* PRICE */}
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(priceNumA < priceNumB, true), borderRight: bInner }}>{pair.priceA}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={lbl(true)}>PRICE</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(priceNumB < priceNumA, true), borderLeft: bInner }}>{pair.priceB}</div>
+              </div>
+            )
+          })()}
           <div className="flex items-center justify-center px-4 py-5 border-t" style={{ borderColor: BORDER }}>
             <div className="rounded-full p-px transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.3)]"
               style={{ background: `linear-gradient(to right, ${GREEN}, ${CYAN})` }}
