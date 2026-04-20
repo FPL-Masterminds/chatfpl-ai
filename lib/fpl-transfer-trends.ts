@@ -351,7 +351,7 @@ export function buildTransferHubText(
 
   if (variant === 0) {
     return `A combined ${combined} moves define ${outName}-to-${inName} as one of Gameweek ${gw}'s most active transfer routes. ` +
-      `${outSold} managers have exited ${outName} while ${inBought} have moved into ${pIn.webName} - ` +
+      `Of those, ${outSold} managers have exited ${outName} while ${inBought} have moved into ${pIn.webName} - ` +
       `when that volume of managers reaches the same conclusion simultaneously, the market signal carries real weight. ` +
       (availNote ? availNote : `At ${inOwn}% ownership, failing to hold ${inName} while they return costs rank against every manager who made the switch. `) +
       `The full transfer breakdown and AI verdict are on the dedicated page.`
@@ -382,6 +382,7 @@ export interface TransferPageText {
   verdict: string
   verdictLabel: "BACK THE MARKET" | "PROCEED WITH CAUTION" | "STAY PUT"
   ctaPrompt: string
+  qaItems: { id: string; question: string; answer: string }[]
 }
 
 export function buildTransferPageText(pair: TransferTrendPair): TransferPageText {
@@ -427,19 +428,19 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
     : ""
 
   const marketPanel = pIn.transfersIn > pOut.transfersOut
-    ? `${inBought} managers have moved into ${inName} this gameweek while ${outSold} have left ${outName}. ` +
-      (outAvailNote || `The net direction of travel is clear: the FPL market is pricing ${inName} as the better short-term asset heading into Gameweek ${gw}. `) +
-      (inAvailNote || `Mass transfer activity of this scale is typically driven by a combination of fixture awareness, expected returns, and ownership risk - ` +
+    ? `In Gameweek ${gw}, ${inBought} managers have moved into ${inName} while ${outSold} have left ${outName}. ` +
+      (outAvailNote || `The net direction of travel is clear: the FPL market is pricing ${inName} as the better short-term asset. `) +
+      (inAvailNote || `Transfer activity of this scale is typically driven by a combination of fixture awareness, expected returns, and ownership risk - ` +
       `all three of which feed into the analysis below.`)
     : pOut.transfersOut > pIn.transfersIn
-    ? `${outSold} managers have sold ${outName} this gameweek - a volume that reflects meaningful market concern rather than isolated decisions. ` +
-      (outAvailNote || `${inBought} have moved into ${inName} as an alternative, though the exit from ${pOut.webName} is the stronger market signal in this pairing. `) +
+    ? `A total of ${outSold} managers have sold ${outName} this gameweek - a volume that reflects meaningful market concern rather than isolated decisions. ` +
+      (outAvailNote || `Meanwhile, ${inBought} have moved into ${inName} as an alternative, though the exit from ${pOut.webName} is the stronger market signal in this pairing. `) +
       `Understanding what is driving those ${outSold} sales is the key question heading into Gameweek ${gw}.`
-    : `${outSold} exits from ${outName} and ${inBought} entries into ${inName} tell a consistent story heading into Gameweek ${gw}. ` +
+    : `The combined ${outSold} exits from ${outName} and ${inBought} entries into ${inName} tell a consistent story heading into Gameweek ${gw}. ` +
       (outAvailNote + inAvailNote ||
       `The transfer market is not dramatically favouring one option over the other in raw volume terms, ` +
       `which means the decision comes down to fixtures, expected points, and your own squad context. `) +
-      `The panels below break down each of those factors.`
+      `The analysis below breaks down each of those factors.`
 
   // ── Ownership & Rank panel ──
   const ownGap = Math.abs(inOwn - outOwn).toFixed(1)
@@ -554,5 +555,28 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
 
   const ctaPrompt = `Should I sell ${pOut.webName} for ${pIn.webName} in GW${gw}?`
 
-  return { marketPanel, ownershipPanel, budgetPanel, fixturePanel, verdict, verdictLabel, ctaPrompt }
+  const qaItems = [
+    {
+      id: "q1",
+      question: `What does the transfer market look like for selling ${pOut.webName} and buying ${pIn.webName} in Gameweek ${gw}?`,
+      answer: marketPanel,
+    },
+    {
+      id: "q2",
+      question: `What is the ownership risk of keeping ${pOut.webName} over ${pIn.webName} in Gameweek ${gw}?`,
+      answer: ownershipPanel,
+    },
+    {
+      id: "q3",
+      question: `What is the budget impact of selling ${pOut.webName} for ${pIn.webName}?`,
+      answer: budgetPanel,
+    },
+    {
+      id: "q4",
+      question: `How do the fixtures compare for ${pOut.webName} and ${pIn.webName} heading into Gameweek ${gw}?`,
+      answer: fixturePanel,
+    },
+  ]
+
+  return { marketPanel, ownershipPanel, budgetPanel, fixturePanel, verdict, verdictLabel, ctaPrompt, qaItems }
 }
