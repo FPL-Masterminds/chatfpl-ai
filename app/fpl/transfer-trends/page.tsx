@@ -154,9 +154,9 @@ function TransferCard({ pair, rank, gw, text }: {
                 <div className="flex items-center justify-center px-3 py-2" style={lbl()}>PRICE</div>
                 <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(priceIn < priceOut), borderLeft: bInner }}>{pIn.price}</div>
                 {/* xPTS */}
-                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(epOutWins, true), borderRight: bInner }}>{outEp === 0 ? "--" : outEp.toFixed(1)}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(epOutWins, true), borderRight: bInner }}>{outEp === 0 ? "0.0" : outEp.toFixed(1)}</div>
                 <div className="flex items-center justify-center px-3 py-2" style={lbl(true)}>xPTS</div>
-                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(epInWins, true), borderLeft: bInner }}>{inEp === 0 ? "--" : inEp.toFixed(1)}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...cell(epInWins, true), borderLeft: bInner }}>{inEp === 0 ? "0.0" : inEp.toFixed(1)}</div>
               </div>
             )
           })()}

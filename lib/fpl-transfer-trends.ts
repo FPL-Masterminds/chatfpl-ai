@@ -328,8 +328,8 @@ export function buildTransferHubText(
   const outDoubt   = !outBlank && pOut.chance < 75
   const inDoubt    = !inBlank  && pIn.chance  < 75
 
-  const outEp = outBlank ? "--" : pOut.ep_next.toFixed(1)
-  const inEp  = inBlank  ? "--" : pIn.ep_next.toFixed(1)
+  const outEp = outBlank ? "0.0 (due to a blank gameweek)" : pOut.ep_next.toFixed(1)
+  const inEp  = inBlank  ? "0.0 (due to a blank gameweek)" : pIn.ep_next.toFixed(1)
 
   // Build a single availability sentence that can be injected into any variant
   let availNote = ""
@@ -412,8 +412,8 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
 
   const outFdr  = fdrLabel(pOut.fdrNext)
   const inFdr   = fdrLabel(pIn.fdrNext)
-  const outEp   = outBlank ? "--" : pOut.ep_next.toFixed(1)
-  const inEp    = inBlank  ? "--" : pIn.ep_next.toFixed(1)
+  const outEp   = outBlank ? "0.0 (due to a blank gameweek)" : pOut.ep_next.toFixed(1)
+  const inEp    = inBlank  ? "0.0 (due to a blank gameweek)" : pIn.ep_next.toFixed(1)
 
   // ── Market Movement panel ──
   const outAvailNote = outBlank

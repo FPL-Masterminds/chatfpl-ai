@@ -189,9 +189,9 @@ function CompareCard({ pair, rank, gw, text }: {
             return (
               <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr" }}>
                 {/* xPTS */}
-                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(epA > epB && epA > 0), borderRight: bInner }}>{epA === 0 ? "--" : epA.toFixed(1)}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(epA > epB && epA > 0), borderRight: bInner }}>{epA === 0 ? "0.0" : epA.toFixed(1)}</div>
                 <div className="flex items-center justify-center px-3 py-2" style={lbl()}>xPTS</div>
-                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(epB > epA && epB > 0), borderLeft: bInner }}>{epB === 0 ? "--" : epB.toFixed(1)}</div>
+                <div className="flex items-center justify-center px-3 py-2" style={{ ...val(epB > epA && epB > 0), borderLeft: bInner }}>{epB === 0 ? "0.0" : epB.toFixed(1)}</div>
                 {/* FORM */}
                 <div className="flex items-center justify-center px-3 py-2" style={{ ...val(pair.formA > pair.formB), borderRight: bInner }}>{pair.formA.toFixed(1)}</div>
                 <div className="flex items-center justify-center px-3 py-2" style={lbl()}>FORM</div>
