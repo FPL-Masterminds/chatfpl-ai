@@ -69,10 +69,11 @@ export function Footer() {
             <h3 className="mb-4 text-sm font-semibold text-white">Player Hubs</h3>
             <ul className="space-y-3">
               {[
-                { href: "/fpl/captains",      label: "Captains Hub"      },
-                { href: "/fpl/differentials", label: "Differentials Hub" },
-                { href: "/fpl/comparisons",   label: "Head-to-Head Hub"  },
-                { href: "/fpl/injuries",      label: "Injuries Hub"       },
+                { href: "/fpl/captains",        label: "Captains Hub"           },
+                { href: "/fpl/differentials",   label: "Differentials Hub"      },
+                { href: "/fpl/comparisons",     label: "Head-to-Head Hub"       },
+                { href: "/fpl/injuries",        label: "Injuries Hub"           },
+                { href: "/fpl/transfer-trends", label: "Transfer Market Trends" },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87] group">
