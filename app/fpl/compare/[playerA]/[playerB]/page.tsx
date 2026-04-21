@@ -287,28 +287,61 @@ export default async function ComparisonPage({
   const welcome = `I've pulled the latest GW${gw} data for ${playerA.displayName} and ${playerB.displayName}. The verdict is below - click any question for more detail.`
 
   // ── Dynamic CTA hook ──────────────────────────────────────────────────────
-  const priceDiff   = Math.abs(playerA.priceRaw - playerB.priceRaw)
+  const aBlank = (fixtureRunA[0]?.matches.length ?? 1) === 0
+  const bBlank = (fixtureRunB[0]?.matches.length ?? 1) === 0
+  const aDgw   = (fixtureRunA[0]?.matches.length ?? 0) >= 2
+  const bDgw   = (fixtureRunB[0]?.matches.length ?? 0) >= 2
+
+  const priceDiff    = Math.abs(playerA.priceRaw - playerB.priceRaw)
   const hasPriceDiff = priceDiff >= 0.1
   const priceDiffStr = priceDiff.toFixed(1)
-  const cheaper  = playerA.priceRaw <= playerB.priceRaw ? playerA : playerB
-  const fdrA = playerA.fdrNext ?? 3
-  const fdrB = playerB.fdrNext ?? 3
-  const betterFix = fdrA < fdrB ? playerA : fdrB < fdrA ? playerB : null
+  const cheaper = playerA.priceRaw <= playerB.priceRaw ? playerA : playerB
+  const dearer  = playerA.priceRaw <= playerB.priceRaw ? playerB : playerA
+  const cheaperBlank = cheaper.webName === playerA.webName ? aBlank : bBlank
+  const dearerBlank  = cheaper.webName === playerA.webName ? bBlank : aBlank
+
+  // fdrNext isn't on ComparisonPlayer interface so use ep_next as proxy:
+  // player with higher ep_next has the better expected fixture outcome
+  const betterFix =
+    playerA.ep_next > playerB.ep_next ? playerA :
+    playerB.ep_next > playerA.ep_next ? playerB : null
 
   let ctaH3: string
   let ctaBody: string
 
-  if (betterFix && hasPriceDiff && betterFix.webName !== cheaper.webName) {
+  // DGW is the strongest signal — flag it first
+  if (aDgw || bDgw) {
+    const dgwPlayer   = aDgw ? playerA : playerB
+    const otherPlayer = aDgw ? playerB : playerA
+    ctaH3 = `${dgwPlayer.webName} has a Double Gameweek ${gw} - two fixtures where ${otherPlayer.webName} has one.`
+    ctaBody = `Ask ChatFPL AI if a Double Gameweek changes your captaincy and squad plans.`
+  // Both blank - neither has an active fixture
+  } else if (aBlank && bBlank) {
+    ctaH3 = `Both ${playerA.webName} and ${playerB.webName} have a blank this Gameweek ${gw}.`
+    ctaBody = `Ask ChatFPL AI if there is a better use of your transfer budget while both players sit out.`
+  // Cheaper player has a blank - don't recommend them on price alone
+  } else if (hasPriceDiff && cheaperBlank) {
+    ctaH3 = `${cheaper.webName} is £${priceDiffStr}m cheaper - but has a blank Gameweek ${gw} with no fixture.`
+    ctaBody = `Ask ChatFPL AI whether the saving is worth the short-term cost, or whether ${dearer.webName} is the safer pick this week.`
+  // Dearer player has blank - cheaper player is the active one
+  } else if (hasPriceDiff && dearerBlank) {
+    ctaH3 = `${cheaper.webName} is £${priceDiffStr}m cheaper and has the active fixture this week.`
+    ctaBody = `Ask ChatFPL AI if the downgrade makes sense for your specific squad and budget.`
+  // Normal case: better fixture costs more
+  } else if (betterFix && hasPriceDiff && betterFix.webName !== cheaper.webName) {
     ctaH3 = `${betterFix.webName} has the better fixture run - but ${cheaper.webName} frees up £${priceDiffStr}m.`
     ctaBody = `Ask ChatFPL AI how to spend that £${priceDiffStr}m saving on your specific squad.`
+  // Better fixture is also cheaper
   } else if (betterFix && hasPriceDiff && betterFix.webName === cheaper.webName) {
     ctaH3 = `${betterFix.webName} has the better fixture and the lower price tag - saving you £${priceDiffStr}m.`
     ctaBody = `Ask ChatFPL AI where that saving should go in your specific squad.`
+  // Same fixture quality, just a price gap
   } else if (hasPriceDiff) {
-    ctaH3 = `Both players have similar fixtures - but ${cheaper.webName} is £${priceDiffStr}m cheaper.`
+    ctaH3 = `Similar fixtures this week - but ${cheaper.webName} is £${priceDiffStr}m cheaper.`
     ctaBody = `Ask ChatFPL AI where to invest that £${priceDiffStr}m saving in your specific squad.`
+  // Same price, fixture edge
   } else if (betterFix) {
-    ctaH3 = `${betterFix.webName} has the better immediate fixture this Gameweek ${gw}.`
+    ctaH3 = `${betterFix.webName} has the better expected return this Gameweek ${gw}.`
     ctaBody = `Ask ChatFPL AI which fits better in your specific squad and mini-league context.`
   } else {
     ctaH3 = `It is close to call between ${playerA.webName} and ${playerB.webName} this gameweek.`

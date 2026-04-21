@@ -85,17 +85,42 @@ export default async function TransferTrendPage({
   const qaForChat = text.qaItems
 
   // ── Dynamic CTA hook ──────────────────────────────────────────────────────
-  const delta      = pIn.priceRaw - pOut.priceRaw
-  const absDelta   = Math.abs(delta).toFixed(1)
-  const hasDelta   = Math.abs(delta) >= 0.1
-  const outBlankCta = !pOut.opponentName
-  const inBlankCta  = !pIn.opponentName
-  const inBetterFix = !inBlankCta && ((pIn.fdrNext ?? 3) < (pOut.fdrNext ?? 3) || outBlankCta)
+  const outBlankCta  = !pOut.opponentName
+  const inBlankCta   = !pIn.opponentName
+  const delta        = pIn.priceRaw - pOut.priceRaw
+  const absDelta     = Math.abs(delta).toFixed(1)
+  const hasDelta     = Math.abs(delta) >= 0.1
+  const inBetterFix  = !inBlankCta && ((pIn.fdrNext ?? 3) < (pOut.fdrNext ?? 3) || outBlankCta)
+  // A DGW player will have notably higher ep_next - use 8+ as a reasonable threshold
+  const inDgw        = !inBlankCta && pIn.ep_next >= 8
+  const outDgw       = !outBlankCta && pOut.ep_next >= 8
 
   let ctaH3: string
   let ctaBody: string
 
-  if (hasDelta && delta < 0 && inBetterFix) {
+  // pIn has a blank - don't recommend the move based on price or fixture
+  if (inBlankCta && outBlankCta) {
+    ctaH3 = `Both ${pOut.webName} and ${pIn.webName} have a blank Gameweek ${gw}.`
+    ctaBody = `Ask ChatFPL AI if there is a better use of your transfer this week entirely.`
+  } else if (inBlankCta && hasDelta && delta < 0) {
+    ctaH3 = `${pIn.webName} is cheaper - but has a blank Gameweek ${gw} with no fixture.`
+    ctaBody = `Ask ChatFPL AI whether holding ${pOut.webName} or finding a third option makes more sense for your squad.`
+  } else if (inBlankCta) {
+    ctaH3 = `${pIn.webName} has a blank Gameweek ${gw} - the numbers favour waiting.`
+    ctaBody = `Ask ChatFPL AI whether to hold ${pOut.webName} or target a different transfer entirely.`
+  // pOut has a blank but pIn doesn't - move looks sensible, flag the blank as the driver
+  } else if (outBlankCta && hasDelta && delta < 0) {
+    ctaH3 = `${pOut.webName} has a blank this week - and ${pIn.webName} is £${absDelta}m cheaper.`
+    ctaBody = `Ask ChatFPL AI the best way to use that £${absDelta}m saving across your specific squad.`
+  } else if (outBlankCta) {
+    ctaH3 = `${pOut.webName} has a blank Gameweek ${gw} - the market is already pricing that in.`
+    ctaBody = `Ask ChatFPL AI if ${pIn.webName} is the right replacement for your specific squad.`
+  // DGW for the player being bought - flag it
+  } else if (inDgw) {
+    ctaH3 = `${pIn.webName} may have a Double Gameweek ${gw} - two scoring chances where ${pOut.webName} has one.`
+    ctaBody = `Ask ChatFPL AI if a Double Gameweek makes this move worth the cost for your squad.`
+  // Normal cases
+  } else if (hasDelta && delta < 0 && inBetterFix) {
     ctaH3 = `Selling ${pOut.webName} for ${pIn.webName} frees up £${absDelta}m and gets you the better fixture.`
     ctaBody = `Ask ChatFPL AI the best way to use that £${absDelta}m saving in your specific squad.`
   } else if (hasDelta && delta < 0) {
@@ -108,8 +133,8 @@ export default async function TransferTrendPage({
     ctaH3 = `This is a £${absDelta}m premium move. Is the upgrade worth it for your rank?`
     ctaBody = `Ask ChatFPL AI if this transfer makes sense for your specific squad and mini-league position.`
   } else if (inBetterFix) {
-    ctaH3 = `${pOut.webName} and ${pIn.webName} are similarly priced - but ${pIn.webName} has the better fixture.`
-    ctaBody = `Ask ChatFPL AI if this sideways move is worth a transfer in your specific squad.`
+    ctaH3 = `${pIn.webName} has the better fixture this week at a similar price point.`
+    ctaBody = `Ask ChatFPL AI if this sideways move is worth spending a transfer on.`
   } else {
     ctaH3 = `Still weighing up selling ${pOut.webName} for ${pIn.webName}?`
     ctaBody = `Ask ChatFPL AI if this is the right switch for your specific squad and budget.`
