@@ -412,8 +412,11 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
 
   const outFdr  = fdrLabel(pOut.fdrNext)
   const inFdr   = fdrLabel(pIn.fdrNext)
-  const outEp   = outBlank ? "0.0 (due to a blank gameweek)" : pOut.ep_next.toFixed(1)
-  const inEp    = inBlank  ? "0.0 (due to a blank gameweek)" : pIn.ep_next.toFixed(1)
+  const outEp        = outBlank ? "0.0 (due to a blank gameweek)" : pOut.ep_next.toFixed(1)
+  const inEp         = inBlank  ? "0.0 (due to a blank gameweek)" : pIn.ep_next.toFixed(1)
+  // Short versions for use inside parenthetical comparisons to avoid nested brackets
+  const outEpShort   = outBlank ? "0.0" : pOut.ep_next.toFixed(1)
+  const inEpShort    = inBlank  ? "0.0" : pIn.ep_next.toFixed(1)
 
   // ── Market Movement panel ──
   const outAvailNote = outBlank
@@ -513,7 +516,7 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
       `The case for this transfer may be stronger as a medium-term hold rather than an immediate Gameweek ${gw} punt.`
     : `${outName} faces ${outFix} (${outFdr}) and ${inName} draws ${inFix} (${inFdr}) in Gameweek ${gw}. ` +
       `The fixture comparison is broadly level - neither player holds a clear schedule advantage this week. ` +
-      `When fixtures are neutral, expected points (${outEp} vs ${inEp}) and form (${outForm} vs ${inForm}) become the deciding metrics. ` +
+      `When fixtures are neutral, expected points (${outEpShort} vs ${inEpShort}) and form (${outForm} vs ${inForm}) become the deciding metrics. ` +
       `The full AI verdict factors in all of these simultaneously.`
 
   // ── Verdict ──
@@ -535,14 +538,14 @@ export function buildTransferPageText(pair: TransferTrendPair): TransferPageText
   const verdict =
     score >= 2
       ? `The evidence points toward making this transfer. ${inName} holds advantages in expected points ` +
-        `(${inEp} vs ${outEp}), fixture difficulty${fdrAdvantage > 0 ? ` (${inFdr} vs ${outFdr})` : ""}` +
+        `(${inEpShort} vs ${outEpShort}), fixture difficulty${fdrAdvantage > 0 ? ` (${inFdr} vs ${outFdr})` : ""}` +
         `${outBlank ? `, and ${pOut.webName} has a Blank Gameweek ${gw}` : ""}, ` +
         `supported by transfer market momentum (${inBought} bought vs ${outSold} sold). ` +
         `Making the move before the Gameweek ${gw} deadline aligns you with the direction the market has moved. ` +
         `ChatFPL AI can factor in your specific squad, transfer budget, and mini-league rivals to give a personalised verdict.`
       : score === 1
       ? `The case for this transfer is mixed. Some metrics favour ${inName} - ` +
-        `${epAdvantage > 0 || outBlank ? `expected points advantage${outBlank ? ` (${pOut.webName} has a Blank Gameweek ${gw})` : ` (${inEp} vs ${outEp})`}` : `market momentum (${inBought} transfers in)`} - ` +
+        `${epAdvantage > 0 || outBlank ? `expected points advantage${outBlank ? ` (${pOut.webName} has a Blank Gameweek ${gw})` : ` (${inEpShort} vs ${outEpShort})`}` : `market momentum (${inBought} transfers in)`} - ` +
         `but other factors are less conclusive. ` +
         `${inBlank ? `${pIn.webName} also has a Blank Gameweek ${gw}, which tempers the immediate appeal. ` : ""}` +
         `This is a transfer worth considering but not acting on without a clear squad need in Gameweek ${gw}. ` +
