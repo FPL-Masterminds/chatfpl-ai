@@ -286,6 +286,37 @@ export default async function ComparisonPage({
 
   const welcome = `I've pulled the latest GW${gw} data for ${playerA.displayName} and ${playerB.displayName}. The verdict is below - click any question for more detail.`
 
+  // ── Dynamic CTA hook ──────────────────────────────────────────────────────
+  const priceDiff   = Math.abs(playerA.priceRaw - playerB.priceRaw)
+  const hasPriceDiff = priceDiff >= 0.1
+  const priceDiffStr = priceDiff.toFixed(1)
+  const cheaper  = playerA.priceRaw <= playerB.priceRaw ? playerA : playerB
+  const fdrA = playerA.fdrNext ?? 3
+  const fdrB = playerB.fdrNext ?? 3
+  const betterFix = fdrA < fdrB ? playerA : fdrB < fdrA ? playerB : null
+
+  let ctaH3: string
+  let ctaBody: string
+
+  if (betterFix && hasPriceDiff && betterFix.webName !== cheaper.webName) {
+    ctaH3 = `${betterFix.webName} has the better fixture run - but ${cheaper.webName} frees up £${priceDiffStr}m.`
+    ctaBody = `Ask ChatFPL AI how to spend that £${priceDiffStr}m saving on your specific squad.`
+  } else if (betterFix && hasPriceDiff && betterFix.webName === cheaper.webName) {
+    ctaH3 = `${betterFix.webName} has the better fixture and the lower price tag - saving you £${priceDiffStr}m.`
+    ctaBody = `Ask ChatFPL AI where that saving should go in your specific squad.`
+  } else if (hasPriceDiff) {
+    ctaH3 = `Both players have similar fixtures - but ${cheaper.webName} is £${priceDiffStr}m cheaper.`
+    ctaBody = `Ask ChatFPL AI where to invest that £${priceDiffStr}m saving in your specific squad.`
+  } else if (betterFix) {
+    ctaH3 = `${betterFix.webName} has the better immediate fixture this Gameweek ${gw}.`
+    ctaBody = `Ask ChatFPL AI which fits better in your specific squad and mini-league context.`
+  } else {
+    ctaH3 = `It is close to call between ${playerA.webName} and ${playerB.webName} this gameweek.`
+    ctaBody = `Ask ChatFPL AI which fits better in your specific squad.`
+  }
+
+  const ctaPrompt = `I'm choosing between ${playerA.displayName} and ${playerB.displayName} for Gameweek ${gw}. Which should I pick for my specific squad?`
+
   return (
     <div className="fpl-player-root flex min-h-screen flex-col bg-black overflow-x-hidden">
       <style>{`
@@ -467,13 +498,13 @@ export default async function ComparisonPage({
           >
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-3">ChatFPL AI</p>
             <h3 className="text-xl font-bold text-white mb-3 leading-tight">
-              Still not sure who to pick between {playerA.webName} and {playerB.webName}?
+              {ctaH3}
             </h3>
             <p className="text-sm text-white/70 mb-7">
-              ChatFPL AI analyses your actual squad and budget to recommend the best transfer for your specific team.
+              {ctaBody}
             </p>
             <Link
-              href="/signup"
+              href={`/chat?q=${encodeURIComponent(ctaPrompt)}`}
               className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
               style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
             >
@@ -485,7 +516,7 @@ export default async function ComparisonPage({
                   animation: "shimmer 2.4s linear infinite",
                 }}
               />
-              Try ChatFPL AI for free
+              Ask ChatFPL AI about my squad
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>

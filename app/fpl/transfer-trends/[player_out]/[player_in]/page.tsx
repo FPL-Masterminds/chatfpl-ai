@@ -84,6 +84,39 @@ export default async function TransferTrendPage({
 
   const qaForChat = text.qaItems
 
+  // ── Dynamic CTA hook ──────────────────────────────────────────────────────
+  const delta      = pIn.priceRaw - pOut.priceRaw
+  const absDelta   = Math.abs(delta).toFixed(1)
+  const hasDelta   = Math.abs(delta) >= 0.1
+  const outBlankCta = !pOut.opponentName
+  const inBlankCta  = !pIn.opponentName
+  const inBetterFix = !inBlankCta && ((pIn.fdrNext ?? 3) < (pOut.fdrNext ?? 3) || outBlankCta)
+
+  let ctaH3: string
+  let ctaBody: string
+
+  if (hasDelta && delta < 0 && inBetterFix) {
+    ctaH3 = `Selling ${pOut.webName} for ${pIn.webName} frees up £${absDelta}m and gets you the better fixture.`
+    ctaBody = `Ask ChatFPL AI the best way to use that £${absDelta}m saving in your specific squad.`
+  } else if (hasDelta && delta < 0) {
+    ctaH3 = `Making this move frees up £${absDelta}m in your bank.`
+    ctaBody = `Ask ChatFPL AI the best way to spend that saving in your specific squad.`
+  } else if (hasDelta && delta > 0 && inBetterFix) {
+    ctaH3 = `This upgrade costs £${absDelta}m extra - but ${pIn.webName} has the better fixture run.`
+    ctaBody = `Ask ChatFPL AI if your budget can make this work in your specific squad.`
+  } else if (hasDelta && delta > 0) {
+    ctaH3 = `This is a £${absDelta}m premium move. Is the upgrade worth it for your rank?`
+    ctaBody = `Ask ChatFPL AI if this transfer makes sense for your specific squad and mini-league position.`
+  } else if (inBetterFix) {
+    ctaH3 = `${pOut.webName} and ${pIn.webName} are similarly priced - but ${pIn.webName} has the better fixture.`
+    ctaBody = `Ask ChatFPL AI if this sideways move is worth a transfer in your specific squad.`
+  } else {
+    ctaH3 = `Still weighing up selling ${pOut.webName} for ${pIn.webName}?`
+    ctaBody = `Ask ChatFPL AI if this is the right switch for your specific squad and budget.`
+  }
+
+  const ctaPromptTransfer = `I'm thinking of selling ${pOut.displayName} for ${pIn.displayName} in Gameweek ${gw}. Does this make sense for my squad?`
+
   return (
     <div className="fpl-player-root flex min-h-screen flex-col bg-black overflow-x-hidden">
       <style>{`
@@ -181,13 +214,13 @@ export default async function TransferTrendPage({
           }}>
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-3">ChatFPL AI</p>
             <h3 className="text-xl font-bold text-white mb-3 leading-tight">
-              Still not sure whether to sell {pOut.webName} for {pIn.webName}?
+              {ctaH3}
             </h3>
             <p className="text-sm text-white/70 mb-7">
-              ChatFPL AI analyses your actual squad and available budget to recommend the best transfer for your specific team.
+              {ctaBody}
             </p>
             <Link
-              href={`/chat?q=${encodeURIComponent(text.ctaPrompt)}`}
+              href={`/chat?q=${encodeURIComponent(ctaPromptTransfer)}`}
               className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
               style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
             >
@@ -196,7 +229,7 @@ export default async function TransferTrendPage({
                 backgroundSize: "200% 100%",
                 animation: "shimmer 2.4s linear infinite",
               }} />
-              Should I sell {pOut.webName} for {pIn.webName} in GW{gw}?
+              Ask ChatFPL AI about my squad
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
