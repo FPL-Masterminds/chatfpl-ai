@@ -6,6 +6,7 @@ import {
   isEligiblePlayer,
   FPL_HEADERS,
 } from "@/lib/fpl-player-page"
+import type { FplCardPlayer } from "@/components/fpl-player-hero"
 import type { PlayerQA } from "@/components/conversational-player"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -42,9 +43,17 @@ export interface FixtureHubPlayer {
   verdictLabel: string    // "Favourable" | "Mixed" | "Challenging"
 }
 
+export interface SimilarFixturePlayer {
+  name: string
+  slug: string
+  verdictLabel: string
+}
+
 export interface FixturePageData {
   gw: number
   player: FixtureHubPlayer
+  showcasePlayers: FplCardPlayer[]   // 5 cards for hero: 2 left, center, 2 right
+  similarPlayers: SimilarFixturePlayer[]  // same position, similar FDR
 }
 
 // ─── Eligibility — broader than captain pages ─────────────────────────────────
@@ -461,7 +470,48 @@ export async function getFixturePageData(slug: string): Promise<FixturePageData 
 
     const player = await buildFixturePlayer(el, teamMap, posMap, slugMap, allFixtures, currentGW)
 
-    return { gw: currentGW, player }
+    // Build all eligible players to find showcase flanks and similar fixture players
+    const eligible = (bootstrap.elements ?? []).filter(isFixtureEligible)
+    const allPlayers = await Promise.all(
+      eligible
+        .filter((p: any) => p.id !== el.id)
+        .map((p: any) => buildFixturePlayer(p, teamMap, posMap, slugMap, allFixtures, currentGW))
+    )
+
+    // Showcase: 4 flanking players by ep_next (excluding blank GW) + center
+    const flankPool = allPlayers
+      .filter((p) => p.ep_next > 0)
+      .sort((a, b) => b.ep_next - a.ep_next)
+      .slice(0, 4)
+
+    const toCard = (p: FixtureHubPlayer): FplCardPlayer => ({
+      code: p.code, name: p.webName, club: p.clubShort,
+      teamCode: p.teamCode, position: p.position,
+      price: p.price, form: p.form, totalPts: p.totalPts,
+    })
+
+    const centerCard = toCard(player)
+    const showcasePlayers: FplCardPlayer[] = [
+      flankPool[0] ? toCard(flankPool[0]) : centerCard,
+      flankPool[1] ? toCard(flankPool[1]) : centerCard,
+      centerCard,
+      flankPool[2] ? toCard(flankPool[2]) : centerCard,
+      flankPool[3] ? toCard(flankPool[3]) : centerCard,
+    ]
+
+    // Similar players: same position, avgFdr within 0.5, top 6 by ep_next
+    const similarPlayers: SimilarFixturePlayer[] = allPlayers
+      .filter(
+        (p) =>
+          p.position === player.position &&
+          Math.abs(p.avgFdr - player.avgFdr) <= 0.5 &&
+          p.ep_next > 0
+      )
+      .sort((a, b) => b.ep_next - a.ep_next)
+      .slice(0, 6)
+      .map((p) => ({ name: p.displayName, slug: p.slug, verdictLabel: p.verdictLabel }))
+
+    return { gw: currentGW, player, showcasePlayers, similarPlayers }
   } catch {
     return null
   }

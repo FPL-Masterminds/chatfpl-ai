@@ -11,11 +11,8 @@ import {
   getFixturePageData,
   getFixtureSlugs,
   buildFixturePageText,
-  fdrColor,
-  fdrBg,
   FDR_LABELS,
   type FixtureHubPlayer,
-  type FixtureGW,
 } from "@/lib/fpl-fixtures"
 
 export const revalidate = 3600
@@ -53,9 +50,8 @@ export async function generateMetadata({
 // ─── Colours ──────────────────────────────────────────────────────────────────
 
 const GREEN = "#00FF87"
-const CYAN  = "#00FFFF"
 
-// ─── FDR row — used in the fixture table ──────────────────────────────────────
+// ─── FDR dots ─────────────────────────────────────────────────────────────────
 
 function FdrBar({ fdr }: { fdr: number }) {
   return (
@@ -67,7 +63,7 @@ function FdrBar({ fdr }: { fdr: number }) {
           style={{
             width: 8,
             height: 8,
-            background: i <= fdr ? fdrColor(fdr) : "rgba(255,255,255,0.10)",
+            background: i <= fdr ? GREEN : "rgba(255,255,255,0.10)",
           }}
         />
       ))}
@@ -75,7 +71,34 @@ function FdrBar({ fdr }: { fdr: number }) {
   )
 }
 
-// ─── Fixture table ─────────────────────────────────────────────────────────────
+// ─── Glowing gradient pill button — matches captain page style ────────────────
+
+function GlowPill({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <div
+      className="inline-block"
+      style={{
+        padding: "1.5px",
+        borderRadius: "9999px",
+        background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+        backgroundSize: "200% 200%",
+        animation: "glow_scroll 3.5s linear infinite",
+      }}
+    >
+      <Link
+        href={href}
+        className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
+        style={{ background: "rgba(0,0,0,0.9)" }}
+      >
+        <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          {children}
+        </span>
+      </Link>
+    </div>
+  )
+}
+
+// ─── Fixture table — all text white ───────────────────────────────────────────
 
 function FixtureTable({ player, gw }: { player: FixtureHubPlayer; gw: number }) {
   if (player.fixtures.length === 0) {
@@ -94,8 +117,8 @@ function FixtureTable({ player, gw }: { player: FixtureHubPlayer; gw: number }) 
             {["GW", "Opponent", "H/A", "Difficulty", "Rating"].map((h) => (
               <th
                 key={h}
-                className="px-4 py-3 text-left text-[11px] uppercase tracking-widest font-semibold"
-                style={{ color: "rgba(255,255,255,0.55)", borderBottom: "1px solid rgba(0,255,135,0.15)" }}
+                className="px-4 py-3 text-left text-[11px] uppercase tracking-widest font-semibold text-white"
+                style={{ borderBottom: "1px solid rgba(0,255,135,0.15)" }}
               >
                 {h}
               </th>
@@ -104,8 +127,6 @@ function FixtureTable({ player, gw }: { player: FixtureHubPlayer; gw: number }) 
         </thead>
         <tbody>
           {player.fixtures.map((fix, idx) => {
-            const color = fdrColor(fix.fdr)
-            const bg = fdrBg(fix.fdr)
             const isCurrent = fix.gw === gw
             return (
               <tr
@@ -116,10 +137,7 @@ function FixtureTable({ player, gw }: { player: FixtureHubPlayer; gw: number }) 
                 }}
               >
                 <td className="px-4 py-3">
-                  <span
-                    className="font-bold tabular-nums text-xs"
-                    style={{ color: isCurrent ? GREEN : "rgba(255,255,255,0.7)" }}
-                  >
+                  <span className="font-bold tabular-nums text-xs text-white">
                     GW{fix.gw}
                     {isCurrent && (
                       <span
@@ -146,10 +164,7 @@ function FixtureTable({ player, gw }: { player: FixtureHubPlayer; gw: number }) 
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span
-                    className="rounded px-2 py-0.5 text-[10px] font-bold uppercase"
-                    style={{ background: bg, color, border: `1px solid ${color}40` }}
-                  >
+                  <span className="text-white font-semibold text-xs">
                     {fix.isHome ? "Home" : "Away"}
                   </span>
                 </td>
@@ -157,7 +172,7 @@ function FixtureTable({ player, gw }: { player: FixtureHubPlayer; gw: number }) 
                   <FdrBar fdr={fix.fdr} />
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-xs font-semibold" style={{ color }}>
+                  <span className="text-white text-xs font-semibold">
                     {FDR_LABELS[fix.fdr] ?? "Medium"}
                   </span>
                 </td>
@@ -183,7 +198,7 @@ export default async function FixturePlayerPage({
   const data = await getFixturePageData(slug)
   if (!data) notFound()
 
-  const { gw, player } = data
+  const { gw, player, showcasePlayers, similarPlayers } = data
   const bestValueLink = getBestValueHubLink(player.position, player.price)
   const blankGW = player.ep_next === 0
   const isInjured = player.chance === 0 || player.status === "i"
@@ -193,20 +208,6 @@ export default async function FixturePlayerPage({
     caseFor, caseAgainst, qaItems, welcome, ctaLeadin,
   } = buildFixturePageText(player, gw)
 
-  // Showcase: use the player themselves as centre, flanked by nothing (simple approach)
-  // We re-use FplPlayerHero which takes an array of player cards
-  const showcasePlayers = [
-    {
-      code: player.code, name: player.webName, club: player.clubShort,
-      teamCode: player.teamCode, position: player.position,
-      price: player.price, form: player.form, totalPts: player.totalPts,
-    },
-  ]
-
-  const favCount  = player.fixtures.filter((f) => f.fdr <= 2).length
-  const hardCount = player.fixtures.filter((f) => f.fdr >= 4).length
-
-  // Verdict color — green for Favourable, white shades for others (never red/amber)
   const verdictBorderColor =
     verdictLabel === "Favourable" ? GREEN :
     verdictLabel === "Mixed"      ? "rgba(255,255,255,0.4)" :
@@ -219,9 +220,10 @@ export default async function FixturePlayerPage({
         .fpl-player-root ::-webkit-scrollbar-track { background: transparent; }
         .fpl-player-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
         .fpl-player-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
+        @keyframes glow_scroll { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
       `}</style>
 
-      {/* FAQPage JSON-LD schema */}
+      {/* FAQPage JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -239,7 +241,7 @@ export default async function FixturePlayerPage({
 
       <DevHeader />
 
-      {/* Hero */}
+      {/* Hero — identical to captain page with flanking players */}
       <FplPlayerHero
         h1White={`Is ${player.displayName} worth owning for `}
         h1Gradient={`Fantasy Premier League Gameweek ${gw}?`}
@@ -255,31 +257,22 @@ export default async function FixturePlayerPage({
           style={{ background: "radial-gradient(ellipse 70% 50% at 50% 60%, rgba(0,255,135,0.05) 0%, transparent 70%)" }}
         />
 
-        {/* Injury / blank GW banner */}
+        {/* Availability banner */}
         {(player.news || player.chance < 100 || player.status !== "a" || blankGW) && (
           <div className="relative z-10 w-full max-w-4xl mx-auto mb-6">
             <div
               className="rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3"
-              style={{
-                background: "rgba(0,255,135,0.06)",
-                border: "1px solid rgba(0,255,135,0.25)",
-                borderLeft: "4px solid #00FF87",
-              }}
+              style={{ background: "rgba(0,255,135,0.06)", border: "1px solid rgba(0,255,135,0.25)", borderLeft: "4px solid #00FF87" }}
             >
               <span
                 className="shrink-0 inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black whitespace-nowrap"
                 style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
               >
-                {blankGW
-                  ? "Blank Gameweek"
-                  : player.status === "i" || player.chance === 0
-                  ? "Injured"
-                  : player.status === "u"
-                  ? "Unavailable"
-                  : player.status === "s"
-                  ? "Suspended"
-                  : player.chance < 50
-                  ? "Injury Doubt"
+                {blankGW ? "Blank Gameweek"
+                  : player.status === "i" || player.chance === 0 ? "Injured"
+                  : player.status === "u" ? "Unavailable"
+                  : player.status === "s" ? "Suspended"
+                  : player.chance < 50 ? "Injury Doubt"
                   : "Fitness Concern"}
               </span>
               <p className="text-sm text-white leading-relaxed">
@@ -302,10 +295,7 @@ export default async function FixturePlayerPage({
               { label: "Fixture Run",            value: player.verdictLabel },
               { label: "Ownership",              value: `${player.ownership}%` },
             ].map((s) => (
-              <div
-                key={s.label}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center"
-              >
+              <div key={s.label} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center">
                 <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-1">{s.label}</p>
                 <p
                   className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text leading-tight"
@@ -322,25 +312,15 @@ export default async function FixturePlayerPage({
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <div
             className="rounded-2xl px-6 py-6"
-            style={{
-              border: `1px solid ${verdictBorderColor}30`,
-              background: `rgba(0,255,135,0.05)`,
-              borderLeft: `4px solid ${verdictBorderColor}`,
-            }}
+            style={{ border: `1px solid ${verdictBorderColor}30`, background: "rgba(0,255,135,0.05)", borderLeft: `4px solid ${verdictBorderColor}` }}
           >
             <div className="flex flex-wrap items-center gap-3 mb-4">
               {verdictLabel === "Favourable" ? (
-                <span
-                  className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black"
-                  style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-                >
+                <span className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
                   {verdictLabel}
                 </span>
               ) : (
-                <span
-                  className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest"
-                  style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)" }}
-                >
+                <span className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest" style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)" }}>
                   {verdictLabel}
                 </span>
               )}
@@ -359,24 +339,21 @@ export default async function FixturePlayerPage({
           </div>
         </div>
 
-        {/* Fixture table section */}
+        {/* Fixture table */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <h2 className="text-2xl font-bold leading-tight tracking-tight mb-5">
             <span className="text-white">{player.webName} Fixture Run </span>
-            <span
-              className="text-transparent bg-clip-text"
-              style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
-            >
+            <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
               Next {player.fixtures.length} Gameweeks
             </span>
           </h2>
           <FixtureTable player={player} gw={gw} />
         </div>
 
-        {/* Case for / against */}
+        {/* Case for / against — distinct heading, no duplication */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <h2 className="text-lg font-bold text-white mb-5">
-            {player.displayName} - Fixture Analysis Gameweek {gw}
+            Should you hold {player.displayName} through these fixtures?
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-5">
@@ -412,10 +389,7 @@ export default async function FixturePlayerPage({
         <div className="relative z-10 text-center mb-8 max-w-2xl">
           <h2 className="text-2xl font-bold leading-tight tracking-tight mb-2">
             <span className="text-white">{player.webName} Fixture Analysis </span>
-            <span
-              className="text-transparent bg-clip-text"
-              style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}
-            >
+            <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
               Gameweek {gw}
             </span>
           </h2>
@@ -423,10 +397,7 @@ export default async function FixturePlayerPage({
         </div>
 
         {/* Chat window */}
-        <div
-          className="relative z-10 w-full max-w-4xl flex flex-col"
-          style={{ height: "clamp(520px, 72vh, 780px)" }}
-        >
+        <div className="relative z-10 w-full max-w-4xl flex flex-col" style={{ height: "clamp(520px, 72vh, 780px)" }}>
           <ConversationalPlayer welcome={welcome} qaItems={qaItems} />
         </div>
 
@@ -434,11 +405,7 @@ export default async function FixturePlayerPage({
         <div className="relative z-10 w-full max-w-2xl mx-auto mt-16 text-center">
           <div
             className="rounded-2xl px-8 py-10"
-            style={{
-              border: "1px solid rgba(0,255,135,0.18)",
-              borderLeft: "4px solid #00FF87",
-              background: "rgba(0,255,135,0.04)",
-            }}
+            style={{ border: "1px solid rgba(0,255,135,0.18)", borderLeft: "4px solid #00FF87", background: "rgba(0,255,135,0.04)" }}
           >
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-3">ChatFPL AI</p>
             <h3 className="text-xl font-bold text-white mb-3 leading-tight">{ctaLeadin}</h3>
@@ -448,14 +415,7 @@ export default async function FixturePlayerPage({
               className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
               style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
             >
-              <span
-                className="pointer-events-none absolute inset-0 rounded-full"
-                style={{
-                  background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 2.4s linear infinite",
-                }}
-              />
+              <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
               Try ChatFPL AI for free
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -464,52 +424,35 @@ export default async function FixturePlayerPage({
           </div>
         </div>
 
-        {/* Internal links */}
+        {/* Hub nav — glowing gradient border pills (captain page style) */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mt-10 flex flex-wrap justify-center gap-3">
-          <Link
-            href="/fpl/fixtures"
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] hover:-translate-y-0.5"
-            style={{ background: "rgba(0,255,135,0.12)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-          >
-            All Fixture Ratings
-          </Link>
-          <Link
-            href={`/fpl/${slug}`}
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] hover:-translate-y-0.5"
-            style={{ background: "rgba(0,255,135,0.12)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-          >
-            Captain Analysis
-          </Link>
-          <Link
-            href={`/fpl/${slug}/transfer`}
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] hover:-translate-y-0.5"
-            style={{ background: "rgba(0,255,135,0.12)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-          >
-            Transfer Analysis
-          </Link>
-          <Link
-            href={`/fpl/${slug}/differential`}
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] hover:-translate-y-0.5"
-            style={{ background: "rgba(0,255,135,0.12)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-          >
-            Differential Analysis
-          </Link>
-          {bestValueLink && (
-            <Link
-              href={bestValueLink.href}
-              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] hover:-translate-y-0.5"
-              style={{ background: "rgba(0,255,135,0.12)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-            >
-              {bestValueLink.label}
+          <GlowPill href="/fpl/fixtures">All Fixture Ratings</GlowPill>
+          <GlowPill href={`/fpl/${slug}`}>Captain Analysis</GlowPill>
+          <GlowPill href={`/fpl/${slug}/transfer`}>Transfer Analysis</GlowPill>
+          {bestValueLink && <GlowPill href={bestValueLink.href}>{bestValueLink.label}</GlowPill>}
+          <GlowPill href="/fpl/captains">Captain Picks</GlowPill>
+        </div>
+
+        {/* Also analyse — player-specific actions */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mt-10">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link href={`/fpl/${slug}/differential`} className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]">
+              Is {player.webName} a differential?
             </Link>
-          )}
-          <Link
-            href="/fpl/captains"
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] hover:-translate-y-0.5"
-            style={{ background: "rgba(0,255,135,0.12)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
-          >
-            Captain Picks
-          </Link>
+            <Link href={`/fpl/${slug}/sell`} className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]">
+              Should I sell {player.webName}?
+            </Link>
+            {similarPlayers.map((sp) => (
+              <Link
+                key={sp.slug}
+                href={`/fpl/fixtures/${sp.slug}`}
+                className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]"
+              >
+                {sp.displayName ?? sp.name} fixture run ({sp.verdictLabel})
+              </Link>
+            ))}
+          </div>
         </div>
 
       </main>
