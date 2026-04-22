@@ -245,7 +245,7 @@ export default async function FixturePlayerPage({
       <FplPlayerHero
         h1White={`Is ${player.displayName} worth owning for `}
         h1Gradient={`Fantasy Premier League Gameweek ${gw}?`}
-        subtitle={`Gameweek ${gw} · ${player.clubShort} · ${player.position} · ${player.price}`}
+        subtitle={`Gameweek ${gw} · ${player.club} · ${player.position} · ${player.price}`}
         players={showcasePlayers}
       />
 

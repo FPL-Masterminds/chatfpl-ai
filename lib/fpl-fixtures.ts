@@ -485,7 +485,7 @@ export async function getFixturePageData(slug: string): Promise<FixturePageData 
       .slice(0, 4)
 
     const toCard = (p: FixtureHubPlayer): FplCardPlayer => ({
-      code: p.code, name: p.webName, club: p.clubShort,
+      code: p.code, name: p.webName, club: p.club,
       teamCode: p.teamCode, position: p.position,
       price: p.price, form: p.form, totalPts: p.totalPts,
     })
