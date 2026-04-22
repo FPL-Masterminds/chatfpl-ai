@@ -471,9 +471,9 @@ export async function getFixturePageData(slug: string): Promise<FixturePageData 
     const player = await buildFixturePlayer(el, teamMap, posMap, slugMap, allFixtures, currentGW)
 
     // Build all eligible players to find showcase flanks and similar fixture players
-    const eligible = (bootstrap.elements ?? []).filter(isFixtureEligible)
+    const allEligible = (bootstrap.elements ?? []).filter(isFixtureEligible)
     const allPlayers = await Promise.all(
-      eligible
+      allEligible
         .filter((p: any) => p.id !== el.id)
         .map((p: any) => buildFixturePlayer(p, teamMap, posMap, slugMap, allFixtures, currentGW))
     )
