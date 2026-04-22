@@ -7,7 +7,7 @@ import Image from "next/image"
 import { Send } from "lucide-react"
 import Link from "next/link"
 
-const ALL_PROMPTS = [
+const STATIC_PROMPTS = [
   "Best captain this gameweek?",
   "Compare Isak vs Watkins",
   "Give me 3 low-owned midfielders",
@@ -15,7 +15,6 @@ const ALL_PROMPTS = [
   "Who should I sell this gameweek?",
   "Best budget defender under £4.5m?",
   "Which premium forward is worth it right now?",
-  "Who are the best differential picks this GW?",
   "Should I use my wildcard now?",
   "Best players to triple-up on this gameweek?",
   "Which midfielder has the most xG this season?",
@@ -29,10 +28,39 @@ const ALL_PROMPTS = [
   "Who is the community backing as captain this week and do you agree?",
   "Is there a clear captain consensus this gameweek or is it split?",
   "What's the debate around the captain pick right now?",
+  "Which players are being sold en masse this week and why?",
+  "Who has the best underlying xG stats but is still under the radar?",
+  "Which team has the best defensive record over the last 5 gameweeks?",
+  "Give me your top 3 transfer recommendations for this gameweek",
+  "Which FPL assets offer the best value per million right now?",
+  "Should I play my Free Hit this gameweek?",
+  "Who are the standout players from teams with a Double Gameweek?",
+  "What does the Reddit community think about this week's transfer moves?",
 ]
 
-function pickPrompts() {
-  return [...ALL_PROMPTS].sort(() => Math.random() - 0.5).slice(0, 4)
+// GW-tagged prompts built dynamically once GW info is known
+function buildGWPrompts(gw: number | null, hasDGW: boolean): string[] {
+  const label = gw ? `GW${gw}` : "this gameweek"
+  const gwPrompts: string[] = [
+    `Who are the best differential picks for ${label}?`,
+    `Give me differentials under 10% ownership with strong underlying xG/xA for ${label}`,
+    `Captaincy options for ${label} - give me Reddit consensus vs statistical pick`,
+  ]
+  if (hasDGW) {
+    gwPrompts.push(`DGW landscape - who are the must-haves and traps for ${label}?`)
+  }
+  return gwPrompts
+}
+
+function pickPrompts(gw: number | null = null, hasDGW = false): string[] {
+  const gwPrompts = buildGWPrompts(gw, hasDGW)
+  // Always include at least 1-2 GW-specific prompts in the rotation
+  const shuffledGW = [...gwPrompts].sort(() => Math.random() - 0.5)
+  const shuffledStatic = [...STATIC_PROMPTS].sort(() => Math.random() - 0.5)
+  // Pick 2 GW prompts + 2 static for a set of 4
+  const gwPick = shuffledGW.slice(0, hasDGW ? 2 : 2)
+  const staticPick = shuffledStatic.filter(p => !gwPick.includes(p)).slice(0, 2)
+  return [...gwPick, ...staticPick].sort(() => Math.random() - 0.5)
 }
 
 type Message = {
@@ -84,7 +112,9 @@ function TeamBadge({ code, name }: { code: number; name: string }) {
 export default function ChatPage() {
   const router = useRouter()
   const [authorized, setAuthorized] = useState(false)
-  const [suggestedPrompts] = useState<string[]>(pickPrompts)
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => pickPrompts())
+  const [gwInfo, setGwInfo] = useState<{ gw: number | null; hasDGW: boolean }>({ gw: null, hasDGW: false })
+  const [promptsSpinning, setPromptsSpinning] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -137,6 +167,25 @@ export default function ChatPage() {
     }
     checkAccess()
   }, [router])
+
+  // Fetch GW info to build dynamic prompts
+  useEffect(() => {
+    fetch("/api/gw-info")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          setGwInfo({ gw: data.gw, hasDGW: data.hasDGW })
+          setSuggestedPrompts(pickPrompts(data.gw, data.hasDGW))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const refreshPrompts = () => {
+    setPromptsSpinning(true)
+    setSuggestedPrompts(pickPrompts(gwInfo.gw, gwInfo.hasDGW))
+    setTimeout(() => setPromptsSpinning(false), 500)
+  }
 
   // Load all data once authorised
   useEffect(() => {
@@ -671,9 +720,9 @@ export default function ChatPage() {
 
               {/* Suggested prompts + input */}
               <div className="shrink-0 md:relative fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
-                <div className="hidden md:flex flex-wrap gap-2 mb-3">
-                  {suggestedPrompts.map((prompt) => (
-                    <div key={prompt} style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
+                <div className="flex flex-wrap gap-2 mb-3 items-center">
+                  {suggestedPrompts.map((prompt, i) => (
+                    <div key={prompt} className={i >= 2 ? "hidden md:block" : ""} style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
                       <button
                         onClick={() => setInput(prompt)}
                         className="block rounded-full px-3.5 py-1.5 text-xs font-medium transition-all hover:opacity-80"
@@ -683,6 +732,19 @@ export default function ChatPage() {
                       </button>
                     </div>
                   ))}
+                  <button
+                    onClick={refreshPrompts}
+                    title="Refresh suggestions"
+                    className="ml-auto md:ml-1 shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-white/30 hover:text-emerald-400 hover:bg-emerald-400/10 transition-all"
+                    style={{ transform: promptsSpinning ? "rotate(360deg)" : "rotate(0deg)", transition: "transform 0.5s ease, color 0.2s, background 0.2s" }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                      <path d="M21 3v5h-5"/>
+                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                      <path d="M8 16H3v5"/>
+                    </svg>
+                  </button>
                 </div>
 
                 <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-3 flex items-end gap-3">
