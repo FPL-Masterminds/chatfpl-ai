@@ -444,12 +444,27 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
           ? `\nDOUBLE GAMEWEEK ${currentGWId} TEAMS (each has TWO fixtures this week): ${dgwTeams.join(', ')}\n`
           : '';
 
+        // Explicit BGW detection — teams with ZERO fixtures in the current GW
+        const bgwTeams = currentGWId
+          ? (fplData.teams ?? []).filter((team: any) =>
+              fixturesData.filter((f: any) =>
+                f.event === currentGWId &&
+                (f.team_h === team.id || f.team_a === team.id)
+              ).length === 0
+            ).map((t: any) => t.name)
+          : [];
+        const bgwNote = bgwTeams.length > 0
+          ? `\nBLANK GAMEWEEK ${currentGWId} TEAMS (NO fixture scheduled this week — xPNext will be 0.0): ${bgwTeams.join(', ')}\n`
+          : '';
+
         console.log('=== FIXTURE DATA DEBUG ===');
         console.log('Total fixtures fetched:', fixturesData.length);
         console.log('Current GW:', currentGW);
         console.log('Filtered fixtures count:', upcomingFixtures.length);
         console.log('Arsenal fixtures:', teamFixtures['ARS']);
         console.log('Fixture runs text length:', fixtureRunsText.length);
+        console.log('DGW teams:', dgwTeams);
+        console.log('BGW teams:', bgwTeams);
         console.log('=== END DEBUG ===');
 
         // Format deadline to UK format (DD-MM-YYYY HH:mm in UK time)
@@ -474,7 +489,7 @@ CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.
 
 ${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : 'Unknown'}` : ""}
 
-${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
+${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
@@ -485,7 +500,7 @@ TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
-- xPNext = Expected points for NEXT gameweek (FPL's official prediction) — always use this for forward-looking recommendations
+- xPNext = Expected points for NEXT gameweek (FPL's official prediction) — always use this for forward-looking recommendations. CRITICAL: if xPNext is 0.0 for a player, it means their club has a BLANK GAMEWEEK and they will score 0 points this week — do NOT recommend them for captaincy or transfer in regardless of their form or ownership.
 - xPThis = Expected points for the CURRENT gameweek (FPL's official prediction). IMPORTANT: once a gameweek has concluded, the FPL API resets this field to 0.0 — that value simply means the gameweek is over or the player had no remaining fixture that round. A value of 0.0 does NOT mean the player performed poorly, had a blank, or was injured. Never interpret xPThis=0.0 as negative; always rely on xPNext for upcoming gameweek predictions.
 - TI_GW = Transfers IN this gameweek (shows trending players)
 - TO_GW = Transfers OUT this gameweek (shows who managers are selling)
@@ -573,6 +588,13 @@ FORMATION RULES (use when simulating or suggesting lineups):
 - If user plays 5 DEF bench a MID or FWD, never a DEF
 - Never tell a user their formation is illegal if it is in the valid list above
 - When simulating a lineup always validate the formation before presenting it
+
+BLANK AND DOUBLE GAMEWEEKS (MANDATORY — never violate these rules):
+- Any player whose club appears in the BLANK GAMEWEEK TEAMS list above has NO fixture and will score 0 points this week.
+- NEVER recommend a player from a BLANK GAMEWEEK team as captain, vice-captain, or a transfer in for the current gameweek. State clearly they have a blank gameweek and suggest alternatives.
+- If the user asks about captaining a blank gameweek player (e.g. Haaland when Man City blank), explicitly tell them that player cannot score points this week and name alternative captains.
+- Players from DOUBLE GAMEWEEK teams have TWO fixtures and double their scoring opportunities — they are strong captain and transfer targets.
+- Always check the BLANK GAMEWEEK TEAMS and DOUBLE GAMEWEEK TEAMS sections above before making any captaincy or transfer recommendation.
 
 POINTS SCORING:
 - Goals: GKP/DEF=6pts, MID=5pts, FWD=4pts
