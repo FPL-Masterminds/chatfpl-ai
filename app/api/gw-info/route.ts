@@ -24,25 +24,23 @@ export async function GET() {
     const events: Array<{ id: number; deadline_time: string; finished?: boolean }> =
       bootstrap.events ?? []
 
-    // Active GW = first unfinished event, or last event if all done
-    const activeEvent =
-      events.find((e) => !e.finished) ?? events[events.length - 1]
-    const activeGW = activeEvent?.id ?? null
-
-    // Next GW (deadline still in future) for display in prompts
+    // Next GW = the one whose deadline is still in the future (what prompts refer to)
     const nextEvent = events.find(
       (e) => new Date(e.deadline_time).getTime() > now
     )
-    const nextGW = nextEvent?.id ?? activeGW
+    // Fallback: first unfinished event, or last event if all done
+    const fallbackEvent =
+      events.find((e) => !e.finished) ?? events[events.length - 1]
+    const nextGW = nextEvent?.id ?? fallbackEvent?.id ?? null
 
-    // DGW detection: teams with 2+ fixtures in the active GW
+    // DGW detection: check the SAME gameweek shown in the prompts (nextGW)
     const teams: Array<{ id: number; name: string }> = bootstrap.teams ?? []
-    const dgwTeams = activeGW
+    const dgwTeams = nextGW
       ? teams.filter(
           (team) =>
             (fixtures as Array<{ event: number; team_h: number; team_a: number }>).filter(
               (f) =>
-                f.event === activeGW &&
+                f.event === nextGW &&
                 (f.team_h === team.id || f.team_a === team.id)
             ).length >= 2
         )
@@ -50,7 +48,6 @@ export async function GET() {
 
     return NextResponse.json({
       gw: nextGW,
-      activeGW,
       hasDGW: dgwTeams.length > 0,
       dgwTeamCount: dgwTeams.length,
     })
