@@ -216,14 +216,36 @@ export async function POST(request: Request) {
         let filteredPlayers = allPlayers;
         let filterNote = "";
 
-        // Check for specific player names mentioned
-        const mentionedPlayers = allPlayers.filter(p => 
+        // Detect comprehensive preview / newsletter-style questions — slim the payload
+        const isNewsletterMode = (
+          messageLower.includes('preview report') ||
+          messageLower.includes('newsletter') ||
+          messageLower.includes('preview') ||
+          messageLower.includes('executive summary') ||
+          (messageLower.includes('double gameweek') && messageLower.includes('differential') && messageLower.includes('captain'))
+        );
+
+        // Check for specific player names mentioned (skip in newsletter mode)
+        const mentionedPlayers = isNewsletterMode ? [] : allPlayers.filter(p =>
           messageLower.includes(p.rawData.web_name.toLowerCase()) ||
           messageLower.includes(p.rawData.first_name.toLowerCase()) ||
           messageLower.includes(p.rawData.second_name.toLowerCase())
         );
 
-        if (mentionedPlayers.length > 0 && mentionedPlayers.length <= 5) {
+        if (isNewsletterMode) {
+          // For broad reports, send only the top 80 most relevant players to leave
+          // room for a long structured response and avoid hitting model token limits.
+          filteredPlayers = allPlayers
+            .filter(p =>
+              p.rawData.total_points > 30 ||
+              parseFloat(p.rawData.form) > 5.0 ||
+              parseFloat(p.rawData.selected_by_percent) > 15
+            )
+            .sort((a, b) => b.rawData.total_points - a.rawData.total_points)
+            .slice(0, 80);
+          filterNote = `Newsletter/preview mode: top 80 players by relevance (points, form, ownership)`;
+        }
+        else if (mentionedPlayers.length > 0 && mentionedPlayers.length <= 5) {
           // User asked about specific players - send those + top alternatives
           filteredPlayers = [
             ...mentionedPlayers,
@@ -530,7 +552,8 @@ DATA INTEGRITY (MANDATORY):
 - Use ONLY club names, prices, stats, and PhotoURL values from the pipe-delimited rows above. Do not substitute clubs or numbers from memory or older seasons.
 - PhotoURL is always the final field after the last pipe (|) on each player row. Copy that URL exactly into markdown images — never guess or reconstruct image links.
 - For markdown images use the player's real full name in the alt text (e.g. ![Jacob Ramsey](PhotoURL)) so the name matches the row you used for stats.
-- If a player does not appear in the filtered rows, say they are not in the current excerpt and ask to narrow the question — do not invent stats or photos.`;
+- If a player does not appear in the filtered rows, say they are not in the current excerpt and ask to narrow the question — do not invent stats or photos.
+- DATA SOURCES AVAILABLE: FPL API data (players, fixtures, ownership, xG/xA, injuries from the news field) and Reddit hot posts from r/FantasyPL. Press conference transcripts, external news sites, and detailed midweek injury updates are NOT available — if asked for these, state clearly what data you do and do not have, then work with what you have.`;
       }
     } catch (fplError) {
       console.error("FPL API fetch error:", fplError);
