@@ -572,11 +572,18 @@ DATA INTEGRITY (MANDATORY):
     }
 
                 // Append FPL data and formatting instructions to the user's message
-                const formattingInstructions = `FORMATTING RULES:
+                const formattingInstructions = `\u26D4 ABSOLUTE PROHIBITION — EM-DASHES:
+The em-dash character (—) is STRICTLY FORBIDDEN in every part of your response. This is a non-negotiable hard rule.
+- NEVER write — (em-dash) under any circumstances.
+- Replace every — with a hyphen-minus surrounded by spaces: " - "
+- Examples: "Salah — in form" WRONG. "Salah - in form" CORRECT. "key asset — but" WRONG. "key asset - but" CORRECT.
+- Scan your entire response before outputting. If you find a single — character, replace it. There are no exceptions.
+
+FORMATTING RULES:
 - Format your response with clear paragraphs separated by TWO blank lines
 - Use bullet points (•) for lists and multiple items
 - Add a blank line between each major section or topic
-- Use HYPHENS (-) not em-dashes when writing (e.g., "Man City (FWD)" not "Man City — FWD")
+- Use hyphens ( - ) not em-dashes (—) for all dashes. This is mandatory.
 - Keep each paragraph short (2-3 sentences max)
 - Add extra spacing between different players or topics for readability
 - Make comparisons easy to read with clear formatting and spacing
@@ -753,7 +760,9 @@ PERSONALITY RULES:
               try {
                 const evt = JSON.parse(json);
                 if (evt.event === "message" || evt.event === "agent_message") {
-                  const chunk: string = evt.answer ?? "";
+                  // Strip em-dashes server-side — regardless of what the model outputs
+                  const rawChunk: string = evt.answer ?? "";
+                  const chunk = rawChunk.replace(/\u2014/g, " - ").replace(/\u2013/g, " - ");
                   fullAnswer += chunk;
                   if (chunk) send({ type: "chunk", text: chunk });
                   if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
@@ -767,7 +776,10 @@ PERSONALITY RULES:
           }
 
           // Fix hallucinated player photo URLs in the accumulated response
-          const fixedAnswer = fixAssistantMarkdownPlayerPhotos(fullAnswer, photoRowsForFix);
+          // Also strip any em-dashes that slipped through (belt-and-braces)
+          const fixedAnswer = fixAssistantMarkdownPlayerPhotos(fullAnswer, photoRowsForFix)
+            .replace(/\u2014/g, " - ")
+            .replace(/\u2013/g, " - ");
 
           // ── DB operations (run after stream completes) ─────────────────
           await prisma.usageTracking.update({
