@@ -29,8 +29,8 @@ export function Footer() {
       </div>
 
       <div className="relative container mx-auto px-4 py-12">
-        <div className="grid gap-8 grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
-          <div className="col-span-2 md:col-span-3 xl:col-span-1 space-y-4">
+        <div className="grid gap-8 md:grid-cols-3 xl:grid-cols-6">
+          <div className="md:col-span-3 xl:col-span-1 space-y-4">
             <Link href="/">
               <Image 
                 src="/ChatFPL_AI_Logo.png" 
