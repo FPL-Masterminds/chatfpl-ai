@@ -721,7 +721,7 @@ export default function ChatPage() {
               {/* Suggested prompts + input */}
               <div className="shrink-0 md:relative fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
                 {/* 2-column grid: 2 rows on desktop, 1 row (2 pills) on mobile */}
-                <div className="relative mb-3">
+                <div className="mb-3">
                   <div className="grid grid-cols-2 gap-2">
                     {suggestedPrompts.map((prompt, i) => (
                       <div
@@ -739,19 +739,32 @@ export default function ChatPage() {
                       </div>
                     ))}
                   </div>
-                  <button
-                    onClick={refreshPrompts}
-                    title="Refresh suggestions"
-                    className="absolute -top-1 right-0 h-6 w-6 rounded-full flex items-center justify-center text-white/25 hover:text-emerald-400 hover:bg-emerald-400/10 transition-all"
-                    style={{ transform: promptsSpinning ? "rotate(360deg)" : "rotate(0deg)", transition: "transform 0.5s ease, color 0.2s, background 0.2s" }}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3">
-                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-                      <path d="M21 3v5h-5"/>
-                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-                      <path d="M8 16H3v5"/>
-                    </svg>
-                  </button>
+                  {/* Refresh row — below pills, full-width tap target on mobile */}
+                  <div className="flex justify-center mt-2">
+                    <button
+                      onClick={refreshPrompts}
+                      title="Refresh suggestions"
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-full text-emerald-400/70 hover:text-emerald-400 hover:bg-emerald-400/10 transition-all text-[11px] font-medium"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-3 w-3 shrink-0"
+                        style={{ transform: promptsSpinning ? "rotate(360deg)" : "rotate(0deg)", transition: "transform 0.5s ease" }}
+                      >
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                        <path d="M21 3v5h-5"/>
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                        <path d="M8 16H3v5"/>
+                      </svg>
+                      More suggestions
+                    </button>
+                  </div>
                 </div>
 
                 <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-3 flex items-end gap-3">
