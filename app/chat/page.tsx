@@ -720,25 +720,32 @@ export default function ChatPage() {
 
               {/* Suggested prompts + input */}
               <div className="shrink-0 md:relative fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
-                <div className="flex flex-wrap gap-2 mb-3 items-center">
-                  {suggestedPrompts.map((prompt, i) => (
-                    <div key={prompt} className={i >= 2 ? "hidden md:block" : ""} style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}>
-                      <button
-                        onClick={() => setInput(prompt)}
-                        className="block rounded-full px-3.5 py-1.5 text-xs font-medium transition-all hover:opacity-80"
-                        style={{ background: "#000", color: "#00FF87" }}
+                {/* 2-column grid: 2 rows on desktop, 1 row (2 pills) on mobile */}
+                <div className="relative mb-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    {suggestedPrompts.map((prompt, i) => (
+                      <div
+                        key={prompt}
+                        className={i >= 2 ? "hidden md:block" : ""}
+                        style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}
                       >
-                        {prompt}
-                      </button>
-                    </div>
-                  ))}
+                        <button
+                          onClick={() => setInput(prompt)}
+                          className="w-full rounded-full px-3 py-1.5 text-xs font-medium transition-all hover:opacity-80 text-center truncate"
+                          style={{ background: "#000", color: "#00FF87" }}
+                        >
+                          {prompt}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                   <button
                     onClick={refreshPrompts}
                     title="Refresh suggestions"
-                    className="ml-auto md:ml-1 shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-white/30 hover:text-emerald-400 hover:bg-emerald-400/10 transition-all"
+                    className="absolute -top-1 right-0 h-6 w-6 rounded-full flex items-center justify-center text-white/25 hover:text-emerald-400 hover:bg-emerald-400/10 transition-all"
                     style={{ transform: promptsSpinning ? "rotate(360deg)" : "rotate(0deg)", transition: "transform 0.5s ease, color 0.2s, background 0.2s" }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3">
                       <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
                       <path d="M21 3v5h-5"/>
                       <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
