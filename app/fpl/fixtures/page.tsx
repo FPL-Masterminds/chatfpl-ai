@@ -12,9 +12,6 @@ import { HubPlayerPhoto } from "@/components/hub-player-photo"
 import {
   getFixtureHub,
   buildFixtureHubText,
-  fdrColor,
-  fdrBg,
-  FDR_LABELS,
   type FixtureHubPlayer,
   type FixtureGW,
 } from "@/lib/fpl-fixtures"
@@ -43,27 +40,60 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const GREEN = "#00FF87"
 
-// ─── Fixture pill — small badge showing one GW fixture ────────────────────────
+// ─── FDR dots — identical to captains page pattern ───────────────────────────
+// fdr green dots filled, remainder faint grey
 
-function FixturePill({ fix }: { fix: FixtureGW }) {
-  const color = fdrColor(fix.fdr)
-  const bg    = fdrBg(fix.fdr)
+function FdrDots({ fdr }: { fdr: number }) {
+  return (
+    <span className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <span
+          key={i}
+          className="block rounded-full"
+          style={{
+            width: 7,
+            height: 7,
+            background: i <= fdr ? GREEN : "rgba(255,255,255,0.12)",
+          }}
+        />
+      ))}
+    </span>
+  )
+}
+
+// ─── Fixture card — rich card with crest + FDR dots ──────────────────────────
+
+function FixtureCard({ fix }: { fix: FixtureGW }) {
   return (
     <div
-      className="flex flex-col items-center justify-center rounded"
+      className="flex flex-col items-center gap-1 rounded-lg"
       style={{
-        background: bg,
-        border: `1px solid ${color}40`,
-        padding: "4px 6px",
-        minWidth: 42,
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        padding: "8px 10px",
+        minWidth: 56,
       }}
     >
-      <span className="text-[10px] font-bold leading-none tabular-nums" style={{ color }}>
-        {fix.opponentShort}
+      <span className="text-[9px] font-semibold tabular-nums" style={{ color: "rgba(255,255,255,0.45)" }}>
+        GW{fix.gw}
       </span>
-      <span className="text-[9px] leading-none mt-0.5" style={{ color: `${color}99` }}>
+      {fix.opponentCode > 0 && (
+        <Image
+          src={`https://resources.premierleague.com/premierleague/badges/70/t${fix.opponentCode}.png`}
+          alt={fix.opponentShort}
+          width={24} height={24}
+          style={{ objectFit: "contain" }}
+          unoptimized
+        />
+      )}
+      <span className="text-[10px] font-bold text-white leading-none">{fix.opponentShort}</span>
+      <span
+        className="text-[9px] font-semibold leading-none"
+        style={{ color: "rgba(255,255,255,0.5)" }}
+      >
         {fix.isHome ? "H" : "A"}
       </span>
+      <FdrDots fdr={fix.fdr} />
     </div>
   )
 }
@@ -112,9 +142,8 @@ function PlayerCard({
   gw: number | string
   text: string
 }) {
-  const transfersLabel = player.transfersIn >= 1000
-    ? `${(player.transfersIn / 1000).toFixed(1)}k`
-    : `${player.transfersIn}`
+  // Full number with comma separator — no abbreviated decimals
+  const transfersLabel = player.transfersIn.toLocaleString("en-GB")
 
   return (
     <div style={{
@@ -133,7 +162,7 @@ function PlayerCard({
         {/* Left — photo strip */}
         <div
           className="relative shrink-0 w-20 sm:w-52 flex flex-col items-center justify-center"
-          style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
+          style={{ background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
         >
           <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
             style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
@@ -177,7 +206,7 @@ function PlayerCard({
             </div>
           </div>
 
-          {/* Row 2: stats */}
+          {/* Row 2: stats — full transfer number, no abbreviated decimals */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
             {[
               { label: player.ep_next === 0 ? "xPts (Blank GW)" : "xPts", value: player.ep_next === 0 ? "0.0" : player.ep_next.toFixed(1) },
@@ -191,45 +220,31 @@ function PlayerCard({
               </div>
             ))}
           </div>
-          {/* Blank GW banner — only shown when ep_next is 0 */}
-          {player.ep_next === 0 && (
-            <div
-              className="flex items-center gap-2 rounded px-2.5 py-1.5"
-              style={{ background: "rgba(0,255,135,0.07)", border: "1px solid rgba(0,255,135,0.2)" }}
-            >
-              <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-black"
-                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-              >
-                Blank GW
-              </span>
-              <span className="text-[10px] text-white/70">
-                No fixture this gameweek - fixture run shown from Gameweek {(player.fixtures[0]?.gw) ?? "next"} onwards
-              </span>
-            </div>
-          )}
 
-          {/* Row 3: fixture run — next 5 games */}
-          <div
-            className="flex items-center justify-between gap-2"
-            style={{ padding: "7px 10px", background: "#1A1A1A", borderRadius: 4 }}
-          >
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] text-white/50 mr-0.5">Next 5:</span>
+          {/* Row 3: fixture run — rich cards with crest + FDR dots */}
+          <div style={{ background: "#1A1A1A", borderRadius: 4, padding: "8px 10px" }}>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-[10px] font-semibold text-white">
+                {player.ep_next === 0
+                  ? `Fixture run from GW${player.fixtures[0]?.gw ?? "next"} (Blank GW${gw})`
+                  : "Next 5 fixtures"}
+              </span>
+              <Link
+                href={`/fpl/fixtures/${player.slug}`}
+                className="shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "5px 12px" }}
+              >
+                Full analysis
+              </Link>
+            </div>
+            <div className="flex gap-1.5 flex-wrap">
               {player.fixtures.slice(0, 5).map((fix) => (
-                <FixturePill key={fix.gw} fix={fix} />
+                <FixtureCard key={fix.gw} fix={fix} />
               ))}
               {player.fixtures.length === 0 && (
-                <span className="text-[10px] text-white/40">No upcoming fixtures</span>
+                <span className="text-[10px] text-white/40 py-2">No upcoming fixtures available</span>
               )}
             </div>
-            <Link
-              href={`/fpl/fixtures/${player.slug}`}
-              className="shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 14px" }}
-            >
-              Full analysis
-            </Link>
           </div>
 
         </div>
@@ -272,7 +287,7 @@ export default async function FixtureHubPage() {
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">
         <div className="w-full max-w-3xl flex flex-col gap-3">
 
-          {/* FDR key */}
+          {/* FDR key — green dots out of 5, matching captains page style */}
           <div
             className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl px-4 py-3"
             style={{ background: "rgba(0,255,135,0.04)", border: "1px solid rgba(0,255,135,0.12)" }}
@@ -286,11 +301,8 @@ export default async function FixtureHubPage() {
               { fdr: 5, label: "Very Hard" },
             ].map(({ fdr, label }) => (
               <div key={fdr} className="flex items-center gap-1.5">
-                <span
-                  className="inline-block rounded"
-                  style={{ width: 10, height: 10, background: fdrColor(fdr), opacity: fdr >= 4 ? 0.5 : 1 }}
-                />
-                <span className="text-[10px] text-white/60">{label}</span>
+                <FdrDots fdr={fdr} />
+                <span className="text-[10px] text-white">{label}</span>
               </div>
             ))}
           </div>
