@@ -35,9 +35,10 @@ export function Footer() {
               <Image 
                 src="/ChatFPL_AI_Logo.png" 
                 alt="ChatFPL AI" 
-                width={48} 
-                height={48}
-                className="h-8 w-auto md:h-12"
+                width={160} 
+                height={40}
+                className="h-8 md:h-10"
+                style={{ width: "auto" }}
               />
             </Link>
             <p className="text-sm text-gray-300">AI-powered Fantasy Premier League assistant for smarter decisions.</p>
