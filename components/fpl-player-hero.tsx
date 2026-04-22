@@ -20,7 +20,7 @@ function photoUrl(code: number) {
 export interface FplCardPlayer {
   code: number
   name: string
-  club: string       // short name e.g. "MCI"
+  club: string       // full team name e.g. "Manchester City"
   teamCode: number
   position: string   // "FWD" | "MID" | "DEF" | "GKP"
   price: string      // e.g. "£14.0m"

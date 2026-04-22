@@ -74,7 +74,7 @@ function buildComparisonPlayer(
     code: el.code,
     webName: el.web_name,
     displayName: getDisplayName(el),
-    club: team.short,
+    club: team.name,
     teamCode: team.code,
     teamId: el.team,
     position: posMap[el.element_type] ?? "",

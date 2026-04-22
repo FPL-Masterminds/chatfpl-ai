@@ -80,7 +80,7 @@ function buildTransferPlayer(
     displayName: getDisplayName(el),
     webName: el.web_name,
     code: el.code,
-    club: team.short,
+    club: team.name,
     teamCode: team.code,
     teamId: el.team,
     position: posMap[el.element_type] ?? "",
