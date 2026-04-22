@@ -74,6 +74,7 @@ export function Footer() {
                 { href: "/fpl/comparisons",     label: "Head-to-Head Hub"       },
                 { href: "/fpl/injuries",        label: "Injuries Hub"           },
                 { href: "/fpl/transfer-trends", label: "Transfer Market Trends" },
+                { href: "/fpl/fixtures",        label: "Fixture Difficulty"     },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87] group">

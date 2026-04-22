@@ -5,6 +5,7 @@ import { getEligibleSlugs, BEST_VALUE_COMBOS, getTeamSlugs, TEAM_POSITION_SLUGS 
 import { getComparisonSlugs } from '@/lib/fpl-comparison'
 import { getInjurySlugs } from '@/lib/fpl-injury'
 import { getTransferTrendSlugs } from '@/lib/fpl-transfer-trends'
+import { getFixtureSlugs } from '@/lib/fpl-fixtures'
 
 const baseUrl = 'https://www.chatfpl.ai'
 
@@ -66,7 +67,8 @@ function getAllPageRoutes(dir: string, baseRoute: string = ''): string[] {
 function getRouteMetadata(route: string) {
   if (route === '') return { priority: 1.0, changeFrequency: 'daily' as const }
   if (['/chat', '/signup'].includes(route)) return { priority: 0.9, changeFrequency: 'always' as const }
-  if (['/fpl/captains', '/fpl/differentials', '/fpl/comparisons', '/fpl/transfer-trends'].includes(route)) return { priority: 1.0, changeFrequency: 'always' as const }
+  if (['/fpl/captains', '/fpl/differentials', '/fpl/comparisons', '/fpl/transfer-trends', '/fpl/fixtures'].includes(route)) return { priority: 1.0, changeFrequency: 'always' as const }
+  if (route.startsWith('/fpl/fixtures/')) return { priority: 0.93, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/transfer-trends/')) return { priority: 0.92, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/best/')) return { priority: 0.95, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/team/')) return { priority: 0.9, changeFrequency: 'daily' as const }
@@ -125,6 +127,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     TEAM_POSITION_SLUGS.map((pos) => `/fpl/team/${teamSlug}/${pos}`)
   )
 
+  // Fixture difficulty pages — threshold-based: pages added automatically as players
+  // hit eligibility benchmarks (net transfer surge, hot form, or base criteria)
+  const fixtureSlugsData = await getFixtureSlugs()
+  const fixtureRoutes = fixtureSlugsData.map(({ slug }) => `/fpl/fixtures/${slug}`)
+
   const allRoutes = [
     ...staticRoutes,
     "/fpl/captains",
@@ -132,6 +139,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/fpl/comparisons",
     "/fpl/transfer-trends",
     "/fpl/injuries",
+    "/fpl/fixtures",
     ...bestValueRoutes,
     ...teamOverviewRoutes,
     ...teamPositionRoutes,
@@ -142,6 +150,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...comparisonRoutes,
     ...injuryRoutes,
     ...transferTrendRoutes,
+    ...fixtureRoutes,
   ]
 
   return allRoutes.map((route) => {
