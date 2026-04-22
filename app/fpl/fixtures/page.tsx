@@ -61,36 +61,32 @@ function FdrDots({ fdr }: { fdr: number }) {
   )
 }
 
-// ─── Fixture card — rich card with crest + FDR dots ──────────────────────────
+// ─── Fixture card — fills parent width equally via flex-1 ────────────────────
 
 function FixtureCard({ fix }: { fix: FixtureGW }) {
   return (
     <div
-      className="flex flex-col items-center gap-1 rounded-lg"
+      className="flex-1 flex flex-col items-center justify-center gap-1.5 rounded-lg"
       style={{
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        padding: "8px 10px",
-        minWidth: 56,
+        background: "rgba(255,255,255,0.05)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        padding: "10px 6px",
       }}
     >
-      <span className="text-[9px] font-semibold tabular-nums" style={{ color: "rgba(255,255,255,0.45)" }}>
+      <span className="text-[10px] font-semibold tabular-nums text-white">
         GW{fix.gw}
       </span>
       {fix.opponentCode > 0 && (
         <Image
           src={`https://resources.premierleague.com/premierleague/badges/70/t${fix.opponentCode}.png`}
           alt={fix.opponentShort}
-          width={24} height={24}
+          width={28} height={28}
           style={{ objectFit: "contain" }}
           unoptimized
         />
       )}
-      <span className="text-[10px] font-bold text-white leading-none">{fix.opponentShort}</span>
-      <span
-        className="text-[9px] font-semibold leading-none"
-        style={{ color: "rgba(255,255,255,0.5)" }}
-      >
+      <span className="text-[11px] font-bold text-white leading-none text-center">{fix.opponentShort}</span>
+      <span className="text-[10px] font-semibold text-white leading-none">
         {fix.isHome ? "H" : "A"}
       </span>
       <FdrDots fdr={fix.fdr} />
@@ -206,7 +202,7 @@ function PlayerCard({
             </div>
           </div>
 
-          {/* Row 2: stats — full transfer number, no abbreviated decimals */}
+          {/* Row 2: stats — gradient numbers, white labels */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
             {[
               { label: player.ep_next === 0 ? "xPts (Blank GW)" : "xPts", value: player.ep_next === 0 ? "0.0" : player.ep_next.toFixed(1) },
@@ -215,20 +211,25 @@ function PlayerCard({
               { label: "Transfers In", value: transfersLabel },
             ].map((s) => (
               <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 8px" }}>
-                <p className="font-bold tabular-nums text-sm sm:text-base" style={{ color: GREEN }}>{s.value}</p>
+                <p
+                  className="font-bold tabular-nums text-sm sm:text-base text-transparent bg-clip-text"
+                  style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}
+                >
+                  {s.value}
+                </p>
                 <p className="text-[10px] sm:text-[11px] mt-0.5 text-white">{s.label}</p>
               </div>
             ))}
           </div>
 
-          {/* Row 3: fixture run — rich cards with crest + FDR dots */}
-          <div style={{ background: "#1A1A1A", borderRadius: 4, padding: "8px 10px" }}>
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-[10px] font-semibold text-white">
+          {/* Row 3: fixture run — full-width cards, each flex-1 */}
+          <div style={{ background: "#1A1A1A", borderRadius: 4, padding: "10px 12px" }}>
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h3 className="text-sm font-bold text-white">
                 {player.ep_next === 0
                   ? `Fixture run from GW${player.fixtures[0]?.gw ?? "next"} (Blank GW${gw})`
                   : "Next 5 fixtures"}
-              </span>
+              </h3>
               <Link
                 href={`/fpl/fixtures/${player.slug}`}
                 className="shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
@@ -237,7 +238,7 @@ function PlayerCard({
                 Full analysis
               </Link>
             </div>
-            <div className="flex gap-1.5 flex-wrap">
+            <div className="flex gap-2">
               {player.fixtures.slice(0, 5).map((fix) => (
                 <FixtureCard key={fix.gw} fix={fix} />
               ))}
