@@ -407,8 +407,13 @@ export async function getFixtureHub(): Promise<{
       )
     )
 
-    // Sort: best average FDR first (lowest = easiest), then by ep_next descending
+    // Sort: blank GW players always go to the bottom.
+    // Among non-blank players: best avgFdr first, then ep_next descending.
     const sorted = players.sort((a, b) => {
+      const aBlank = a.ep_next === 0
+      const bBlank = b.ep_next === 0
+      if (aBlank && !bBlank) return 1
+      if (!aBlank && bBlank) return -1
       const fdrDiff = a.avgFdr - b.avgFdr
       if (Math.abs(fdrDiff) > 0.3) return fdrDiff
       return b.ep_next - a.ep_next

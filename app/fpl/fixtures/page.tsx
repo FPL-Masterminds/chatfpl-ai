@@ -180,7 +180,7 @@ function PlayerCard({
           {/* Row 2: stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
             {[
-              { label: "xPts",         value: player.ep_next === 0 ? "0.0" : player.ep_next.toFixed(1) },
+              { label: player.ep_next === 0 ? "xPts (Blank GW)" : "xPts", value: player.ep_next === 0 ? "0.0" : player.ep_next.toFixed(1) },
               { label: "Form",         value: player.form },
               { label: "Owned",        value: `${player.ownership}%` },
               { label: "Transfers In", value: transfersLabel },
@@ -191,6 +191,23 @@ function PlayerCard({
               </div>
             ))}
           </div>
+          {/* Blank GW banner — only shown when ep_next is 0 */}
+          {player.ep_next === 0 && (
+            <div
+              className="flex items-center gap-2 rounded px-2.5 py-1.5"
+              style={{ background: "rgba(0,255,135,0.07)", border: "1px solid rgba(0,255,135,0.2)" }}
+            >
+              <span
+                className="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-black"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+              >
+                Blank GW
+              </span>
+              <span className="text-[10px] text-white/70">
+                No fixture this gameweek - fixture run shown from Gameweek {(player.fixtures[0]?.gw) ?? "next"} onwards
+              </span>
+            </div>
+          )}
 
           {/* Row 3: fixture run — next 5 games */}
           <div
