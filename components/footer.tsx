@@ -29,7 +29,7 @@ export function Footer() {
       </div>
 
       <div className="relative container mx-auto px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-5">
+        <div className="grid gap-8 md:grid-cols-6">
           <div className="space-y-4">
             <Link href="/">
               <Image 
@@ -147,6 +147,26 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-4 text-sm font-semibold text-white">Our Network</h3>
+            <ul className="space-y-3">
+              <li>
+                <a
+                  href="https://www.fpleliteinsights.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87]"
+                >
+                  <span
+                    className="h-2 w-2 rounded-full shrink-0 animate-pulse"
+                    style={{ background: "#00FF87", boxShadow: "0 0 8px 2px rgba(0,255,135,0.7)" }}
+                  />
+                  FPL Elite Insights
+                </a>
+              </li>
             </ul>
           </div>
         </div>
