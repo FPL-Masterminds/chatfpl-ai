@@ -307,22 +307,59 @@ export default function ChatPage() {
     if (!input.trim() || isLoading) return
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: input, timestamp: new Date() }
     setMessages(prev => [...prev, userMsg])
+    const sentInput = input
     setInput("")
     setIsLoading(true)
+
+    // Add an empty AI message placeholder so the user sees it start streaming immediately
+    const aiMsgId = (Date.now() + 1).toString()
+    setMessages(prev => [...prev, { id: aiMsgId, role: "assistant", content: "", timestamp: new Date() }])
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input, conversationId }),
+        body: JSON.stringify({ message: sentInput, conversationId }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || "Failed")
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: data.answer, timestamp: new Date() }])
-      setConversationId(data.conversation_id)
-      setMessagesUsed(data.messages_used)
-      setMessagesLimit(data.messages_limit)
+      if (!res.ok || !res.body) {
+        const data = await res.json().catch(() => ({ error: "Failed" }))
+        throw new Error(data.error || "Failed")
+      }
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buf = ""
+      let accumulated = ""
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split("\n")
+        buf = lines.pop() ?? ""
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue
+          try {
+            const evt = JSON.parse(line.slice(6))
+            if (evt.type === "chunk") {
+              accumulated += evt.text
+              setMessages(prev => prev.map(m =>
+                m.id === aiMsgId ? { ...m, content: accumulated } : m
+              ))
+            } else if (evt.type === "done") {
+              setConversationId(evt.conversation_id)
+              setMessagesUsed(evt.messages_used)
+              setMessagesLimit(evt.messages_limit)
+            } else if (evt.type === "error") {
+              throw new Error(evt.message)
+            }
+          } catch { /* skip malformed events */ }
+        }
+      }
     } catch (e: any) {
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: e.message || "Something went wrong.", timestamp: new Date() }])
+      setMessages(prev => prev.map(m =>
+        m.id === aiMsgId ? { ...m, content: e.message || "Something went wrong." } : m
+      ))
     } finally {
       setIsLoading(false)
     }
@@ -594,22 +631,30 @@ export default function ChatPage() {
                         </div>
                       </div>
                       <div className="text-sm leading-7 text-white/85 space-y-2">
-                        {message.content.split("\n\n").map((para, i) => (
-                          <p key={i} className="whitespace-pre-wrap">
-                            {para.split("\n").map((line, j) => (
-                              <span key={j}>
-                                {renderMessageContent(line)}
-                                {j < para.split("\n").length - 1 && <br />}
-                              </span>
-                            ))}
-                          </p>
-                        ))}
+                        {message.content === "" ? (
+                          <div className="flex gap-1.5 py-1">
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
+                            <div className="h-2 w-2 animate-bounce rounded-full bg-blue-400" />
+                          </div>
+                        ) : (
+                          message.content.split("\n\n").map((para, i) => (
+                            <p key={i} className="whitespace-pre-wrap">
+                              {para.split("\n").map((line, j) => (
+                                <span key={j}>
+                                  {renderMessageContent(line)}
+                                  {j < para.split("\n").length - 1 && <br />}
+                                </span>
+                              ))}
+                            </p>
+                          ))
+                        )}
                       </div>
                     </div>
                   )
                 ))}
 
-                {isLoading && (
+                {false && isLoading && (
                   <div className="w-full rounded-[28px] border border-white/8 bg-black/30 p-5">
                     <div className="flex items-center gap-3">
                       <div className="h-8 w-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-black font-black text-[10px] shrink-0">AI</div>

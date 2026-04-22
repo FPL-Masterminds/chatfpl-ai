@@ -430,6 +430,20 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
           .map(([team, fixtures]) => `${team}: ${fixtures.join(', ')}`)
           .join('\n');
 
+        // Explicit DGW detection — teams with 2+ fixtures in the current GW
+        const currentGWId = currentGameweek?.id;
+        const dgwTeams = currentGWId
+          ? (fplData.teams ?? []).filter((team: any) =>
+              fixturesData.filter((f: any) =>
+                f.event === currentGWId &&
+                (f.team_h === team.id || f.team_a === team.id)
+              ).length >= 2
+            ).map((t: any) => t.name)
+          : [];
+        const dgwNote = dgwTeams.length > 0
+          ? `\nDOUBLE GAMEWEEK ${currentGWId} TEAMS (each has TWO fixtures this week): ${dgwTeams.join(', ')}\n`
+          : '';
+
         console.log('=== FIXTURE DATA DEBUG ===');
         console.log('Total fixtures fetched:', fixturesData.length);
         console.log('Current GW:', currentGW);
@@ -460,7 +474,7 @@ CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.
 
 ${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : 'Unknown'}` : ""}
 
-${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
+${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
@@ -612,8 +626,6 @@ PERSONALITY RULES:
     console.log('=== END PAYLOAD DEBUG ===');
 
     // Resolve the Dify-side conversation ID so threading works correctly.
-    // The frontend always uses the Prisma conversation ID; the Dify ID is
-    // stored separately so the two systems never get mixed up.
     let difyConversationId = "";
     if (conversationId) {
       const existingConv = await prisma.conversation.findUnique({
@@ -623,14 +635,13 @@ PERSONALITY RULES:
       difyConversationId = existingConv?.dify_conversation_id || "";
     }
 
-    // Add 60 second timeout for Dify API call
+    // ── Streaming Dify call ────────────────────────────────────────────────
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000);
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
 
-    let difyData: any;
-    
+    let difyResponse: Response;
     try {
-      const difyResponse = await fetch(`${difyBaseUrl}/chat-messages`, {
+      difyResponse = await fetch(`${difyBaseUrl}/chat-messages`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${difyApiKey}`,
@@ -639,108 +650,134 @@ PERSONALITY RULES:
         body: JSON.stringify({
           inputs: {},
           query: enhancedMessage,
-          response_mode: "blocking",
+          response_mode: "streaming",
           conversation_id: difyConversationId,
           user: user.id,
         }),
         signal: controller.signal,
       });
-      
       clearTimeout(timeoutId);
-
-      if (!difyResponse.ok) {
-        // Log technical error for debugging
-        try {
-          const errorData = await difyResponse.json();
-          console.error("=== DIFY ERROR ===");
-          console.error("Status:", difyResponse.status);
-          console.error("Error data:", JSON.stringify(errorData, null, 2));
-          console.error("=== END DIFY ERROR ===");
-        } catch (e) {
-          console.error("Failed to parse Dify error response");
-        }
-        
-        // Return user-friendly message
-        let userMessage = "I'm having trouble processing your question right now. Please try:\n\n• Asking a more specific question\n• Breaking complex questions into smaller parts\n• Waiting a moment and trying again\n\nIf the problem continues, please contact support.";
-        
-        return NextResponse.json(
-          { error: userMessage },
-          { status: 500 }
-        );
-      }
-
-      difyData = await difyResponse.json();
     } catch (fetchError: any) {
       clearTimeout(timeoutId);
-      
       if (fetchError.name === "AbortError") {
-        console.error("Dify API timeout - request exceeded 60 seconds");
         return NextResponse.json(
-          { error: "Your question is taking longer than expected. Please try:\n\n• Asking about fewer players at once\n• Breaking your question into smaller parts\n• Simplifying your request\n\nFor squad analysis, focus on 2-3 players at a time for best results." },
+          { error: "Your question is taking longer than expected. Try breaking it into smaller parts - for example, ask about DGW teams first, then player recommendations separately." },
           { status: 504 }
         );
       }
-      throw fetchError; // Re-throw to be caught by outer catch
+      throw fetchError;
     }
 
-    // Increment usage
-    await prisma.usageTracking.update({
-      where: { id: usage.id },
-      data: {
-        messages_used: usage.messages_used + 1,
+    if (!difyResponse.ok || !difyResponse.body) {
+      try {
+        const errData = await difyResponse.json();
+        console.error("Dify error:", difyResponse.status, errData);
+      } catch {}
+      return NextResponse.json(
+        { error: "I'm having trouble right now. Please try again in a moment." },
+        { status: 500 }
+      );
+    }
+
+    // ── Forward Dify SSE stream to client ─────────────────────────────────
+    const difyBody = difyResponse.body;
+    const enc = new TextEncoder();
+
+    const stream = new ReadableStream({
+      async start(ctrl) {
+        const reader = difyBody.getReader();
+        const dec = new TextDecoder();
+        let buf = "";
+        let fullAnswer = "";
+        let difyConvIdFinal = difyConversationId;
+
+        const send = (obj: object) =>
+          ctrl.enqueue(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buf += dec.decode(value, { stream: true });
+            const lines = buf.split("\n");
+            buf = lines.pop() ?? "";
+            for (const line of lines) {
+              if (!line.startsWith("data: ")) continue;
+              const json = line.slice(6).trim();
+              if (!json || json === "[DONE]") continue;
+              try {
+                const evt = JSON.parse(json);
+                if (evt.event === "message" || evt.event === "agent_message") {
+                  const chunk: string = evt.answer ?? "";
+                  fullAnswer += chunk;
+                  if (chunk) send({ type: "chunk", text: chunk });
+                  if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
+                } else if (evt.event === "message_end") {
+                  if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
+                } else if (evt.event === "error") {
+                  throw new Error(evt.message || "Dify stream error");
+                }
+              } catch { /* skip malformed SSE lines */ }
+            }
+          }
+
+          // Fix hallucinated player photo URLs in the accumulated response
+          const fixedAnswer = fixAssistantMarkdownPlayerPhotos(fullAnswer, photoRowsForFix);
+
+          // ── DB operations (run after stream completes) ─────────────────
+          await prisma.usageTracking.update({
+            where: { id: usage.id },
+            data: { messages_used: usage.messages_used + 1 },
+          });
+
+          let conversation;
+          if (conversationId) {
+            conversation = await prisma.conversation.findUnique({ where: { id: conversationId } });
+          }
+          if (!conversation) {
+            conversation = await prisma.conversation.create({
+              data: {
+                user_id: user.id,
+                title: message.substring(0, 50),
+                dify_conversation_id: difyConvIdFinal || null,
+              },
+            });
+          } else if (!conversation.dify_conversation_id && difyConvIdFinal) {
+            await prisma.conversation.update({
+              where: { id: conversation.id },
+              data: { dify_conversation_id: difyConvIdFinal },
+            });
+          }
+
+          await prisma.message.create({
+            data: { conversation_id: conversation.id, role: "user", content: message },
+          });
+          await prisma.message.create({
+            data: { conversation_id: conversation.id, role: "assistant", content: fixedAnswer },
+          });
+
+          send({
+            type: "done",
+            conversation_id: conversation.id,
+            messages_used: usage.messages_used + 1,
+            messages_limit: usage.messages_limit,
+          });
+        } catch (err: any) {
+          console.error("Streaming error:", err);
+          send({ type: "error", message: "Something went wrong generating your response. Please try again." });
+        } finally {
+          ctrl.close();
+        }
       },
     });
 
-    // Save conversation and messages to database
-    let conversation;
-    if (conversationId) {
-      conversation = await prisma.conversation.findUnique({
-        where: { id: conversationId },
-      });
-    }
-
-    if (!conversation) {
-      conversation = await prisma.conversation.create({
-        data: {
-          user_id: user.id,
-          title: message.substring(0, 50),
-          dify_conversation_id: difyData.conversation_id || null,
-        },
-      });
-    } else if (!conversation.dify_conversation_id && difyData.conversation_id) {
-      // Back-fill Dify ID on older conversations that pre-date this fix
-      await prisma.conversation.update({
-        where: { id: conversation.id },
-        data: { dify_conversation_id: difyData.conversation_id },
-      });
-    }
-
-    // Save user message
-    await prisma.message.create({
-      data: {
-        conversation_id: conversation.id,
-        role: "user",
-        content: message,
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",
       },
-    });
-
-    // Fix any hallucinated player photo URLs in the model response
-    const fixedAnswer = fixAssistantMarkdownPlayerPhotos(difyData.answer, photoRowsForFix);
-
-    // Save AI response
-    await prisma.message.create({
-      data: {
-        conversation_id: conversation.id,
-        role: "assistant",
-        content: fixedAnswer,
-      },
-    });
-
-    return NextResponse.json({
-      answer: fixedAnswer,
-      conversation_id: conversation.id,  // Always return the stable Prisma ID
-      messages_used: usage.messages_used + 1,
-      messages_limit: usage.messages_limit,
     });
   } catch (error: any) {
     console.error("Chat API error:", error);
