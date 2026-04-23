@@ -6,6 +6,7 @@ import { getComparisonSlugs } from '@/lib/fpl-comparison'
 import { getInjurySlugs } from '@/lib/fpl-injury'
 import { getTransferTrendSlugs } from '@/lib/fpl-transfer-trends'
 import { getFixtureSlugs } from '@/lib/fpl-fixtures'
+import { getGameweekSlugs, getDGWPlayerSlugs } from '@/lib/fpl-gameweeks'
 
 const baseUrl = 'https://www.chatfpl.ai'
 
@@ -67,7 +68,9 @@ function getAllPageRoutes(dir: string, baseRoute: string = ''): string[] {
 function getRouteMetadata(route: string) {
   if (route === '') return { priority: 1.0, changeFrequency: 'daily' as const }
   if (['/chat', '/signup'].includes(route)) return { priority: 0.9, changeFrequency: 'always' as const }
-  if (['/fpl/captains', '/fpl/differentials', '/fpl/comparisons', '/fpl/transfer-trends', '/fpl/fixtures'].includes(route)) return { priority: 1.0, changeFrequency: 'always' as const }
+  if (['/fpl/captains', '/fpl/differentials', '/fpl/comparisons', '/fpl/transfer-trends', '/fpl/fixtures', '/fpl/gameweeks'].includes(route)) return { priority: 1.0, changeFrequency: 'always' as const }
+  if (route.startsWith('/fpl/gameweeks/')) return { priority: 0.95, changeFrequency: 'daily' as const }
+  if (route.startsWith('/fpl/double-gameweek/')) return { priority: 0.93, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/fixtures/')) return { priority: 0.93, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/transfer-trends/')) return { priority: 0.92, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/best/')) return { priority: 0.95, changeFrequency: 'daily' as const }
@@ -132,6 +135,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const fixtureSlugsData = await getFixtureSlugs()
   const fixtureRoutes = fixtureSlugsData.map(({ slug }) => `/fpl/fixtures/${slug}`)
 
+  // Gameweek planner — DGW/BGW hub, GW detail pages, and individual player DGW pages
+  const gwSlugsData     = await getGameweekSlugs()
+  const gwDetailRoutes  = gwSlugsData.map(({ gw }) => `/fpl/gameweeks/${gw}`)
+  const dgwPlayerSlugs  = await getDGWPlayerSlugs()
+  const dgwPlayerRoutes = dgwPlayerSlugs.map(({ slug }) => `/fpl/double-gameweek/${slug}`)
+
   const allRoutes = [
     ...staticRoutes,
     "/fpl/captains",
@@ -140,6 +149,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/fpl/transfer-trends",
     "/fpl/injuries",
     "/fpl/fixtures",
+    "/fpl/gameweeks",
     ...bestValueRoutes,
     ...teamOverviewRoutes,
     ...teamPositionRoutes,
@@ -151,6 +161,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...injuryRoutes,
     ...transferTrendRoutes,
     ...fixtureRoutes,
+    ...gwDetailRoutes,
+    ...dgwPlayerRoutes,
   ]
 
   return allRoutes.map((route) => {
