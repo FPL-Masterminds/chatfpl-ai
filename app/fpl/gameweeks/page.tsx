@@ -287,10 +287,10 @@ export default async function GameweeksHubPage() {
       <DevHeader />
 
       <HubHero
-        headingWhite="Fantasy Premier League Double and Blank "
+        headingWhite={<>Fantasy Premier League<br className="hidden md:block" /> Double and Blank </>}
         headingGradient={`Gameweek ${nextDGW ?? currentGW} Planner`}
         subtitle="Which teams have a Double Gameweek? Which have a Blank? Full landscape for the next 8 gameweeks with top players to target ranked by projected points."
-        headingFontSize="clamp(28px, 3.8vw, 46px)"
+        containerMaxWidth="max-w-6xl"
       />
 
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">

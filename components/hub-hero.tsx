@@ -2,13 +2,14 @@ import Link from "next/link"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 
 interface HubHeroProps {
-  headingWhite: string
-  headingGradient: string
+  headingWhite: React.ReactNode
+  headingGradient: React.ReactNode
   subtitle: string
   ctaHref?: string
   ctaLabel?: string
   badge?: React.ReactNode
   headingFontSize?: string
+  containerMaxWidth?: string
 }
 
 export function HubHero({
@@ -19,6 +20,7 @@ export function HubHero({
   ctaLabel = "Start Chatting for Free",
   badge,
   headingFontSize = "clamp(30px, 5vw, 60px)",
+  containerMaxWidth = "max-w-4xl",
 }: HubHeroProps) {
   return (
     <section className="relative isolate flex min-h-[540px] items-center justify-center overflow-hidden bg-black pt-28 pb-16">
@@ -42,7 +44,7 @@ export function HubHero({
         .hub-fadein { animation: fadeUp 0.75s cubic-bezier(0.16,1,0.3,1) both; }
       `}</style>
 
-      <div className="relative z-10 mx-auto w-full max-w-4xl px-4 sm:px-6 text-center">
+      <div className={`relative z-10 mx-auto w-full ${containerMaxWidth} px-4 sm:px-6 text-center`}>
         <div className="space-y-6">
 
           <h1
