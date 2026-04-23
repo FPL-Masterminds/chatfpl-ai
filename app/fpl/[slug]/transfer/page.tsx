@@ -14,7 +14,7 @@ import {
 import { SeasonEnded } from "@/components/season-ended"
 
 // ISR — revalidate every hour
-export const revalidate = 3600
+export const revalidate = 43200
 export const dynamicParams = true
 
 // ─── Static params — same eligible player set as captain pages ────────────────

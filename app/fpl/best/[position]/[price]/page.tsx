@@ -17,7 +17,7 @@ import {
   type CaptainHubPlayer,
 } from "@/lib/fpl-player-page"
 
-export const revalidate = 3600
+export const revalidate = 43200
 export const dynamic = "force-dynamic"
 
 const GREEN = "#00FF87"

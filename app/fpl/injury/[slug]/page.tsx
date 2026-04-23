@@ -12,7 +12,7 @@ import {
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
 
-export const revalidate = 3600
+export const revalidate = 43200
 export const dynamicParams = true
 
 // ─── Static params ────────────────────────────────────────────────────────────

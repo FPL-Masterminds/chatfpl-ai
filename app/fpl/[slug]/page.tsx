@@ -13,7 +13,7 @@ import {
 import { SeasonEnded } from "@/components/season-ended"
 
 // ISR — revalidate all player pages every hour
-export const revalidate = 3600
+export const revalidate = 43200
 
 // Allow on-demand generation for slugs not in static params
 // (e.g. a player who just crossed the threshold mid-season)

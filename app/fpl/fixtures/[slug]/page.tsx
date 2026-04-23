@@ -15,7 +15,7 @@ import {
   type FixtureHubPlayer,
 } from "@/lib/fpl-fixtures"
 
-export const revalidate = 3600
+export const revalidate = 43200
 export const dynamicParams = true
 
 // ─── Static params ─────────────────────────────────────────────────────────────

@@ -13,7 +13,7 @@ import {
   fmtTransfers,
 } from "@/lib/fpl-transfer-trends"
 
-export const revalidate = 3600
+export const revalidate = 43200
 export const dynamic = "force-dynamic"
 export const dynamicParams = true
 
