@@ -195,7 +195,7 @@ export default async function GameweekDetailPage({
   if (isNaN(gwNum)) notFound()
 
   const data = await getGameweekDetail(gwNum)
-  if (!data) notFound()
+  if (!data || (!data.dgwTeams.length && !data.bgwTeams.length)) notFound()
 
   const { gw, dgwTeams, bgwTeams, players, showcasePlayers } = data
   const hasDGW = dgwTeams.length > 0
