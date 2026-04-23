@@ -4,11 +4,13 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
+import { ConversationalPlayer } from "@/components/conversational-player"
 import { SeasonEnded } from "@/components/season-ended"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import {
   getGameweekDetail,
   getGameweekSlugs,
+  buildBGWPageText,
   type DGWPlayer,
   type DGWTeamSummary,
   type BGWTeamSummary,
@@ -155,6 +157,58 @@ function BGWTeamCard({ team }: { team: BGWTeamSummary }) {
   )
 }
 
+// ─── BGW player row ───────────────────────────────────────────────────────────
+
+function BGWPlayerRow({ player, rank }: { player: DGWPlayer; rank: number }) {
+  return (
+    <div className="flex items-center gap-3 py-3 px-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+      <span className="text-[11px] font-bold text-white/40 w-5 shrink-0 tabular-nums">{rank}</span>
+      <Image
+        src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+        alt={player.displayName}
+        width={36} height={45}
+        style={{ objectFit: "contain", flexShrink: 0 }}
+        unoptimized
+      />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <span className="text-white font-semibold text-sm truncate">{player.displayName}</span>
+          <span className="text-[9px] font-bold uppercase rounded px-1 py-0.5 shrink-0" style={{ background: "rgba(0,255,135,0.15)", color: GREEN }}>{player.position}</span>
+        </div>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <Image
+            src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
+            alt={player.club}
+            width={12} height={12}
+            style={{ objectFit: "contain" }}
+            unoptimized
+          />
+          <span className="text-[10px] text-white/50">{player.club} - No fixture</span>
+        </div>
+      </div>
+      <div className="text-center shrink-0">
+        <p className="font-bold text-sm tabular-nums text-white">{player.ownership}%</p>
+        <p className="text-[9px] text-white/40">Owned</p>
+      </div>
+      <div className="text-center shrink-0 hidden sm:block">
+        <p className="text-sm font-semibold text-white/80">{player.form}</p>
+        <p className="text-[9px] text-white/40">Form</p>
+      </div>
+      <div className="text-center shrink-0 hidden sm:block">
+        <p className="text-sm font-semibold text-white/80">{player.price}</p>
+        <p className="text-[9px] text-white/40">Price</p>
+      </div>
+      <Link
+        href={`/fpl/${player.slug}`}
+        className="shrink-0 text-[11px] font-bold rounded-full transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)]"
+        style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a", padding: "5px 12px" }}
+      >
+        Analyse
+      </Link>
+    </div>
+  )
+}
+
 // ─── Player row ───────────────────────────────────────────────────────────────
 
 function PlayerRow({ player, rank }: { player: DGWPlayer; rank: number }) {
@@ -219,12 +273,16 @@ export default async function GameweekDetailPage({
   const data = await getGameweekDetail(gwNum)
   if (!data) notFound()
 
-  const { gw, dgwTeams, bgwTeams, players, showcasePlayers } = data
+  const { gw, dgwTeams, bgwTeams, players, bgwPlayers, showcasePlayers } = data
   const hasDGW = dgwTeams.length > 0
   const hasBGW = bgwTeams.length > 0
   const isNormalGW = !hasDGW && !hasBGW
 
   const dgwTeamNames = dgwTeams.map((t) => t.teamName).join(" and ")
+  const bgwTeamNames = bgwTeams.map((t) => t.teamName)
+  const { welcome: bgwWelcome, qaItems: bgwQA } = hasBGW
+    ? buildBGWPageText(gw, bgwTeamNames, bgwPlayers)
+    : { welcome: "", qaItems: [] }
 
   return (
     <div className="fpl-player-root flex min-h-screen flex-col bg-black">
@@ -343,7 +401,44 @@ export default async function GameweekDetailPage({
             </section>
           )}
 
-          {/* Player rankings */}
+          {/* BGW players to bench */}
+          {hasBGW && bgwPlayers.length > 0 && (
+            <section>
+              <h2 className="text-xl font-bold mb-1">
+                <span className="text-white">Players to Bench in </span>
+                <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
+                  Gameweek {gw}
+                </span>
+              </h2>
+              <p className="text-sm text-white mb-4">Sorted by ownership - these are the players most FPL managers need to move to the bench this week.</p>
+              <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.02)" }}>
+                <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.5 }} />
+                {bgwPlayers.map((player, i) => (
+                  <BGWPlayerRow key={player.slug} player={player} rank={i + 1} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* BGW chatbot */}
+          {hasBGW && bgwQA.length > 0 && (
+            <section>
+              <div className="text-center mb-6">
+                <h2 className="text-xl font-bold leading-tight tracking-tight mb-2">
+                  <span className="text-white">Blank Gameweek {gw} </span>
+                  <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
+                    Planning Guide
+                  </span>
+                </h2>
+                <p className="text-white text-sm">Click a question below for the full breakdown.</p>
+              </div>
+              <div style={{ height: "clamp(480px, 65vh, 700px)" }}>
+                <ConversationalPlayer welcome={bgwWelcome} qaItems={bgwQA} />
+              </div>
+            </section>
+          )}
+
+          {/* DGW Player rankings */}
           {players.length > 0 && (
             <section>
               <h2 className="text-xl font-bold mb-1">

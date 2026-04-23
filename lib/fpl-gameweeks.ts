@@ -83,6 +83,7 @@ export interface GameweekDetailData {
   dgwTeams: DGWTeamSummary[]
   bgwTeams: BGWTeamSummary[]
   players: DGWPlayer[]
+  bgwPlayers: DGWPlayer[]
   showcasePlayers: FplCardPlayer[]
 }
 
@@ -337,6 +338,49 @@ export function buildDGWPlayerPageText(player: DGWPlayer, gw: number): {
   return { verdictLabel, verdictText, verdictBullets, caseFor, caseAgainst, qaItems, welcome, ctaLeadin }
 }
 
+export function buildBGWPageText(gw: number, bgwTeamNames: string[], topPlayers: DGWPlayer[]): {
+  welcome: string
+  qaItems: PlayerQA[]
+} {
+  const teamList  = bgwTeamNames.join(", ")
+  const topOwned  = topPlayers.slice(0, 3).map((p) => `${p.displayName} (${p.ownership}%)`).join(", ")
+  const topName   = topPlayers[0]?.displayName ?? "affected players"
+
+  const welcome = `Gameweek ${gw} is a Blank Gameweek for ${teamList}. Their players score zero points this week. Ask me anything about who to bench, who to sell, and how to plan your squad around the blank.`
+
+  const qaItems: PlayerQA[] = [
+    {
+      id:       "bgw-who",
+      question: `Which teams have no fixture in Gameweek ${gw}?`,
+      answer:   `The following clubs have no Premier League fixture in Gameweek ${gw}: ${teamList}. Any FPL player registered to these clubs will earn zero points this gameweek, regardless of form or price. Plan your starting eleven accordingly and ensure your bench cover is strong.`,
+    },
+    {
+      id:       "bgw-bench",
+      question: `Who are the most-owned players I should bench in Gameweek ${gw}?`,
+      answer:   topPlayers.length > 0
+        ? `The highest-ownership players without a fixture in Gameweek ${gw} are ${topOwned}. If you own any of these players, they must be on your bench this week or you lose their points entirely. Prioritise placing them in bench slots 1-3 rather than relying on them as captain or vice-captain.`
+        : `Check your squad for players from ${teamList}. Any owned player from these clubs should be moved to the bench before the Gameweek ${gw} deadline to avoid a zero-point starter.`,
+    },
+    {
+      id:       "bgw-sell",
+      question: `Should I sell my blank gameweek players or hold them?`,
+      answer:   `It depends on their future fixture run. A blank gameweek is a one-week inconvenience - if a player has strong fixtures in Gameweek ${gw + 1} and beyond, holding is usually correct. Taking a hit to sell a premium asset for one blank week typically costs more in points than it saves. However, if a player was already a transfer target, the blank gameweek can accelerate the decision. Check the fixture run before committing a hit.`,
+    },
+    {
+      id:       "bgw-bb",
+      question: `Is Bench Boost a good chip to use in Gameweek ${gw}?`,
+      answer:   `No - Gameweek ${gw} is a poor week for Bench Boost. With ${bgwTeamNames.length} clubs having no fixture, your bench is likely to contain blank gameweek players who score zero. Bench Boost works best on a full Double Gameweek where all 15 of your players have fixtures. Save the chip for a week with maximum fixture coverage, ideally when several teams are doubling.`,
+    },
+    {
+      id:       "bgw-captain",
+      question: `Who should I captain in Gameweek ${gw}?`,
+      answer:   `Avoid captaining any player from ${teamList} this week as they have no fixture. Focus your captaincy on in-form players from clubs with a fixture - ideally against opponents with a favourable difficulty rating. Check the Captain Picks hub for ranked options based on live expected points and form data.`,
+    },
+  ]
+
+  return { welcome, qaItems }
+}
+
 // ─── Hub ──────────────────────────────────────────────────────────────────────
 
 export async function getGameweekHub(): Promise<GameweekHub | null> {
@@ -449,18 +493,28 @@ export async function getGameweekDetail(gw: number): Promise<GameweekDetailData 
       .filter((p) => p.dgwFixtures.length >= 2)
       .sort((a, b) => b.ep_next - a.ep_next)
 
-    const center = players[0]
-    const flanks = players.slice(1, 5)
-    const centerCard = center ? dgwPlayerToCard(center) : null
+    // BGW players — notable players on blanking teams, sorted by ownership
+    const bgwTeamIds = new Set(gwSummary.bgwTeams.map((t) => t.teamId))
+    const bgwPlayers: DGWPlayer[] = (bootstrap.elements ?? [])
+      .filter((p: any) => bgwTeamIds.has(p.team) && (parseFloat(p.selected_by_percent ?? "0") >= 3 || (p.transfers_in_event ?? 0) >= 5000) && (p.minutes ?? 0) >= 400)
+      .map((el: any) => buildDGWPlayer(el, teamMap, posMap, slugMap, gw, []))
+      .sort((a: DGWPlayer, b: DGWPlayer) => b.ownership - a.ownership)
+      .slice(0, 15)
+
+    // For BGW-only weeks use most-owned BGW player as hero centre
+    const heroSource = gwSummary.dgwTeams.length > 0 ? players : bgwPlayers
+    const heroCenter = heroSource[0]
+    const heroFlanks = heroSource.slice(1, 5)
+    const centerCard = heroCenter ? dgwPlayerToCard(heroCenter) : null
     const showcasePlayers: FplCardPlayer[] = centerCard ? [
-      flanks[0] ? dgwPlayerToCard(flanks[0]) : centerCard,
-      flanks[1] ? dgwPlayerToCard(flanks[1]) : centerCard,
+      heroFlanks[0] ? dgwPlayerToCard(heroFlanks[0]) : centerCard,
+      heroFlanks[1] ? dgwPlayerToCard(heroFlanks[1]) : centerCard,
       centerCard,
-      flanks[2] ? dgwPlayerToCard(flanks[2]) : centerCard,
-      flanks[3] ? dgwPlayerToCard(flanks[3]) : centerCard,
+      heroFlanks[2] ? dgwPlayerToCard(heroFlanks[2]) : centerCard,
+      heroFlanks[3] ? dgwPlayerToCard(heroFlanks[3]) : centerCard,
     ] : []
 
-    return { gw, dgwTeams: gwSummary.dgwTeams, bgwTeams: gwSummary.bgwTeams, players, showcasePlayers }
+    return { gw, dgwTeams: gwSummary.dgwTeams, bgwTeams: gwSummary.bgwTeams, players, bgwPlayers, showcasePlayers }
   } catch {
     return null
   }
