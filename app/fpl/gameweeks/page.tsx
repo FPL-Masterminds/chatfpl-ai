@@ -73,7 +73,7 @@ function TeamBadge({ teamCode, teamName, detail }: { teamCode: number; teamName:
 
 // ─── GW landscape card ────────────────────────────────────────────────────────
 
-function GWLandscapeCard({ gw: gwSummary }: { gw: GameweekSummary; currentGW: number }) {
+function GWLandscapeCard({ gw: gwSummary }: { gw: GameweekSummary }) {
   return (
     <div className="rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(0,255,135,0.18)", background: gwSummary.isDGW ? "rgba(0,255,135,0.04)" : "rgba(255,255,255,0.02)" }}>
       {/* Gradient left border */}
@@ -81,18 +81,8 @@ function GWLandscapeCard({ gw: gwSummary }: { gw: GameweekSummary; currentGW: nu
 
       <div className="pl-5 pr-4 py-4">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-white font-bold text-base">Gameweek {gwSummary.gw}</span>
-          {gwSummary.isDGW && (
-            <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1" style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}>
-              Double Gameweek
-            </span>
-          )}
-          {gwSummary.isBGW && (
-            <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1" style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}>
-              Blank Gameweek
-            </span>
-          )}
+        <div className="mb-4">
+          <span className="text-white font-bold text-lg">Gameweek {gwSummary.gw}</span>
         </div>
 
         {/* DGW teams — full-width badge strip */}
@@ -315,7 +305,7 @@ export default async function GameweeksHubPage() {
               <div className="flex flex-col gap-3">
                 {gameweeks.filter((g) => g.hasActivity).map((gwSummary) => (
                   <Reveal key={gwSummary.gw}>
-                    <GWLandscapeCard gw={gwSummary} currentGW={currentGW} />
+                    <GWLandscapeCard gw={gwSummary} />
                   </Reveal>
                 ))}
               </div>
