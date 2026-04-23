@@ -37,15 +37,22 @@ export async function generateMetadata({
   const dgwTeamNames = data.dgwTeams.map((t) => t.teamName).join(", ")
   const bgwTeamNames = data.bgwTeams.map((t) => t.teamName).join(", ")
 
-  let desc = `Fantasy Premier League Gameweek ${gwNum} fixture landscape.`
-  if (data.dgwTeams.length > 0) desc += ` Double Gameweek teams: ${dgwTeamNames}.`
-  if (data.bgwTeams.length > 0) desc += ` Blank Gameweek teams: ${bgwTeamNames}.`
+  const isDGW = data.dgwTeams.length > 0
+  const isBGW = data.bgwTeams.length > 0
+
+  let title = `FPL Gameweek ${gwNum} - Full Fixture Round | ChatFPL AI`
+  if (isDGW) title = `FPL Double Gameweek ${gwNum} - Who Should You Target? | ChatFPL AI`
+  else if (isBGW) title = `FPL Blank Gameweek ${gwNum} - Which Teams Have No Fixture? | ChatFPL AI`
+
+  let desc = `Gameweek ${gwNum} has a full set of Premier League fixtures.`
+  if (isDGW) desc = `Double Gameweek ${gwNum}: ${dgwTeamNames} play twice. Top players ranked by projected points. Full analysis on ChatFPL AI.`
+  else if (isBGW) desc = `Blank Gameweek ${gwNum}: ${bgwTeamNames} have no fixture. Find out who to bench, sell, or play around in GW${gwNum}.`
 
   return {
-    title: `FPL ${data.dgwTeams.length > 0 ? "Double" : "Blank"} Gameweek ${gwNum} - Players to Target | ChatFPL AI`,
+    title,
     description: desc,
     openGraph: {
-      title: `FPL Gameweek ${gwNum} DGW Guide | ChatFPL AI`,
+      title,
       description: desc,
       url: `https://www.chatfpl.ai/fpl/gameweeks/gw${gwNum}`,
     },
@@ -232,22 +239,22 @@ export default async function GameweekDetailPage({
 
       {showcasePlayers.length === 5 ? (
         <FplPlayerHero
-          h1White={`Fantasy Premier League `}
-          h1Gradient={hasDGW ? `Double Gameweek ${gw} - Players to Target` : `Gameweek ${gw} - Blank Gameweek Guide`}
-          subtitle={hasDGW ? `${dgwTeamNames} have two fixtures in Gameweek ${gw}. Top players ranked by projected double-game points.` : `Gameweek ${gw} fixture landscape - which teams double, which go blank.`}
+          h1White={hasDGW ? `FPL Double Gameweek ${gw} - ` : `FPL Blank Gameweek ${gw} - `}
+          h1Gradient={hasDGW ? `Who Should You Target?` : `Which Teams Have No Fixture?`}
+          subtitle={hasDGW ? `${dgwTeamNames} have two fixtures in Gameweek ${gw}. Top players ranked by projected double-game points.` : `Six Premier League clubs have no fixture in Gameweek ${gw}. Find out who to bench, sell, or play around.`}
           players={showcasePlayers}
-          badgeLabel="Gameweek Planner"
+          badgeLabel={hasDGW ? "Double Gameweek" : "Blank Gameweek"}
         />
       ) : (
         <div className="relative pt-28 pb-12 flex items-center justify-center text-center px-4" style={{ minHeight: 340, background: "linear-gradient(to bottom, rgba(0,0,0,0.8), #000)" }}>
           <div>
             <div className="inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-black mb-6" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
-              Gameweek Planner
+              {isNormalGW ? "Full Fixture Gameweek" : hasDGW ? "Double Gameweek" : "Blank Gameweek"}
             </div>
             <h1 className="font-bold leading-tight tracking-tighter text-white mb-4" style={{ fontSize: "clamp(26px,4vw,52px)" }}>
-              Fantasy Premier League{" "}
+              {isNormalGW ? `FPL Gameweek ${gw} - ` : hasDGW ? `FPL Double Gameweek ${gw} - ` : `FPL Blank Gameweek ${gw} - `}
               <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
-                Gameweek {gw}
+                {isNormalGW ? "Full Set of Fixtures" : hasDGW ? "Who Should You Target?" : "Which Teams Have No Fixture?"}
               </span>
             </h1>
           </div>

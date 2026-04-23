@@ -73,9 +73,7 @@ function TeamBadge({ teamCode, teamName, detail }: { teamCode: number; teamName:
 
 // ─── GW landscape card ────────────────────────────────────────────────────────
 
-function GWLandscapeCard({ gw: gwSummary, currentGW }: { gw: GameweekSummary; currentGW: number }) {
-  const isCurrent = gwSummary.gw === currentGW
-
+function GWLandscapeCard({ gw: gwSummary }: { gw: GameweekSummary; currentGW: number }) {
   return (
     <div className="rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(0,255,135,0.18)", background: gwSummary.isDGW ? "rgba(0,255,135,0.04)" : "rgba(255,255,255,0.02)" }}>
       {/* Gradient left border */}
@@ -84,26 +82,17 @@ function GWLandscapeCard({ gw: gwSummary, currentGW }: { gw: GameweekSummary; cu
       <div className="pl-5 pr-4 py-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <span className="text-white font-bold text-base">GW{gwSummary.gw}</span>
-            {isCurrent && (
-              <span className="text-[9px] font-black uppercase rounded-full px-2 py-0.5 text-black" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
-                Next
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {gwSummary.isDGW && (
-              <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1" style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}>
-                DGW
-              </span>
-            )}
-            {gwSummary.isBGW && (
-              <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1" style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}>
-                BGW
-              </span>
-            )}
-          </div>
+          <span className="text-white font-bold text-base">Gameweek {gwSummary.gw}</span>
+          {gwSummary.isDGW && (
+            <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1" style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}>
+              Double Gameweek
+            </span>
+          )}
+          {gwSummary.isBGW && (
+            <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1" style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}>
+              Blank Gameweek
+            </span>
+          )}
         </div>
 
         {/* DGW teams — full-width badge strip */}
@@ -144,11 +133,12 @@ function GWLandscapeCard({ gw: gwSummary, currentGW }: { gw: GameweekSummary; cu
         <div className="pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           <Link
             href={`/fpl/gameweeks/gw${gwSummary.gw}`}
-            className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] hover:-translate-y-0.5"
-            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a", padding: "5px 14px" }}
+            className="relative inline-flex overflow-hidden items-center gap-2 rounded-full font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
+            style={{ backgroundImage: "linear-gradient(270deg,#00FFFF,#00FF87,#00FFFF)", backgroundSize: "200% 200%", animation: "glow_scroll 3s linear infinite", padding: "10px 22px" }}
           >
-            Full GW{gwSummary.gw} breakdown
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+            <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
+            Full Gameweek {gwSummary.gw} breakdown
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </Link>
