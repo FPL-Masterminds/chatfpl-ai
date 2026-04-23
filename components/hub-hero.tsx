@@ -8,6 +8,7 @@ interface HubHeroProps {
   ctaHref?: string
   ctaLabel?: string
   badge?: React.ReactNode
+  headingFontSize?: string
 }
 
 export function HubHero({
@@ -17,6 +18,7 @@ export function HubHero({
   ctaHref = "/chat",
   ctaLabel = "Start Chatting for Free",
   badge,
+  headingFontSize = "clamp(30px, 5vw, 60px)",
 }: HubHeroProps) {
   return (
     <section className="relative isolate flex min-h-[540px] items-center justify-center overflow-hidden bg-black pt-28 pb-16">
@@ -45,7 +47,7 @@ export function HubHero({
 
           <h1
             className="hub-fadein font-bold leading-[1.1] tracking-tighter text-white"
-            style={{ fontSize: "clamp(30px, 5vw, 60px)", animationDelay: "0.1s" }}
+            style={{ fontSize: headingFontSize, animationDelay: "0.1s" }}
           >
             {headingWhite}
             <span
