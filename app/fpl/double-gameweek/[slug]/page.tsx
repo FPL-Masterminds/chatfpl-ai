@@ -58,9 +58,24 @@ function FdrDots({ fdr }: { fdr: number }) {
 
 function GlowPill({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <div className="relative inline-block rounded-full" style={{ padding: "1px", background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)", backgroundSize: "220% 220%", animation: "glow_scroll 6s linear infinite" }}>
-      <Link href={href} className="relative block rounded-full px-4 py-2 text-sm font-semibold text-white transition-all hover:text-[#00FF87]" style={{ background: "rgba(0,0,0,0.85)" }}>
-        {children}
+    <div
+      className="inline-block"
+      style={{
+        padding: "1.5px",
+        borderRadius: "9999px",
+        background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+        backgroundSize: "200% 200%",
+        animation: "glow_scroll 3.5s linear infinite",
+      }}
+    >
+      <Link
+        href={href}
+        className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
+        style={{ background: "rgba(0,0,0,0.9)" }}
+      >
+        <span style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+          {children}
+        </span>
       </Link>
     </div>
   )
