@@ -23,7 +23,7 @@ const TEMPLATES: { guard: (p: Player) => boolean; text: (p: Player) => string; s
   {
     // Best for anyone in form
     guard: () => true,
-    text:  (p) => `How many points is ${p.name} predicted to score for ${p.team} this gameweek — and why?`,
+    text:  (p) => `How many points is ${p.name} predicted to score for ${p.team} this gameweek, and why?`,
     stats: (p) => [
       { label: "xP Next GW", value: p.ep_next },
       { label: "Form",       value: p.form },
@@ -34,7 +34,7 @@ const TEMPLATES: { guard: (p: Player) => boolean; text: (p: Player) => string; s
   {
     // Captain question — only for high ep_next players
     guard: (p) => parseFloat(p.ep_next) >= 6,
-    text:  (p) => `I'm thinking of captaining ${p.name} this week — ${p.ep_next} xP for ${p.team}. Is it the right call?`,
+    text:  (p) => `I'm thinking of captaining ${p.name} this week at ${p.ep_next} xP for ${p.team}. Is it the right call?`,
     stats: (p) => [
       { label: "xP Next GW", value: p.ep_next },
       { label: "Form",       value: p.form },

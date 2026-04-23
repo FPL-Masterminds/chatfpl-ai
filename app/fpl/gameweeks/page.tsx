@@ -55,18 +55,25 @@ function FdrDots({ fdr }: { fdr: number }) {
 function TeamBadge({ teamCode, teamName, detail }: { teamCode: number; teamName: string; detail?: string }) {
   return (
     <div
-      className="flex flex-col items-center justify-center gap-2 rounded-xl"
-      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", padding: "16px 12px" }}
+      className="rounded-xl overflow-hidden"
+      style={{
+        background: "radial-gradient(ellipse 120% 120% at 50% 0%, rgba(0,255,135,0.22) 0%, rgba(0,255,135,0.10) 50%, rgba(0,255,135,0.04) 100%)",
+        border: "1px solid rgba(0,255,135,0.35)",
+        boxShadow: "0 0 20px rgba(0,255,135,0.10)",
+      }}
     >
-      <Image
-        src={`https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`}
-        alt={teamName}
-        width={52} height={52}
-        style={{ objectFit: "contain" }}
-        unoptimized
-      />
-      <span className="text-sm font-bold text-white leading-none text-center">{teamName}</span>
-      {detail && <span className="text-xs text-white leading-none text-center">{detail}</span>}
+      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.8 }} />
+      <div className="flex flex-col items-center justify-center gap-2" style={{ padding: "16px 12px" }}>
+        <Image
+          src={`https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`}
+          alt={teamName}
+          width={52} height={52}
+          style={{ objectFit: "contain" }}
+          unoptimized
+        />
+        <span className="text-sm font-bold text-white leading-none text-center">{teamName}</span>
+        {detail && <span className="text-xs font-semibold text-white leading-none text-center" style={{ opacity: 0.95 }}>{detail}</span>}
+      </div>
     </div>
   )
 }
@@ -154,18 +161,18 @@ function PlayerCard({ player, even, text }: { player: DGWPlayer; even: boolean; 
   return (
     <div style={{
       background: even
-        ? "radial-gradient(ellipse 90% 100% at 65% 50%, rgba(0,255,135,0.28) 0%, rgba(0,255,135,0.12) 45%, rgba(0,255,135,0.04) 100%)"
-        : "rgba(0,255,135,0.07)",
-      border: "1px solid rgba(0,255,135,0.28)",
+        ? "radial-gradient(ellipse 90% 100% at 65% 50%, rgba(0,255,135,0.18) 0%, rgba(0,255,135,0.07) 45%, transparent 100%)"
+        : "rgba(0,255,135,0.03)",
+      border: "1px solid rgba(0,255,135,0.18)",
       borderRadius: 12,
       overflow: "hidden",
     }}>
-      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.8 }} />
+      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.6 }} />
       <div className="flex flex-row">
 
         {/* Photo strip */}
         <div className="relative shrink-0 w-20 sm:w-52 flex flex-col items-center justify-center"
-          style={{ minHeight: 168, background: "rgba(0,0,0,0.35)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
+          style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
         >
           <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
             style={{ background: "rgba(0,255,135,0.2)", color: GREEN, border: "1px solid rgba(0,255,135,0.4)" }}
