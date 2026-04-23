@@ -89,7 +89,7 @@ function GWLandscapeCard({ gw: gwSummary }: { gw: GameweekSummary }) {
         {gwSummary.isDGW && (
           <div className="mb-4">
             <p className="text-xs uppercase tracking-widest text-white font-semibold mb-3">Teams with a Double Fixture</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {gwSummary.dgwTeams.map((team) => (
                 <TeamBadge
                   key={team.teamId}
@@ -106,7 +106,7 @@ function GWLandscapeCard({ gw: gwSummary }: { gw: GameweekSummary }) {
         {gwSummary.isBGW && (
           <div className="mb-4">
             <p className="text-xs uppercase tracking-widest text-white font-semibold mb-3">Teams Without a Fixture</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {gwSummary.bgwTeams.slice(0, 6).map((team) => (
                 <TeamBadge
                   key={team.teamId}
