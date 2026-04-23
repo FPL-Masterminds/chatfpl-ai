@@ -50,21 +50,42 @@ function FdrDots({ fdr }: { fdr: number }) {
   )
 }
 
+// ─── Team badge — fills flex-1, identical pattern to FixtureCard ─────────────
+
+function TeamBadge({ teamCode, teamName, detail }: { teamCode: number; teamName: string; detail?: string }) {
+  return (
+    <div
+      className="flex-1 flex flex-col items-center justify-center gap-1.5 rounded-lg"
+      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", padding: "10px 6px", minWidth: 64 }}
+    >
+      <Image
+        src={`https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`}
+        alt={teamName}
+        width={28} height={28}
+        style={{ objectFit: "contain" }}
+        unoptimized
+      />
+      <span className="text-[11px] font-bold text-white leading-none text-center">{teamName}</span>
+      {detail && <span className="text-[9px] text-white/60 leading-none text-center">{detail}</span>}
+    </div>
+  )
+}
+
 // ─── GW landscape card ────────────────────────────────────────────────────────
 
 function GWLandscapeCard({ gw: gwSummary, currentGW }: { gw: GameweekSummary; currentGW: number }) {
   const isCurrent = gwSummary.gw === currentGW
-  const borderColor = gwSummary.isDGW ? "rgba(0,255,135,0.35)" : gwSummary.isBGW ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.06)"
-  const leftBorder  = gwSummary.isDGW ? "#00FF87" : gwSummary.isBGW ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)"
 
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{ border: `1px solid ${borderColor}`, borderLeft: `4px solid ${leftBorder}`, background: gwSummary.isDGW ? "rgba(0,255,135,0.04)" : "rgba(255,255,255,0.02)" }}
-    >
-      <div style={{ height: 2, background: gwSummary.isDGW ? "linear-gradient(to right,#00FF87,#00FFFF)" : "transparent", opacity: 0.5 }} />
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-3">
+    <div className="rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(0,255,135,0.18)", background: gwSummary.isDGW ? "rgba(0,255,135,0.04)" : "rgba(255,255,255,0.02)" }}>
+      {/* Gradient top line */}
+      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.5 }} />
+      {/* Gradient left border */}
+      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: "linear-gradient(to bottom,#00FF87,#00FFFF)" }} />
+
+      <div className="pl-5 pr-4 py-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <span className="text-white font-bold text-base">GW{gwSummary.gw}</span>
             {isCurrent && (
@@ -80,73 +101,60 @@ function GWLandscapeCard({ gw: gwSummary, currentGW }: { gw: GameweekSummary; cu
               </span>
             )}
             {gwSummary.isBGW && (
-              <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.15)" }}>
+              <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-1" style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}>
                 BGW
               </span>
-            )}
-            {!gwSummary.hasActivity && (
-              <span className="text-[10px] text-white/40">Normal GW</span>
             )}
           </div>
         </div>
 
+        {/* DGW teams — full-width badge strip */}
         {gwSummary.isDGW && (
-          <div className="mb-3">
-            <p className="text-[10px] uppercase tracking-wider text-white/50 mb-2">Teams with double fixture</p>
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-4">
+            <p className="text-[10px] uppercase tracking-widest text-white mb-2">Teams with a Double Fixture</p>
+            <div className="flex gap-2">
               {gwSummary.dgwTeams.map((team) => (
-                <div key={team.teamId} className="flex items-center gap-1.5">
-                  <Image
-                    src={`https://resources.premierleague.com/premierleague/badges/70/t${team.teamCode}.png`}
-                    alt={team.teamName}
-                    width={16} height={16}
-                    style={{ objectFit: "contain" }}
-                    unoptimized
-                  />
-                  <span className="text-xs text-white/80 font-medium">{team.teamName}</span>
-                  <span className="text-white/30 text-[10px]">
-                    vs {team.fixtures.map((f) => `${f.opponentShort} (${f.isHome ? "H" : "A"})`).join(", ")}
-                  </span>
-                </div>
+                <TeamBadge
+                  key={team.teamId}
+                  teamCode={team.teamCode}
+                  teamName={team.teamShort}
+                  detail={team.fixtures.map((f) => `vs ${f.opponentShort} (${f.isHome ? "H" : "A"})`).join(" + ")}
+                />
               ))}
             </div>
           </div>
         )}
 
+        {/* BGW teams — full-width badge strip */}
         {gwSummary.isBGW && (
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-white/50 mb-2">Teams without a fixture</p>
+          <div className="mb-4">
+            <p className="text-[10px] uppercase tracking-widest text-white mb-2">Teams Without a Fixture</p>
             <div className="flex flex-wrap gap-2">
               {gwSummary.bgwTeams.slice(0, 6).map((team) => (
-                <div key={team.teamId} className="flex items-center gap-1">
-                  <Image
-                    src={`https://resources.premierleague.com/premierleague/badges/70/t${team.teamCode}.png`}
-                    alt={team.teamName}
-                    width={14} height={14}
-                    style={{ objectFit: "contain" }}
-                    unoptimized
-                  />
-                  <span className="text-xs text-white/50">{team.teamName}</span>
-                </div>
+                <TeamBadge
+                  key={team.teamId}
+                  teamCode={team.teamCode}
+                  teamName={team.teamShort}
+                  detail="No fixture"
+                />
               ))}
             </div>
           </div>
         )}
 
-        {gwSummary.hasActivity && (
-          <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-            <Link
-              href={`/fpl/gameweeks/gw${gwSummary.gw}`}
-              className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] hover:-translate-y-0.5"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a", padding: "5px 14px" }}
-            >
-              Full GW{gwSummary.gw} breakdown
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-        )}
+        {/* CTA link */}
+        <div className="pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <Link
+            href={`/fpl/gameweeks/gw${gwSummary.gw}`}
+            className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)] hover:-translate-y-0.5"
+            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a", padding: "5px 14px" }}
+          >
+            Full GW{gwSummary.gw} breakdown
+            <svg className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
       </div>
     </div>
   )
@@ -309,7 +317,7 @@ export default async function GameweeksHubPage() {
 
           {/* GW landscape overview */}
           <section>
-            <h2 className="text-xl font-bold mb-4">
+            <h2 className="text-xl font-bold mb-4 text-center">
               <span className="text-white">Upcoming Gameweek </span>
               <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
                 Landscape
@@ -324,9 +332,22 @@ export default async function GameweeksHubPage() {
                 ))}
               </div>
             ) : (
-              <div className="rounded-2xl px-6 py-8 text-center" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-                <p className="text-white font-semibold mb-2">No Double or Blank Gameweeks confirmed yet</p>
-                <p className="text-white/50 text-sm">Gameweeks {gameweeks[0]?.gw} to {gameweeks[gameweeks.length - 1]?.gw} all have a full set of fixtures. Check back as the schedule is updated.</p>
+              <div className="rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)" }}>
+                <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.5 }} />
+                <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: "linear-gradient(to bottom,#00FF87,#00FFFF)" }} />
+                <div className="pl-5 pr-4 py-8 text-center">
+                  <span className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black mb-4" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
+                    All Clear
+                  </span>
+                  <h3 className="text-white font-bold text-lg mb-2">No Double or Blank Gameweeks Confirmed Yet</h3>
+                  <p className="text-white text-sm mb-6">Gameweeks {gameweeks[0]?.gw} to {gameweeks[gameweeks.length - 1]?.gw} all have a full set of 10 fixtures. Check back when the Premier League schedule is updated.</p>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    <Link href="/fpl/captains" className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)]" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a", padding: "6px 14px" }}>Captain Picks</Link>
+                    <Link href="/fpl/fixtures" className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)]" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a", padding: "6px 14px" }}>Fixture Difficulty</Link>
+                    <Link href="/fpl/differentials" className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)]" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a", padding: "6px 14px" }}>Differentials</Link>
+                    <Link href="/fpl/transfer-trends" className="inline-flex items-center gap-1.5 text-xs font-bold rounded-full transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)]" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a", padding: "6px 14px" }}>Transfer Trends</Link>
+                  </div>
+                </div>
               </div>
             )}
           </section>
@@ -354,29 +375,17 @@ export default async function GameweeksHubPage() {
                 ))}
               </div>
             </section>
-          ) : (
-            <section>
-              <div className="rounded-2xl px-6 py-8 text-center" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-                <p className="text-white/60 text-sm">No confirmed Double Gameweeks in the next 8 gameweeks. Check back as fixtures are confirmed.</p>
-              </div>
-            </section>
-          )}
-
-          <p className="text-center text-[11px] text-white/40 leading-relaxed">
-            Double and Blank Gameweeks detected from the official FPL fixtures API. Updated hourly.
-          </p>
+          ) : null}
 
           {/* Divider */}
           <div className="h-px w-full" style={{ background: "linear-gradient(to right, transparent, rgba(0,255,135,0.2), transparent)" }} />
 
           {/* CTA */}
-          <div
-            className="rounded-2xl px-8 py-10 text-center"
-            style={{ border: "1px solid rgba(0,255,135,0.18)", borderLeft: "4px solid #00FF87", background: "rgba(0,255,135,0.04)" }}
-          >
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-3">ChatFPL AI</p>
+          <div className="rounded-2xl overflow-hidden relative px-8 py-10 text-center" style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.04)" }}>
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: "linear-gradient(to bottom,#00FF87,#00FFFF)" }} />
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white mb-3">ChatFPL AI</p>
             <h2 className="text-xl font-bold text-white mb-3 leading-tight">Need to know how Double Gameweeks affect your squad?</h2>
-            <p className="text-sm text-white/60 mb-7">
+            <p className="text-sm text-white mb-7">
               ChatFPL AI analyses your actual squad, transfer budget, and chip timing to give you a personalised Double Gameweek strategy. Try it free.
             </p>
             <Link
