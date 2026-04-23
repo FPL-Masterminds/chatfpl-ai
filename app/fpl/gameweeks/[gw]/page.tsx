@@ -4,6 +4,7 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
+import { HubHero } from "@/components/hub-hero"
 import { ConversationalPlayer } from "@/components/conversational-player"
 import { SeasonEnded } from "@/components/season-ended"
 import { isSeasonOver } from "@/lib/fpl-player-page"
@@ -360,19 +361,11 @@ export default async function GameweekDetailPage({
           badgeLabel={hasDGW ? "Double Gameweek" : "Blank Gameweek"}
         />
       ) : (
-        <div className="relative pt-28 pb-12 flex items-center justify-center text-center px-4" style={{ minHeight: 340, background: "linear-gradient(to bottom, rgba(0,0,0,0.8), #000)" }}>
-          <div>
-            <div className="inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-black mb-6" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
-              {isNormalGW ? "Full Fixture Gameweek" : hasDGW ? "Double Gameweek" : "Blank Gameweek"}
-            </div>
-            <h1 className="font-bold leading-tight tracking-tighter text-white mb-4" style={{ fontSize: "clamp(26px,4vw,52px)" }}>
-              {isNormalGW ? `FPL Gameweek ${gw} - ` : hasDGW ? `FPL Double Gameweek ${gw} - ` : `FPL Blank Gameweek ${gw} - `}
-              <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
-                {isNormalGW ? "Full Set of Fixtures" : hasDGW ? "Who Should You Target?" : "Which Teams Have No Fixture?"}
-              </span>
-            </h1>
-          </div>
-        </div>
+        <HubHero
+          headingWhite={`FPL Gameweek ${gw} `}
+          headingGradient="Full Set of Fixtures"
+          subtitle={`All 20 Premier League clubs have a game in Gameweek ${gw}. No teams are doubling or blanking this week. Use ChatFPL AI to plan captain, transfers and chip strategy for your squad.`}
+        />
       )}
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">
