@@ -5,6 +5,7 @@ import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { ConversationalPlayer } from "@/components/conversational-player"
+import { Reveal } from "@/components/scroll-reveal"
 import { SeasonEnded } from "@/components/season-ended"
 import { isSeasonOver, getBestValueHubLink } from "@/lib/fpl-player-page"
 import {
@@ -145,17 +146,20 @@ export default async function DGWPlayerPage({
 
           {/* Availability banner */}
           {(!isAvail || player.news) && (
-            <div className="rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3" style={{ background: "rgba(0,255,135,0.06)", border: "1px solid rgba(0,255,135,0.25)", borderLeft: "4px solid #00FF87" }}>
-              <span className="shrink-0 inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black whitespace-nowrap" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
-                {player.chance === 0 ? "Ruled Out" : player.chance < 50 ? "Injury Doubt" : "Fitness Concern"}
-              </span>
-              <p className="text-sm text-white leading-relaxed">
-                {player.news || `${player.displayName} has a ${player.chance}% chance of playing. Monitor before the deadline.`}
-              </p>
-            </div>
+            <Reveal>
+              <div className="rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3" style={{ background: "rgba(0,255,135,0.06)", border: "1px solid rgba(0,255,135,0.25)", borderLeft: "4px solid #00FF87" }}>
+                <span className="shrink-0 inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black whitespace-nowrap" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
+                  {player.chance === 0 ? "Ruled Out" : player.chance < 50 ? "Injury Doubt" : "Fitness Concern"}
+                </span>
+                <p className="text-sm text-white leading-relaxed">
+                  {player.news || `${player.displayName} has a ${player.chance}% chance of playing. Monitor before the deadline.`}
+                </p>
+              </div>
+            </Reveal>
           )}
 
           {/* Stat strip */}
+          <Reveal>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: `Projected pts, GW${gw}`,  value: `${player.projectedPts.toFixed(1)} (x2)` },
@@ -172,8 +176,10 @@ export default async function DGWPlayerPage({
               </div>
             ))}
           </div>
+          </Reveal>
 
           {/* Verdict */}
+          <Reveal>
           <div className="rounded-2xl px-6 py-6" style={{ border: `1px solid ${verdictBorderColor}30`, background: "rgba(0,255,135,0.05)", borderLeft: `4px solid ${verdictBorderColor}` }}>
             <div className="flex flex-wrap items-center gap-3 mb-4">
               {isAvail ? (
@@ -198,9 +204,10 @@ export default async function DGWPlayerPage({
               ))}
             </ul>
           </div>
+          </Reveal>
 
           {/* Fixture table */}
-          <div>
+          <Reveal>
             <h2 className="text-2xl font-bold leading-tight tracking-tight mb-5">
               <span className="text-white">{player.webName} Double Gameweek </span>
               <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
@@ -253,10 +260,10 @@ export default async function DGWPlayerPage({
                 </tbody>
               </table>
             </div>
-          </div>
+          </Reveal>
 
           {/* Case for / against */}
-          <div>
+          <Reveal>
             <h2 className="text-lg font-bold text-white mb-5">
               Should you start {player.displayName} in Double Gameweek {gw}?
             </h2>
@@ -288,9 +295,10 @@ export default async function DGWPlayerPage({
                 </ul>
               </div>
             </div>
-          </div>
+          </Reveal>
 
           {/* Chat heading */}
+          <Reveal>
           <div className="text-center max-w-2xl mx-auto">
             <h2 className="text-2xl font-bold leading-tight tracking-tight mb-2">
               <span className="text-white">{player.webName} Double Gameweek </span>
@@ -301,12 +309,17 @@ export default async function DGWPlayerPage({
             <p className="text-white/70 text-sm">Click a question below and get the full breakdown.</p>
           </div>
 
+          </Reveal>
+
           {/* Chat */}
+          <Reveal>
           <div className="w-full flex flex-col" style={{ height: "clamp(520px, 72vh, 780px)" }}>
             <ConversationalPlayer welcome={welcome} qaItems={qaItems} />
           </div>
+          </Reveal>
 
           {/* CTA */}
+          <Reveal>
           <div className="rounded-2xl px-8 py-10 text-center" style={{ border: "1px solid rgba(0,255,135,0.18)", borderLeft: "4px solid #00FF87", background: "rgba(0,255,135,0.04)" }}>
             <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-3">ChatFPL AI</p>
             <h3 className="text-xl font-bold text-white mb-3 leading-tight">{ctaLeadin}</h3>
@@ -323,8 +336,10 @@ export default async function DGWPlayerPage({
               </svg>
             </Link>
           </div>
+          </Reveal>
 
           {/* Hub nav */}
+          <Reveal>
           <div className="flex flex-wrap justify-center gap-3">
             <GlowPill href="/fpl/gameweeks">Gameweek Planner</GlowPill>
             <GlowPill href={`/fpl/${slug}`}>Captain Analysis</GlowPill>
@@ -332,10 +347,11 @@ export default async function DGWPlayerPage({
             <GlowPill href="/fpl/fixtures">Fixture Difficulty</GlowPill>
             {bestValueLink && <GlowPill href={bestValueLink.href}>{bestValueLink.label}</GlowPill>}
           </div>
+          </Reveal>
 
           {/* Also analyse */}
           {relatedPlayers.length > 0 && (
-            <div>
+            <Reveal>
               <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-4 text-center">Also analyse</p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link href={`/fpl/${slug}/differential`} className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition-all hover:border-white/25 hover:text-white hover:bg-white/[0.06]">
@@ -350,7 +366,7 @@ export default async function DGWPlayerPage({
                   </Link>
                 ))}
               </div>
-            </div>
+            </Reveal>
           )}
 
         </div>

@@ -6,6 +6,7 @@ import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { HubHero } from "@/components/hub-hero"
 import { ConversationalPlayer } from "@/components/conversational-player"
+import { Reveal } from "@/components/scroll-reveal"
 import { SeasonEnded } from "@/components/season-ended"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import {
@@ -378,46 +379,50 @@ export default async function GameweekDetailPage({
 
           {/* Normal GW notice */}
           {isNormalGW && (
-            <div className="rounded-2xl px-6 py-8 text-center" style={{ border: "1px solid rgba(0,255,135,0.18)", borderLeft: "4px solid #00FF87", background: "rgba(0,255,135,0.04)" }}>
-              <span className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black mb-4" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
-                Full Fixture Gameweek
-              </span>
-              <h2 className="text-xl font-bold text-white mb-3">Gameweek {gw} has a full set of fixtures</h2>
-              <p className="text-sm text-white/60 mb-6 max-w-lg mx-auto">
-                All 20 Premier League clubs have a game in Gameweek {gw}. No teams are doubling or blanking this week. Use the tools below to plan your squad.
-              </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <GlowPill href="/fpl/captains">Captain Picks</GlowPill>
-                <GlowPill href="/fpl/fixtures">Fixture Difficulty</GlowPill>
-                <GlowPill href="/fpl/differentials">Differentials</GlowPill>
-                <GlowPill href="/fpl/transfer-trends">Transfer Trends</GlowPill>
+            <Reveal>
+              <div className="rounded-2xl px-6 py-8 text-center" style={{ border: "1px solid rgba(0,255,135,0.18)", borderLeft: "4px solid #00FF87", background: "rgba(0,255,135,0.04)" }}>
+                <span className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black mb-4" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
+                  Full Fixture Gameweek
+                </span>
+                <h2 className="text-xl font-bold text-white mb-3">Gameweek {gw} has a full set of fixtures</h2>
+                <p className="text-sm text-white/60 mb-6 max-w-lg mx-auto">
+                  All 20 Premier League clubs have a game in Gameweek {gw}. No teams are doubling or blanking this week. Use the tools below to plan your squad.
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <GlowPill href="/fpl/captains">Captain Picks</GlowPill>
+                  <GlowPill href="/fpl/fixtures">Fixture Difficulty</GlowPill>
+                  <GlowPill href="/fpl/differentials">Differentials</GlowPill>
+                  <GlowPill href="/fpl/transfer-trends">Transfer Trends</GlowPill>
+                </div>
               </div>
-            </div>
+            </Reveal>
           )}
 
           {/* Stat strip */}
           {!isNormalGW && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Gameweek",       value: `GW${gw}` },
-              { label: "Teams Doubling", value: String(dgwTeams.length) },
-              { label: "Teams Blanking", value: String(bgwTeams.length) },
-              { label: "Players Listed", value: String(players.length) },
-            ].map((s) => (
-              <div key={s.label} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center">
-                <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-1">{s.label}</p>
-                <p className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text leading-tight"
-                  style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
-                  {s.value}
-                </p>
+            <Reveal>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: "Gameweek",       value: `GW${gw}` },
+                  { label: "Teams Doubling", value: String(dgwTeams.length) },
+                  { label: "Teams Blanking", value: String(bgwTeams.length) },
+                  { label: "Players Listed", value: String(players.length) },
+                ].map((s) => (
+                  <div key={s.label} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center">
+                    <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-1">{s.label}</p>
+                    <p className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text leading-tight"
+                      style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                      {s.value}
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </Reveal>
           )}
 
           {/* DGW teams section */}
           {hasDGW && (
-            <section>
+            <Reveal as="section">
               <h2 className="text-xl font-bold mb-4">
                 <span className="text-white">Double Gameweek </span>
                 <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
@@ -425,16 +430,18 @@ export default async function GameweekDetailPage({
                 </span>
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {dgwTeams.map((team) => (
-                  <TeamCard key={team.teamId} team={team} />
+                {dgwTeams.map((team, i) => (
+                  <Reveal key={team.teamId} delay={i * 0.05}>
+                    <TeamCard team={team} />
+                  </Reveal>
                 ))}
               </div>
-            </section>
+            </Reveal>
           )}
 
           {/* BGW teams section */}
           {hasBGW && (
-            <section>
+            <Reveal as="section">
               <h2 className="text-xl font-bold mb-4">
                 <span className="text-white">Blank Gameweek </span>
                 <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
@@ -443,16 +450,18 @@ export default async function GameweekDetailPage({
               </h2>
               <p className="text-sm text-white/50 mb-4">Players from these clubs score zero points in Gameweek {gw}. Consider benching or transferring them out.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {bgwTeams.map((team) => (
-                  <BGWTeamCard key={team.teamId} team={team} />
+                {bgwTeams.map((team, i) => (
+                  <Reveal key={team.teamId} delay={i * 0.04}>
+                    <BGWTeamCard team={team} />
+                  </Reveal>
                 ))}
               </div>
-            </section>
+            </Reveal>
           )}
 
           {/* BGW players to bench */}
           {hasBGW && bgwPlayers.length > 0 && (
-            <section>
+            <Reveal as="section">
               <h2 className="text-xl font-bold mb-1">
                 <span className="text-white">Players to Bench in </span>
                 <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
@@ -462,15 +471,17 @@ export default async function GameweekDetailPage({
               <p className="text-sm text-white mb-4">Sorted by ownership - these are the players most FPL managers need to move to the bench this week.</p>
               <div className="flex flex-col gap-3">
                 {bgwPlayers.map((player, i) => (
-                  <BGWPlayerCard key={player.slug} player={player} even={(i + 1) % 2 === 0} />
+                  <Reveal key={player.slug} delay={i * 0.05}>
+                    <BGWPlayerCard player={player} even={(i + 1) % 2 === 0} />
+                  </Reveal>
                 ))}
               </div>
-            </section>
+            </Reveal>
           )}
 
           {/* BGW chatbot */}
           {hasBGW && bgwQA.length > 0 && (
-            <section>
+            <Reveal as="section">
               <div className="text-center mb-6">
                 <h2 className="text-xl font-bold leading-tight tracking-tight mb-2">
                   <span className="text-white">Blank Gameweek {gw} </span>
@@ -483,12 +494,12 @@ export default async function GameweekDetailPage({
               <div style={{ height: "clamp(480px, 65vh, 700px)" }}>
                 <ConversationalPlayer welcome={bgwWelcome} qaItems={bgwQA} />
               </div>
-            </section>
+            </Reveal>
           )}
 
           {/* DGW Player rankings */}
           {players.length > 0 && (
-            <section>
+            <Reveal as="section">
               <h2 className="text-xl font-bold mb-1">
                 <span className="text-white">Top Players to Target in </span>
                 <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
@@ -502,37 +513,41 @@ export default async function GameweekDetailPage({
                   <PlayerRow key={player.slug} player={player} rank={i + 1} />
                 ))}
               </div>
-            </section>
+            </Reveal>
           )}
 
           {/* CTA */}
-          <div
-            className="rounded-2xl px-8 py-10 text-center"
-            style={{ border: "1px solid rgba(0,255,135,0.18)", borderLeft: "4px solid #00FF87", background: "rgba(0,255,135,0.04)" }}
-          >
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-3">ChatFPL AI</p>
-            <h3 className="text-xl font-bold text-white mb-3 leading-tight">Need a personalised Gameweek {gw} plan for your squad?</h3>
-            <p className="text-sm text-white/70 mb-7">Get 20 free messages. No credit card required.</p>
-            <Link
-              href="/signup"
-              className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+          <Reveal>
+            <div
+              className="rounded-2xl px-8 py-10 text-center"
+              style={{ border: "1px solid rgba(0,255,135,0.18)", borderLeft: "4px solid #00FF87", background: "rgba(0,255,135,0.04)" }}
             >
-              <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
-              Try ChatFPL AI for free
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-3">ChatFPL AI</p>
+              <h3 className="text-xl font-bold text-white mb-3 leading-tight">Need a personalised Gameweek {gw} plan for your squad?</h3>
+              <p className="text-sm text-white/70 mb-7">Get 20 free messages. No credit card required.</p>
+              <Link
+                href="/signup"
+                className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
+              >
+                <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
+                Try ChatFPL AI for free
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+          </Reveal>
 
           {/* Hub nav */}
-          <div className="flex flex-wrap justify-center gap-3">
-            <GlowPill href="/fpl/gameweeks">All Gameweeks</GlowPill>
-            <GlowPill href="/fpl/captains">Captain Picks</GlowPill>
-            <GlowPill href="/fpl/fixtures">Fixture Difficulty</GlowPill>
-            <GlowPill href="/fpl/transfer-trends">Transfer Trends</GlowPill>
-          </div>
+          <Reveal>
+            <div className="flex flex-wrap justify-center gap-3">
+              <GlowPill href="/fpl/gameweeks">All Gameweeks</GlowPill>
+              <GlowPill href="/fpl/captains">Captain Picks</GlowPill>
+              <GlowPill href="/fpl/fixtures">Fixture Difficulty</GlowPill>
+              <GlowPill href="/fpl/transfer-trends">Transfer Trends</GlowPill>
+            </div>
+          </Reveal>
 
         </div>
       </main>
