@@ -315,13 +315,20 @@ export default async function GameweeksHubPage() {
                 Landscape
               </span>
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {gameweeks.map((gwSummary) => (
-                <Reveal key={gwSummary.gw}>
-                  <GWLandscapeCard gw={gwSummary} currentGW={currentGW} />
-                </Reveal>
-              ))}
-            </div>
+            {gameweeks.filter((g) => g.hasActivity).length > 0 ? (
+              <div className="flex flex-col gap-3">
+                {gameweeks.filter((g) => g.hasActivity).map((gwSummary) => (
+                  <Reveal key={gwSummary.gw}>
+                    <GWLandscapeCard gw={gwSummary} currentGW={currentGW} />
+                  </Reveal>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl px-6 py-8 text-center" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+                <p className="text-white font-semibold mb-2">No Double or Blank Gameweeks confirmed yet</p>
+                <p className="text-white/50 text-sm">Gameweeks {gameweeks[0]?.gw} to {gameweeks[gameweeks.length - 1]?.gw} all have a full set of fixtures. Check back as the schedule is updated.</p>
+              </div>
+            )}
           </section>
 
           {/* Top DGW players */}
