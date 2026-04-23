@@ -143,16 +143,25 @@ function TeamCard({ team }: { team: DGWTeamSummary }) {
 
 function BGWTeamCard({ team }: { team: BGWTeamSummary }) {
   return (
-    <div className="rounded-2xl p-4 flex items-center gap-3" style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-      <Image
-        src={`https://resources.premierleague.com/premierleague/badges/70/t${team.teamCode}.png`}
-        alt={team.teamName}
-        width={24} height={24}
-        style={{ objectFit: "contain", opacity: 0.5 }}
-        unoptimized
-      />
-      <span className="text-white/60 text-sm font-medium">{team.teamName}</span>
-      <span className="text-[10px] text-white/30 ml-auto">No fixture</span>
+    <div
+      className="rounded-xl overflow-hidden"
+      style={{
+        background: "#000",
+        border: "1px solid rgba(0,255,135,0.35)",
+      }}
+    >
+      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.8 }} />
+      <div className="flex flex-col items-center justify-center gap-2" style={{ padding: "16px 12px" }}>
+        <Image
+          src={`https://resources.premierleague.com/premierleague/badges/70/t${team.teamCode}.png`}
+          alt={team.teamName}
+          width={52} height={52}
+          style={{ objectFit: "contain" }}
+          unoptimized
+        />
+        <span className="text-sm font-bold text-white leading-none text-center">{team.teamName}</span>
+        <span className="text-xs font-semibold text-white leading-none text-center">No fixture</span>
+      </div>
     </div>
   )
 }
@@ -440,7 +449,7 @@ export default async function GameweekDetailPage({
                 </span>
               </h2>
               <p className="text-sm text-white/50 mb-4">Players from these clubs score zero points in Gameweek {gw}. Consider benching or transferring them out.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {bgwTeams.map((team) => (
                   <BGWTeamCard key={team.teamId} team={team} />
                 ))}

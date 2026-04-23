@@ -57,9 +57,8 @@ function TeamBadge({ teamCode, teamName, detail }: { teamCode: number; teamName:
     <div
       className="rounded-xl overflow-hidden"
       style={{
-        background: "radial-gradient(ellipse 120% 120% at 50% 0%, rgba(0,255,135,0.22) 0%, rgba(0,255,135,0.10) 50%, rgba(0,255,135,0.04) 100%)",
+        background: "#000",
         border: "1px solid rgba(0,255,135,0.35)",
-        boxShadow: "0 0 20px rgba(0,255,135,0.10)",
       }}
     >
       <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.8 }} />
@@ -72,7 +71,7 @@ function TeamBadge({ teamCode, teamName, detail }: { teamCode: number; teamName:
           unoptimized
         />
         <span className="text-sm font-bold text-white leading-none text-center">{teamName}</span>
-        {detail && <span className="text-xs font-semibold text-white leading-none text-center" style={{ opacity: 0.95 }}>{detail}</span>}
+        {detail && <span className="text-xs font-semibold text-white leading-none text-center">{detail}</span>}
       </div>
     </div>
   )
