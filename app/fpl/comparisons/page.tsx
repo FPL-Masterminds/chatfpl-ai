@@ -137,12 +137,7 @@ function CompareCard({ pair, rank, gw, text }: {
         <div className="relative shrink-0 flex flex-col items-center justify-center w-16 sm:w-52"
           style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
-          <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
-            style={{ width: 20, height: 20, background: "rgba(0,0,0,0.8)", border: `1px solid rgba(0,255,135,0.2)` }}
-          >
-            <span style={{ fontSize: 9, fontWeight: 700, color: "white" }}>{rank}</span>
-          </div>
-          <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5"
+<div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5"
             style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.2)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}
           >{pair.position}</div>
           <div className="flex flex-col items-center">

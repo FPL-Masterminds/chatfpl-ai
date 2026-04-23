@@ -121,12 +121,7 @@ function PlayerCard({ player, rank, even, gw, text }: { player: CaptainHubPlayer
         <div className="relative shrink-0 w-20 sm:w-52 flex flex-col items-center justify-center"
           style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
         >
-          <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
-            style={{ width: 22, height: 22, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
-          >
-            <span className="text-[10px] font-bold tabular-nums text-white">{rank}</span>
-          </div>
-          <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
+<div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
             style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
           >
             {player.position}

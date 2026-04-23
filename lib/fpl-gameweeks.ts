@@ -2,6 +2,7 @@ import {
   getBootstrap,
   buildSlugLookup,
   getDisplayName,
+  isEligiblePlayer,
   FPL_HEADERS,
 } from "@/lib/fpl-player-page"
 import type { FplCardPlayer } from "@/components/fpl-player-hero"
@@ -493,11 +494,13 @@ export async function getGameweekDetail(gw: number): Promise<GameweekDetailData 
       .filter((p) => p.dgwFixtures.length >= 2)
       .sort((a, b) => b.ep_next - a.ep_next)
 
-    // BGW players — notable players on blanking teams, sorted by ownership
-    const bgwTeamIds = new Set(gwSummary.bgwTeams.map((t) => t.teamId))
-    const bgwPlayers: DGWPlayer[] = (bootstrap.elements ?? [])
-      .filter((p: any) => bgwTeamIds.has(p.team) && (parseFloat(p.selected_by_percent ?? "0") >= 3 || (p.transfers_in_event ?? 0) >= 5000) && (p.minutes ?? 0) >= 400)
-      .map((el: any) => buildDGWPlayer(el, teamMap, posMap, slugMap, gw, []))
+    // BGW players — only players with a captain analysis page, sorted by ownership
+    const bgwTeamIds    = new Set(gwSummary.bgwTeams.map((t) => t.teamId))
+    const bgwEligible   = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const bgwSlugMap    = buildSlugLookup(bgwEligible, bootstrap.teams ?? [])
+    const bgwPlayers: DGWPlayer[] = bgwEligible
+      .filter((p: any) => bgwTeamIds.has(p.team))
+      .map((el: any) => buildDGWPlayer(el, teamMap, posMap, bgwSlugMap, gw, []))
       .sort((a: DGWPlayer, b: DGWPlayer) => b.ownership - a.ownership)
       .slice(0, 15)
 
