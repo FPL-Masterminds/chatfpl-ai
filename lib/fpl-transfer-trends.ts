@@ -53,10 +53,7 @@ export interface TransferTrendsHubData {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function fmtTransfers(n: number): string {
-  if (n >= 100000) return `${Math.round(n / 1000)}k`
-  if (n >= 10000)  return `${(n / 1000).toFixed(0)}k`
-  if (n >= 1000)   return `${(n / 1000).toFixed(1)}k`
-  return `${n}`
+  return n.toLocaleString("en-GB")
 }
 
 const FDR_LABELS = ["", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"]

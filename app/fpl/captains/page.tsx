@@ -96,9 +96,7 @@ function FdrLabel({ fdr }: { fdr: number | null }) {
 // ─── Player card ──────────────────────────────────────────────────────────────
 
 function PlayerCard({ player, rank, even, gw, text }: { player: CaptainHubPlayer; rank: number; even: boolean; gw: number | string; text: string }) {
-  const transfersLabel = player.transfersIn >= 1000
-    ? `${(player.transfersIn / 1000).toFixed(1)}k`
-    : `${player.transfersIn}`
+  const transfersLabel = player.transfersIn.toLocaleString("en-GB")
 
   const stats = [
     { label: "xPts",         value: player.ep_next.toFixed(1) },

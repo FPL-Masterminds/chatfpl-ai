@@ -285,7 +285,7 @@ export default async function FplDifferentialPage({
               { label: "Ownership",              value: `${player.ownership}%` },
               { label: "Form (last 6 GWs)",       value: player.form },
               { label: `Expected pts, GW${gw}`,   value: String(player.ep_next) },
-              { label: "Transfers in this GW",    value: transfersInGW > 1000 ? `${Math.round(transfersInGW / 1000)}k` : String(transfersInGW) },
+              { label: "Transfers in this GW",    value: transfersInGW.toLocaleString("en-GB") },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center">
                 <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-1">{s.label}</p>
