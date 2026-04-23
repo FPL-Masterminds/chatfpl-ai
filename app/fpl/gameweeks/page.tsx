@@ -78,8 +78,6 @@ function GWLandscapeCard({ gw: gwSummary, currentGW }: { gw: GameweekSummary; cu
 
   return (
     <div className="rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(0,255,135,0.18)", background: gwSummary.isDGW ? "rgba(0,255,135,0.04)" : "rgba(255,255,255,0.02)" }}>
-      {/* Gradient top line */}
-      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.5 }} />
       {/* Gradient left border */}
       <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: "linear-gradient(to bottom,#00FF87,#00FFFF)" }} />
 
@@ -333,7 +331,6 @@ export default async function GameweeksHubPage() {
               </div>
             ) : (
               <div className="rounded-2xl overflow-hidden relative" style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.03)" }}>
-                <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.5 }} />
                 <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: "linear-gradient(to bottom,#00FF87,#00FFFF)" }} />
                 <div className="pl-5 pr-4 py-8 text-center">
                   <span className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black mb-4" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
