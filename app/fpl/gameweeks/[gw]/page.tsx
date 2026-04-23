@@ -210,11 +210,12 @@ export default async function GameweekDetailPage({
   if (isNaN(gwNum)) notFound()
 
   const data = await getGameweekDetail(gwNum)
-  if (!data || (!data.dgwTeams.length && !data.bgwTeams.length)) notFound()
+  if (!data) notFound()
 
   const { gw, dgwTeams, bgwTeams, players, showcasePlayers } = data
   const hasDGW = dgwTeams.length > 0
   const hasBGW = bgwTeams.length > 0
+  const isNormalGW = !hasDGW && !hasBGW
 
   const dgwTeamNames = dgwTeams.map((t) => t.teamName).join(" and ")
 
@@ -229,14 +230,28 @@ export default async function GameweekDetailPage({
 
       <DevHeader />
 
-      {showcasePlayers.length === 5 && (
+      {showcasePlayers.length === 5 ? (
         <FplPlayerHero
           h1White={`Fantasy Premier League `}
-          h1Gradient={hasDGW ? `Double Gameweek ${gw} - Players to Target` : `Gameweek ${gw} - Blank and Double Guide`}
+          h1Gradient={hasDGW ? `Double Gameweek ${gw} - Players to Target` : `Gameweek ${gw} - Blank Gameweek Guide`}
           subtitle={hasDGW ? `${dgwTeamNames} have two fixtures in Gameweek ${gw}. Top players ranked by projected double-game points.` : `Gameweek ${gw} fixture landscape - which teams double, which go blank.`}
           players={showcasePlayers}
           badgeLabel="Gameweek Planner"
         />
+      ) : (
+        <div className="relative pt-28 pb-12 flex items-center justify-center text-center px-4" style={{ minHeight: 340, background: "linear-gradient(to bottom, rgba(0,0,0,0.8), #000)" }}>
+          <div>
+            <div className="inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-black mb-6" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
+              Gameweek Planner
+            </div>
+            <h1 className="font-bold leading-tight tracking-tighter text-white mb-4" style={{ fontSize: "clamp(26px,4vw,52px)" }}>
+              Fantasy Premier League{" "}
+              <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>
+                Gameweek {gw}
+              </span>
+            </h1>
+          </div>
+        </div>
       )}
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">
@@ -247,7 +262,27 @@ export default async function GameweekDetailPage({
 
         <div className="relative z-10 w-full max-w-4xl flex flex-col gap-10">
 
+          {/* Normal GW notice */}
+          {isNormalGW && (
+            <div className="rounded-2xl px-6 py-8 text-center" style={{ border: "1px solid rgba(0,255,135,0.18)", borderLeft: "4px solid #00FF87", background: "rgba(0,255,135,0.04)" }}>
+              <span className="inline-block rounded-full px-3 py-1 text-xs font-black uppercase tracking-widest text-black mb-4" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
+                Full Fixture Gameweek
+              </span>
+              <h2 className="text-xl font-bold text-white mb-3">Gameweek {gw} has a full set of fixtures</h2>
+              <p className="text-sm text-white/60 mb-6 max-w-lg mx-auto">
+                All 20 Premier League clubs have a game in Gameweek {gw}. No teams are doubling or blanking this week. Use the tools below to plan your squad.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                <GlowPill href="/fpl/captains">Captain Picks</GlowPill>
+                <GlowPill href="/fpl/fixtures">Fixture Difficulty</GlowPill>
+                <GlowPill href="/fpl/differentials">Differentials</GlowPill>
+                <GlowPill href="/fpl/transfer-trends">Transfer Trends</GlowPill>
+              </div>
+            </div>
+          )}
+
           {/* Stat strip */}
+          {!isNormalGW && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: "Gameweek",       value: `GW${gw}` },
@@ -264,6 +299,7 @@ export default async function GameweekDetailPage({
               </div>
             ))}
           </div>
+          )}
 
           {/* DGW teams section */}
           {hasDGW && (

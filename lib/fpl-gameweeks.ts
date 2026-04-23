@@ -420,7 +420,7 @@ export async function getGameweekDetail(gw: number): Promise<GameweekDetailData 
     if (gw > maxGW) return null
 
     const [gwSummary] = detectGWActivity(allFixtures, bootstrap.teams ?? [], gw, gw)
-    if (!gwSummary || !gwSummary.hasActivity) return null
+    if (!gwSummary) return null
 
     const eligible = (bootstrap.elements ?? []).filter(isDGWEligible)
     const slugMap  = buildSlugLookup(eligible, bootstrap.teams ?? [])
