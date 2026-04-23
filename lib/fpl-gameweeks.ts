@@ -188,18 +188,25 @@ function detectGWActivity(
   return summaries
 }
 
+// Invert `buildSlugLookup` result (slug -> id) into an (id -> slug) lookup
+function invertSlugMap(slugLookup: Map<string, number>): Map<number, string> {
+  const m = new Map<number, string>()
+  slugLookup.forEach((id, slug) => { m.set(id, slug) })
+  return m
+}
+
 function buildDGWPlayer(
   el: any,
   teamMap: Record<number, { name: string; short: string; code: number }>,
   posMap:  Record<number, string>,
-  slugMap: Map<number, string>,
+  slugByPlayerId: Map<number, string>,
   dgwGW:   number,
   dgwFixtures: DGWFixture[]
 ): DGWPlayer {
   const team = teamMap[el.team]
   const ep   = parseFloat(el.ep_next ?? "0")
   return {
-    slug:        slugMap.get(el.id) ?? "",
+    slug:        slugByPlayerId.get(el.id) ?? "",
     code:        el.code,
     displayName: getDisplayName(el),
     webName:     el.web_name,
@@ -407,8 +414,9 @@ export async function getGameweekHub(): Promise<GameweekHub | null> {
     ;(bootstrap.teams ?? []).forEach((t: any) => { teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code } })
     ;(bootstrap.element_types ?? []).forEach((et: any) => { posMap[et.id] = et.singular_name_short })
 
-    const eligible = (bootstrap.elements ?? []).filter(isDGWEligible)
-    const slugMap  = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const eligible  = (bootstrap.elements ?? []).filter(isDGWEligible)
+    const slugMap   = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const slugById  = invertSlugMap(slugMap)
 
     const nextDGW = gameweeks.find((g) => g.isDGW)?.gw ?? null
 
@@ -434,7 +442,7 @@ export async function getGameweekHub(): Promise<GameweekHub | null> {
           }
         })
         if (dgwFix.length >= 2) {
-          topDGWPlayers.push(buildDGWPlayer(el, teamMap, posMap, slugMap, gwSummary.gw, dgwFix))
+          topDGWPlayers.push(buildDGWPlayer(el, teamMap, posMap, slugById, gwSummary.gw, dgwFix))
         }
       }
     }
@@ -467,8 +475,9 @@ export async function getGameweekDetail(gw: number): Promise<GameweekDetailData 
     const [gwSummary] = detectGWActivity(allFixtures, bootstrap.teams ?? [], gw, gw)
     if (!gwSummary) return null
 
-    const eligible = (bootstrap.elements ?? []).filter(isDGWEligible)
-    const slugMap  = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const eligible  = (bootstrap.elements ?? []).filter(isDGWEligible)
+    const slugMap   = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const slugById  = invertSlugMap(slugMap)
 
     const dgwTeamIds = new Set(gwSummary.dgwTeams.map((t) => t.teamId))
     const gwFixtures = allFixtures.filter((f: any) => f.event === gw)
@@ -489,7 +498,7 @@ export async function getGameweekDetail(gw: number): Promise<GameweekDetailData 
             fdr: isHome ? f.team_h_difficulty : f.team_a_difficulty,
           }
         })
-        return buildDGWPlayer(el, teamMap, posMap, slugMap, gw, dgwFix)
+        return buildDGWPlayer(el, teamMap, posMap, slugById, gw, dgwFix)
       })
       .filter((p) => p.dgwFixtures.length >= 2)
       .sort((a, b) => b.ep_next - a.ep_next)
@@ -497,10 +506,11 @@ export async function getGameweekDetail(gw: number): Promise<GameweekDetailData 
     // BGW players — only players with a captain analysis page, sorted by ownership
     const bgwTeamIds    = new Set(gwSummary.bgwTeams.map((t) => t.teamId))
     const bgwEligible   = (bootstrap.elements ?? []).filter(isEligiblePlayer)
-    const bgwSlugMap    = buildSlugLookup(bgwEligible, bootstrap.teams ?? [])
+    const bgwSlugLookup = buildSlugLookup(bgwEligible, bootstrap.teams ?? [])
+    const bgwSlugById   = invertSlugMap(bgwSlugLookup)
     const bgwPlayers: DGWPlayer[] = bgwEligible
       .filter((p: any) => bgwTeamIds.has(p.team))
-      .map((el: any) => buildDGWPlayer(el, teamMap, posMap, bgwSlugMap, gw, []))
+      .map((el: any) => buildDGWPlayer(el, teamMap, posMap, bgwSlugById, gw, []))
       .sort((a: DGWPlayer, b: DGWPlayer) => b.ownership - a.ownership)
       .slice(0, 15)
 
@@ -543,8 +553,9 @@ export async function getDGWPlayerData(slug: string): Promise<DGWPlayerPageData 
       ((events.find((e: any) => e.is_current)?.id ?? 30) + 1)
     const maxGW = Math.max(...events.map((e: any) => e.id as number))
 
-    const eligible = (bootstrap.elements ?? []).filter(isDGWEligible)
-    const slugMap  = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const eligible  = (bootstrap.elements ?? []).filter(isDGWEligible)
+    const slugMap   = buildSlugLookup(eligible, bootstrap.teams ?? [])
+    const slugById  = invertSlugMap(slugMap)
 
     const elementId = slugMap.get(slug)
     if (!elementId) return null
@@ -577,7 +588,7 @@ export async function getDGWPlayerData(slug: string): Promise<DGWPlayerPageData 
 
     if (!dgwGW || dgwFixtures.length < 2) return null
 
-    const player = buildDGWPlayer(el, teamMap, posMap, slugMap, dgwGW, dgwFixtures)
+    const player = buildDGWPlayer(el, teamMap, posMap, slugById, dgwGW, dgwFixtures)
 
     // Hero showcase: player at centre, top ep_next eligible as flanks
     const flankPool = (bootstrap.elements ?? [])
