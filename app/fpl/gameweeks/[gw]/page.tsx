@@ -157,54 +157,106 @@ function BGWTeamCard({ team }: { team: BGWTeamSummary }) {
   )
 }
 
-// ─── BGW player row ───────────────────────────────────────────────────────────
+// ─── BGW player card — full panel, matches hub card style ────────────────────
 
-function BGWPlayerRow({ player, rank }: { player: DGWPlayer; rank: number }) {
+function BGWPlayerCard({ player, rank, even }: { player: DGWPlayer; rank: number; even: boolean }) {
+  const stats = [
+    { label: "Ownership",  value: `${player.ownership}%` },
+    { label: "Form",       value: player.form },
+    { label: "Total pts",  value: String(player.totalPts) },
+    { label: "GW xPTS",    value: "0.0" },
+  ]
+
   return (
-    <div className="flex items-center gap-3 py-3 px-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-      <span className="text-[11px] font-bold text-white/40 w-5 shrink-0 tabular-nums">{rank}</span>
-      <Image
-        src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
-        alt={player.displayName}
-        width={36} height={45}
-        style={{ objectFit: "contain", flexShrink: 0 }}
-        unoptimized
-      />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <span className="text-white font-semibold text-sm truncate">{player.displayName}</span>
-          <span className="text-[9px] font-bold uppercase rounded px-1 py-0.5 shrink-0" style={{ background: "rgba(0,255,135,0.15)", color: GREEN }}>{player.position}</span>
+    <div style={{
+      background: even
+        ? "radial-gradient(ellipse 90% 100% at 65% 50%, rgba(0,255,135,0.18) 0%, rgba(0,255,135,0.07) 45%, transparent 100%)"
+        : "rgba(0,255,135,0.03)",
+      border: "1px solid rgba(0,255,135,0.18)",
+      borderRadius: 12,
+      overflow: "hidden",
+    }}>
+      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.6 }} />
+      <div className="flex flex-row">
+
+        {/* Photo strip */}
+        <div className="relative shrink-0 w-20 sm:w-52 flex flex-col items-center justify-center"
+          style={{ minHeight: 168, background: "rgba(0,0,0,0.4)", borderRadius: "11px 0 0 11px", padding: "16px 8px" }}
+        >
+          <div className="absolute top-2 left-2 z-10 flex items-center justify-center rounded"
+            style={{ width: 22, height: 22, background: "rgba(0,0,0,0.7)", border: "1px solid rgba(0,255,135,0.25)" }}
+          >
+            <span className="text-[10px] font-bold tabular-nums text-white">{rank}</span>
+          </div>
+          <div className="absolute top-2 right-2 z-10 rounded px-1 py-0.5 text-[9px] font-bold uppercase"
+            style={{ background: "rgba(0,255,135,0.15)", color: GREEN, border: "1px solid rgba(0,255,135,0.3)" }}
+          >
+            {player.position}
+          </div>
+          <div className="flex flex-col items-center">
+            <Image
+              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+              alt={player.displayName}
+              width={160} height={204}
+              className="w-14 sm:w-[160px]"
+              style={{ objectFit: "contain" }}
+              unoptimized
+            />
+            <div className="w-14 sm:w-[160px]" style={{
+              height: 1,
+              background: "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+              boxShadow: "0 0 8px 2px rgba(255,255,255,0.35)",
+            }} />
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <Image
-            src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
-            alt={player.club}
-            width={12} height={12}
-            style={{ objectFit: "contain" }}
-            unoptimized
-          />
-          <span className="text-[10px] text-white/50">{player.club} - No fixture</span>
+
+        {/* Data */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between p-3 sm:p-4 gap-2.5">
+
+          {/* Name + badge + price */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="text-white font-semibold truncate text-sm sm:text-lg">{player.displayName}</h2>
+              <Image
+                src={`https://resources.premierleague.com/premierleague/badges/70/t${player.teamCode}.png`}
+                alt={player.club}
+                width={20} height={20}
+                style={{ objectFit: "contain", flexShrink: 0 }}
+                unoptimized
+              />
+            </div>
+            <span className="font-bold text-white text-base sm:text-xl shrink-0">{player.price}</span>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+            {stats.map((s) => (
+              <div key={s.label} style={{ background: "#1A1A1A", borderRadius: 4, padding: "7px 8px" }}>
+                <p className="font-bold tabular-nums text-sm sm:text-base" style={{ color: GREEN }}>{s.value}</p>
+                <p className="text-[10px] sm:text-[11px] mt-0.5 text-white">{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Status row */}
+          <div style={{ padding: "7px 10px", background: "#1A1A1A", borderRadius: 4 }}>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-block rounded-full px-2.5 py-0.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-black" style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}>
+                Blank Gameweek
+              </span>
+              <span className="text-[11px] font-semibold text-white">{player.club} have no fixture in Gameweek {player.dgwGW}</span>
+              <Link
+                href={`/fpl/${player.slug}`}
+                className="ml-auto shrink-0 whitespace-nowrap text-[11px] sm:text-xs font-bold rounded-full transition-all hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] hover:-translate-y-0.5"
+                style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#1A0E24", padding: "6px 14px" }}
+              >
+                Full analysis
+              </Link>
+            </div>
+          </div>
+
         </div>
       </div>
-      <div className="text-center shrink-0">
-        <p className="font-bold text-sm tabular-nums text-white">{player.ownership}%</p>
-        <p className="text-[9px] text-white/40">Owned</p>
-      </div>
-      <div className="text-center shrink-0 hidden sm:block">
-        <p className="text-sm font-semibold text-white/80">{player.form}</p>
-        <p className="text-[9px] text-white/40">Form</p>
-      </div>
-      <div className="text-center shrink-0 hidden sm:block">
-        <p className="text-sm font-semibold text-white/80">{player.price}</p>
-        <p className="text-[9px] text-white/40">Price</p>
-      </div>
-      <Link
-        href={`/fpl/${player.slug}`}
-        className="shrink-0 text-[11px] font-bold rounded-full transition-all hover:shadow-[0_0_16px_rgba(0,255,135,0.3)]"
-        style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#0a0a0a", padding: "5px 12px" }}
-      >
-        Analyse
-      </Link>
     </div>
   )
 }
@@ -411,10 +463,9 @@ export default async function GameweekDetailPage({
                 </span>
               </h2>
               <p className="text-sm text-white mb-4">Sorted by ownership - these are the players most FPL managers need to move to the bench this week.</p>
-              <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(0,255,135,0.18)", background: "rgba(0,255,135,0.02)" }}>
-                <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.5 }} />
+              <div className="flex flex-col gap-3">
                 {bgwPlayers.map((player, i) => (
-                  <BGWPlayerRow key={player.slug} player={player} rank={i + 1} />
+                  <BGWPlayerCard key={player.slug} player={player} rank={i + 1} even={(i + 1) % 2 === 0} />
                 ))}
               </div>
             </section>
