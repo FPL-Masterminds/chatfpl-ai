@@ -143,17 +143,23 @@ function TeamCard({ team }: { team: DGWTeamSummary }) {
   )
 }
 
-function BGWTeamCard({ team }: { team: BGWTeamSummary }) {
+function BGWTeamCard({ team, index = 0 }: { team: BGWTeamSummary; index?: number }) {
   return (
     <div
-      className="rounded-xl overflow-hidden"
+      className="rounded-xl p-px"
       style={{
-        background: "#000",
-        border: "1px solid rgba(0,255,135,0.35)",
+        background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+        backgroundSize: "200% 200%",
+        animation: `glow_scroll ${7 + index * 2.3}s linear infinite`,
       }}
     >
-      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.8 }} />
-      <div className="flex flex-col items-center justify-center gap-2" style={{ padding: "16px 12px" }}>
+      <div
+        className="rounded-xl flex flex-col items-center justify-center gap-2"
+        style={{
+          background: "linear-gradient(145deg,rgba(0,15,10,0.97),rgba(0,8,18,0.99))",
+          padding: "16px 12px",
+        }}
+      >
         <Image
           src={`https://resources.premierleague.com/premierleague/badges/70/t${team.teamCode}.png`}
           alt={team.teamName}
@@ -452,7 +458,7 @@ export default async function GameweekDetailPage({
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {bgwTeams.map((team, i) => (
                   <Reveal key={team.teamId} delay={i * 0.04}>
-                    <BGWTeamCard team={team} />
+                    <BGWTeamCard team={team} index={i} />
                   </Reveal>
                 ))}
               </div>

@@ -52,17 +52,23 @@ function FdrDots({ fdr }: { fdr: number }) {
 
 // ─── Team badge — fills flex-1, identical pattern to FixtureCard ─────────────
 
-function TeamBadge({ teamCode, teamName, detail }: { teamCode: number; teamName: string; detail?: string }) {
+function TeamBadge({ teamCode, teamName, detail, index = 0 }: { teamCode: number; teamName: string; detail?: string; index?: number }) {
   return (
     <div
-      className="rounded-xl overflow-hidden"
+      className="rounded-xl p-px"
       style={{
-        background: "#000",
-        border: "1px solid rgba(0,255,135,0.35)",
+        background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+        backgroundSize: "200% 200%",
+        animation: `glow_scroll ${7 + index * 2.3}s linear infinite`,
       }}
     >
-      <div style={{ height: 2, background: "linear-gradient(to right,#00FF87,#00FFFF)", opacity: 0.8 }} />
-      <div className="flex flex-col items-center justify-center gap-2" style={{ padding: "16px 12px" }}>
+      <div
+        className="rounded-xl flex flex-col items-center justify-center gap-2"
+        style={{
+          background: "linear-gradient(145deg,rgba(0,15,10,0.97),rgba(0,8,18,0.99))",
+          padding: "16px 12px",
+        }}
+      >
         <Image
           src={`https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`}
           alt={teamName}
@@ -96,12 +102,13 @@ function GWLandscapeCard({ gw: gwSummary }: { gw: GameweekSummary }) {
           <div className="mb-4">
             <p className="text-xs uppercase tracking-widest text-white font-semibold mb-3">Teams with a Double Fixture</p>
             <div className="grid grid-cols-3 gap-3">
-              {gwSummary.dgwTeams.map((team) => (
+              {gwSummary.dgwTeams.map((team, i) => (
                 <TeamBadge
                   key={team.teamId}
                   teamCode={team.teamCode}
                   teamName={team.teamShort}
                   detail={team.fixtures.map((f) => `vs ${f.opponentShort} (${f.isHome ? "H" : "A"})`).join(" + ")}
+                  index={i}
                 />
               ))}
             </div>
@@ -113,12 +120,13 @@ function GWLandscapeCard({ gw: gwSummary }: { gw: GameweekSummary }) {
           <div className="mb-4">
             <p className="text-xs uppercase tracking-widest text-white font-semibold mb-3">Teams Without a Fixture</p>
             <div className="grid grid-cols-3 gap-3">
-              {gwSummary.bgwTeams.slice(0, 6).map((team) => (
+              {gwSummary.bgwTeams.slice(0, 6).map((team, i) => (
                 <TeamBadge
                   key={team.teamId}
                   teamCode={team.teamCode}
                   teamName={team.teamShort}
                   detail="No fixture"
+                  index={i}
                 />
               ))}
             </div>
