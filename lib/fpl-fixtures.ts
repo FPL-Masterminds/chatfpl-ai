@@ -4,6 +4,7 @@ import {
   getDisplayName,
   toSlug,
   isEligiblePlayer,
+  fixtureWindowPhrase,
   FPL_HEADERS,
 } from "@/lib/fpl-player-page"
 import type { FplCardPlayer } from "@/components/fpl-player-hero"
@@ -38,8 +39,8 @@ export interface FixtureHubPlayer {
   news: string
   chance: number
   status: string
-  fixtures: FixtureGW[]   // next 5 gameweeks
-  avgFdr: number          // average FDR over next 5
+  fixtures: FixtureGW[]   // up to next 5 gameweeks (fewer at season end)
+  avgFdr: number          // average FDR across the available fixtures
   verdictLabel: string    // "Favourable" | "Mixed" | "Challenging"
 }
 
@@ -117,14 +118,16 @@ export function buildFixtureHubText(
   const fdrLabel = fix1 ? (FDR_LABELS[fix1.fdr] ?? "Medium") : "Medium"
   const favCount = player.fixtures.filter((f) => f.fdr <= 2).length
   const verdict  = player.verdictLabel
+  const fwPhrase = fixtureWindowPhrase(player.fixtures.length, 5)
+  const fixCount = player.fixtures.length
 
   const variant = rank % 3
 
   if (variant === 0) {
     return `${name} opens their upcoming schedule against ${fixture} in Gameweek ${gw}, ` +
       `a fixture rated ${fdrLabel} by the FPL difficulty model. ` +
-      `Looking at the full five-game run ahead, the overall schedule is rated ${verdict.toLowerCase()}` +
-      `${favCount >= 3 ? `, with ${favCount} out of five fixtures falling in the easier bracket` : ""}. ` +
+      `Looking at ${fwPhrase}, the overall schedule is rated ${verdict.toLowerCase()}` +
+      `${favCount >= 3 ? `, with ${favCount} out of ${fixCount} fixtures falling in the easier bracket` : ""}. ` +
       `At ${player.ownership}% ownership, building your squad around this schedule ` +
       `${verdict === "Favourable" ? "has strong case right now" : "requires weighing up form against the difficulty ahead"}.`
   }
@@ -133,14 +136,14 @@ export function buildFixtureHubText(
     return `The fixture run ahead is rated ${verdict.toLowerCase()} for ${name}. ` +
       `Starting with ${fixture} in Gameweek ${gw}, ` +
       `${favCount >= 3
-        ? `the schedule offers ${favCount} favourable matchups in the next five games - a genuine window to accumulate points`
-        : `the upcoming five games mix easier and tougher opponents, so form will be the deciding factor`}. ` +
+        ? `the schedule offers ${favCount} favourable matchups over ${fwPhrase} - a genuine window to accumulate points`
+        : `the upcoming fixtures mix easier and tougher opponents, so form will be the deciding factor`}. ` +
       `Form of ${player.form} per game over the last six gameweeks ` +
       `${parseFloat(player.form) >= 5 ? "backs the fixture case" : "is the variable to track"}. ` +
       `The full analysis is available on their individual page.`
   }
 
-  return `Planning around ${name}'s fixtures over the next five gameweeks: ` +
+  return `Planning around ${name}'s fixtures over ${fwPhrase}: ` +
     `the schedule is ${verdict.toLowerCase()}, with the immediate test being ${fixture}. ` +
     `Owned by ${player.ownership}% of managers, ` +
     `${verdict === "Favourable"
@@ -171,6 +174,8 @@ export function buildFixturePageText(player: FixtureHubPlayer, gw: number): {
   const isInjured = player.chance === 0 || player.status === "i"
   const isDoubt   = player.chance > 0 && player.chance < 75
   const blankGW   = player.ep_next === 0
+  const fwPhrase  = fixtureWindowPhrase(player.fixtures.length, 5)
+  const fixCount  = player.fixtures.length
 
   // Verdict text
   let verdictText = ""
@@ -189,15 +194,15 @@ export function buildFixturePageText(player: FixtureHubPlayer, gw: number): {
   // Verdict bullets
   const verdictBullets: string[] = []
   if (fix1) verdictBullets.push(`Next fixture: ${fixture1} - rated ${fdr1Label} for difficulty`)
-  if (favCount >= 3) verdictBullets.push(`${favCount} out of the next five games fall in the favourable bracket`)
-  if (hardCount >= 2) verdictBullets.push(`${hardCount} challenging fixtures in the next five - selectivity matters`)
+  if (favCount >= 3) verdictBullets.push(`${favCount} of ${fixCount} fixtures fall in the favourable bracket`)
+  if (hardCount >= 2) verdictBullets.push(`${hardCount} challenging fixtures over ${fwPhrase} - selectivity matters`)
   verdictBullets.push(`Form: ${player.form} points per game over the last six gameweeks`)
   if (!blankGW) verdictBullets.push(`Expected points for Gameweek ${gw}: ${player.ep_next.toFixed(1)}`)
 
   // Case for
   const caseFor: string[] = []
   if (verdictBullets.find(b => b.includes("favourable bracket"))) {
-    caseFor.push(`Favourable fixture run ahead - ${favCount} winnable games in the next five`)
+    caseFor.push(`Favourable fixture run ahead - ${favCount} winnable games over ${fwPhrase}`)
   }
   if (parseFloat(player.form) >= 4.0) {
     caseFor.push(`Strong recent form: ${player.form} points per game over the last six gameweeks`)
@@ -210,12 +215,12 @@ export function buildFixturePageText(player: FixtureHubPlayer, gw: number): {
   if (!blankGW && player.ep_next >= 5) {
     caseFor.push(`Projected ${player.ep_next.toFixed(1)} expected points in Gameweek ${gw} - the model backs a return`)
   }
-  if (caseFor.length === 0) caseFor.push(`The fixture schedule provides at least a workable route to points over the next five gameweeks`)
+  if (caseFor.length === 0) caseFor.push(`The fixture schedule provides at least a workable route to points over ${fwPhrase}`)
 
   // Case against
   const caseAgainst: string[] = []
   if (hardCount >= 2) {
-    caseAgainst.push(`${hardCount} tough fixtures in the next five games test the case for holding`)
+    caseAgainst.push(`${hardCount} tough fixtures over ${fwPhrase} test the case for holding`)
   }
   if (parseFloat(player.form) < 3.0 && !blankGW) {
     caseAgainst.push(`Form of ${player.form} per game in recent weeks suggests inconsistent involvement`)
@@ -235,13 +240,13 @@ export function buildFixturePageText(player: FixtureHubPlayer, gw: number): {
   const qaItems: PlayerQA[] = [
     {
       id: "fixture-run",
-      question: `What does ${name}'s fixture run look like for the next five gameweeks?`,
-      answer: `${name}'s upcoming schedule over the next five games is rated ${verdict.toLowerCase()} overall. ` +
+      question: `What does ${name}'s fixture run look like for ${fwPhrase}?`,
+      answer: `${name}'s upcoming schedule over ${fwPhrase} is rated ${verdict.toLowerCase()} overall. ` +
         `The immediate test is ${fixture1} in Gameweek ${gw}. ` +
         `${favCount >= 3
           ? `There are ${favCount} favourable matchups in the run, which gives consistent point-scoring opportunities across several weeks rather than a single-game gamble.`
           : hardCount >= 2
-          ? `There are ${hardCount} difficult fixtures in the next five games, meaning the schedule requires selectivity around captaincy and chip usage.`
+          ? `There are ${hardCount} difficult fixtures over ${fwPhrase}, meaning the schedule requires selectivity around captaincy and chip usage.`
           : `The schedule is a mix of manageable and testing fixtures - quality players tend to deliver regardless, but form will separate the reliable options from the rest.`
         }`,
     },
@@ -256,7 +261,7 @@ export function buildFixturePageText(player: FixtureHubPlayer, gw: number): {
         ? `The case for holding ${name} is backed by the fixture schedule. With ${favCount} favourable matchups ahead and current form of ${player.form} per game, this is a period to back them rather than consider selling.`
         : verdict === "Mixed"
         ? `Holding ${name} through this stretch is a judgement call. The fixtures are not straightforwardly easy or hard - form of ${player.form} per game and consistent involvement are the indicators to prioritise.`
-        : `The ${hardCount} difficult fixtures in the next five games are the main consideration. Holding ${name} through a tough run requires confidence in underlying form, which currently sits at ${player.form} per game.`
+        : `The ${hardCount} difficult fixtures over ${fwPhrase} are the main consideration. Holding ${name} through a tough run requires confidence in underlying form, which currently sits at ${player.form} per game.`
       }`,
     },
     {
@@ -290,7 +295,7 @@ export function buildFixturePageText(player: FixtureHubPlayer, gw: number): {
   // Welcome message for ConversationalPlayer
   const welcome = blankGW
     ? `${name} has a Blank Gameweek ${gw} - no fixture scheduled this week. Their full fixture run for the coming weeks is shown above. Click a question for the detailed breakdown.`
-    : `${name}'s upcoming fixture schedule is rated ${verdict.toLowerCase()} over the next five games. ` +
+    : `${name}'s upcoming fixture schedule is rated ${verdict.toLowerCase()} over ${fwPhrase}. ` +
       `The immediate test is ${fixture1}. Click a question below for the full breakdown.`
 
   const ctaLeadin = `Want to know if ${name} fits your specific squad and rank target?`

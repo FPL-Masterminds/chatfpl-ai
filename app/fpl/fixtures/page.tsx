@@ -15,6 +15,7 @@ import {
   type FixtureHubPlayer,
   type FixtureGW,
 } from "@/lib/fpl-fixtures"
+import { fixtureWindowPhrase } from "@/lib/fpl-player-page"
 
 export const revalidate = 3600
 export const dynamic = "force-dynamic"
@@ -321,7 +322,7 @@ export default async function FixtureHubPage() {
           ))}
 
           <p className="mt-4 text-center text-[11px] text-white/40 leading-relaxed">
-            Sorted by average fixture difficulty rating over the next five gameweeks. Players ranked by schedule then expected points. Updated hourly.
+            Sorted by average fixture difficulty rating over {fixtureWindowPhrase(players[0]?.fixtures.length ?? 5, 5)}. Players ranked by schedule then expected points. Updated hourly.
           </p>
 
           {/* Divider */}

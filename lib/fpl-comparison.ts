@@ -5,6 +5,7 @@ import {
   FPL_HEADERS,
   formatFplNews,
   isEligiblePlayer,
+  fixtureWindowPhrase,
   FixtureGW,
   FixtureMatch,
 } from "@/lib/fpl-player-page"
@@ -266,6 +267,7 @@ function avgNextFdr(fixtureRun: FixtureGW[]): number {
 
 export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   const { playerA: a, playerB: b, fixtureRunA, fixtureRunB, gw } = d
+  const fwPhrase = fixtureWindowPhrase(Math.max(fixtureRunA.length, fixtureRunB.length))
 
   // ── Injury / availability detection ────────────────────────────────────────
   const aOut      = a.chance === 0
@@ -393,7 +395,7 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
     } else if (a.formVal > b.formVal) {
       caseForA.push(`${a.webName} has shown better recent form at ${a.form} points per game over the last six gameweeks.`)
     } else {
-      caseForA.push(`${a.webName}'s fixture run looks ${avgFdrA <= 2.5 ? "favourable" : avgFdrA >= 3.5 ? "testing" : "manageable"} over the next four gameweeks.`)
+      caseForA.push(`${a.webName}'s fixture run looks ${avgFdrA <= 2.5 ? "favourable" : avgFdrA >= 3.5 ? "testing" : "manageable"} over ${fwPhrase}.`)
     }
     if (dgwA) {
       caseForA.push(`${a.webName} has a double gameweek in GW${gw}, providing two scoring opportunities.`)
@@ -420,7 +422,7 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
     } else if (b.formVal > a.formVal) {
       caseForB.push(`${b.webName} has shown better recent form at ${b.form} points per game over the last six gameweeks.`)
     } else {
-      caseForB.push(`${b.webName}'s fixture run looks ${avgFdrB <= 2.5 ? "favourable" : avgFdrB >= 3.5 ? "testing" : "manageable"} over the next four gameweeks.`)
+      caseForB.push(`${b.webName}'s fixture run looks ${avgFdrB <= 2.5 ? "favourable" : avgFdrB >= 3.5 ? "testing" : "manageable"} over ${fwPhrase}.`)
     }
     if (dgwB) {
       caseForB.push(`${b.webName} has a double gameweek in GW${gw}, providing two scoring opportunities.`)
@@ -455,10 +457,10 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
       })(),
     },
     {
-      question: `What are the fixture differences between ${a.webName} and ${b.webName} over the next four gameweeks?`,
+      question: `What are the fixture differences between ${a.webName} and ${b.webName} over ${fwPhrase}?`,
       answer: (() => {
         const descFdr = (avg: number) => avg <= 2.5 ? "favourable" : avg >= 3.5 ? "difficult" : "average"
-        return `${a.displayName} faces a ${descFdr(avgFdrA)} run over the next four gameweeks with an average FDR of ${avgFdrA.toFixed(1)}. ${b.displayName} faces a ${descFdr(avgFdrB)} run with an average FDR of ${avgFdrB.toFixed(1)}.${bgwA ? ` Note that ${a.webName} has a blank in GW${gw}.` : ""}${bgwB ? ` Note that ${b.webName} has a blank in GW${gw}.` : ""}`
+        return `${a.displayName} faces a ${descFdr(avgFdrA)} run over ${fwPhrase} with an average FDR of ${avgFdrA.toFixed(1)}. ${b.displayName} faces a ${descFdr(avgFdrB)} run with an average FDR of ${avgFdrB.toFixed(1)}.${bgwA ? ` Note that ${a.webName} has a blank in GW${gw}.` : ""}${bgwB ? ` Note that ${b.webName} has a blank in GW${gw}.` : ""}`
       })(),
     },
     {

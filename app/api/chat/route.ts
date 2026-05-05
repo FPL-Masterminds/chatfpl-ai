@@ -324,7 +324,7 @@ export async function POST(request: Request) {
           filterNote = `Showing top 150 most relevant players (by points, form, and minutes)`;
         }
 
-        // Get upcoming fixtures grouped by team (next 5 gameweeks)
+        // Get upcoming fixtures grouped by team (up to 5 GWs - fewer at season end)
         const currentGW = currentGameweek?.id || 1;
 
         // Fetch user's personal FPL team data if they have saved a Team ID
@@ -427,6 +427,17 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
           f.event >= currentGW && f.event <= currentGW + 4 && !f.finished
         );
 
+        // Distinct upcoming GWs (caps at season end so we don't claim 5 weeks
+        // of fixtures when only 3 remain)
+        const upcomingGwCount = new Set(upcomingFixtures.map((f: any) => f.event)).size;
+        const fixtureWindowLabel = upcomingGwCount === 0
+          ? "Rest of Season"
+          : upcomingGwCount === 1
+          ? "Final Gameweek of the Season"
+          : upcomingGwCount >= 5
+          ? `Next ${upcomingGwCount} Gameweeks`
+          : `Final ${upcomingGwCount} Gameweeks of the Season`;
+
         // Build fixture run for each team
         const teamFixtures: { [key: string]: string[] } = {};
         
@@ -511,7 +522,7 @@ CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.
 
 ${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : 'Unknown'}` : ""}
 
-${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (Next 5 Gameweeks) - Format: OPPONENT(H/A-Difficulty):
+${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}) - Format: OPPONENT(H/A-Difficulty):
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):

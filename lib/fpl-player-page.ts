@@ -121,6 +121,27 @@ export function isEligiblePlayer(p: any): boolean {
   return (mins >= 1000 && sel >= 1.0) || mins >= 1500
 }
 
+/**
+ * Build a grammatically correct phrase describing a fixture window.
+ * Use it like: `${name} faces tough fixtures over ${fixtureWindowPhrase(count)}.`
+ *
+ * @param actualCount    real number of upcoming fixtures we have data for
+ * @param requestedCount the number we asked for (default 4); if actual < requested,
+ *                       we know the season is ending so the phrase shifts accordingly
+ *
+ * Returns:
+ *   0 fixtures   → "the rest of the season"
+ *   1 fixture    → "the final gameweek of the season"
+ *   N >= req     → "the next N gameweeks"
+ *   N < req      → "the final N gameweeks of the season"
+ */
+export function fixtureWindowPhrase(actualCount: number, requestedCount = 4): string {
+  if (actualCount <= 0) return "the rest of the season"
+  if (actualCount === 1) return "the final gameweek of the season"
+  if (actualCount >= requestedCount) return `the next ${actualCount} gameweeks`
+  return `the final ${actualCount} gameweeks of the season`
+}
+
 export async function getEligibleSlugs(): Promise<{ slug: string }[]> {
   try {
     const bootstrap = await getBootstrap()
@@ -857,6 +878,7 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   const easyCount  = allMatches.filter((m) => m.fdr <= 3).length
   const hardCount  = allMatches.filter((m) => m.fdr >= 4).length
   const blankGWs   = fixtureRun.filter((f) => f.matches.length === 0)
+  const fwPhrase   = fixtureWindowPhrase(fixtureRun.length)
   const doubleGWs  = fixtureRun.filter((f) => f.matches.length >= 2)
   const hasImmediateBlank = fixtureRun[0].matches.length === 0
   const hasBlankInRun  = blankGWs.length > 0
@@ -905,10 +927,10 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
       const dgwParts = dgw.matches.map((m) => `${m.opponent} (${m.isHome ? "H" : "A"})`).join(" and ")
       return `${p.webName} has a Double Gameweek in GW${dgw.gw} (${dgwParts}), which significantly increases his points potential over the coming weeks.`
     }
-    if (easyCount >= 3) return `The run over the next 4 gameweeks looks very favourable - ${easyCount} of ${allMatches.length} fixtures are rated 3 or below for difficulty.`
-    if (easyCount >= 2) return `Of the next 4 gameweeks, ${easyCount} fixtures have a difficulty rating of 3 or below - a decent run with some tougher patches.`
-    if (hardCount >= 3) return `The fixture run over the next 4 gameweeks is challenging - ${hardCount} of ${allMatches.length} fixtures carry a difficulty rating of 4 or above.`
-    return `The next 4 gameweeks present a mixed picture - not a standout run in either direction.`
+    if (easyCount >= 3) return `The run over ${fwPhrase} looks very favourable - ${easyCount} of ${allMatches.length} fixtures are rated 3 or below for difficulty.`
+    if (easyCount >= 2) return `Of ${fwPhrase}, ${easyCount} fixtures have a difficulty rating of 3 or below - a decent run with some tougher patches.`
+    if (hardCount >= 3) return `The fixture run over ${fwPhrase} is challenging - ${hardCount} of ${allMatches.length} fixtures carry a difficulty rating of 4 or above.`
+    return `Across ${fwPhrase}, the picture is mixed - not a standout run in either direction.`
   })()
 
   // Verdict bullets
@@ -923,8 +945,8 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
       : easyCount >= 2
       ? `Fixture run: ${easyCount} of the next ${allMatches.length} fixtures rated 3 or below for difficulty`
       : hardCount >= 3
-      ? `Fixture run: ${hardCount} tough fixtures (FDR 4+) in the next 4 gameweeks`
-      : `Fixture run: mixed picture over the next 4 gameweeks`,
+      ? `Fixture run: ${hardCount} tough fixtures (FDR 4+) over ${fwPhrase}`
+      : `Fixture run: mixed picture over ${fwPhrase}`,
     `Value: ${ptsPerMillion} points per million spent this season`,
   ]
 
@@ -946,9 +968,9 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
 
   // Fixture run
   if (easyCount >= 3) caseFor.push(`Fixture run: ${easyCount} of the next ${allMatches.length} fixtures are favourable (FDR 3 or below). An excellent window to own ${p.webName}.`)
-  else if (easyCount >= 2) caseFor.push(`Fixture run: ${easyCount} manageable fixtures in the next 4 gameweeks - a reasonable time to bring him in.`)
-  else if (hardCount >= 3) caseAgainst.push(`Fixture run: ${hardCount} difficult fixtures in the next 4 gameweeks. There may be a better time to transfer ${p.webName} in.`)
-  else caseAgainst.push(`Fixture run: a mixed schedule over the next 4 weeks - not the ideal window for a premium transfer.`)
+  else if (easyCount >= 2) caseFor.push(`Fixture run: ${easyCount} manageable fixtures over ${fwPhrase} - a reasonable time to bring him in.`)
+  else if (hardCount >= 3) caseAgainst.push(`Fixture run: ${hardCount} difficult fixtures over ${fwPhrase}. There may be a better time to transfer ${p.webName} in.`)
+  else caseAgainst.push(`Fixture run: a mixed schedule over ${fwPhrase} - not the ideal window for a premium transfer.`)
 
   // Blank
   if (hasImmediateBlank) caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in GW${gw}. Transferring him in this week means taking a hit for a week with no return.`)
@@ -1012,7 +1034,7 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
     },
     {
       id: "fixtures",
-      question: `What is ${p.webName}'s fixture run for the next 4 gameweeks?`,
+      question: `What does ${p.webName}'s fixture run look like for ${fwPhrase}?`,
       answer: [
         runSummary,
         "",
@@ -1105,6 +1127,7 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
   const allMatches  = fixtureRun.flatMap((f) => f.matches)
   const easyCount   = allMatches.filter((m) => m.fdr <= 3).length
   const hardCount   = allMatches.filter((m) => m.fdr >= 4).length
+  const fwPhrase    = fixtureWindowPhrase(fixtureRun.length)
   const blankGWs    = fixtureRun.filter((f) => f.matches.length === 0)
   const doubleGWs   = fixtureRun.filter((f) => f.matches.length >= 2)
   const hasImmediateBlank = fixtureRun[0].matches.length === 0
@@ -1163,8 +1186,8 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
       : hardCount >= 3
       ? `Fixture run: ${hardCount} of the next ${allMatches.length} fixtures are rated 4 or above for difficulty`
       : easyCount >= 2
-      ? `Fixture run: ${easyCount} favourable fixtures in the next 4 gameweeks`
-      : `Fixture run: mixed picture over the next 4 gameweeks`,
+      ? `Fixture run: ${easyCount} favourable fixtures over ${fwPhrase}`
+      : `Fixture run: mixed picture over ${fwPhrase}`,
     transfersOutGW > 50000
       ? `Transfer activity: ${Math.round(transfersOutGW / 1000)}k managers have sold ${p.webName} this gameweek`
       : priceChangeGW < 0
@@ -1200,7 +1223,7 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
   if (hasDoubleGW) caseAgainst.push(`Double Gameweek: ${p.webName} has two fixtures in GW${doubleGWs[0].gw}. Selling before a Double Gameweek is almost always the wrong timing.`)
   if (p.ep_next >= 6) caseAgainst.push(`Expected points: ${p.ep_next} xPts projected for GW${gw} - among the stronger return expectations in his position this week.`)
   else if (p.ep_next >= 4) caseAgainst.push(`Expected points: ${p.ep_next} xPts projected for GW${gw} - a reasonable return expectation that does not make selling urgent.`)
-  if (easyCount >= 3) caseAgainst.push(`Fixture run: ${easyCount} favourable fixtures in the next 4 gameweeks. The schedule softens, which typically improves returns.`)
+  if (easyCount >= 3) caseAgainst.push(`Fixture run: ${easyCount} favourable fixtures over ${fwPhrase}. The schedule softens, which typically improves returns.`)
   else if (easyCount >= 2) caseAgainst.push(`Fixture run: ${easyCount} manageable fixtures ahead. Patience may be rewarded over the coming weeks.`)
   if (priceChangeGW > 0) caseAgainst.push(`Price rising: ${p.webName} has gained £${priceChangeGW.toFixed(1)}m this gameweek. Selling now means a lower sell price than if you wait.`)
   if (formVal >= 6) caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - currently one of the better-returning players in the game.`)
@@ -1258,7 +1281,7 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
       answer: [
         `The right replacement depends on your available budget after selling ${p.webName} at his current sell price, and which areas of your squad need strengthening most.`,
         "",
-        `The key questions are: does the replacement have a better fixture run over the next 4 gameweeks, a stronger recent form score, and a comparable expected points projection for the money?`,
+        `The key questions are: does the replacement have a better fixture run over ${fwPhrase}, a stronger recent form score, and a comparable expected points projection for the money?`,
         "",
         `ChatFPL AI can look at your specific squad, your budget after selling ${p.webName}, and the current data to suggest the strongest available options in his position and elsewhere.`,
       ].join("\n"),
@@ -1300,6 +1323,7 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
   const formVal     = parseFloat(p.form)
   const allMatches  = fixtureRun.flatMap((f) => f.matches)
   const easyCount   = allMatches.filter((m) => m.fdr <= 3).length
+  const fwPhrase    = fixtureWindowPhrase(fixtureRun.length)
   const hardCount   = allMatches.filter((m) => m.fdr >= 4).length
   const doubleGWs   = fixtureRun.filter((f) => f.matches.length >= 2)
   const hasDoubleGW = doubleGWs.length > 0
@@ -1343,10 +1367,10 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
     hasDoubleGW
       ? `Double Gameweek in GW${doubleGWs[0].gw}: two fixtures doubles the ceiling of a differential hold`
       : easyCount >= 2
-      ? `Fixture run: ${easyCount} favourable fixtures in the next 4 gameweeks`
+      ? `Fixture run: ${easyCount} favourable fixtures over ${fwPhrase}`
       : hardCount >= 3
       ? `Fixture run: ${hardCount} tough fixtures ahead, reducing the differential appeal`
-      : `Fixture run: mixed picture over the next 4 gameweeks`,
+      : `Fixture run: mixed picture over ${fwPhrase}`,
   ]
 
   const captaincyPanel = p.ownership < 15
@@ -1370,7 +1394,7 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
   if (formVal >= 6) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - actively scoring, not just theoretically differential.`)
   else if (formVal >= 4 && !isNotDiff) caseFor.push(`Form: ${p.form} pts/game - moderate recent output. The differential case is not purely speculative.`)
   if (hasDoubleGW) caseFor.push(`Double Gameweek: a DGW amplifies the differential upside significantly. Two chances to return means a higher ceiling for a low-owned pick.`)
-  if (easyCount >= 3) caseFor.push(`Fixture run: ${easyCount} favourable fixtures in the next 4 gameweeks - a sustained differential window, not a one-week gamble.`)
+  if (easyCount >= 3) caseFor.push(`Fixture run: ${easyCount} favourable fixtures over ${fwPhrase} - a sustained differential window, not a one-week gamble.`)
   else if (easyCount >= 2 && !isNotDiff) caseFor.push(`Fixture run: ${easyCount} manageable fixtures ahead. The schedule supports holding a differential pick beyond this week.`)
   if (!isNotDiff && p.chance >= 100 && !p.news) caseFor.push(`Availability: no fitness concerns - a differential who misses through injury is the worst outcome.`)
 
@@ -1379,7 +1403,7 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
   else if (formVal < 4 && !isNotDiff) caseAgainst.push(`Form: ${p.form} pts/game - below what you want from a differential who needs to deliver to justify the squad spot.`)
   if (hasImmediateBlank) caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in Gameweek ${gw}. There is no differential opportunity this week.`)
   else if (p.ep_next < 4) caseAgainst.push(`Expected points: only ${p.ep_next} xPts projected for GW${gw}. A differential needs some return floor to be viable - the model does not back one this week.`)
-  if (hardCount >= 3) caseAgainst.push(`Fixture run: ${hardCount} tough fixtures in the next 4 gameweeks. A differential pick with a hard schedule is a short-term gamble rather than a planned hold.`)
+  if (hardCount >= 3) caseAgainst.push(`Fixture run: ${hardCount} tough fixtures over ${fwPhrase}. A differential pick with a hard schedule is a short-term gamble rather than a planned hold.`)
   if (p.chance < 75) caseAgainst.push(`${p.news ? formatFplNews(p.news) : "Fitness doubt"} - a differential pick who does not play delivers zero rank benefit.`)
   if (!isNotDiff && formVal < 4 && hardCount >= 2) caseAgainst.push(`Low ownership may reflect consensus: when most managers avoid a player, it is worth understanding why before framing it as an opportunity.`)
 
