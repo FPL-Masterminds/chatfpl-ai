@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
@@ -196,7 +196,7 @@ export default async function FixturePlayerPage({
   if (await isSeasonOver()) return <SeasonEnded />
 
   const data = await getFixturePageData(slug)
-  if (!data) notFound()
+  if (!data) permanentRedirect("/fpl/fixtures")
 
   const { gw, player, showcasePlayers, similarPlayers } = data
   const bestValueLink = getBestValueHubLink(player.position, player.price)

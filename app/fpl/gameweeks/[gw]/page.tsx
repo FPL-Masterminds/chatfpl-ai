@@ -363,7 +363,7 @@ export default async function GameweekDetailPage({
         <FplPlayerHero
           h1White={hasDGW ? `FPL Double Gameweek ${gw} - ` : `FPL Blank Gameweek ${gw} - `}
           h1Gradient={hasDGW ? `Who Should You Target?` : `Which Teams Have No Fixture?`}
-          subtitle={hasDGW ? `${dgwTeamNames} have two fixtures in Gameweek ${gw}. Top players ranked by projected double-game points.` : `Six Premier League clubs have no fixture in Gameweek ${gw}. Find out who to bench, sell, or play around.`}
+          subtitle={hasDGW ? `${dgwTeamNames} have two fixtures in Gameweek ${gw}. Top players ranked by projected double-game points.` : `${["No","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten"][bgwTeams.length] ?? bgwTeams.length} Premier League ${bgwTeams.length === 1 ? "club has" : "clubs have"} no fixture in Gameweek ${gw}. Find out who to bench, sell, or play around.`}
           players={showcasePlayers}
           badgeLabel={hasDGW ? "Double Gameweek" : "Blank Gameweek"}
         />

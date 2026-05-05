@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { ConversationalPlayer } from "@/components/conversational-player"
@@ -72,7 +72,7 @@ export default async function FplTransferPage({
   const { slug } = await params
   if (await isSeasonOver()) return <SeasonEnded />
   const data = await getPlayerTransferData(slug)
-  if (!data) notFound()
+  if (!data) permanentRedirect("/fpl/transfer-trends")
 
   const { gw, player, showcasePlayers, relatedPlayers, fixtureRun, ptsPerMillion } = data
   const bestValueLink = getBestValueHubLink(player.position, player.price)

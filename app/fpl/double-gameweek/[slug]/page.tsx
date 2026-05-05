@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
@@ -91,7 +91,7 @@ export default async function DGWPlayerPage({
   if (await isSeasonOver()) return <SeasonEnded />
 
   const data = await getDGWPlayerData(slug)
-  if (!data) notFound()
+  if (!data) permanentRedirect("/fpl/gameweeks")
 
   const {
     gw, player, showcasePlayers, relatedPlayers,

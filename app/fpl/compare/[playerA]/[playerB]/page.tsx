@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { DevHeader } from "@/components/dev-header"
@@ -93,8 +93,11 @@ function FixturePanel({ fixtureRun, player }: { fixtureRun: FixtureGW[]; player:
     >
       <PlayerPhoto player={player} />
 
-      {/* 4 GW tiles — sell page size and style */}
-      <div className="flex-1 grid grid-cols-4 gap-3">
+      {/* GW tiles - sized to the number of remaining fixtures so we never show empty cells */}
+      <div
+        className="flex-1 grid gap-3"
+        style={{ gridTemplateColumns: `repeat(${Math.max(fixtureRun.length, 1)}, minmax(0, 1fr))` }}
+      >
         {fixtureRun.map((f) => (
           <div
             key={f.gw}
@@ -271,7 +274,7 @@ export default async function ComparisonPage({
   const { playerA: slugA, playerB: slugB } = await params
   if (await isSeasonOver()) return <SeasonEnded />
   const data = await getComparisonData(slugA, slugB)
-  if (!data) notFound()
+  if (!data) permanentRedirect("/fpl/comparisons")
 
   const { gw, playerA, playerB, fixtureRunA, fixtureRunB } = data
   const text = buildComparisonText(data)
@@ -453,7 +456,15 @@ export default async function ComparisonPage({
 
         {/* Fixture run - one panel per player */}
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
-          <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-4">Fixture run - next 4 gameweeks</p>
+          <p className="text-[9px] uppercase tracking-[0.18em] text-white/70 mb-4">
+            {(() => {
+              const n = Math.max(fixtureRunA.length, fixtureRunB.length)
+              if (n === 0) return "Fixture run"
+              if (n === 1) return "Final gameweek of the season"
+              if (n < 4) return `Final ${n} gameweeks of the season`
+              return `Fixture run - next ${n} gameweeks`
+            })()}
+          </p>
           <div className="flex flex-col gap-3">
             <FixturePanel fixtureRun={fixtureRunA} player={playerA} />
             <FixturePanel fixtureRun={fixtureRunB} player={playerB} />

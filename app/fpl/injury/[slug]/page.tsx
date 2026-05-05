@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { DevHeader } from "@/components/dev-header"
@@ -96,14 +96,27 @@ function buildVerdict(player: InjuryPlayer, gw: number) {
     ]
     context = `Suspensions are short-term. If ${displayName} is central to your team, holding is usually the right call unless the alternatives below represent a clear upgrade.`
   } else if (isUnavailable) {
-    verdictLabel = "INJURED"
-    verdict = `${displayName} is currently unavailable for Gameweek ${gw} with a ${chance}% chance of playing.`
-    bullets = [
-      news ? `FPL news: ${news}` : `${displayName} has a ${chance}% chance of playing in GW${gw}`,
-      `${minutes} minutes this season. A significant loss if they are a regular starter`,
-      `Monitor official club and FPL news ahead of the GW${gw} deadline`,
-    ]
-    context = `With a ${chance}% chance of playing, selecting ${displayName} this week carries real risk. The alternatives below are the best available options at a similar price point.`
+    const newsLower = (news ?? "").toLowerCase()
+    const isOffBooks = /\b(loan|transferred|joined|signed|left)\b/.test(newsLower) && /\b(season|club|hibernian|loan)\b/.test(newsLower)
+    if (isOffBooks) {
+      verdictLabel = "UNAVAILABLE"
+      verdict = `${displayName} is no longer available to FPL managers for Gameweek ${gw}.`
+      bullets = [
+        news ? `FPL news: ${news}` : `${displayName} is unavailable for selection`,
+        `${minutes} minutes played this season before departing`,
+        `Move ${displayName} on. The alternatives below are the best replacements at a similar price point.`,
+      ]
+      context = `${displayName} will not feature in any remaining gameweeks. If you still own them, sell now and pick from the alternatives below.`
+    } else {
+      verdictLabel = "INJURED"
+      verdict = `${displayName} is currently unavailable for Gameweek ${gw} with a ${chance}% chance of playing.`
+      bullets = [
+        news ? `FPL news: ${news}` : `${displayName} has a ${chance}% chance of playing in GW${gw}`,
+        `${minutes} minutes played this season`,
+        `Monitor official club and FPL news ahead of the GW${gw} deadline`,
+      ]
+      context = `With a ${chance}% chance of playing, selecting ${displayName} this week carries real risk. The alternatives below are the best available options at a similar price point.`
+    }
   } else {
     verdictLabel = chance >= 75 ? "FITNESS CONCERN" : "INJURY DOUBT"
     verdict = `${displayName} is a ${chance >= 75 ? "fitness concern" : "significant doubt"} for Gameweek ${gw} with a ${chance}% chance of playing.`
@@ -181,7 +194,7 @@ export default async function InjuryPlayerPage({
   if (await isSeasonOver()) return <SeasonEnded />
   const { slug } = await params
   const data = await getInjuryPlayerData(slug)
-  if (!data) notFound()
+  if (!data) permanentRedirect("/fpl/injuries")
 
   const { gw, player, alternatives } = data
   const isAvailable = player.status === "a" && player.chance >= 100

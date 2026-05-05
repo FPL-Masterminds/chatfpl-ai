@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { ConversationalPlayer } from "@/components/conversational-player"
@@ -58,7 +58,7 @@ export default async function FplPlayerPage({
   const { slug } = await params
   if (await isSeasonOver()) return <SeasonEnded />
   const data = await getPlayerPageData(slug)
-  if (!data) notFound()
+  if (!data) permanentRedirect("/fpl/captains")
 
   const { gw, player, showcasePlayers, relatedPlayers } = data
   const bestValueLink = getBestValueHubLink(player.position, player.price)

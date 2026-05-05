@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { DevHeader } from "@/components/dev-header"
@@ -60,7 +60,7 @@ export default async function TransferTrendPage({
 
   const { player_out, player_in } = await params
   const data = await getTransferTrendPageData(player_out, player_in)
-  if (!data) notFound()
+  if (!data) permanentRedirect("/fpl/transfer-trends")
 
   const { gw, playerOut: pOut, playerIn: pIn } = data
   const text = buildTransferPageText(data)

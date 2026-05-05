@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { ConversationalPlayer } from "@/components/conversational-player"
@@ -223,7 +223,7 @@ export default async function FplDifferentialPage({
   const { slug } = await params
   if (await isSeasonOver()) return <SeasonEnded />
   const data = await getPlayerTransferData(slug)
-  if (!data) notFound()
+  if (!data) permanentRedirect("/fpl/differentials")
 
   const { gw, player, showcasePlayers, relatedPlayers, fixtureRun, transfersInGW, differentialAlternatives } = data
   const {

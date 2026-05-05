@@ -118,7 +118,7 @@ export function toSlug(webName: string, teamShort?: string): string {
 export function isEligiblePlayer(p: any): boolean {
   const mins = p.minutes ?? 0
   const sel  = parseFloat(p.selected_by_percent ?? "0")
-  return (mins >= 1000 && sel >= 1.0) || mins >= 2000
+  return (mins >= 1000 && sel >= 1.0) || mins >= 1500
 }
 
 export async function getEligibleSlugs(): Promise<{ slug: string }[]> {
@@ -494,12 +494,21 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
   else
     caseFor.push(`Ownership: ${p.ownership}% makes him a genuine differential. A big return moves you up the overall rankings.`)
 
-  if (p.goals + p.assists >= 15)
-    caseFor.push(`Returns: ${p.goals} goals and ${p.assists} assists this season - consistent output that justifies the price.`)
-  else if (p.goals + p.assists >= 8)
-    caseFor.push(`Returns: ${p.goals} goals and ${p.assists} assists this season - decent underlying output.`)
-  else
-    caseAgainst.push(`Returns: only ${p.goals} goals and ${p.assists} assists this season - the volume has not been there.`)
+  const isKeeper = p.position === "GKP"
+  const goalsWord = p.goals === 1 ? "goal" : "goals"
+  const assistsWord = p.assists === 1 ? "assist" : "assists"
+
+  if (isKeeper) {
+    caseAgainst.push(`Position: ${p.webName} is a goalkeeper - captaincy ceiling is limited to clean-sheet, save and bonus points, well below what premium outfielders can deliver on a big day.`)
+  } else if (p.goals + p.assists >= 15) {
+    caseFor.push(`Returns: ${p.goals} ${goalsWord} and ${p.assists} ${assistsWord} this season - consistent output that justifies the price.`)
+  } else if (p.goals + p.assists >= 8) {
+    caseFor.push(`Returns: ${p.goals} ${goalsWord} and ${p.assists} ${assistsWord} this season - decent underlying output.`)
+  } else if (p.goals + p.assists === 0) {
+    caseAgainst.push(`Returns: no goals or assists this season - attacking volume simply has not been there.`)
+  } else {
+    caseAgainst.push(`Returns: ${p.goals} ${goalsWord} and ${p.assists} ${assistsWord} this season - the volume has not been there.`)
+  }
 
   if (p.chance < 75)
     caseAgainst.push(`Availability: ${formatFplNews(p.news)} - real risk he does not start or plays reduced minutes.`)
@@ -672,8 +681,10 @@ export async function getPlayerTransferData(
       events.find((e: any) => e.is_next)?.id ??
       ((events.find((e: any) => e.is_current)?.id ?? 30) + 1)
 
-    // Fetch next 4 GW fixtures in parallel
-    const gwsToFetch = [nextGW, nextGW + 1, nextGW + 2, nextGW + 3]
+    // Fetch next 4 GW fixtures in parallel - capped at the season's final GW
+    // so we never project into a non-existent gameweek (e.g. GW39 in a 38-GW season)
+    const maxGW = events.length > 0 ? Math.max(...events.map((e: any) => e.id as number)) : nextGW + 3
+    const gwsToFetch = [nextGW, nextGW + 1, nextGW + 2, nextGW + 3].filter((gw) => gw <= maxGW)
     const fixtureResults = await Promise.all(
       gwsToFetch.map((gw) =>
         fetch(

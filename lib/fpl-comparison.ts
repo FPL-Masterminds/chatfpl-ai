@@ -154,7 +154,9 @@ export async function getComparisonData(
       events.find((e: any) => e.is_next)?.id ??
       ((events.find((e: any) => e.is_current)?.id ?? 30) + 1)
 
-    const gwsToFetch = [nextGW, nextGW + 1, nextGW + 2, nextGW + 3]
+    // Cap at the season's final GW so we never project into a non-existent week
+    const maxGW = events.length > 0 ? Math.max(...events.map((e: any) => e.id as number)) : nextGW + 3
+    const gwsToFetch = [nextGW, nextGW + 1, nextGW + 2, nextGW + 3].filter((gw) => gw <= maxGW)
 
     // Single set of fixture fetches — filter both teams from same responses
     const fixtureResults = await Promise.all(
