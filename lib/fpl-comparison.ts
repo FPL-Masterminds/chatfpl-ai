@@ -269,6 +269,30 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   const { playerA: a, playerB: b, fixtureRunA, fixtureRunB, gw } = d
   const fwPhrase = fixtureWindowPhrase(Math.max(fixtureRunA.length, fixtureRunB.length))
 
+  // Keeper-aware season output sentence. Goalkeepers are not measured on
+  // goals/assists - their captaincy/transfer value is judged on points.
+  const seasonOutputLine = (
+    p: ComparisonPlayer,
+    scenario: "out" | "doubtful" | "available"
+  ): string => {
+    const isKeeper = p.position === "GKP"
+    const gw1 = p.goals === 1 ? "goal" : "goals"
+    const aw1 = p.assists === 1 ? "assist" : "assists"
+    if (scenario === "out") {
+      return isKeeper
+        ? `${p.displayName} has scored ${p.totalPts} points this season but cannot be relied upon this gameweek.`
+        : `${p.displayName} has contributed ${p.goals} ${gw1} and ${p.assists} ${aw1} this season but cannot be relied upon this gameweek.`
+    }
+    if (scenario === "doubtful") {
+      return isKeeper
+        ? `${p.displayName} has scored ${p.totalPts} points this season at ${p.price}.`
+        : `${p.displayName} has registered ${p.goals} ${gw1} and ${p.assists} ${aw1} this season at ${p.price}.`
+    }
+    return isKeeper
+      ? `${p.displayName} has scored ${p.totalPts} points this season at ${p.price}.`
+      : `${p.displayName} has registered ${p.goals} ${gw1} and ${p.assists} ${aw1} this season, totalling ${p.totalPts} points at ${p.price}.`
+  }
+
   // ── Injury / availability detection ────────────────────────────────────────
   const aOut      = a.chance === 0
   const bOut      = b.chance === 0
@@ -380,13 +404,13 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   if (aOut) {
     caseForA.push(`Unavailable: ${a.news ? formatFplNews(a.news) : "Currently ruled out - check latest injury news before transferring in."}`)
     caseForA.push(`${a.displayName} has a 0% chance of playing in GW${gw} per the FPL injury feed.`)
-    caseForA.push(`${a.displayName} has contributed ${a.goals} goals and ${a.assists} assists this season but cannot be relied upon this gameweek.`)
+    caseForA.push(seasonOutputLine(a, "out"))
   } else if (aDoubtful) {
     caseForA.push(`Injury doubt: ${a.news ? formatFplNews(a.news) : `Listed at ${a.chance}% chance of playing in GW${gw} - a significant risk.`}`)
-    caseForA.push(`${a.displayName} has registered ${a.goals} goals and ${a.assists} assists this season at ${a.price}.`)
+    caseForA.push(seasonOutputLine(a, "doubtful"))
     if (a.ep_next > 0) caseForA.push(`Projects ${a.ep_next.toFixed(1)} expected points in GW${gw} if fit, but availability is uncertain.`)
   } else {
-    caseForA.push(`${a.displayName} has registered ${a.goals} goals and ${a.assists} assists this season, totalling ${a.totalPts} points at ${a.price}.`)
+    caseForA.push(seasonOutputLine(a, "available"))
     if (a.ep_next > 0) {
       caseForA.push(`Expected to score ${a.ep_next.toFixed(1)} points in GW${gw}, making ${a.webName} a viable starting option.`)
     }
@@ -407,13 +431,13 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
   if (bOut) {
     caseForB.push(`Unavailable: ${b.news ? formatFplNews(b.news) : "Currently ruled out - check latest injury news before transferring in."}`)
     caseForB.push(`${b.displayName} has a 0% chance of playing in GW${gw} per the FPL injury feed.`)
-    caseForB.push(`${b.displayName} has contributed ${b.goals} goals and ${b.assists} assists this season but cannot be relied upon this gameweek.`)
+    caseForB.push(seasonOutputLine(b, "out"))
   } else if (bDoubtful) {
     caseForB.push(`Injury doubt: ${b.news ? formatFplNews(b.news) : `Listed at ${b.chance}% chance of playing in GW${gw} - a significant risk.`}`)
-    caseForB.push(`${b.displayName} has registered ${b.goals} goals and ${b.assists} assists this season at ${b.price}.`)
+    caseForB.push(seasonOutputLine(b, "doubtful"))
     if (b.ep_next > 0) caseForB.push(`Projects ${b.ep_next.toFixed(1)} expected points in GW${gw} if fit, but availability is uncertain.`)
   } else {
-    caseForB.push(`${b.displayName} has registered ${b.goals} goals and ${b.assists} assists this season, totalling ${b.totalPts} points at ${b.price}.`)
+    caseForB.push(seasonOutputLine(b, "available"))
     if (b.ep_next > 0) {
       caseForB.push(`Expected to score ${b.ep_next.toFixed(1)} points in GW${gw}, making ${b.webName} a viable starting option.`)
     }

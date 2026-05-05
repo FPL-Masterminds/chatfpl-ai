@@ -559,7 +559,9 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
         ? [
             `Not this gameweek - ${p.webName} has a Blank Gameweek ${gw} with no fixture scheduled.`,
             "",
-            `At ${p.price}, ${p.webName} has registered ${p.goals} goals and ${p.assists} assists this season for ${p.totalPts} points. ${formText}`,
+            isKeeper
+              ? `At ${p.price}, ${p.webName} has scored ${p.totalPts} points this season. ${formText}`
+              : `At ${p.price}, ${p.webName} has registered ${p.goals} ${goalsWord} and ${p.assists} ${assistsWord} this season for ${p.totalPts} points. ${formText}`,
             "",
             `With no fixture in Gameweek ${gw}, bringing ${p.webName} in now means missing a week of returns immediately. Unless your squad is already well covered for the blank, it is worth waiting until his fixtures resume.`,
             "",
@@ -570,7 +572,9 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
               ? `If you have the budget, yes - the timing makes sense.`
               : `It is worth considering, but the case is not as clear-cut as it might appear.`,
             "",
-            `At ${p.price}, ${p.webName} has registered ${p.goals} goals and ${p.assists} assists this season for ${p.totalPts} points in total. ${formText}`,
+            isKeeper
+              ? `At ${p.price}, ${p.webName} has scored ${p.totalPts} points this season in total. ${formText}`
+              : `At ${p.price}, ${p.webName} has registered ${p.goals} ${goalsWord} and ${p.assists} ${assistsWord} this season for ${p.totalPts} points in total. ${formText}`,
             "",
             fixtureText,
             "",
@@ -598,7 +602,9 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
           ? `Based on the numbers, yes - ${p.webName} has justified his price tag this season.`
           : `It depends on how the rest of your squad is structured.`,
         "",
-        `${p.webName} has scored ${p.totalPts} points at ${p.price} this season, with ${p.goals} goals and ${p.assists} assists. ${formText}`,
+        isKeeper
+          ? `${p.webName} has scored ${p.totalPts} points at ${p.price} this season. ${formText}`
+          : `${p.webName} has scored ${p.totalPts} points at ${p.price} this season, with ${p.goals} ${goalsWord} and ${p.assists} ${assistsWord}. ${formText}`,
         "",
         p.ownership >= 30
           ? `At ${p.ownership}% ownership, avoiding ${p.webName} is increasingly a deliberate differential call rather than a neutral decision.`
@@ -879,6 +885,9 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   const hardCount  = allMatches.filter((m) => m.fdr >= 4).length
   const blankGWs   = fixtureRun.filter((f) => f.matches.length === 0)
   const fwPhrase   = fixtureWindowPhrase(fixtureRun.length)
+  const isKeeper   = p.position === "GKP"
+  const goalsWord  = p.goals === 1 ? "goal" : "goals"
+  const assistsWord = p.assists === 1 ? "assist" : "assists"
   const doubleGWs  = fixtureRun.filter((f) => f.matches.length >= 2)
   const hasImmediateBlank = fixtureRun[0].matches.length === 0
   const hasBlankInRun  = blankGWs.length > 0
@@ -1063,7 +1072,9 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
           ? `The value case is reasonable. ${p.webName} has returned ${ptsPerMillion} points per million this season at ${p.price}.`
           : `The value case is harder to make right now. ${p.webName} has returned ${ptsPerMillion} points per million this season - below what you would want at ${p.price}.`,
         "",
-        `${p.webName} has ${p.goals} goals and ${p.assists} assists this season for ${p.totalPts} total points. The question is not just whether those numbers are good, but whether they are good enough relative to what you give up to fit him in.`,
+        isKeeper
+          ? `${p.webName} has scored ${p.totalPts} total points this season as a goalkeeper. The question is not just whether those numbers are good, but whether they are good enough relative to what you give up to fit him in.`
+          : `${p.webName} has ${p.goals} ${goalsWord} and ${p.assists} ${assistsWord} this season for ${p.totalPts} total points. The question is not just whether those numbers are good, but whether they are good enough relative to what you give up to fit him in.`,
         "",
         `ChatFPL AI can compare ${p.webName}'s value against the other options in his position and tell you whether the budget allocation makes sense for your squad.`,
       ].join("\n"),

@@ -36,7 +36,11 @@ function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: nu
   const ptsWinner   = totalPtsA >= totalPtsB ? nameA : nameB
   const valueWinner = ptsPerMillionA >= ptsPerMillionB ? nameA : nameB
 
-  const variant = (randomBase + rank) % 3
+  // Skip variant 1 (the goals-and-assists narrative) for goalkeeper pairings,
+  // since "0 goals and 0 assists" reads badly for keepers.
+  const variant = position === "GKP"
+    ? ((randomBase + rank) % 2 === 0 ? 0 : 2)
+    : (randomBase + rank) % 3
 
   if (variant === 0) {
     return `The expected points model has ${epWinner} at ${epLeader} for Gameweek ${gw}, against ${epTrailer} for ${epLoser}, a gap of ${gap} points heading into this gameweek. ` +
