@@ -80,12 +80,29 @@ function buildVerdict(player: InjuryPlayer, gw: number) {
   if (isAvailable) {
     verdictLabel = "AVAILABLE"
     verdict = `${displayName} has no current injury concerns and is expected to be available for Gameweek ${gw}.`
+
+    // Minutes-based role descriptor. A 38-game PL season has up to ~3420 minutes
+    // available, so we tier honestly rather than calling everyone a "regular starter".
+    const roleBullet =
+      minutes >= 2400 ? `Has played ${minutes} minutes this season as a regular starter`
+      : minutes >= 1500 ? `Has played ${minutes} minutes this season as a frequent starter`
+      : minutes >= 800  ? `Has played ${minutes} minutes this season in a rotational role`
+      : minutes >= 300  ? `Has played only ${minutes} minutes this season - a fringe squad role`
+                        : `Has played just ${minutes} minutes this season - very limited involvement`
+
     bullets = [
-      `Fully fit with no FPL news flags heading into GW${gw}`,
-      `${minutes} minutes accumulated this season as a regular starter`,
+      `Fully fit with no FPL injury flags heading into GW${gw}`,
+      roleBullet,
       `Form: ${form} pts/game over recent gameweeks`,
     ]
-    context = `With ${totalPts} total points this season at ${player.price}, ${displayName} remains a reliable asset. No action required from an injury perspective.`
+
+    // Output-based context. Don't claim "reliable asset" for 13 points.
+    context =
+      totalPts >= 150 ? `With ${totalPts} total points this season at ${player.price}, ${displayName} remains a reliable asset. No action required from an injury perspective.`
+      : totalPts >= 100 ? `With ${totalPts} total points this season at ${player.price}, ${displayName} has been a steady contributor. No action required from an injury perspective.`
+      : totalPts >=  60 ? `With ${totalPts} total points this season at ${player.price}, ${displayName} has been a modest contributor. The injury question is largely academic - the bigger call is whether they justify a squad place.`
+      : totalPts >=  30 ? `With ${totalPts} total points this season at ${player.price}, ${displayName} has had a low-impact season. Fitness is not the issue here - the alternatives below offer a stronger floor at a similar price point.`
+                        : `With ${totalPts} total points this season at ${player.price}, ${displayName} has had minimal FPL impact this season. Fitness is not the issue - involvement is. The alternatives below are stronger options at a similar price point.`
   } else if (isSuspended) {
     verdictLabel = "SUSPENDED"
     verdict = `${displayName} is suspended and unavailable for Gameweek ${gw}.`
@@ -103,7 +120,7 @@ function buildVerdict(player: InjuryPlayer, gw: number) {
       verdict = `${displayName} is no longer available to FPL managers for Gameweek ${gw}.`
       bullets = [
         news ? `FPL news: ${news}` : `${displayName} is unavailable for selection`,
-        `${minutes} minutes played this season before departing`,
+        `Played ${minutes} minutes this season before departing`,
         `Move ${displayName} on. The alternatives below are the best replacements at a similar price point.`,
       ]
       context = `${displayName} will not feature in any remaining gameweeks. If you still own them, sell now and pick from the alternatives below.`
@@ -112,7 +129,7 @@ function buildVerdict(player: InjuryPlayer, gw: number) {
       verdict = `${displayName} is currently unavailable for Gameweek ${gw} with a ${chance}% chance of playing.`
       bullets = [
         news ? `FPL news: ${news}` : `${displayName} has a ${chance}% chance of playing in GW${gw}`,
-        `${minutes} minutes played this season`,
+        `Played ${minutes} minutes this season`,
         `Monitor official club and FPL news ahead of the GW${gw} deadline`,
       ]
       context = `With a ${chance}% chance of playing, selecting ${displayName} this week carries real risk. The alternatives below are the best available options at a similar price point.`
