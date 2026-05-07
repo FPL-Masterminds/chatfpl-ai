@@ -56,14 +56,19 @@ async function submitUrl(url: string, token: string): Promise<"submitted" | "err
 // ─── Fetch sitemap URLs ───────────────────────────────────────────────────────
 
 async function getSitemapUrls(): Promise<string[]> {
-  try {
-    const res = await fetch(`${SITE}/sitemap.xml`);
-    const xml = await res.text();
-    const matches = xml.match(/<loc>(.*?)<\/loc>/g) ?? [];
-    return matches.map((m) => m.replace(/<\/?loc>/g, "").trim());
-  } catch {
-    return [];
+  const res = await fetch(`${SITE}/sitemap.xml`, {
+    headers: { "User-Agent": "ChatFPL-IndexingCron/1.0" },
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    throw new Error(`Sitemap fetch failed: HTTP ${res.status}`);
   }
+  const xml = await res.text();
+  const matches = xml.match(/<loc>(.*?)<\/loc>/g) ?? [];
+  if (matches.length === 0) {
+    throw new Error("Sitemap returned no <loc> entries");
+  }
+  return matches.map((m) => m.replace(/<\/?loc>/g, "").trim());
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
@@ -92,11 +97,15 @@ export async function GET(request: Request) {
     ];
 
     // Filter to unsubmitted only, cap at daily limit
-    const toSubmit = allUrls
-      .filter((u) => !submittedSet.has(u))
-      .slice(0, DAILY_LIMIT);
+    const unsubmittedPool = allUrls.filter((u) => !submittedSet.has(u));
+    const toSubmit = unsubmittedPool.slice(0, DAILY_LIMIT);
+
+    console.log(
+      `Google Indexing cron: sitemap=${sitemapUrls.length}, alreadySubmitted=${submittedSet.size}, queueRemaining=${unsubmittedPool.length}, willSubmitNow=${toSubmit.length}`
+    );
 
     if (toSubmit.length === 0) {
+      console.warn("Google Indexing cron: queue empty - nothing to submit today");
       return NextResponse.json({ message: "All known URLs already submitted", submitted: 0 });
     }
 
