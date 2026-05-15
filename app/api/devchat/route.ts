@@ -537,9 +537,32 @@ PERSONALITY:
       redditContext,
     ].filter(Boolean).join("\n\n---\n\n");
 
+    // Detect personal-team intent. If the user is asking about their own
+    // squad/chips and has NOT saved their FPL Team ID, gate the agent so
+    // it asks them to link first rather than hallucinating a generic squad.
+    const messageLowerForGate = message.toLowerCase();
+    const isPersonalTeamQuery =
+      /\b(analyse|analyze|review|check|look at|rate)\s+my\b/.test(messageLowerForGate) ||
+      /\bmy\s+(team|squad|xi|eleven|captain|transfers?|bench|wildcard|free\s*hit|triple\s*captain|bench\s*boost|chips?)\b/.test(messageLowerForGate) ||
+      /\bshould\s+i\s+(use|play|activate|trigger|burn)\s+my\b/.test(messageLowerForGate);
+
+    const noTeamIdNotice =
+      isPersonalTeamQuery && !user.fpl_team_id
+        ? `
+
+USER_TEAM_LINK_STATUS: NOT_LINKED
+The user is asking a personal-team question ("${message.slice(0, 120)}") but has NOT saved their public FPL Team ID, so you do not have access to their squad, rank, transfers, chip status, or per-player picks. You MUST handle this gracefully:
+1. Briefly acknowledge the question in one short sentence.
+2. Tell ${userFirstName} clearly that you cannot review their actual squad because their FPL Team ID is not linked yet.
+3. Direct them to https://www.chatfpl.ai/admin (the Settings page) where they can paste their public FPL Team ID. It takes about 10 seconds and only requires the public ID from their FPL team URL - no password.
+4. Offer an immediate fallback: if they paste their 15-player squad (web names + captain + bank balance + free transfers + chips remaining) in the next message, you can analyse from that text right away.
+Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would..." dressed up as personal advice. Do NOT recommend specific transfers or captains as if you know their current team. Keep the whole response short and friendly - this is a guidance message, not a deep analysis.
+`
+        : "";
+
     const enhancedMessage = combinedContext
-      ? `${combinedContext}\n\n${formattingInstructions}\n---\n\nUser Question: ${message}`
-      : `${formattingInstructions}\n---\n\nUser Question: ${message}`;
+      ? `${combinedContext}\n\n${formattingInstructions}${noTeamIdNotice}\n---\n\nUser Question: ${message}`
+      : `${formattingInstructions}${noTeamIdNotice}\n---\n\nUser Question: ${message}`;
 
     // ── Dify API call ─────────────────────────────────────────────────────────
     const difyApiKey = process.env.DIFY_API_KEY;
