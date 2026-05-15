@@ -8,6 +8,7 @@ import { Send } from "lucide-react"
 import Link from "next/link"
 
 const STATIC_PROMPTS = [
+  "Analyse my team",
   "Best captain this gameweek?",
   "Compare Isak vs Watkins",
   "Give me 3 low-owned midfielders",
