@@ -753,6 +753,7 @@ PERSONALITY RULES:
         let buf = "";
         let fullAnswer = "";
         let difyConvIdFinal = difyConversationId;
+        let totalTokens: number | null = null;
 
         const send = (obj: object) =>
           ctrl.enqueue(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
@@ -779,6 +780,8 @@ PERSONALITY RULES:
                   if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
                 } else if (evt.event === "message_end") {
                   if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
+                  const usageTotal = evt?.metadata?.usage?.total_tokens;
+                  if (typeof usageTotal === "number") totalTokens = usageTotal;
                 } else if (evt.event === "error") {
                   throw new Error(evt.message || "Dify stream error");
                 }
@@ -821,7 +824,12 @@ PERSONALITY RULES:
             data: { conversation_id: conversation.id, role: "user", content: message },
           });
           await prisma.message.create({
-            data: { conversation_id: conversation.id, role: "assistant", content: fixedAnswer },
+            data: {
+              conversation_id: conversation.id,
+              role: "assistant",
+              content: fixedAnswer,
+              tokens_used: totalTokens,
+            },
           });
 
           send({

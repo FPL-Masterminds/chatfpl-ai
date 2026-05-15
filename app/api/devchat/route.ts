@@ -632,8 +632,18 @@ PERSONALITY:
 
     const fixedAnswer = fixAssistantMarkdownPlayerPhotos(difyData.answer, photoRowsForFix);
 
+    const totalTokens =
+      typeof difyData?.metadata?.usage?.total_tokens === "number"
+        ? difyData.metadata.usage.total_tokens
+        : null;
+
     await prisma.message.create({
-      data: { conversation_id: conversation.id, role: "assistant", content: fixedAnswer },
+      data: {
+        conversation_id: conversation.id,
+        role: "assistant",
+        content: fixedAnswer,
+        tokens_used: totalTokens,
+      },
     });
 
     return NextResponse.json({
