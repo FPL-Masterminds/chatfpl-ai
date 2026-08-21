@@ -231,88 +231,96 @@ function buildShowcaseData(json: any): ShowcasePlayers {
   const topFiltered = (arr: any[], filter: (p: any) => boolean, key: (p: any) => number) =>
     [...arr].filter(filter).sort((a, b) => key(b) - key(a))[0]
 
-  const tickerFacts: TickerFact[] = [
+  // Ticker facts can throw in preseason when filters like `minutes > 450`
+  // match nothing and downstream code tries to read `.first_name` off
+  // undefined. `safe` swallows that per-fact so one dud can't blank the
+  // whole homepage panel.
+  const safe = <T,>(fn: () => T | null): T | null => {
+    try { return fn() } catch { return null }
+  }
+
+  const tickerFacts: TickerFact[] = ([
     // 1. Most expensive
-    (() => { const p = top(allPlayers, p => p.now_cost); return toFact(p, `${fn(p)} of ${club(p)} is the most expensive player in FPL this season at £${(p.now_cost / 10).toFixed(1)}m`) })(),
+    safe(() => { const p = top(allPlayers, p => p.now_cost); return toFact(p, `${fn(p)} of ${club(p)} is the most expensive player in FPL this season at £${(p.now_cost / 10).toFixed(1)}m`) }),
 
     // 2. Cheapest starting GK
-    (() => { const p = topFiltered(active, p => p.element_type === 1, p => -p.now_cost); return toFact(p, `${fn(p)} of ${club(p)} is the cheapest starting goalkeeper in FPL at just £${(p.now_cost / 10).toFixed(1)}m`) })(),
+    safe(() => { const p = topFiltered(active, p => p.element_type === 1, p => -p.now_cost); return toFact(p, `${fn(p)} of ${club(p)} is the cheapest starting goalkeeper in FPL at just £${(p.now_cost / 10).toFixed(1)}m`) }),
 
     // 3. Best points-per-million
-    (() => { const p = topFiltered(active, p => p.minutes > 450, p => p.total_points / (p.now_cost / 10)); return toFact(p, `${fn(p)} of ${club(p)} offers the best value in FPL this season at ${(p.total_points / (p.now_cost / 10)).toFixed(1)} points per £1m spent`) })(),
+    safe(() => { const p = topFiltered(active, p => p.minutes > 450, p => p.total_points / (p.now_cost / 10)); return toFact(p, `${fn(p)} of ${club(p)} offers the best value in FPL this season at ${(p.total_points / (p.now_cost / 10)).toFixed(1)} points per £1m spent`) }),
 
     // 4. Highest form
-    (() => { const p = top(active, p => parseFloat(p.form)); return toFact(p, `${fn(p)} of ${club(p)} is the hottest ${posLabel[p.element_type]} in FPL right now with a form score of ${parseFloat(p.form).toFixed(1)}`) })(),
+    safe(() => { const p = top(active, p => parseFloat(p.form)); return toFact(p, `${fn(p)} of ${club(p)} is the hottest ${posLabel[p.element_type]} in FPL right now with a form score of ${parseFloat(p.form).toFixed(1)}`) }),
 
     // 5. Most owned
-    (() => { const p = top(allPlayers, p => parseFloat(p.selected_by_percent)); return toFact(p, `${fn(p)} of ${club(p)} is the most-owned player in FPL, selected by ${parseFloat(p.selected_by_percent).toFixed(1)}% of managers`) })(),
+    safe(() => { const p = top(allPlayers, p => parseFloat(p.selected_by_percent)); return toFact(p, `${fn(p)} of ${club(p)} is the most-owned player in FPL, selected by ${parseFloat(p.selected_by_percent).toFixed(1)}% of managers`) }),
 
     // 6. Most-owned midfielder
-    (() => { const p = topFiltered(allPlayers, p => p.element_type === 3, p => parseFloat(p.selected_by_percent)); return toFact(p, `${fn(p)} of ${club(p)} is the most-owned midfielder in FPL at ${parseFloat(p.selected_by_percent).toFixed(1)}% ownership`) })(),
+    safe(() => { const p = topFiltered(allPlayers, p => p.element_type === 3, p => parseFloat(p.selected_by_percent)); return toFact(p, `${fn(p)} of ${club(p)} is the most-owned midfielder in FPL at ${parseFloat(p.selected_by_percent).toFixed(1)}% ownership`) }),
 
     // 7. Most-owned defender
-    (() => { const p = topFiltered(allPlayers, p => p.element_type === 2, p => parseFloat(p.selected_by_percent)); return toFact(p, `${fn(p)} of ${club(p)} is the most-owned defender in FPL at ${parseFloat(p.selected_by_percent).toFixed(1)}% ownership`) })(),
+    safe(() => { const p = topFiltered(allPlayers, p => p.element_type === 2, p => parseFloat(p.selected_by_percent)); return toFact(p, `${fn(p)} of ${club(p)} is the most-owned defender in FPL at ${parseFloat(p.selected_by_percent).toFixed(1)}% ownership`) }),
 
     // 8. Best differential (low owned, high form)
-    (() => { const p = topFiltered(active, p => parseFloat(p.selected_by_percent) < 10 && parseFloat(p.form) >= 5, p => parseFloat(p.form)); return p ? toFact(p, `${fn(p)} of ${club(p)} is owned by just ${parseFloat(p.selected_by_percent).toFixed(1)}% of managers despite a form score of ${parseFloat(p.form).toFixed(1)}. The standout FPL differential right now`) : null })(),
+    safe(() => { const p = topFiltered(active, p => parseFloat(p.selected_by_percent) < 10 && parseFloat(p.form) >= 5, p => parseFloat(p.form)); return p ? toFact(p, `${fn(p)} of ${club(p)} is owned by just ${parseFloat(p.selected_by_percent).toFixed(1)}% of managers despite a form score of ${parseFloat(p.form).toFixed(1)}. The standout FPL differential right now`) : null }),
 
     // 9. Most transferred-in this GW
-    (() => { const p = top(allPlayers, p => p.transfers_in_event); return toFact(p, `${fn(p)} of ${club(p)} is the most-transferred-in player this gameweek with ${fmtTransfers(p.transfers_in_event)} transfers in`) })(),
+    safe(() => { const p = top(allPlayers, p => p.transfers_in_event); return toFact(p, `${fn(p)} of ${club(p)} is the most-transferred-in player this gameweek with ${fmtTransfers(p.transfers_in_event)} transfers in`) }),
 
     // 10. Most transferred-out this GW
-    (() => { const p = top(allPlayers, p => p.transfers_out_event); return toFact(p, `${fn(p)} of ${club(p)} is being sold by ${fmtTransfers(p.transfers_out_event)} managers this gameweek, the most-transferred-out player in FPL`) })(),
+    safe(() => { const p = top(allPlayers, p => p.transfers_out_event); return toFact(p, `${fn(p)} of ${club(p)} is being sold by ${fmtTransfers(p.transfers_out_event)} managers this gameweek, the most-transferred-out player in FPL`) }),
 
     // 11. Most transferred-in overall this season
-    (() => { const p = top(allPlayers, p => p.transfers_in); return toFact(p, `${fn(p)} of ${club(p)} has been brought into FPL squads ${fmtTransfers(p.transfers_in)} times this season, more than any other player`) })(),
+    safe(() => { const p = top(allPlayers, p => p.transfers_in); return toFact(p, `${fn(p)} of ${club(p)} has been brought into FPL squads ${fmtTransfers(p.transfers_in)} times this season, more than any other player`) }),
 
     // 12. Most total points
-    (() => { const p = top(allPlayers, p => p.total_points); return toFact(p, `${fn(p)} of ${club(p)} leads the FPL points table this season with ${p.total_points} points`) })(),
+    safe(() => { const p = top(allPlayers, p => p.total_points); return toFact(p, `${fn(p)} of ${club(p)} leads the FPL points table this season with ${p.total_points} points`) }),
 
     // 13. Highest points-per-game
-    (() => { const p = topFiltered(active, p => p.element_type !== 1 && p.minutes > 450, p => parseFloat(p.points_per_game)); return toFact(p, `${fn(p)} of ${club(p)} averages ${parseFloat(p.points_per_game).toFixed(1)} FPL points per game this season, the highest of any outfield player`) })(),
+    safe(() => { const p = topFiltered(active, p => p.element_type !== 1 && p.minutes > 450, p => parseFloat(p.points_per_game)); return toFact(p, `${fn(p)} of ${club(p)} averages ${parseFloat(p.points_per_game).toFixed(1)} FPL points per game this season, the highest of any outfield player`) }),
 
     // 14. Top scorer
-    (() => { const p = top(allPlayers, p => p.goals_scored); return toFact(p, `${fn(p)} of ${club(p)} is FPL's top scorer this season with ${p.goals_scored} Premier League goals`) })(),
+    safe(() => { const p = top(allPlayers, p => p.goals_scored); return toFact(p, `${fn(p)} of ${club(p)} is FPL's top scorer this season with ${p.goals_scored} Premier League goals`) }),
 
     // 15. Most assists
-    (() => { const p = top(allPlayers, p => p.assists); return toFact(p, `${fn(p)} of ${club(p)} has more FPL assists than anyone else this season, ${p.assists} in total`) })(),
+    safe(() => { const p = top(allPlayers, p => p.assists); return toFact(p, `${fn(p)} of ${club(p)} has more FPL assists than anyone else this season, ${p.assists} in total`) }),
 
     // 16. Most bonus points
-    (() => { const p = top(allPlayers, p => p.bonus); return toFact(p, `${fn(p)} of ${club(p)} has earned more FPL bonus points than any other player this season, ${p.bonus} in total`) })(),
+    safe(() => { const p = top(allPlayers, p => p.bonus); return toFact(p, `${fn(p)} of ${club(p)} has earned more FPL bonus points than any other player this season, ${p.bonus} in total`) }),
 
     // 17. BPS leader
-    (() => { const p = top(allPlayers, p => p.bps); return toFact(p, `${fn(p)} of ${club(p)} leads the Bonus Points System rankings this season with a BPS score of ${p.bps}`) })(),
+    safe(() => { const p = top(allPlayers, p => p.bps); return toFact(p, `${fn(p)} of ${club(p)} leads the Bonus Points System rankings this season with a BPS score of ${p.bps}`) }),
 
     // 18. Most clean sheets (defender)
-    (() => { const p = topFiltered(allPlayers, p => p.element_type === 2, p => p.clean_sheets); return toFact(p, `${fn(p)} of ${club(p)} has kept ${p.clean_sheets} clean sheets this season, the most of any FPL defender`) })(),
+    safe(() => { const p = topFiltered(allPlayers, p => p.element_type === 2, p => p.clean_sheets); return toFact(p, `${fn(p)} of ${club(p)} has kept ${p.clean_sheets} clean sheets this season, the most of any FPL defender`) }),
 
     // 19. Most saves (goalkeeper)
-    (() => { const p = topFiltered(allPlayers, p => p.element_type === 1, p => p.saves); return toFact(p, `${fn(p)} of ${club(p)} has made ${p.saves} saves this season, the most of any FPL goalkeeper`) })(),
+    safe(() => { const p = topFiltered(allPlayers, p => p.element_type === 1, p => p.saves); return toFact(p, `${fn(p)} of ${club(p)} has made ${p.saves} saves this season, the most of any FPL goalkeeper`) }),
 
     // 20. Highest xP next GW
-    (() => { const p = top(allPlayers, p => parseFloat(p.ep_next || "0")); return parseFloat(p.ep_next) > 0 ? toFact(p, `${fn(p)} of ${club(p)} has the highest expected FPL points for the next gameweek at ${parseFloat(p.ep_next).toFixed(1)} xPts`) : null })(),
+    safe(() => { const p = top(allPlayers, p => parseFloat(p.ep_next || "0")); return parseFloat(p.ep_next) > 0 ? toFact(p, `${fn(p)} of ${club(p)} has the highest expected FPL points for the next gameweek at ${parseFloat(p.ep_next).toFixed(1)} xPts`) : null }),
 
     // 21. Highest xP this GW
-    (() => { const p = top(allPlayers, p => parseFloat(p.ep_this || "0")); return parseFloat(p.ep_this) > 0 ? toFact(p, `${fn(p)} of ${club(p)} had the highest expected FPL points this gameweek with ${parseFloat(p.ep_this).toFixed(1)} xPts`) : null })(),
+    safe(() => { const p = top(allPlayers, p => parseFloat(p.ep_this || "0")); return parseFloat(p.ep_this) > 0 ? toFact(p, `${fn(p)} of ${club(p)} had the highest expected FPL points this gameweek with ${parseFloat(p.ep_this).toFixed(1)} xPts`) : null }),
 
     // 22. ICT index leader
-    (() => { const p = top(active, p => parseFloat(p.ict_index || "0")); return toFact(p, `${fn(p)} of ${club(p)} leads the ICT Index this season with a score of ${parseFloat(p.ict_index).toFixed(1)}`) })(),
+    safe(() => { const p = top(active, p => parseFloat(p.ict_index || "0")); return toFact(p, `${fn(p)} of ${club(p)} leads the ICT Index this season with a score of ${parseFloat(p.ict_index).toFixed(1)}`) }),
 
     // 23. Creativity leader
-    (() => { const p = top(active, p => parseFloat(p.creativity || "0")); return toFact(p, `${fn(p)} of ${club(p)} is the most creative player in the Premier League this season with a creativity score of ${parseFloat(p.creativity).toFixed(1)}`) })(),
+    safe(() => { const p = top(active, p => parseFloat(p.creativity || "0")); return toFact(p, `${fn(p)} of ${club(p)} is the most creative player in the Premier League this season with a creativity score of ${parseFloat(p.creativity).toFixed(1)}`) }),
 
     // 24. Threat leader
-    (() => { const p = top(active, p => parseFloat(p.threat || "0")); return toFact(p, `${fn(p)} of ${club(p)} tops the FPL threat rankings this season with a score of ${parseFloat(p.threat).toFixed(1)}`) })(),
+    safe(() => { const p = top(active, p => parseFloat(p.threat || "0")); return toFact(p, `${fn(p)} of ${club(p)} tops the FPL threat rankings this season with a score of ${parseFloat(p.threat).toFixed(1)}`) }),
 
     // 25. Yellow card leader
-    (() => { const p = topFiltered(active, p => p.yellow_cards >= 5, p => p.yellow_cards); return p ? toFact(p, `${fn(p)} of ${club(p)} has received ${p.yellow_cards} yellow cards this season. One to watch for a suspension`) : null })(),
+    safe(() => { const p = topFiltered(active, p => p.yellow_cards >= 5, p => p.yellow_cards); return p ? toFact(p, `${fn(p)} of ${club(p)} has received ${p.yellow_cards} yellow cards this season. One to watch for a suspension`) : null }),
 
     // 26. High-profile injury doubt
-    (() => { const p = topFiltered(allPlayers, p => p.chance_of_playing_next_round !== null && p.chance_of_playing_next_round < 100, p => p.total_points); return p ? toFact(p, `${fn(p)} of ${club(p)} is a doubt for the next gameweek with only a ${p.chance_of_playing_next_round}% chance of playing. ${p.news}`) : null })(),
+    safe(() => { const p = topFiltered(allPlayers, p => p.chance_of_playing_next_round !== null && p.chance_of_playing_next_round < 100, p => p.total_points); return p ? toFact(p, `${fn(p)} of ${club(p)} is a doubt for the next gameweek with only a ${p.chance_of_playing_next_round}% chance of playing. ${p.news}`) : null }),
 
     // 27. Top price riser this GW
-    (() => { const p = topFiltered(allPlayers, p => p.cost_change_event > 0, p => p.cost_change_event); return p ? toFact(p, `${fn(p)} of ${club(p)} has risen in price this gameweek and is now valued at £${(p.now_cost / 10).toFixed(1)}m`) : null })(),
-  ].filter(Boolean) as TickerFact[]
+    safe(() => { const p = topFiltered(allPlayers, p => p.cost_change_event > 0, p => p.cost_change_event); return p ? toFact(p, `${fn(p)} of ${club(p)} has risen in price this gameweek and is now valued at £${(p.now_cost / 10).toFixed(1)}m`) : null }),
+  ] as Array<TickerFact | null>).filter((f): f is TickerFact => f !== null)
 
   const now = new Date()
   const nextEvent = json.events
