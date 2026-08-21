@@ -107,7 +107,7 @@ const REVEAL = { duration: 0.75, ease: [0.16, 1, 0.3, 1] as number[] }
 // the carousel has *something* on first paint before the fetch resolves.
 // Never include players who may have left the Premier League here.
 const FALLBACK: Player[] = [
-  { id: 1, code: 223094, name: "Haaland", full_name: "Erling Haaland", team: "Man City", pos: "FWD", price: "14.0", ownership: "60.0", form: "6.0", ep_next: "6.0", goals: 0, assists: 0, total_points: 0, photo_url: "https://resources.premierleague.com/premierleague/photos/players/250x250/p223094.png", photo_fallback: "https://resources.premierleague.com/premierleague/photos/players/110x140/p223094.png", badge_url: "https://resources.premierleague.com/premierleague/badges/70/t43.png", news: "" },
+  { id: 1, code: 223094, name: "Haaland", full_name: "Erling Haaland", team: "Man City", pos: "FWD", price: "14.0", ownership: "60.0", form: "6.0", ep_next: "6.0", goals: 0, assists: 0, total_points: 0, photo_url: "https://resources.premierleague.com/premierleague25/photos/players/250x250/223094.png", photo_fallback: "https://resources.premierleague.com/premierleague25/photos/players/110x140/223094.png", badge_url: "https://resources.premierleague.com/premierleague/badges/70/t43.png", news: "" },
 ]
 
 // ─── Component ───────────────────────────────────────────────────────────────

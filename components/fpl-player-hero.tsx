@@ -14,7 +14,7 @@ function badgeUrl(teamCode: number) {
 }
 
 function photoUrl(code: number) {
-  return `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
+  return `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
 }
 
 export interface FplCardPlayer {
@@ -41,7 +41,7 @@ const SLOT_CFG = [
   { scale: 0.66, opacity: 0.35 },
 ]
 
-const SILHOUETTE = "https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png"
+const SILHOUETTE = "https://resources.premierleague.com/premierleague25/photos/players/110x140/Photo-Missing.png"
 
 function PlayerCard({ player, isCenter }: { player: FplCardPlayer; isCenter: boolean }) {
   const [errored, setErrored] = useState(false)

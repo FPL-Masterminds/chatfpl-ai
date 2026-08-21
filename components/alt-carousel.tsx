@@ -92,7 +92,7 @@ export function AltCarousel({ players }: { players: InjuryPlayer[] }) {
                     transition={isCenter ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : {}}
                   >
                     <Image
-                      src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`}
+                      src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
                       alt={player.displayName} width={110} height={140}
                       style={{ objectFit: "contain", display: "block", filter: isCenter ? "drop-shadow(0 8px 20px rgba(0,255,133,0.25))" : "drop-shadow(0 4px 8px rgba(0,0,0,0.5))" }}
                       unoptimized

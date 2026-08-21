@@ -63,7 +63,7 @@ function PlayerPhoto({ player }: { player: ComparisonPlayer }) {
     <div className="flex flex-col items-center gap-1 shrink-0" style={{ width: 80 }}>
       <div className="relative flex flex-col items-center">
         <Image
-          src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`}
+          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
           alt={player.webName}
           width={68}
           height={86}
@@ -220,7 +220,7 @@ function StatTable({ playerA, playerB }: { playerA: ComparisonPlayer; playerB: C
                 <td className="px-3 py-2 text-center" style={{ position: "sticky", left: 0, zIndex: 2, background: "#020a05" }}>
                   <div className="flex flex-col items-center mx-auto" style={{ width: 52 }}>
                     <Image
-                      src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`}
+                      src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
                       alt={player.webName}
                       width={52}
                       height={65}

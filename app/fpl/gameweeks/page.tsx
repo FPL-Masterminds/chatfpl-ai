@@ -188,7 +188,7 @@ function PlayerCard({ player, even, text }: { player: DGWPlayer; even: boolean; 
           </div>
           <div className="flex flex-col items-center">
             <Image
-              src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`}
+              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
               alt={player.displayName}
               width={160} height={204}
               className="w-14 sm:w-[160px]"

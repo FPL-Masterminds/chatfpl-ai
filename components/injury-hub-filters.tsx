@@ -13,7 +13,7 @@ function PlayerPhoto({ code, name, width, height, className }: {
   if (errored) {
     return (
       <Image
-        src="https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png"
+        src="https://resources.premierleague.com/premierleague25/photos/players/110x140/Photo-Missing.png"
         alt="" width={width} height={height}
         className={className}
         style={{ objectFit: "contain", opacity: 0.4 }}
@@ -24,7 +24,7 @@ function PlayerPhoto({ code, name, width, height, className }: {
 
   return (
     <Image
-      src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`}
+      src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`}
       alt={name} width={width} height={height}
       className={className}
       style={{ objectFit: "contain" }}

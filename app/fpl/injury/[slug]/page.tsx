@@ -164,7 +164,7 @@ function AltBox({ player }: { player: InjuryPlayer }) {
     >
       <div className="flex flex-col items-center">
         <Image
-          src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`}
+          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
           alt={player.displayName} width={80} height={102}
           style={{ objectFit: "contain", display: "block" }} unoptimized
         />

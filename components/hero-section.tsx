@@ -12,7 +12,7 @@ type HeroPlayer = {
 }
 
 const SILHOUETTE =
-  "https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png"
+  "https://resources.premierleague.com/premierleague25/photos/players/110x140/Photo-Missing.png"
 
 export function HeroSection() {
   const [players, setPlayers] = useState<HeroPlayer[]>([])

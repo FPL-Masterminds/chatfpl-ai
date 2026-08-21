@@ -91,7 +91,7 @@ function TransferCard({ pair, rank, gw, text }: {
           >OUT</div>
           <div className="flex flex-col items-center">
             <Image
-              src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${pOut.code}.png`}
+              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pOut.code}.png`}
               alt={pOut.displayName} width={160} height={204} className="w-12 sm:w-[160px]"
               style={{ objectFit: "contain" }} unoptimized
             />
@@ -187,7 +187,7 @@ function TransferCard({ pair, rank, gw, text }: {
           >IN</div>
           <div className="flex flex-col items-center">
             <Image
-              src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${pIn.code}.png`}
+              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pIn.code}.png`}
               alt={pIn.displayName} width={160} height={204} className="w-12 sm:w-[160px]"
               style={{ objectFit: "contain" }} unoptimized
             />

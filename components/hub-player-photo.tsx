@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 
-const SILHOUETTE = "https://resources.premierleague.com/premierleague/photos/players/110x140/Photo-Missing.png"
+const SILHOUETTE = "https://resources.premierleague.com/premierleague25/photos/players/110x140/Photo-Missing.png"
 
 export function HubPlayerPhoto({
   code,
@@ -24,7 +24,7 @@ export function HubPlayerPhoto({
 
   const src = errored
     ? SILHOUETTE
-    : `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
+    : `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
