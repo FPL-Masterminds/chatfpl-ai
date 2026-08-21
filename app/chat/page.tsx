@@ -346,7 +346,10 @@ export default function ChatPage() {
       if (i % 3 === 0 && parts[i]) elements.push(parts[i])
       else if (i % 3 === 1) {
         const alt = parts[i]; const url = parts[i + 1]
-        if (url) elements.push(<img key={`img-${i}`} src={url} alt={alt} className="inline-block h-12 w-auto rounded mx-1" />)
+        // Inline player photos rendered from markdown ![alt](url) in Dify replies.
+        // Previous size: h-12 (48px). Bumped ~20% to h-14 (56px) on 2026-08-21;
+        // revert to h-12 if this feels too heavy.
+        if (url) elements.push(<img key={`img-${i}`} src={url} alt={alt} className="inline-block h-14 w-auto rounded mx-1" />)
         i++
       }
     }
