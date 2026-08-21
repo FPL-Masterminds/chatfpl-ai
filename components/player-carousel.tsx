@@ -17,9 +17,20 @@ const POSITIONS = [
 // All positions use the same green pill — consistent brand colour
 const PILL_COLOR = "#00FF85"
 
-// Empty fallback: if the showcase API fails, we render nothing rather than
-// risk displaying players who are no longer in the Premier League.
-const FALLBACK: ShowcasePlayer[] = []
+// Fallback: top-owned players from the 2026/27 FPL bootstrap, used on first
+// paint before /api/showcase-players resolves and if the API ever fails.
+// Only include players confirmed in the current-season API. Update once
+// per season during preseason prep (never during an active campaign).
+const CDN = "https://resources.premierleague.com/premierleague/photos/players/250x250"
+const FALLBACK: ShowcasePlayer[] = [
+  { name: "Haaland",     club: "Man City",    position: "FWD", price: "£14.0m", totalPts: 0, form: "0.0", photoUrl: `${CDN}/p223094.png`, teamCode: 43 },
+  { name: "João Pedro",  club: "Chelsea",     position: "FWD", price: "£8.0m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/p475168.png`, teamCode: 8  },
+  { name: "B.Fernandes", club: "Man Utd",     position: "MID", price: "£9.0m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/p141746.png`, teamCode: 1  },
+  { name: "Szoboszlai",  club: "Liverpool",   position: "MID", price: "£7.0m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/p424876.png`, teamCode: 14 },
+  { name: "Calafiori",   club: "Arsenal",     position: "DEF", price: "£5.5m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/p466075.png`, teamCode: 3  },
+  { name: "Mbeumo",      club: "Man Utd",     position: "MID", price: "£8.0m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/p446008.png`, teamCode: 1  },
+  { name: "Raya",        club: "Arsenal",     position: "GKP", price: "£5.5m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/p154561.png`, teamCode: 3  },
+]
 
 const badgeUrl = (code: number) =>
   `https://resources.premierleague.com/premierleague/badges/70/t${code}.png`
@@ -112,8 +123,6 @@ export default function PlayerCarousel() {
     if (Math.abs(diff) > 40) advance(diff < 0 ? 1 : -1)
     setIsDragging(false)
   }
-
-  if (total === 0) return null
 
   const slotIndices = [
     (center - 2 + total) % total,

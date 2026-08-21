@@ -82,10 +82,16 @@ export async function GET() {
 
   const posMap: Record<number, string> = { 1: "GKP", 2: "DEF", 3: "MID", 4: "FWD" }
 
-  // Playing regularly, not suspended/unavailable
-  const active = json.elements.filter((p: any) =>
-    p.status !== "u" && p.status !== "s" && p.minutes > 200
+  // Available players. Historically we required minutes > 200 to filter out
+  // long-term absentees, but that kills the whole carousel in GW1-2 when
+  // barely anyone has minutes. Detect early-season and relax accordingly.
+  const availableAll = json.elements.filter((p: any) =>
+    p.status !== "u" && p.status !== "s"
   )
+  const anyMidseason = availableAll.some((p: any) => p.minutes > 500)
+  const active = anyMidseason
+    ? availableAll.filter((p: any) => p.minutes > 200)
+    : availableAll
 
   const toPlayer = (p: any): ShowcasePlayer => ({
     name: p.web_name,
@@ -98,39 +104,47 @@ export async function GET() {
     teamCode: teamCodes[p.team] ?? 0,
   })
 
-  // Top points scorers who are still in decent form (removes historically good but currently dead players)
+  // Rank helper: prefer real season points + form once we have data, otherwise
+  // fall back to ep_next (FPL's own preseason projection) and ownership.
+  const rank = (p: any) =>
+    anyMidseason
+      ? p.total_points * 2 + parseFloat(p.form) * 10
+      : parseFloat(p.ep_next || "0") * 20 + parseFloat(p.selected_by_percent || "0")
+
   const topPts = [...active]
-    .filter((p: any) => parseFloat(p.form) >= 4.0)
-    .sort((a: any, b: any) => b.total_points - a.total_points)
+    .filter((p: any) => (anyMidseason ? parseFloat(p.form) >= 4.0 : true))
+    .sort((a: any, b: any) => (anyMidseason ? b.total_points - a.total_points : rank(b) - rank(a)))
     .slice(0, 5)
     .map(toPlayer)
 
-  // Hottest form players right now
   const topForm = [...active]
-    .filter((p: any) => parseFloat(p.form) >= 5.0)
-    .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
+    .filter((p: any) => (anyMidseason ? parseFloat(p.form) >= 5.0 : true))
+    .sort((a: any, b: any) => (anyMidseason ? parseFloat(b.form) - parseFloat(a.form) : rank(b) - rank(a)))
     .slice(0, 5)
     .map(toPlayer)
 
-  // Price risers this gameweek - trending transfer targets
   const risers = [...active]
-    .filter((p: any) => p.cost_change_event > 0 && parseFloat(p.form) >= 3.0)
+    .filter((p: any) => p.cost_change_event > 0 && (anyMidseason ? parseFloat(p.form) >= 3.0 : true))
     .sort((a: any, b: any) => b.cost_change_event - a.cost_change_event)
     .slice(0, 5)
     .map(toPlayer)
 
-  // Differentials: low owned but in form
   const differentials = [...active]
-    .filter((p: any) => parseFloat(p.selected_by_percent) < 12 && parseFloat(p.form) >= 4.5)
-    .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
+    .filter((p: any) =>
+      parseFloat(p.selected_by_percent) < 12 &&
+      (anyMidseason ? parseFloat(p.form) >= 4.5 : parseFloat(p.ep_next || "0") >= 3.0)
+    )
+    .sort((a: any, b: any) => (anyMidseason ? parseFloat(b.form) - parseFloat(a.form) : rank(b) - rank(a)))
     .slice(0, 5)
     .map(toPlayer)
 
-  // Top 3 by position (for WhyChatFPL section) — sorted by last gameweek points
+  // Top 3 by position. Preseason: ranked by ep_next; mid-season: last GW points.
   const topByPos = (type: number) =>
     [...active]
-      .filter((p: any) => p.element_type === type && p.event_points > 0)
-      .sort((a: any, b: any) => b.event_points - a.event_points)
+      .filter((p: any) => p.element_type === type && (anyMidseason ? p.event_points > 0 : true))
+      .sort((a: any, b: any) =>
+        anyMidseason ? b.event_points - a.event_points : rank(b) - rank(a)
+      )
       .slice(0, 3)
       .map(toPlayer)
 
