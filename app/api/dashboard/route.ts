@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -44,14 +44,33 @@ export async function GET() {
     const currentGW = bootstrap.events?.find((e: any) => e.is_current) ?? bootstrap.events?.[bootstrap.events.length - 1];
     const currentGWId: number = currentGW?.id ?? 1;
 
-    // Parallel: picks + private league
-    const privateLeague = (entry.leagues?.classic ?? []).find((l: any) => l.league_type === "x")
-      ?? (entry.leagues?.classic ?? [])[0];
+    // User-created ("private") leagues only. FPL's system leagues (Overall,
+    // country, region, sky sports etc) use league_type === "s" and have
+    // millions of managers - useless for a mini-league panel. Keep only
+    // classic user-created leagues here.
+    const allClassic: any[] = entry.leagues?.classic ?? [];
+    const privateLeagues = allClassic.filter((l: any) => l.league_type === "x");
+    const availableLeagues = privateLeagues.map((l: any) => ({
+      id: l.id as number,
+      name: l.name as string,
+      rank: (l.entry_rank as number) ?? 0,
+    }));
+
+    // Pick which league to load standings for. Client can override via
+    // ?league=<id>; otherwise default to the first user-created league,
+    // matching the previous single-league behaviour.
+    const requestedLeagueId = Number(
+      new URL(request.url).searchParams.get("league") ?? ""
+    );
+    const activeLeague =
+      privateLeagues.find((l: any) => l.id === requestedLeagueId) ??
+      privateLeagues[0] ??
+      allClassic[0];
 
     const [picksRes, leagueRes] = await Promise.all([
       fetch(`https://fantasy.premierleague.com/api/entry/${teamId}/event/${currentGWId}/picks/`, { headers: H }),
-      privateLeague
-        ? fetch(`https://fantasy.premierleague.com/api/leagues-classic/${privateLeague.id}/standings/?page_standings=1`, { headers: H })
+      activeLeague
+        ? fetch(`https://fantasy.premierleague.com/api/leagues-classic/${activeLeague.id}/standings/?page_standings=1`, { headers: H })
         : Promise.resolve(null),
     ]);
 
@@ -294,7 +313,9 @@ export async function GET() {
       squad,
       gw_history: gwHistory,
       recent_transfers: recentTransfers,
-      league_name: leagueData?.league?.name ?? null,
+      league_name: leagueData?.league?.name ?? activeLeague?.name ?? null,
+      league_id: activeLeague?.id ?? null,
+      available_leagues: availableLeagues,
       league_standings: leagueStandings,
       transfer_targets: transferTargets,
     });

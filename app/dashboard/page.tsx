@@ -54,7 +54,10 @@ interface DashboardData {
   current_gw: number; current_gw_name: string; active_chip: string | null
   chips: ChipStatus[]; squad: SquadPlayer[]; gw_history: GWPoint[]
   recent_transfers: Transfer[]
-  league_name: string | null; league_standings: LeagueRow[]
+  league_name: string | null
+  league_id: number | null
+  available_leagues: { id: number; name: string; rank: number }[]
+  league_standings: LeagueRow[]
   transfer_targets: Record<string, TransferTarget[]>
 }
 
@@ -698,8 +701,18 @@ function simulateWinProb(standings: LeagueRow[], remainingGws: number): Record<n
   return result
 }
 
-function LeaguePanel({ data }: { data: DashboardData }) {
+function LeaguePanel({
+  data,
+  onLeagueChange,
+  switchingLeague,
+}: {
+  data: DashboardData
+  onLeagueChange: (id: number) => void
+  switchingLeague: boolean
+}) {
   const standings = data.league_standings
+  const leagues = data.available_leagues ?? []
+  const hasMultiple = leagues.length > 1
   const user = standings.find(s => s.is_user)
   const leader = standings[0]
   const gapToFirst = user && leader && !user.is_user || (user && leader && user.entry_id !== leader.entry_id)
@@ -737,9 +750,51 @@ function LeaguePanel({ data }: { data: DashboardData }) {
         {/* ── League standings ── */}
         {standings.length > 0 && (
           <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-5">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold">{data.league_name ?? "Mini-League"}</p>
-              <p className="text-xs text-white">{standings.length} managers</p>
+            <div className="flex items-center justify-between gap-3 mb-4">
+              {hasMultiple ? (
+                <div
+                  className="relative rounded-full"
+                  style={{
+                    padding: "1.5px",
+                    background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
+                    backgroundSize: "220% 220%",
+                    animation: "glow_scroll 4s linear infinite",
+                    maxWidth: "100%",
+                  }}
+                >
+                  <select
+                    value={data.league_id ?? ""}
+                    onChange={(e) => onLeagueChange(Number(e.target.value))}
+                    disabled={switchingLeague}
+                    className="appearance-none bg-black rounded-full pl-4 pr-9 py-1.5 text-xs uppercase tracking-[0.16em] font-semibold text-white cursor-pointer focus:outline-none disabled:opacity-60 disabled:cursor-wait max-w-full truncate"
+                    style={{ minWidth: 0 }}
+                    title="Switch mini-league"
+                  >
+                    {leagues.map((l) => (
+                      <option key={l.id} value={l.id} className="bg-[#0a0a0a] text-white normal-case tracking-normal">
+                        {l.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span
+                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px]"
+                    style={{
+                      color: "#00FF87",
+                      opacity: switchingLeague ? 0 : 1,
+                    }}
+                  >
+                    ▼
+                  </span>
+                  {switchingLeague && (
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
+                  )}
+                </div>
+              ) : (
+                <p className="text-xs uppercase tracking-[0.18em] text-white font-semibold truncate">
+                  {data.league_name ?? "Mini-League"}
+                </p>
+              )}
+              <p className="text-xs text-white shrink-0">{standings.length} manager{standings.length === 1 ? "" : "s"}</p>
             </div>
             <div className="space-y-1.5">
               {standings.map((row) => (
@@ -982,6 +1037,7 @@ export default function DashboardPage() {
   const [status, setStatus] = useState<"loading" | "no_team" | "error" | "ready">("loading")
   const [loaded, setLoaded] = useState(false)
   const [activeTab, setActiveTab] = useState("squad")
+  const [switchingLeague, setSwitchingLeague] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -998,6 +1054,19 @@ export default function DashboardPage() {
     }
     load()
   }, [router])
+
+  const handleLeagueChange = async (leagueId: number) => {
+    if (!data || leagueId === data.league_id) return
+    setSwitchingLeague(true)
+    try {
+      const res = await fetch(`/api/dashboard?league=${leagueId}`)
+      if (res.ok) setData(await res.json())
+    } catch {
+      // Silent fail - the current view stays valid, user can retry
+    } finally {
+      setSwitchingLeague(false)
+    }
+  }
 
   if (status === "loading") return (
     <div className="fixed inset-0 flex items-center justify-center bg-black">
@@ -1106,7 +1175,7 @@ export default function DashboardPage() {
                   {activeTab === "squad"       && <SquadPanel       data={data} />}
                   {activeTab === "performance" && <PerformancePanel  data={data} />}
                   {activeTab === "transfers"   && <TransfersPanel    data={data} />}
-                  {activeTab === "league"      && <LeaguePanel       data={data} />}
+                  {activeTab === "league"      && <LeaguePanel       data={data} onLeagueChange={handleLeagueChange} switchingLeague={switchingLeague} />}
                 </motion.div>
               </AnimatePresence>
             </div>
