@@ -13,6 +13,9 @@ type CacheShape = { data: HeroPlayer[]; ts: number }
 let cache: CacheShape | null = null
 const CACHE_MS = 30 * 60 * 1000
 
+// Don't prerender at build time - FPL API is flaky from the build machine
+// and we want a fresh in-memory cache started at first real request.
+export const dynamic = "force-dynamic"
 export const revalidate = 1800
 
 /**
@@ -30,11 +33,20 @@ export async function GET() {
     return NextResponse.json(cache.data)
   }
 
-  const res = await fetch(FPL_URL, { next: { revalidate: 1800 } })
-  const json = await res.json()
+  let json: any = null
+  try {
+    const res = await fetch(FPL_URL, { next: { revalidate: 1800 } })
+    if (!res.ok) throw new Error(`FPL bootstrap HTTP ${res.status}`)
+    const text = await res.text()
+    if (!text) throw new Error("Empty FPL bootstrap response")
+    json = JSON.parse(text)
+  } catch (err) {
+    console.warn("hero-players: FPL fetch failed", err)
+    return NextResponse.json([], { status: 200 })
+  }
 
   if (!json?.elements || !json?.teams) {
-    return NextResponse.json({ error: "FPL API unavailable" }, { status: 503 })
+    return NextResponse.json([], { status: 200 })
   }
 
   const teamFullNames: Record<number, string> = {}
