@@ -101,6 +101,7 @@ export default async function FplPlayerPage({
         h1Gradient={`Fantasy Premier League Gameweek ${gw}?`}
         subtitle={`Gameweek ${gw} · ${player.club} · ${player.position} · ${player.price}`}
         players={showcasePlayers}
+        singleCard
       />
 
       {/* Analysis */}

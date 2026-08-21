@@ -116,6 +116,7 @@ export default async function FplTransferPage({
         subtitle={`Gameweek ${gw} · ${player.club} · ${player.position} · ${player.price}`}
         players={showcasePlayers}
         badgeLabel="Transfer Analysis"
+        singleCard
       />
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">

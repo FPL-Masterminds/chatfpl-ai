@@ -83,11 +83,24 @@ export async function GET(request: Request) {
   try {
     const token = await getAccessToken();
 
-    // Get all already-submitted URLs
+    // Get every previous submission with its timestamp so we can decide
+    // whether high-value hubs are due a weekly refresh.
     const submitted = await prisma.indexingLog.findMany({
-      select: { url: true },
+      select: { url: true, submitted_at: true },
     });
-    const submittedSet = new Set(submitted.map((r) => r.url));
+    const submittedAt = new Map<string, Date>();
+    for (const r of submitted) submittedAt.set(r.url, r.submitted_at);
+
+    // High-value hubs get re-signalled weekly since their content changes
+    // materially each gameweek (new injuries, transfers, DGW/BGW schedule).
+    // Everything else stays "submit once" and lets Google's own crawler
+    // handle refreshes.
+    const HUB_REFRESH_MS = 7 * 24 * 60 * 60 * 1000;
+    const isHubDueRefresh = (url: string) => {
+      if (!PRIORITY_URLS.includes(url)) return false;
+      const last = submittedAt.get(url);
+      return !last || Date.now() - last.getTime() >= HUB_REFRESH_MS;
+    };
 
     // Build candidate list: priority hubs first, then sitemap
     const sitemapUrls = await getSitemapUrls();
@@ -96,12 +109,16 @@ export async function GET(request: Request) {
       ...sitemapUrls.filter((u) => !PRIORITY_URLS.includes(u)),
     ];
 
-    // Filter to unsubmitted only, cap at daily limit
-    const unsubmittedPool = allUrls.filter((u) => !submittedSet.has(u));
+    // Keep any URL never submitted, plus hubs whose last submission is
+    // older than a week.
+    const unsubmittedPool = allUrls.filter(
+      (u) => !submittedAt.has(u) || isHubDueRefresh(u)
+    );
     const toSubmit = unsubmittedPool.slice(0, DAILY_LIMIT);
 
+    const hubRefreshCount = toSubmit.filter((u) => PRIORITY_URLS.includes(u)).length;
     console.log(
-      `Google Indexing cron: sitemap=${sitemapUrls.length}, alreadySubmitted=${submittedSet.size}, queueRemaining=${unsubmittedPool.length}, willSubmitNow=${toSubmit.length}`
+      `Google Indexing cron: sitemap=${sitemapUrls.length}, alreadySubmitted=${submittedAt.size}, queueRemaining=${unsubmittedPool.length}, willSubmitNow=${toSubmit.length} (${hubRefreshCount} hub refresh)`
     );
 
     if (toSubmit.length === 0) {
@@ -137,7 +154,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       submitted: results.submitted,
       errors: results.errors,
-      total_submitted_ever: submittedSet.size + results.submitted,
+      total_submitted_ever: submittedAt.size + results.submitted,
       urls_submitted: results.urls,
     });
   } catch (err: any) {

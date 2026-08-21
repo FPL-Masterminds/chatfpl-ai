@@ -137,6 +137,7 @@ export default async function DGWPlayerPage({
         subtitle={`Gameweek ${gw} Double - ${player.club} - ${player.position} - ${player.price}`}
         players={showcasePlayers}
         badgeLabel="Double Gameweek Analysis"
+        singleCard
       />
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">

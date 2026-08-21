@@ -36,6 +36,22 @@ export function isFlagged(p: { status: string; chance: number; news: string }): 
   return p.status !== "a" || p.chance < 100 || p.news !== ""
 }
 
+/**
+ * Detects FPL players who have LEFT the Premier League (loan or permanent
+ * move). FPL's stock phrasing in the `news` field always includes
+ * "Has joined [club]" for these cases, e.g.
+ *   "Has joined Hamburg SV on loan for the rest of the season"
+ *   "Has joined New England Revolution permanently"
+ * These aren't injuries and don't belong on the injuries hub.
+ */
+export function hasLeftClub(news: string): boolean {
+  if (!news) return false
+  const lower = news.toLowerCase()
+  // "Has joined" is FPL's unambiguous marker for a departure (loan or permanent).
+  // We also catch the older/rarer "Transferred to" phrasing just in case.
+  return /\bhas joined\b/.test(lower) || /\btransferred to\b/.test(lower)
+}
+
 // ─── Hub data — all flagged players ──────────────────────────────────────────
 
 export async function getInjuryHub(): Promise<InjuryHubData | null> {
@@ -62,6 +78,10 @@ export async function getInjuryHub(): Promise<InjuryHubData | null> {
         const status = p.status ?? "a"
         const chance = p.chance_of_playing_next_round ?? 100
         const news   = p.news ?? ""
+        // Exclude players who've moved clubs (loan or permanent) - they
+        // aren't injured, just gone. Keeps the hub focused on actual
+        // fitness/availability news.
+        if (hasLeftClub(news)) return false
         return isFlagged({ status, chance, news })
       })
       .map((p: any) => {
@@ -139,6 +159,12 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
 
     const el = allMapped.find((p: any) => p._slug === slug)
     if (!el) return null
+
+    // If they've left the Premier League (loan/permanent), send them back
+    // to the injuries hub via the page's permanentRedirect. Matches the
+    // hub-level filter so departed players get a clean 308, not a stale
+    // "unavailable" page.
+    if (hasLeftClub(el.news ?? "")) return null
 
     const player: InjuryPlayer = {
       slug,

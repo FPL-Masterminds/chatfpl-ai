@@ -269,6 +269,7 @@ export default async function FplDifferentialPage({
         subtitle={`Gameweek ${gw} · ${player.club} · ${player.position} · ${player.price}`}
         players={showcasePlayers}
         badgeLabel="Differential Analysis"
+        singleCard
       />
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">

@@ -241,12 +241,13 @@ export default async function FixturePlayerPage({
 
       <DevHeader />
 
-      {/* Hero — identical to captain page with flanking players */}
+      {/* Hero — single-card layout on narrow-focus pages */}
       <FplPlayerHero
         h1White={`Is ${player.displayName} worth owning for `}
         h1Gradient={`Fantasy Premier League Gameweek ${gw}?`}
         subtitle={`Gameweek ${gw} · ${player.club} · ${player.position} · ${player.price}`}
         players={showcasePlayers}
+        singleCard
       />
 
       {/* Analysis */}

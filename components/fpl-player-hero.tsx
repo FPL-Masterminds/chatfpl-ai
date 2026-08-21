@@ -209,9 +209,14 @@ export interface FplPlayerHeroProps {
   subtitle: string
   players: FplCardPlayer[]  // exactly 5, index 2 is the center subject
   badgeLabel?: string  // defaults to "Captain Analysis"
+  // When true, only render the central player card (players[2] or players[0]).
+  // Use on pages that narrow to a single player (injury, captain, transfer,
+  // sell, differential, fixture, double-gameweek) where flanking cards would
+  // either duplicate the center or add noise.
+  singleCard?: boolean
 }
 
-export function FplPlayerHero({ h1White, h1Gradient, subtitle, players, badgeLabel = "Captain Analysis" }: FplPlayerHeroProps) {
+export function FplPlayerHero({ h1White, h1Gradient, subtitle, players, badgeLabel = "Captain Analysis", singleCard = false }: FplPlayerHeroProps) {
   const { data: session } = useSession()
   const ctaHref = session?.user ? "/chat" : "/signup"
 
@@ -276,48 +281,68 @@ export function FplPlayerHero({ h1White, h1Gradient, subtitle, players, badgeLab
           className="flex items-end justify-center gap-3 w-full select-none"
           style={{ paddingTop: 20, overflow: "visible" }}
         >
-          {players.map((player, i) => {
-            const cfg = SLOT_CFG[i]
-            const isCenter = i === 2
-            const wrapperW = Math.round(CARD_W * cfg.scale)
-            const wrapperH = Math.round(CARD_H * cfg.scale)
-
-            return (
-              <div
-                key={player.code}
-                className={
-                  i === 0 || i === 4
-                    ? "hidden xl:block"
-                    : i === 1 || i === 3
-                    ? "hidden sm:block"
-                    : ""
-                }
-                style={{
-                  position: "relative",
-                  width: wrapperW,
-                  height: wrapperH,
-                  flexShrink: 0,
-                  opacity: cfg.opacity,
-                  overflow: "visible",
-                }}
-              >
-                {/* Inner: native size, scaled from bottom-center */}
+          {singleCard ? (
+            (() => {
+              const solo = players[2] ?? players[0]
+              if (!solo) return null
+              return (
                 <div
                   style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: "50%",
+                    position: "relative",
                     width: CARD_W,
                     height: CARD_H,
-                    transform: `translateX(-50%) scale(${cfg.scale})`,
-                    transformOrigin: "bottom center",
+                    flexShrink: 0,
+                    overflow: "visible",
                   }}
                 >
-                  <PlayerCard player={player} isCenter={isCenter} />
+                  <PlayerCard player={solo} isCenter={true} />
                 </div>
-              </div>
-            )
-          })}
+              )
+            })()
+          ) : (
+            players.map((player, i) => {
+              const cfg = SLOT_CFG[i]
+              const isCenter = i === 2
+              const wrapperW = Math.round(CARD_W * cfg.scale)
+              const wrapperH = Math.round(CARD_H * cfg.scale)
+
+              return (
+                <div
+                  key={player.code}
+                  className={
+                    i === 0 || i === 4
+                      ? "hidden xl:block"
+                      : i === 1 || i === 3
+                      ? "hidden sm:block"
+                      : ""
+                  }
+                  style={{
+                    position: "relative",
+                    width: wrapperW,
+                    height: wrapperH,
+                    flexShrink: 0,
+                    opacity: cfg.opacity,
+                    overflow: "visible",
+                  }}
+                >
+                  {/* Inner: native size, scaled from bottom-center */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: "50%",
+                      width: CARD_W,
+                      height: CARD_H,
+                      transform: `translateX(-50%) scale(${cfg.scale})`,
+                      transformOrigin: "bottom center",
+                    }}
+                  >
+                    <PlayerCard player={player} isCenter={isCenter} />
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
 
         {/* CTA */}
