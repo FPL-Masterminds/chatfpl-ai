@@ -8,6 +8,7 @@ import { SeasonEnded } from "@/components/season-ended"
 import { Reveal } from "@/components/scroll-reveal"
 import { HubCardExpand } from "@/components/hub-card-expand"
 import { HubHero } from "@/components/hub-hero"
+import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
 
 export const revalidate = 3600
 export const dynamic = "force-dynamic"
@@ -264,33 +265,8 @@ export default async function CaptainsHubPage() {
           <div className="my-10 h-px w-full" style={{ background: "linear-gradient(to right, transparent, rgba(0,255,135,0.2), transparent)" }} />
 
           {/* CTA */}
-          <div
-            className="rounded-2xl px-8 py-10 text-center"
-            style={{ border: "1px solid rgba(0,255,135,0.18)", borderLeft: "4px solid #00FF87", background: "rgba(0,255,135,0.04)" }}
-          >
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-3">ChatFPL AI</p>
-            <h2 className="text-xl font-bold text-white mb-3 leading-tight">Still not sure who to captain?</h2>
-            <p className="text-sm text-white/60 mb-7">
-              ChatFPL AI analyses your actual squad, budget, and rivals to give you a personalised captain recommendation. Try it free - no credit card required.
-            </p>
-            <Link
-              href="/signup"
-              className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-            >
-              <span
-                className="pointer-events-none absolute inset-0 rounded-full"
-                style={{
-                  background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 2.4s linear infinite",
-                }}
-              />
-              Try ChatFPL AI for free
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
+          <div className="text-center">
+            <UpgradeCTAPanel heading="Still not sure who to captain?" />
           </div>
 
         </div>

@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero, type FplCardPlayer } from "@/components/fpl-player-hero"
+import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
 import {
   getInjuryPlayerData,
   getInjurySlugs,
@@ -352,35 +353,7 @@ export default async function InjuryPlayerPage({
 
         {/* CTA */}
         <div className="relative z-10 w-full max-w-2xl mx-auto mt-6 text-center">
-          <div
-            className="rounded-2xl px-8 py-10"
-            style={{
-              border: "1px solid rgba(0,255,135,0.18)",
-              borderLeft: "4px solid #00FF87",
-              background: "rgba(0,255,135,0.04)",
-            }}
-          >
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/70 mb-3">ChatFPL AI</p>
-            <h3 className="text-xl font-bold text-white mb-3 leading-tight">
-              Get a personalised verdict on {player.displayName} for your squad
-            </h3>
-            <p className="text-sm text-white/70 mb-7">Get 20 free messages. No credit card required.</p>
-            <Link
-              href="/chat"
-              className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-            >
-              <span
-                className="pointer-events-none absolute inset-0 rounded-full"
-                style={{
-                  background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 2.4s linear infinite",
-                }}
-              />
-              Ask ChatFPL AI for free
-            </Link>
-          </div>
+          <UpgradeCTAPanel heading={`Get a personalised verdict on ${player.displayName} for your squad`} />
         </div>
 
         {/* Back to hub */}
