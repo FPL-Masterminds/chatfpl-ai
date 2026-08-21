@@ -188,14 +188,14 @@ export default function PlayerCarousel() {
                 {/* Player photo — outside the overflow:hidden card face */}
                 <div
                   className="absolute left-1/2 -translate-x-1/2"
-                  style={{ bottom: 148, width: 130, zIndex: 10 }}
+                  style={{ bottom: 148, width: 150, zIndex: 10 }}
                 >
                   <motion.div
                     className="mx-auto rounded-full"
                     style={{
-                      width: 70, height: 12,
+                      width: 80, height: 14,
                       background: "radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, transparent 80%)",
-                      filter: "blur(4px)", marginBottom: -6,
+                      filter: "blur(4px)", marginBottom: -7,
                     }}
                     animate={isCenter ? { scaleX: [1, 0.82, 1], opacity: [0.55, 0.35, 0.55] } : { scaleX: 1, opacity: 0.4 }}
                     transition={isCenter ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : {}}
@@ -211,7 +211,7 @@ export default function PlayerCarousel() {
                         alt={player.name}
                         draggable={false}
                         style={{
-                          width: 130, height: "auto", objectFit: "contain",
+                          width: 150, height: "auto", objectFit: "contain",
                           filter: isCenter
                             ? "drop-shadow(0 8px 20px rgba(0,255,133,0.25))"
                             : "drop-shadow(0 4px 8px rgba(0,0,0,0.5))",
@@ -221,7 +221,7 @@ export default function PlayerCarousel() {
                       <div
                         className="flex items-end justify-center rounded-t-full"
                         style={{
-                          width: 130, height: 150,
+                          width: 150, height: 190,
                           background: "linear-gradient(160deg, rgba(0,255,133,0.12), rgba(2,239,255,0.08))",
                           border: "1px solid rgba(255,255,255,0.06)",
                         }}
