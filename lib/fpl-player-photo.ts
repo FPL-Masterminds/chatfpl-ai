@@ -1,12 +1,14 @@
 /**
  * Official FPL headshots on Premier League CDN.
- * Season folder changes each campaign — override with FPL_PLAYER_PHOTO_BASE if needed.
+ * As of the 2026/27 season the path is season-less: `/premierleague/photos/players/...`
+ * and the filename requires a `p` prefix (e.g. `p223094.png`).
+ * Override with FPL_PLAYER_PHOTO_BASE if the CDN structure changes again.
  */
 export function getFplPlayerPhotoBase(): string {
   const fromEnv = process.env.FPL_PLAYER_PHOTO_BASE?.trim().replace(/\/$/, "");
   return (
     fromEnv ||
-    "https://resources.premierleague.com/premierleague25/photos/players/110x140"
+    "https://resources.premierleague.com/premierleague/photos/players/250x250"
   );
 }
 
@@ -18,7 +20,7 @@ export function fplPhotoUrlFromElement(photo: string | undefined, code: number |
     .trim();
   const id = stripped || (code != null ? String(code) : "");
   if (!id) return "";
-  return `${base}/${id}.png`;
+  return `${base}/p${id}.png`;
 }
 
 export type FplPhotoRow = {

@@ -24,7 +24,7 @@ export function HubPlayerPhoto({
 
   const src = errored
     ? SILHOUETTE
-    : `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
+    : `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
 
   return (
     // eslint-disable-next-line @next/next/no-img-element

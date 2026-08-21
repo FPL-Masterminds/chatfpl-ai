@@ -161,7 +161,7 @@ function CompareCard({ pair, rank, gw, text }: {
           </div>
           <div className="flex flex-col items-center">
             <Image
-              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeA}.png`}
+              src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${pair.codeA}.png`}
               alt={pair.nameA} width={160} height={204}
               className="w-12 sm:w-[160px]"
               style={{ objectFit: "contain" }} unoptimized
@@ -254,7 +254,7 @@ function CompareCard({ pair, rank, gw, text }: {
         >
           <div className="flex flex-col items-center">
             <Image
-              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeB}.png`}
+              src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${pair.codeB}.png`}
               alt={pair.nameB} width={160} height={204}
               className="w-12 sm:w-[160px]"
               style={{ objectFit: "contain" }} unoptimized

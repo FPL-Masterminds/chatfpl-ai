@@ -102,9 +102,12 @@ const REVEAL = { duration: 0.75, ease: [0.16, 1, 0.3, 1] as number[] }
 
 // ─── Fallback players ─────────────────────────────────────────────────────────
 
+// Minimal fallback: only Haaland (top-owned in the current FPL bootstrap).
+// The live /api/query-players endpoint is preferred; this exists purely so
+// the carousel has *something* on first paint before the fetch resolves.
+// Never include players who may have left the Premier League here.
 const FALLBACK: Player[] = [
-  { id: 1, code: 223094, name: "Haaland", full_name: "Erling Haaland", team: "Man City", pos: "FWD", price: "14.0", ownership: "47.2", form: "8.8", ep_next: "8.5", goals: 18, assists: 3, total_points: 162, photo_url: "https://resources.premierleague.com/premierleague25/photos/players/250x250/223094.png", photo_fallback: "https://resources.premierleague.com/premierleague25/photos/players/110x140/223094.png", badge_url: "https://resources.premierleague.com/premierleague/badges/70/t43.png", news: "" },
-  { id: 2, code: 118748, name: "Salah", full_name: "Mohamed Salah", team: "Liverpool", pos: "MID", price: "13.5", ownership: "62.1", form: "12.0", ep_next: "11.5", goals: 20, assists: 14, total_points: 210, photo_url: "https://resources.premierleague.com/premierleague25/photos/players/250x250/118748.png", photo_fallback: "https://resources.premierleague.com/premierleague25/photos/players/110x140/118748.png", badge_url: "https://resources.premierleague.com/premierleague/badges/70/t14.png", news: "" },
+  { id: 1, code: 223094, name: "Haaland", full_name: "Erling Haaland", team: "Man City", pos: "FWD", price: "14.0", ownership: "60.0", form: "6.0", ep_next: "6.0", goals: 0, assists: 0, total_points: 0, photo_url: "https://resources.premierleague.com/premierleague/photos/players/250x250/p223094.png", photo_fallback: "https://resources.premierleague.com/premierleague/photos/players/110x140/p223094.png", badge_url: "https://resources.premierleague.com/premierleague/badges/70/t43.png", news: "" },
 ]
 
 // ─── Component ───────────────────────────────────────────────────────────────

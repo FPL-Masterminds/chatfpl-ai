@@ -14,7 +14,7 @@ function badgeUrl(teamCode: number) {
 }
 
 function photoUrl(code: number) {
-  return `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
+  return `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
 }
 
 export interface FplCardPlayer {

@@ -207,7 +207,7 @@ function BGWPlayerCard({ player, even }: { player: DGWPlayer; even: boolean }) {
           </div>
           <div className="flex flex-col items-center">
             <Image
-              src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+              src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`}
               alt={player.displayName}
               width={160} height={204}
               className="w-14 sm:w-[160px]"
@@ -283,7 +283,7 @@ function PlayerRow({ player, rank }: { player: DGWPlayer; rank: number }) {
     <div className="flex items-center gap-3 py-3 px-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
       <span className="text-[11px] font-bold text-white/40 w-5 shrink-0 tabular-nums">{rank}</span>
       <Image
-        src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+        src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`}
         alt={player.displayName}
         width={36} height={45}
         style={{ objectFit: "contain", flexShrink: 0 }}

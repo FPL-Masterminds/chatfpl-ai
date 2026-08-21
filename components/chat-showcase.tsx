@@ -387,16 +387,16 @@ export function ChatShowcase() {
             </button>
             <p className="text-[9px] uppercase tracking-[0.22em] text-white/30 mb-1.5 px-1">Recent chats</p>
             {[
-              ["Who are the top three scori...",    "23 Mar"],
-              ["Give me three midfield differ...",  "20 Mar"],
-              ["Give me statistics on Moham...",    "20 Mar"],
-              ["Best captain for GW32?",            "18 Mar"],
-              ["Which defenders have the bes...",   "17 Mar"],
-              ["Is Salah still worth his pri...",   "15 Mar"],
-              ["Show me the top price risers",      "14 Mar"],
-              ["Compare Mbeumo vs Watkins",         "12 Mar"],
-              ["Who has the best fixtures GW...",   "11 Mar"],
-              ["Wildcard options under £6m",        "10 Mar"],
+              ["Who are the top three scori...",    "23 Aug"],
+              ["Give me three midfield differ...",  "20 Aug"],
+              ["Analyse my team",                    "20 Aug"],
+              ["Best captain this gameweek?",        "18 Aug"],
+              ["Which defenders have the bes...",   "17 Aug"],
+              ["Compare Haaland vs Fernandes",      "15 Aug"],
+              ["Show me the top price risers",      "14 Aug"],
+              ["Compare Mbeumo vs Watkins",         "12 Aug"],
+              ["Who has the best fixtures?",         "11 Aug"],
+              ["Wildcard options under £6m",        "10 Aug"],
             ].map(([t, d], i) => (
               <div
                 key={i}

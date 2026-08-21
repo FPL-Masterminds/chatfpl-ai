@@ -43,8 +43,8 @@ export async function GET() {
       goals: p.goals_scored,
       assists: p.assists,
       total_points: p.total_points,
-      photo_url: `https://resources.premierleague.com/premierleague25/photos/players/250x250/${p.code}.png`,
-      photo_fallback: `https://resources.premierleague.com/premierleague25/photos/players/110x140/${p.code}.png`,
+      photo_url: `https://resources.premierleague.com/premierleague/photos/players/250x250/p${p.code}.png`,
+      photo_fallback: `https://resources.premierleague.com/premierleague/photos/players/110x140/p${p.code}.png`,
       badge_url: `https://resources.premierleague.com/premierleague/badges/70/t${teamCodeMap[p.team]}.png`,
       news: p.news ?? "",
     });

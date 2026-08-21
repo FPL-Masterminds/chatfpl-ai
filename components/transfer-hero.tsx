@@ -12,7 +12,7 @@ const CARD_W = 220
 const CARD_H = 310
 
 function photoUrl(code: number) {
-  return `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
+  return `https://resources.premierleague.com/premierleague/photos/players/110x140/p${code}.png`
 }
 function badgeUrl(teamCode: number) {
   return `https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`

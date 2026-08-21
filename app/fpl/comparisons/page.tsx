@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const gw = data?.gw ?? "?"
   return {
     title: `FPL Head-to-Head Comparisons Gameweek ${gw} | ChatFPL AI`,
-    description: `The most-owned FPL players head-to-head for Gameweek ${gw}. Haaland vs Salah, Salah vs Palmer and more — expected points, form and a full verdict on who to pick.`,
+    description: `The most-owned FPL players head-to-head for Gameweek ${gw}. Haaland vs Fernandes, Palmer vs Saka and more - expected points, form and a full verdict on who to pick.`,
     openGraph: {
       title: `FPL Head-to-Head Comparisons Gameweek ${gw} | ChatFPL AI`,
       description: `The most-owned FPL players head-to-head for GW${gw} — who to pick, who to bench.`,
@@ -145,7 +145,7 @@ function CompareCard({ pair, rank, gw, text }: {
             style={{ background: "rgba(0,255,135,0.1)", color: GREEN, border: "1px solid rgba(0,255,135,0.2)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}
           >{pair.position}</div>
           <div className="flex flex-col items-center">
-            <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeA}.png`}
+            <Image src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${pair.codeA}.png`}
               alt={pair.nameA} width={160} height={204} className="w-12 sm:w-[160px]"
               style={{ objectFit: "contain" }} unoptimized />
             <div className="w-12 sm:w-[160px]" style={{ height: 1,
@@ -224,7 +224,7 @@ function CompareCard({ pair, rank, gw, text }: {
           style={{ background: "rgba(0,0,0,0.5)", padding: "14px 8px" }}
         >
           <div className="flex flex-col items-center">
-            <Image src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${pair.codeB}.png`}
+            <Image src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${pair.codeB}.png`}
               alt={pair.nameB} width={160} height={204} className="w-12 sm:w-[160px]"
               style={{ objectFit: "contain" }} unoptimized />
             <div className="w-12 sm:w-[160px]" style={{ height: 1,

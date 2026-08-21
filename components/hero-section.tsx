@@ -5,26 +5,42 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import TiltedCard from "@/components/tilted-card"
 
-const HERO_IMAGES = [
-  { src: "/Haaland_Hero.png", alt: "Erling Haaland" },
-  { src: "/Salah_Hero.png", alt: "Mohamed Salah" },
-  { src: "/Fernandes_Hero.png", alt: "Bruno Fernandes" },
-  { src: "/Grealish_Hero.png", alt: "Jack Grealish" },
-  { src: "/Gabriel_Hero.png", alt: "Gabriel" },
-  { src: "/Welbeck_Hero.png", alt: "Danny Welbeck" },
-  { src: "/Semenyo_Hero.png", alt: "Antoine Semenyo" },
-]
+type HeroPlayer = {
+  name: string
+  team?: string
+  photoUrl: string
+}
+
+const SILHOUETTE =
+  "https://resources.premierleague.com/premierleague/photos/players/250x250/Photo-Missing.png"
 
 export function HeroSection() {
+  const [players, setPlayers] = useState<HeroPlayer[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % HERO_IMAGES.length)
-    }, 15000) // 15 seconds
-
-    return () => clearInterval(interval)
+    let alive = true
+    fetch("/api/hero-players")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`hero-players ${r.status}`))))
+      .then((data: HeroPlayer[]) => {
+        if (!alive) return
+        if (Array.isArray(data) && data.length > 0) setPlayers(data)
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
   }, [])
+
+  useEffect(() => {
+    if (players.length <= 1) return
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % players.length)
+    }, 15000)
+    return () => clearInterval(interval)
+  }, [players.length])
+
+  const displayed = players.length > 0 ? players : [{ name: "Fantasy Premier League", photoUrl: SILHOUETTE }]
 
   return (
     <section className="relative overflow-hidden pt-24">
@@ -35,9 +51,8 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
       <div className="container relative mx-auto max-w-7xl px-4 py-16 md:py-20">
         <div className="grid gap-8 md:grid-cols-2 items-center">
-          {/* Left Column - Hero Content */}
           <div className="space-y-6 text-center md:text-left">
-            <h1 className="text-balance font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: '60px' }}>
+            <h1 className="text-balance font-bold leading-[1.1] tracking-tighter text-white" style={{ fontSize: "60px" }}>
               Chat with your Fantasy Premier League AI Assistant
             </h1>
 
@@ -52,18 +67,20 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column - Rotating Player Images with Tilt Effect (Hidden on Mobile/Tablet) */}
-          <div className="hidden lg:flex relative items-center justify-center w-full max-w-md mx-auto" style={{ minHeight: "500px" }}>
-            {HERO_IMAGES.map((image, index) => (
+          <div
+            className="hidden lg:flex relative items-center justify-center w-full max-w-md mx-auto"
+            style={{ minHeight: "500px" }}
+          >
+            {displayed.map((image, index) => (
               <div
-                key={image.src}
+                key={`${image.photoUrl}-${index}`}
                 className={`absolute inset-0 transition-opacity duration-1000 ${
                   index === currentImageIndex ? "opacity-100" : "opacity-0 pointer-events-none"
                 }`}
               >
                 <TiltedCard
-                  imageSrc={image.src}
-                  altText={image.alt}
+                  imageSrc={image.photoUrl}
+                  altText={image.name}
                   containerHeight="500px"
                   containerWidth="500px"
                   imageHeight="500"
@@ -79,4 +96,3 @@ export function HeroSection() {
     </section>
   )
 }
-

@@ -17,15 +17,9 @@ const POSITIONS = [
 // All positions use the same green pill — consistent brand colour
 const PILL_COLOR = "#00FF85"
 
-const FALLBACK: ShowcasePlayer[] = [
-  { name: "Salah",   club: "LIV", position: "MID", price: "£13.2m", totalPts: 210, form: "9.8", photoUrl: "", teamCode: 14 },
-  { name: "Haaland", club: "MCI", position: "FWD", price: "£14.5m", totalPts: 180, form: "7.4", photoUrl: "", teamCode: 43 },
-  { name: "Palmer",  club: "CHE", position: "MID", price: "£11.4m", totalPts: 195, form: "8.1", photoUrl: "", teamCode: 8  },
-  { name: "Saka",    club: "ARS", position: "MID", price: "£10.5m", totalPts: 165, form: "7.2", photoUrl: "", teamCode: 3  },
-  { name: "Isak",    club: "NEW", position: "FWD", price: "£9.2m",  totalPts: 148, form: "8.6", photoUrl: "", teamCode: 4  },
-  { name: "Mbeumo",  club: "BRE", position: "FWD", price: "£8.9m",  totalPts: 172, form: "8.3", photoUrl: "", teamCode: 94 },
-  { name: "Trent",   club: "LIV", position: "DEF", price: "£7.8m",  totalPts: 139, form: "6.4", photoUrl: "", teamCode: 14 },
-]
+// Empty fallback: if the showcase API fails, we render nothing rather than
+// risk displaying players who are no longer in the Premier League.
+const FALLBACK: ShowcasePlayer[] = []
 
 const badgeUrl = (code: number) =>
   `https://resources.premierleague.com/premierleague/badges/70/t${code}.png`
@@ -118,6 +112,8 @@ export default function PlayerCarousel() {
     if (Math.abs(diff) > 40) advance(diff < 0 ? 1 : -1)
     setIsDragging(false)
   }
+
+  if (total === 0) return null
 
   const slotIndices = [
     (center - 2 + total) % total,

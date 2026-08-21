@@ -594,7 +594,7 @@ function TransfersPanel({ data }: { data: DashboardData }) {
       <div className="space-y-3">
         {suggestions.map((s, i) => {
           const outPhotoUrl = s.out.photo_url
-          const inPhotoUrl = `https://resources.premierleague.com/premierleague25/photos/players/110x140/${s.in.code}.png`
+          const inPhotoUrl = `https://resources.premierleague.com/premierleague/photos/players/110x140/p${s.in.code}.png`
           return (
           <div key={i} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] overflow-hidden">
             {/* Banner */}
