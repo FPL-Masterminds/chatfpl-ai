@@ -159,3 +159,22 @@ model IndexingLog {
 
   @@map("indexing_log")
 }
+
+// Populated daily by /api/cron/scan-profanity. One row per flagged message,
+// deduped by message_id so re-running the scan is idempotent.
+model ProfanityFlag {
+  id              String   @id @default(cuid())
+  message_id      String   @unique @db.VarChar(255)
+  conversation_id String?  @db.VarChar(255)
+  user_id         String?  @db.VarChar(255)
+  user_email      String?  @db.VarChar(255)
+  user_name       String?  @db.VarChar(255)
+  words_matched   String[] // Postgres text[]
+  content         String   @db.Text
+  message_at      DateTime @db.Timestamp(6)
+  flagged_at      DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([user_email])
+  @@index([message_at])
+  @@map("profanity_flags")
+}

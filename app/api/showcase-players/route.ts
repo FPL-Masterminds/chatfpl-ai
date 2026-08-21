@@ -1,11 +1,27 @@
 import { NextResponse } from "next/server"
 import { fplPhotoUrlFromElement } from "@/lib/fpl-player-photo"
 
+// Don't prerender at build time. FPL API is flaky from the build machine
+// and any throw here surfaces as a 500 on the live site, breaking the
+// homepage's Gameweek Edge panel.
+export const dynamic = "force-dynamic"
+
 const FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
 // Cache for 15 minutes
 let cache: { data: ShowcasePlayers; ts: number } | null = null
 const CACHE_MS = 15 * 60 * 1000
+
+// Empty response used when FPL is unreachable and no cache is available.
+// Better to return zero-length arrays than 500 the whole route - the client
+// component handles empty arrays gracefully.
+const EMPTY_DATA: ShowcasePlayers = {
+  topPts: [], topForm: [], risers: [], differentials: [],
+  topGkp: [], topDef: [], topMid: [], topFwd: [],
+  mostSelected: [], mostBonus: [],
+  injuryNews: [], tickerFacts: [],
+  nextDeadline: null, nextGwName: "Gameweek",
+}
 
 export type ShowcasePlayer = {
   name: string
@@ -60,13 +76,32 @@ export async function GET() {
     return NextResponse.json(cache.data)
   }
 
-  const res = await fetch(FPL_URL, { next: { revalidate: 1800 } })
-  const json = await res.json()
-
-  if (!json?.teams || !Array.isArray(json.teams)) {
-    return NextResponse.json({ error: "FPL API unavailable" }, { status: 503 })
+  let json: any
+  try {
+    const res = await fetch(FPL_URL, {
+      next: { revalidate: 1800 },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; ChatFPL/1.0)" },
+    })
+    if (!res.ok) throw new Error(`FPL API returned ${res.status}`)
+    json = await res.json()
+  } catch (err) {
+    console.warn("showcase-players: FPL API fetch failed", err)
+    return NextResponse.json(cache?.data ?? EMPTY_DATA)
   }
 
+  if (!json?.teams || !Array.isArray(json.teams) || !Array.isArray(json.elements)) {
+    return NextResponse.json(cache?.data ?? EMPTY_DATA)
+  }
+
+  try {
+    return NextResponse.json(buildShowcaseData(json))
+  } catch (err) {
+    console.warn("showcase-players: processing failed", err)
+    return NextResponse.json(cache?.data ?? EMPTY_DATA)
+  }
+}
+
+function buildShowcaseData(json: any): ShowcasePlayers {
   const teams: Record<number, string> = {}
   const teamFullNames: Record<number, string> = {}
   const teamCodes: Record<number, number> = {}
@@ -289,5 +324,5 @@ export async function GET() {
 
   const data: ShowcasePlayers = { topPts, topForm, risers, differentials, topGkp, topDef, topMid, topFwd, mostSelected, mostBonus, injuryNews, tickerFacts, nextDeadline, nextGwName }
   cache = { data, ts: Date.now() }
-  return NextResponse.json(data)
+  return data
 }
