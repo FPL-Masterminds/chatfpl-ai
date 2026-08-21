@@ -77,6 +77,28 @@ export async function GET(request: Request) {
     const picksData = picksRes.ok ? await picksRes.json() : null;
     const leagueData = leagueRes?.ok ? await leagueRes.json() : null;
 
+    // FPL paginates league standings at 50 per page. Fetch subsequent
+    // pages until has_next is false, capped at MAX_LEAGUE_PAGES to keep
+    // very large leagues from hammering the FPL API.
+    const MAX_LEAGUE_PAGES = 4; // up to 200 managers per league
+    if (leagueData && activeLeague) {
+      let page = 2;
+      while (
+        leagueData.standings?.has_next &&
+        page <= MAX_LEAGUE_PAGES
+      ) {
+        const nextRes = await fetch(
+          `https://fantasy.premierleague.com/api/leagues-classic/${activeLeague.id}/standings/?page_standings=${page}`,
+          { headers: H }
+        );
+        if (!nextRes.ok) break;
+        const nextJson = await nextRes.json();
+        leagueData.standings.results.push(...(nextJson.standings?.results ?? []));
+        leagueData.standings.has_next = !!nextJson.standings?.has_next;
+        page += 1;
+      }
+    }
+
     // Build lookup maps
     const elementMap: Record<number, any> = {};
     const teamMap: Record<number, any> = {};
@@ -214,21 +236,40 @@ export async function GET(request: Request) {
         };
       });
 
-    // Mini-league — fetch chip history for each manager in parallel
-    const leagueResults = (leagueData?.standings?.results ?? []).slice(0, 20);
-    const memberHistories = await Promise.all(
-      leagueResults.map((s: any) =>
-        fetch(`https://fantasy.premierleague.com/api/entry/${s.entry}/history/`, { headers: H })
-          .then(r => r.ok ? r.json() : null)
-          .catch(() => null)
-      )
+    // Mini-league — show every manager in the league (paginated fetch
+    // above gives us up to 200). Chip history is only fetched for the
+    // top slice since chip-watch threats below that are noise anyway.
+    // Always include the user themselves so their own chip status is
+    // accurate no matter where they sit in the table.
+    const leagueResults: any[] = leagueData?.standings?.results ?? [];
+    const CHIP_HISTORY_TOP_N = 50;
+    const historyEntryIds = new Set<number>(
+      leagueResults.slice(0, CHIP_HISTORY_TOP_N).map((s: any) => s.entry)
+    );
+    const userRow = leagueResults.find((s: any) => s.entry === teamId);
+    if (userRow) historyEntryIds.add(userRow.entry);
+
+    const historyByEntry = new Map<number, any>();
+    await Promise.all(
+      Array.from(historyEntryIds).map(async (entryId) => {
+        try {
+          const r = await fetch(
+            `https://fantasy.premierleague.com/api/entry/${entryId}/history/`,
+            { headers: H }
+          );
+          historyByEntry.set(entryId, r.ok ? await r.json() : null);
+        } catch {
+          historyByEntry.set(entryId, null);
+        }
+      })
     );
 
     // Chip bonus values (expected pts each chip adds when optimally used)
     const CHIP_BONUS: Record<string, number> = { "3xc": 12, bboost: 16, freehit: 12, wildcard: 15 };
 
-    const leagueStandings = leagueResults.map((s: any, i: number) => {
-      const hist = memberHistories[i];
+    const leagueStandings = leagueResults.map((s: any) => {
+      const hasHistory = historyByEntry.has(s.entry);
+      const hist = historyByEntry.get(s.entry) ?? null;
       // 2025/26: two sets of chips — only chips used within the CURRENT half consume that half's allowance
       const memberHalfChips = (hist?.chips ?? []).filter((c: any) => {
         const ev = c.event ?? 0;
@@ -236,12 +277,16 @@ export async function GET(request: Request) {
       });
       const memberHalfUsed: string[] = memberHalfChips.map((c: any) => c.name);
       const memberWCUsed = memberHalfUsed.filter((n: string) => n === "wildcard").length;
-      const chipsRemaining = [
-        ...(memberWCUsed < 1 ? ["wildcard"] : []),
-        ...(!memberHalfUsed.includes("freehit") ? ["freehit"] : []),
-        ...(!memberHalfUsed.includes("3xc") ? ["3xc"] : []),
-        ...(!memberHalfUsed.includes("bboost") ? ["bboost"] : []),
-      ];
+      // If we didn't fetch this manager's history, leave chip fields empty
+      // rather than falsely claiming they still have every chip.
+      const chipsRemaining = hasHistory
+        ? [
+            ...(memberWCUsed < 1 ? ["wildcard"] : []),
+            ...(!memberHalfUsed.includes("freehit") ? ["freehit"] : []),
+            ...(!memberHalfUsed.includes("3xc") ? ["3xc"] : []),
+            ...(!memberHalfUsed.includes("bboost") ? ["bboost"] : []),
+          ]
+        : [];
       const chipBonus = chipsRemaining.reduce((sum, c) => sum + (CHIP_BONUS[c] ?? 0), 0);
       return {
         rank: s.rank,
