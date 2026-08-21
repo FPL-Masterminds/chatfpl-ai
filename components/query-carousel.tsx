@@ -102,12 +102,19 @@ const REVEAL = { duration: 0.75, ease: [0.16, 1, 0.3, 1] as number[] }
 
 // ─── Fallback players ─────────────────────────────────────────────────────────
 
-// Minimal fallback: only Haaland (top-owned in the current FPL bootstrap).
-// The live /api/query-players endpoint is preferred; this exists purely so
-// the carousel has *something* on first paint before the fetch resolves.
-// Never include players who may have left the Premier League here.
+// Fallback: top-owned 2026/27 players from the current FPL bootstrap. Used
+// only if /api/query-players fails outright. Refresh once per preseason.
+// Never include players who may have left the Premier League.
+const FB_PHOTO = "https://resources.premierleague.com/premierleague25/photos/players/110x140"
+const FB_BADGE = "https://resources.premierleague.com/premierleague/badges/70"
 const FALLBACK: Player[] = [
-  { id: 1, code: 223094, name: "Haaland", full_name: "Erling Haaland", team: "Man City", pos: "FWD", price: "14.0", ownership: "60.0", form: "6.0", ep_next: "6.0", goals: 0, assists: 0, total_points: 0, photo_url: "https://resources.premierleague.com/premierleague25/photos/players/250x250/223094.png", photo_fallback: "https://resources.premierleague.com/premierleague25/photos/players/110x140/223094.png", badge_url: "https://resources.premierleague.com/premierleague/badges/70/t43.png", news: "" },
+  { id: 1, code: 223094, name: "Haaland",     full_name: "Erling Haaland",                team: "Man City",  pos: "FWD", price: "14.0", ownership: "69.5", form: "0.0", ep_next: "6.0", goals: 0, assists: 0, total_points: 0, photo_url: `${FB_PHOTO}/223094.png`, photo_fallback: `${FB_PHOTO}/223094.png`, badge_url: `${FB_BADGE}/t43.png`, news: "" },
+  { id: 2, code: 475168, name: "João Pedro",  full_name: "João Pedro Junqueira de Jesus", team: "Chelsea",   pos: "FWD", price: "8.0",  ownership: "64.5", form: "0.0", ep_next: "5.5", goals: 0, assists: 0, total_points: 0, photo_url: `${FB_PHOTO}/475168.png`, photo_fallback: `${FB_PHOTO}/475168.png`, badge_url: `${FB_BADGE}/t8.png`,  news: "" },
+  { id: 3, code: 141746, name: "B.Fernandes", full_name: "Bruno Fernandes",               team: "Man Utd",   pos: "MID", price: "9.0",  ownership: "52.1", form: "0.0", ep_next: "5.0", goals: 0, assists: 0, total_points: 0, photo_url: `${FB_PHOTO}/141746.png`, photo_fallback: `${FB_PHOTO}/141746.png`, badge_url: `${FB_BADGE}/t1.png`,  news: "" },
+  { id: 4, code: 424876, name: "Szoboszlai",  full_name: "Dominik Szoboszlai",            team: "Liverpool", pos: "MID", price: "7.0",  ownership: "41.8", form: "0.0", ep_next: "4.5", goals: 0, assists: 0, total_points: 0, photo_url: `${FB_PHOTO}/424876.png`, photo_fallback: `${FB_PHOTO}/424876.png`, badge_url: `${FB_BADGE}/t14.png`, news: "" },
+  { id: 5, code: 446008, name: "Mbeumo",      full_name: "Bryan Mbeumo",                  team: "Man Utd",   pos: "MID", price: "8.0",  ownership: "39.0", form: "0.0", ep_next: "4.5", goals: 0, assists: 0, total_points: 0, photo_url: `${FB_PHOTO}/446008.png`, photo_fallback: `${FB_PHOTO}/446008.png`, badge_url: `${FB_BADGE}/t1.png`,  news: "" },
+  { id: 6, code: 466075, name: "Calafiori",   full_name: "Riccardo Calafiori",            team: "Arsenal",   pos: "DEF", price: "5.5",  ownership: "39.7", form: "0.0", ep_next: "4.0", goals: 0, assists: 0, total_points: 0, photo_url: `${FB_PHOTO}/466075.png`, photo_fallback: `${FB_PHOTO}/466075.png`, badge_url: `${FB_BADGE}/t3.png`,  news: "" },
+  { id: 7, code: 154561, name: "Raya",        full_name: "David Raya",                    team: "Arsenal",   pos: "GKP", price: "5.5",  ownership: "37.6", form: "0.0", ep_next: "4.0", goals: 0, assists: 0, total_points: 0, photo_url: `${FB_PHOTO}/154561.png`, photo_fallback: `${FB_PHOTO}/154561.png`, badge_url: `${FB_BADGE}/t3.png`,  news: "" },
 ]
 
 // ─── Component ───────────────────────────────────────────────────────────────

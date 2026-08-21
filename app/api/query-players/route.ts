@@ -20,14 +20,21 @@ export async function GET() {
     const posMap: Record<number, string> = {};
     (data.element_types ?? []).forEach((pt: any) => { posMap[pt.id] = pt.singular_name_short; });
 
-    const active = (data.elements ?? []).filter(
+    // Base pool: available players. Historically we required minutes > 300
+    // and total_points >= 40, but those thresholds kill the whole endpoint
+    // in the first few weeks of a season when nobody has accumulated stats.
+    const availableAll = (data.elements ?? []).filter(
       (p: any) =>
-        p.minutes > 300 &&
         p.status !== "u" &&
         p.status !== "s" &&
-        p.total_points >= 40 &&
         parseFloat(p.selected_by_percent) >= 1.0
     );
+
+    const anyMidseason = availableAll.some((p: any) => p.minutes > 500);
+
+    const active = anyMidseason
+      ? availableAll.filter((p: any) => p.minutes > 300 && p.total_points >= 40)
+      : availableAll;
 
     const toPlayer = (p: any) => ({
       id: p.id,
@@ -43,36 +50,42 @@ export async function GET() {
       goals: p.goals_scored,
       assists: p.assists,
       total_points: p.total_points,
-      photo_url: `https://resources.premierleague.com/premierleague25/photos/players/250x250/${p.code}.png`,
+      photo_url: `https://resources.premierleague.com/premierleague25/photos/players/110x140/${p.code}.png`,
       photo_fallback: `https://resources.premierleague.com/premierleague25/photos/players/110x140/${p.code}.png`,
       badge_url: `https://resources.premierleague.com/premierleague/badges/70/t${teamCodeMap[p.team]}.png`,
       news: p.news ?? "",
     });
 
-    // Pool 1: Top form (recognisable players in form)
-    const topForm = [...active]
-      .filter((p: any) => parseFloat(p.form) >= 6.0)
-      .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
-      .slice(0, 5);
+    // Preseason ranker: use FPL's own ep_next projection and community ownership.
+    const preRank = (p: any) =>
+      parseFloat(p.ep_next || "0") * 20 + parseFloat(p.selected_by_percent || "0");
 
-    // Pool 2: Top points scorers with decent form
-    const topPts = [...active]
-      .filter((p: any) => parseFloat(p.form) >= 4.5)
-      .sort((a: any, b: any) => b.total_points - a.total_points)
-      .slice(0, 5);
+    const topForm = anyMidseason
+      ? [...active].filter((p: any) => parseFloat(p.form) >= 6.0)
+          .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
+          .slice(0, 5)
+      : [...active].sort((a: any, b: any) => preRank(b) - preRank(a)).slice(0, 5);
 
-    // Pool 3: Differentials — genuinely interesting picks (1–20% owned, strong form)
+    const topPts = anyMidseason
+      ? [...active].filter((p: any) => parseFloat(p.form) >= 4.5)
+          .sort((a: any, b: any) => b.total_points - a.total_points)
+          .slice(0, 5)
+      : [...active]
+          .sort((a: any, b: any) => parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent))
+          .slice(0, 5);
+
     const differentials = [...active]
       .filter((p: any) => {
         const own = parseFloat(p.selected_by_percent);
-        return own >= 2.0 && own < 20 && parseFloat(p.form) >= 5.5;
+        return own >= 2.0 && own < 20 && (anyMidseason ? parseFloat(p.form) >= 5.5 : parseFloat(p.ep_next || "0") >= 3.0);
       })
-      .sort((a: any, b: any) => parseFloat(b.form) - parseFloat(a.form))
+      .sort((a: any, b: any) =>
+        anyMidseason ? parseFloat(b.form) - parseFloat(a.form) : preRank(b) - preRank(a)
+      )
       .slice(0, 4);
 
-    // Pool 4: Price risers — in form and rising
     const risers = [...active]
-      .filter((p: any) => p.cost_change_event > 0 && parseFloat(p.form) >= 5.0)
+      .filter((p: any) => p.cost_change_event > 0 && (anyMidseason ? parseFloat(p.form) >= 5.0 : true))
       .sort((a: any, b: any) => b.cost_change_event - a.cost_change_event)
       .slice(0, 3);
 
