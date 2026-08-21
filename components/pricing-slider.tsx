@@ -1,14 +1,17 @@
 "use client"
 
 import { useState, useRef } from "react"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { motion, AnimatePresence } from "framer-motion"
 import { AnimatedGlow } from "@/components/animated-glow"
 import { Reveal } from "@/components/scroll-reveal"
 
+type PlanId = "free" | "premium" | "elite"
+
 const PLANS = [
   {
-    id: "free",
+    id: "free" as PlanId,
     index: 0,
     label: "Free Trial",
     price: "£0",
@@ -25,11 +28,10 @@ const PLANS = [
       "Limited support",
     ],
     cta: "Get Started",
-    ctaHref: "/signup",
     ctaStyle: "outline" as const,
   },
   {
-    id: "premium",
+    id: "premium" as PlanId,
     index: 1,
     label: "Premium",
     price: "£7.99",
@@ -47,11 +49,10 @@ const PLANS = [
       "Priority support",
     ],
     cta: "Subscribe",
-    ctaHref: "/signup",
     ctaStyle: "filled" as const,
   },
   {
-    id: "elite",
+    id: "elite" as PlanId,
     index: 2,
     label: "Elite",
     price: "£14.99",
@@ -68,7 +69,6 @@ const PLANS = [
       "Priority support",
     ],
     cta: "Subscribe",
-    ctaHref: "/signup",
     ctaStyle: "outline-cyan" as const,
   },
 ]
@@ -86,7 +86,17 @@ function CheckIcon({ color }: { color: string }) {
   )
 }
 
-function PlanCard({ plan, active }: { plan: typeof PLANS[0]; active: boolean }) {
+function PlanCard({
+  plan,
+  active,
+  onCta,
+  ctaLoading,
+}: {
+  plan: typeof PLANS[0]
+  active: boolean
+  onCta: () => void
+  ctaLoading: boolean
+}) {
   return (
     <div
       className="rounded-2xl p-px transition-all duration-500"
@@ -131,9 +141,11 @@ function PlanCard({ plan, active }: { plan: typeof PLANS[0]; active: boolean }) 
           ))}
         </div>
 
-        <Link
-          href={plan.ctaHref}
-          className="relative block overflow-hidden w-full text-center py-3 rounded-full font-bold text-sm transition-all duration-300 hover:-translate-y-0.5"
+        <button
+          type="button"
+          onClick={onCta}
+          disabled={ctaLoading}
+          className="relative block overflow-hidden w-full text-center py-3 rounded-full font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-wait"
           style={
             plan.ctaStyle === "filled"
               ? { background: "linear-gradient(to right,#00FF87,#00FFFF)", color: "#000" }
@@ -145,16 +157,20 @@ function PlanCard({ plan, active }: { plan: typeof PLANS[0]; active: boolean }) 
           {plan.ctaStyle === "filled" && (
             <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
           )}
-          {plan.cta}
-        </Link>
+          {ctaLoading ? "Loading..." : plan.cta}
+        </button>
       </div>
     </div>
   )
 }
 
 export function PricingSlider() {
+  const router = useRouter()
+  const { status } = useSession()
+  const isLoggedIn = status === "authenticated"
   const [active, setActive] = useState(1)
   const [prev, setPrev] = useState(1)
+  const [loadingId, setLoadingId] = useState<PlanId | null>(null)
   const trackRef = useRef<HTMLDivElement>(null)
 
   const direction = active > prev ? 1 : -1
@@ -168,6 +184,42 @@ export function PricingSlider() {
   function handleStep(i: number) {
     setPrev(active)
     setActive(i)
+  }
+
+  async function handlePlanCta(planId: PlanId) {
+    if (planId === "free") {
+      router.push(isLoggedIn ? "/admin" : "/signup")
+      return
+    }
+
+    const stripePlan = planId === "elite" ? "Elite" : "Premium"
+
+    if (!isLoggedIn) {
+      try {
+        localStorage.setItem("pendingUpgrade", stripePlan)
+      } catch {}
+      router.push(`/signup?upgrade=${stripePlan}`)
+      return
+    }
+
+    setLoadingId(planId)
+    try {
+      const res = await fetch("/api/stripe/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: stripePlan }),
+      })
+      const data = await res.json()
+      if (res.ok && data?.url) {
+        window.location.href = data.url
+      } else {
+        router.push(`/admin?upgrade=${stripePlan}&error=${encodeURIComponent(data?.error || "checkout_failed")}`)
+      }
+    } catch {
+      router.push(`/admin?upgrade=${stripePlan}&error=network`)
+    } finally {
+      setLoadingId(null)
+    }
   }
 
   const plan = PLANS[active]
@@ -269,7 +321,12 @@ export function PricingSlider() {
         <Reveal delay={0.2} className="hidden md:grid grid-cols-3 gap-5">
           {PLANS.map((p) => (
             <div key={p.id} onClick={() => handleStep(p.index)} className="cursor-pointer">
-              <PlanCard plan={p} active={active === p.index} />
+              <PlanCard
+                plan={p}
+                active={active === p.index}
+                onCta={() => handlePlanCta(p.id)}
+                ctaLoading={loadingId === p.id}
+              />
             </div>
           ))}
         </Reveal>
@@ -284,7 +341,12 @@ export function PricingSlider() {
               exit={{ opacity: 0, x: direction > 0 ? -80 : 80 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             >
-              <PlanCard plan={plan} active={true} />
+              <PlanCard
+                plan={plan}
+                active={true}
+                onCta={() => handlePlanCta(plan.id)}
+                ctaLoading={loadingId === plan.id}
+              />
             </motion.div>
           </AnimatePresence>
 

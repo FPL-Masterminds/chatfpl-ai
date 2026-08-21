@@ -151,6 +151,8 @@ export default function AdminPage() {
   const [fplTeamSaving, setFplTeamSaving] = useState(false)
   const [fplFeedback, setFplFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [fplVerifiedName, setFplVerifiedName] = useState<string | null>(null)
+  const [upgradeLoading, setUpgradeLoading] = useState<"Premium" | "Elite" | null>(null)
+  const [upgradeError, setUpgradeError] = useState<string | null>(null)
 
   useEffect(() => { fetchAccountData() }, [])
 
@@ -253,6 +255,43 @@ export default function AdminPage() {
     document.body.appendChild(link); link.click()
     document.body.removeChild(link); URL.revokeObjectURL(url)
   }
+
+  const startCheckout = async (plan: "Premium" | "Elite") => {
+    setUpgradeLoading(plan)
+    setUpgradeError(null)
+    try {
+      const res = await fetch("/api/stripe/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      })
+      const result = await res.json()
+      if (res.ok && result?.url) {
+        window.location.href = result.url
+        return
+      }
+      setUpgradeError(result?.error || "Could not start checkout. Please try again.")
+    } catch {
+      setUpgradeError("Network error. Please try again.")
+    } finally {
+      setUpgradeLoading(null)
+    }
+  }
+
+  useEffect(() => {
+    if (!data) return
+    if (data.subscription.plan.toLowerCase() !== "free") return
+    let pending: string | null = null
+    try {
+      pending = localStorage.getItem("pendingUpgrade")
+    } catch {}
+    const urlUpgrade = new URLSearchParams(window.location.search).get("upgrade")
+    const target = urlUpgrade || pending
+    if (target === "Premium" || target === "Elite") {
+      try { localStorage.removeItem("pendingUpgrade") } catch {}
+      startCheckout(target)
+    }
+  }, [data])
 
   const handleManageBilling = async () => {
     try {
@@ -457,6 +496,83 @@ export default function AdminPage() {
                 )}
               </div>
             </DarkCard>
+
+            {/* Upgrade card - free users only */}
+            {isFree && (
+              <div
+                className="rounded-2xl p-[1.5px]"
+                style={{
+                  background: "linear-gradient(135deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)",
+                  backgroundSize: "220% 220%",
+                  animation: "glow_scroll 5s linear infinite",
+                }}
+              >
+                <div className="rounded-2xl bg-[#080808] p-6 space-y-5">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-emerald-400/70 mb-2">Upgrade Your Plan</p>
+                    <h2 className="text-2xl font-bold text-white leading-tight">Ready for more ChatFPL AI?</h2>
+                    <p className="text-sm text-white/70 mt-2">
+                      You're on the free trial. Upgrade to unlock more messages, priority support, and get the most out of ChatFPL AI all season.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {/* Premium */}
+                    <div className="rounded-2xl border border-emerald-400/30 bg-emerald-400/[0.04] p-5 flex flex-col">
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-3xl font-bold text-white">£7.99</span>
+                        <span className="text-white/50 text-sm">/month</span>
+                      </div>
+                      <p className="text-sm font-semibold text-emerald-400 mb-3">Premium</p>
+                      <ul className="text-sm text-white/80 space-y-1.5 mb-5 flex-1">
+                        <li>100 messages per month</li>
+                        <li>Live FPL data access</li>
+                        <li>FPL Team ID integration</li>
+                        <li>Priority support</li>
+                      </ul>
+                      <button
+                        onClick={() => startCheckout("Premium")}
+                        disabled={upgradeLoading !== null}
+                        className="w-full rounded-full py-2.5 text-sm font-bold text-black transition-all hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(0,255,135,0.4)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-wait"
+                        style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}
+                      >
+                        {upgradeLoading === "Premium" ? "Starting checkout..." : "Upgrade to Premium"}
+                      </button>
+                    </div>
+
+                    {/* Elite */}
+                    <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/[0.04] p-5 flex flex-col">
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-3xl font-bold text-white">£14.99</span>
+                        <span className="text-white/50 text-sm">/month</span>
+                      </div>
+                      <p className="text-sm font-semibold text-cyan-400 mb-3">Elite</p>
+                      <ul className="text-sm text-white/80 space-y-1.5 mb-5 flex-1">
+                        <li>500 messages per month</li>
+                        <li>Live FPL data access</li>
+                        <li>FPL Team ID integration</li>
+                        <li>Priority support</li>
+                      </ul>
+                      <button
+                        onClick={() => startCheckout("Elite")}
+                        disabled={upgradeLoading !== null}
+                        className="w-full rounded-full py-2.5 text-sm font-bold text-cyan-300 border border-cyan-300/50 bg-cyan-300/10 transition-all hover:-translate-y-0.5 hover:bg-gradient-to-r hover:from-[#00FFFF] hover:to-[#00CFFF] hover:text-black hover:border-transparent hover:shadow-[0_0_20px_rgba(0,210,255,0.4)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-wait"
+                      >
+                        {upgradeLoading === "Elite" ? "Starting checkout..." : "Upgrade to Elite"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {upgradeError && (
+                    <p className="text-sm text-red-400 text-center">{upgradeError}</p>
+                  )}
+
+                  <p className="text-xs text-white/40 text-center">
+                    Secure checkout by Stripe. Cancel anytime from this account page.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* FPL Settings */}
             <DarkCard>
