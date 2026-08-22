@@ -144,6 +144,10 @@ export async function POST(request: Request) {
         let messagesLimit = 100;
         if (plan === 'elite') messagesLimit = 500;
         else if (plan === 'vip') messagesLimit = 999999;
+        // Admin plan or role='admin' = site owner, bypasses metering. Without
+        // this line every new month silently reset the row to 100, which is
+        // why the owner's limit kept "reverting to 100" every renewal.
+        if (plan === 'admin' || user.role === 'admin') messagesLimit = 999999;
 
         usage = await prisma.usageTracking.create({
           data: {
@@ -160,8 +164,12 @@ export async function POST(request: Request) {
     
     const userFirstName = user.name?.split(' ')[0] || "there";
 
+    // Admins bypass the meter entirely regardless of what the row says. This
+    // is belt-and-braces against any legacy row still carrying an old limit.
+    const isAdmin = plan === 'admin' || user.role === 'admin';
+
     // Check message limit
-    if (usage.messages_used >= usage.messages_limit) {
+    if (!isAdmin && usage.messages_used >= usage.messages_limit) {
       return NextResponse.json(
         { error: "Message limit reached. Please upgrade your plan." },
         { status: 403 }

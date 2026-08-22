@@ -18,6 +18,7 @@ interface AccountData {
     role: string
     created_at: string
     fpl_team_id: number | null
+    marketing_opt_out: boolean
   }
   subscription: {
     plan: string
@@ -153,6 +154,8 @@ export default function AdminPage() {
   const [fplVerifiedName, setFplVerifiedName] = useState<string | null>(null)
   const [upgradeLoading, setUpgradeLoading] = useState<"Premium" | "Elite" | null>(null)
   const [upgradeError, setUpgradeError] = useState<string | null>(null)
+  const [emailPrefSaving, setEmailPrefSaving] = useState(false)
+  const [emailPrefError, setEmailPrefError] = useState<string | null>(null)
 
   useEffect(() => { fetchAccountData() }, [])
 
@@ -302,6 +305,27 @@ export default function AdminPage() {
       else setResultModal({ show: true, success: false, message: result.error || "Failed to open billing portal" })
     } catch { setResultModal({ show: true, success: false, message: "An error occurred. Please try again." }) }
     finally { setBillingLoading(false) }
+  }
+
+  const handleToggleMarketingEmails = async (nextOptOut: boolean) => {
+    if (!data) return
+    setEmailPrefError(null)
+    setEmailPrefSaving(true)
+    setData({ ...data, user: { ...data.user, marketing_opt_out: nextOptOut } })
+    try {
+      const res = await fetch("/api/account/email-preferences", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ marketing_opt_out: nextOptOut }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    } catch (err) {
+      // Revert on failure so UI matches reality.
+      setData({ ...data, user: { ...data.user, marketing_opt_out: !nextOptOut } })
+      setEmailPrefError("Couldn't save that. Try again in a moment.")
+    } finally {
+      setEmailPrefSaving(false)
+    }
   }
 
   const handleVerifyClaim = async (claimId: string, action: "approve" | "reject", displayOnHomepage = false) => {
@@ -497,6 +521,56 @@ export default function AdminPage() {
               </div>
             </DarkCard>
 
+            {/* Email preferences - lets users resubscribe if they unsubscribed */}
+            <DarkCard>
+              <SectionLabel>Email Preferences</SectionLabel>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white">
+                    Product updates and offers
+                  </p>
+                  <p className="text-xs text-white/60 mt-1 leading-relaxed">
+                    Occasional emails from ChatFPL AI about new features, tips
+                    and offers. Account emails (verification, password resets,
+                    billing) are unaffected either way.
+                  </p>
+                  {emailPrefError && (
+                    <p className="text-xs text-red-400 mt-2">{emailPrefError}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={!data.user.marketing_opt_out}
+                  disabled={emailPrefSaving}
+                  onClick={() =>
+                    handleToggleMarketingEmails(!data.user.marketing_opt_out)
+                  }
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                    data.user.marketing_opt_out
+                      ? "bg-white/15"
+                      : "bg-[#00FF87]"
+                  } disabled:opacity-60 disabled:cursor-wait`}
+                  style={{
+                    boxShadow: data.user.marketing_opt_out
+                      ? "none"
+                      : "0 0 12px rgba(0,255,135,0.35)",
+                  }}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-black transition-transform ${
+                      data.user.marketing_opt_out ? "translate-x-0.5" : "translate-x-[22px]"
+                    }`}
+                  />
+                </button>
+              </div>
+              <p className="text-[11px] text-white/40 mt-3">
+                {data.user.marketing_opt_out
+                  ? "You're unsubscribed. Flip the switch to opt back in any time."
+                  : "You're subscribed. Flip the switch to unsubscribe any time."}
+              </p>
+            </DarkCard>
+
             {/* Upgrade card - free users only */}
             {isFree && (
               <div
@@ -630,8 +704,19 @@ export default function AdminPage() {
                   )}
                   {!isFree && (
                     <div>
-                      <p className="text-xs text-white mb-0.5 uppercase tracking-widest">Renewal Date</p>
-                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>{formatDate(data.subscription.current_period_end)}</p>
+                      <p className="text-xs text-white mb-0.5 uppercase tracking-widest">
+                        {data.subscription.cancel_at_period_end ? "Access Ends" : "Renewal Date"}
+                      </p>
+                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                        {data.subscription.current_period_end
+                          ? formatDate(data.subscription.current_period_end)
+                          : data.subscription.cancel_at_period_end
+                            ? "Cancelled"
+                            : "Pending"}
+                      </p>
+                      {data.subscription.cancel_at_period_end && (
+                        <p className="text-xs text-white/50 mt-1">Your subscription won&apos;t renew.</p>
+                      )}
                     </div>
                   )}
                   <div>

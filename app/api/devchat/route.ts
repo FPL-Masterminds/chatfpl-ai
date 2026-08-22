@@ -131,6 +131,8 @@ export async function POST(request: Request) {
       if (plan === "premium") messagesLimit = 100;
       else if (plan === "elite") messagesLimit = 500;
       else if (plan === "vip") messagesLimit = 999999;
+      // Admin plan or role='admin' = site owner, bypasses metering.
+      if (plan === "admin" || user.role === "admin") messagesLimit = 999999;
 
       const now = new Date();
       usage = await prisma.usageTracking.create({
@@ -146,7 +148,8 @@ export async function POST(request: Request) {
 
     const userFirstName = user.name?.split(" ")[0] || "there";
 
-    if (usage.messages_used >= usage.messages_limit) {
+    const isAdmin = user.subscriptions[0]?.plan.toLowerCase() === "admin" || user.role === "admin";
+    if (!isAdmin && usage.messages_used >= usage.messages_limit) {
       return NextResponse.json(
         { error: "Message limit reached. Please upgrade your plan." },
         { status: 403 }

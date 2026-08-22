@@ -52,25 +52,31 @@ export default function UnsubscribePage() {
             </h1>
             <p className="text-sm text-white/70 leading-relaxed">
               We won&apos;t send you any more product or marketing emails from
-              ChatFPL AI. Transactional messages you need to run your account
-              (verification, password resets, receipts) will still come through
-              as they always have.
+              ChatFPL AI. Account emails (verification, password resets,
+              billing) are unaffected and will still come through.
             </p>
-            <p className="text-xs text-white/40">
-              Changed your mind? Head to your account settings once you&apos;re
-              logged in and you can opt back in.
-            </p>
-            <div className="pt-4">
+            <div className="pt-2 space-y-2">
               <Link
-                href="/"
-                className="inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-black"
+                href="/admin"
+                className="block rounded-full px-6 py-2.5 text-sm font-semibold text-black"
                 style={{
                   background: "linear-gradient(to right,#00FF87,#00CFFF)",
                 }}
               >
+                Change your mind? Manage email preferences
+              </Link>
+              <Link
+                href="/"
+                className="block rounded-full px-6 py-2 text-sm font-semibold text-[#00FF87] border border-[#00FF87]/40 hover:bg-[#00FF87]/10"
+              >
                 Back to ChatFPL AI
               </Link>
             </div>
+            <p className="text-[11px] text-white/40">
+              The &quot;Manage email preferences&quot; button takes you to your
+              account (log in first if you aren&apos;t already) where you can
+              flip a single toggle to opt back in.
+            </p>
           </div>
         </div>
       </div>

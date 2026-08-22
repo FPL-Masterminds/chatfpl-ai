@@ -27,6 +27,8 @@ model User {
   pending_upgrade          String?        @db.VarChar(20) // "Premium" or "Elite" — set at signup when user came from a pricing CTA, consumed after email verification to auto-launch Stripe checkout
   marketing_opt_out        Boolean        @default(false) // Whether the user has opted out of product/marketing emails (transactional emails still send)
   unsubscribe_token        String?        @unique @db.VarChar(64) // One-click unsubscribe token embedded in email footers
+  bonus_topup_at           DateTime?      @db.Timestamp(6) // Timestamp of any one-off admin message top-up. Nullable = never received one. Used by scripts/apply-bonus-topup.mjs to guarantee idempotency.
+  bonus_topup_amount       Int?           // Size of the last top-up applied. Kept alongside bonus_topup_at as an audit trail.
   
   accounts      Account[]
   sessions      Session[]

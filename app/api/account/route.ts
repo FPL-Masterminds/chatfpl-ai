@@ -46,6 +46,7 @@ export async function GET() {
         role: userData.role || "user",
         created_at: userData.created_at.toISOString(),
         fpl_team_id: userData.fpl_team_id ?? null,
+        marketing_opt_out: userData.marketing_opt_out ?? false,
       },
       subscription: {
         plan: subscription?.plan || "Free",

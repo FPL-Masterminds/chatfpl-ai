@@ -28,3 +28,6 @@ next-env.d.ts
 /lib/generated/prisma
 
 .vercel
+
+# One-off campaign data - contains real user PII, do not commit
+scripts/data/
