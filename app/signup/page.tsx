@@ -58,12 +58,18 @@ function SignupForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [referralCode, setReferralCode] = useState<string | null>(null)
+  const [pendingUpgrade, setPendingUpgrade] = useState<"Premium" | "Elite" | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const ref = searchParams.get("ref")
     if (ref) setReferralCode(ref)
+    // Users arriving from the homepage pricing CTAs carry their intent
+    // in ?upgrade=Premium|Elite. Persist it into the signup body so the
+    // /api/verify-email step can pick it back up cross-device.
+    const upgrade = searchParams.get("upgrade")
+    if (upgrade === "Premium" || upgrade === "Elite") setPendingUpgrade(upgrade)
   }, [searchParams])
 
   useEffect(() => {
@@ -149,6 +155,7 @@ function SignupForm() {
           password,
           name,
           ...(referralCode && { referralCode }),
+          ...(pendingUpgrade && { upgrade: pendingUpgrade }),
         }),
       })
       const data = await res.json()

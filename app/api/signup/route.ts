@@ -8,7 +8,12 @@ import { wrapEmailContent } from "@/lib/email-templates";
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name, referralCode } = await request.json();
+    const { email, password, name, referralCode, upgrade } = await request.json();
+
+    // Only accept the two valid upgrade targets. Anything else is silently
+    // dropped so a manipulated payload can't seed a fake plan on the row.
+    const pendingUpgrade =
+      upgrade === "Premium" || upgrade === "Elite" ? upgrade : null;
 
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -85,6 +90,7 @@ export async function POST(request: Request) {
         emailVerificationToken: verificationToken,
         emailVerificationExpires: tokenExpiry,
         referred_by: referrerId,
+        pending_upgrade: pendingUpgrade,
         subscriptions: {
           create: {
             plan: "Free",

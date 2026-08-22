@@ -37,7 +37,9 @@ export async function GET(request: Request) {
       );
     }
 
-    // Verify the email
+    // Verify the email. Note: we deliberately do NOT clear pending_upgrade
+    // here - the login handler / admin dashboard consume it after login,
+    // and clearing it too early breaks the cross-device flow.
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -46,6 +48,14 @@ export async function GET(request: Request) {
         emailVerificationExpires: null,
       },
     });
+
+    // Read pending_upgrade off the user we already loaded (pre-verify state).
+    // If the user came from a pricing CTA, forward that intent through the
+    // login redirect so /admin can auto-launch Stripe checkout post-login.
+    const pendingUpgrade =
+      user.pending_upgrade === "Premium" || user.pending_upgrade === "Elite"
+        ? user.pending_upgrade
+        : null;
 
     // Process referral if this user was referred by someone
     if (user.referred_by) {
@@ -108,9 +118,13 @@ export async function GET(request: Request) {
       }
     }
 
-    return NextResponse.redirect(
-      new URL("/login?success=Email verified successfully! You can now log in", request.url)
+    const successUrl = new URL("/login", request.url);
+    successUrl.searchParams.set(
+      "success",
+      "Email verified successfully! You can now log in"
     );
+    if (pendingUpgrade) successUrl.searchParams.set("upgrade", pendingUpgrade);
+    return NextResponse.redirect(successUrl);
   } catch (error) {
     console.error("Email verification error:", error);
     return NextResponse.redirect(

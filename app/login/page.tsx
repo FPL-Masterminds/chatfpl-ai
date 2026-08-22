@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useRef, useEffect, KeyboardEvent } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useRef, useEffect, KeyboardEvent, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { signIn } from "next-auth/react"
@@ -41,8 +41,9 @@ function TypingDots() {
   )
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [step, setStep] = useState<LoginStep>("email")
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -122,7 +123,15 @@ export default function LoginPage() {
           ...p,
           { id: "success", role: "assistant", text: "You're in. Taking you through now..." },
         ])
-        router.push("/admin")
+        // Forward pricing-CTA intent to /admin so the auto-checkout useEffect
+        // there can pick it up and launch Stripe. Intentionally allowed only
+        // for the two valid targets so a hostile URL can't hijack this hop.
+        const upgrade = searchParams.get("upgrade")
+        const dest =
+          upgrade === "Premium" || upgrade === "Elite"
+            ? `/admin?upgrade=${upgrade}`
+            : "/admin"
+        router.push(dest)
         router.refresh()
       } catch {
         setTyping(false)
@@ -329,5 +338,17 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-[#00FF87]" />
+      </div>
+    }>
+      <LoginPageContent />
+    </Suspense>
   )
 }

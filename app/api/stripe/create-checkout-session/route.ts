@@ -46,6 +46,16 @@ export async function POST(request: Request) {
     const existingCustomerId = existingSubscription?.stripe_customer_id;
     const existingSubId = existingSubscription?.stripe_subscription_id;
 
+    // Consume any pending_upgrade intent on this user - regardless of whether
+    // the upgrade succeeds. The user has now expressed the choice explicitly
+    // via a live click, so we don't need the fallback flag anymore. Fire and
+    // forget so a DB blip can't block the actual checkout.
+    if (user?.id && user.pending_upgrade) {
+      prisma.user
+        .update({ where: { id: user.id }, data: { pending_upgrade: null } })
+        .catch((err) => console.error("Failed to clear pending_upgrade:", err));
+    }
+
     // If user has active subscription, upgrade it instead of creating new one
     if (existingCustomerId && existingSubId && existingSubscription?.status === 'active') {
       try {
