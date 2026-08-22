@@ -28,7 +28,38 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
-const SITE = "https://www.chatfpl.ai/";
+// Search Console distinguishes between URL-prefix properties (each variation
+// of https/http/www is a separate property) and domain properties (which
+// cover every URL on the apex domain, keyed as "sc-domain:<domain>").
+// Rather than hard-code the format, we ask the API which properties the
+// service account has access to and pick the first chatfpl-related one.
+const CANDIDATE_URLS = [
+  "https://www.chatfpl.ai/",
+  "https://chatfpl.ai/",
+  "sc-domain:chatfpl.ai",
+];
+
+async function pickProperty(token: string): Promise<string | null> {
+  try {
+    const res = await fetch("https://searchconsole.googleapis.com/webmasters/v3/sites", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    const body = await res.json();
+    const sites: { siteUrl: string; permissionLevel?: string }[] = body.siteEntry ?? [];
+    // Prefer domain property, then www, then apex - matches most people's
+    // preferred canonical.
+    for (const candidate of CANDIDATE_URLS) {
+      const match = sites.find((s) => s.siteUrl === candidate);
+      if (match) return candidate;
+    }
+    // Fallback: any chatfpl.ai property at all
+    const anyChatFpl = sites.find((s) => s.siteUrl.includes("chatfpl.ai"));
+    return anyChatFpl?.siteUrl ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -86,7 +117,16 @@ export async function GET(request: Request) {
     const token = (await client.getAccessToken()).token;
     if (!token) throw new Error("No access token from GoogleAuth");
 
-    const gscUrl = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(SITE)}/searchAnalytics/query`;
+    const property = await pickProperty(token);
+    if (!property) {
+      return NextResponse.json({
+        error: "Service account has no accessible chatfpl.ai property",
+        hint:
+          "Confirm in Search Console → Settings → Users and permissions that the service account (from GOOGLE_INDEXING_KEY) is listed for the chatfpl.ai property. Any permission level (Restricted, Full, Owner) is fine for this read.",
+      }, { status: 403 });
+    }
+
+    const gscUrl = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(property)}/searchAnalytics/query`;
     const res = await fetch(gscUrl, {
       method: "POST",
       headers: {
@@ -142,6 +182,7 @@ export async function GET(request: Request) {
       endDate,
       fetched_at: now.toISOString(),
       source: "gsc",
+      property,
     });
   } catch (err: any) {
     console.error("top-pages GSC fetch failed", err);
