@@ -58,6 +58,24 @@ interface Analytics {
   allTimeMessages: number
 }
 
+interface SiteStats {
+  sitemap: {
+    total_urls: number | null
+    source_url: string
+  }
+  indexing: {
+    submitted_today: number
+    submitted_total: number
+    last_7d: { date: string; count: number }[]
+  }
+  activity: {
+    valid_sessions: number
+    active_chatters_15m: number
+    unique_users_24h: number
+  }
+  fetched_at: string
+}
+
 interface CustomerEvent {
   id: string
   type: "signup" | "subscription"
@@ -156,6 +174,8 @@ export default function AdminPage() {
   const [upgradeError, setUpgradeError] = useState<string | null>(null)
   const [emailPrefSaving, setEmailPrefSaving] = useState(false)
   const [emailPrefError, setEmailPrefError] = useState<string | null>(null)
+  const [siteStats, setSiteStats] = useState<SiteStats | null>(null)
+  const [siteStatsLoading, setSiteStatsLoading] = useState(false)
 
   useEffect(() => { fetchAccountData() }, [])
 
@@ -164,6 +184,7 @@ export default function AdminPage() {
       fetchPendingClaims()
       fetchAnalytics()
       fetchCustomerEvents(eventsRange, eventsType)
+      fetchSiteStats()
     }
   }, [data?.user.role])
 
@@ -305,6 +326,20 @@ export default function AdminPage() {
       else setResultModal({ show: true, success: false, message: result.error || "Failed to open billing portal" })
     } catch { setResultModal({ show: true, success: false, message: "An error occurred. Please try again." }) }
     finally { setBillingLoading(false) }
+  }
+
+  const fetchSiteStats = async () => {
+    try {
+      setSiteStatsLoading(true)
+      const res = await fetch("/api/admin/site-stats", { cache: "no-store" })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const j = await res.json()
+      setSiteStats(j)
+    } catch (err) {
+      console.error("fetchSiteStats failed:", err)
+    } finally {
+      setSiteStatsLoading(false)
+    }
   }
 
   const handleToggleMarketingEmails = async (nextOptOut: boolean) => {
@@ -956,6 +991,88 @@ export default function AdminPage() {
         {/* ── Administration Tab (admin) ── */}
         {activeTab === "admin" && isAdmin && (
           <div className="space-y-5">
+
+            {/* Site Stats - operational at-a-glance panel */}
+            <DarkCard>
+              <div className="flex items-center justify-between mb-3">
+                <SectionLabel>Site Stats</SectionLabel>
+                <button
+                  onClick={fetchSiteStats}
+                  disabled={siteStatsLoading}
+                  className="text-xs font-semibold text-[#00FF87] hover:text-[#00FFFF] disabled:opacity-40"
+                >
+                  {siteStatsLoading ? "Refreshing..." : "Refresh"}
+                </button>
+              </div>
+
+              {!siteStats ? (
+                <p className="text-sm text-white/50">
+                  {siteStatsLoading ? "Loading..." : "No data yet - try refreshing."}
+                </p>
+              ) : (
+                <div className="space-y-5">
+                  {/* Row 1: 3 big number tiles */}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Sitemap URLs</p>
+                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                        {siteStats.sitemap.total_urls === null ? "—" : siteStats.sitemap.total_urls.toLocaleString()}
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">Live count from /sitemap.xml</p>
+                    </div>
+                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Indexed Today</p>
+                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                        {siteStats.indexing.submitted_today.toLocaleString()}
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">
+                        {siteStats.indexing.submitted_total.toLocaleString()} lifetime
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4 col-span-2 md:col-span-1">
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Active Now (15m)</p>
+                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                        {siteStats.activity.active_chatters_15m}
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">
+                        {siteStats.activity.unique_users_24h} in last 24h · {siteStats.activity.valid_sessions} live sessions
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Row 2: GSC 7-day bar chart */}
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-white/60 mb-2">Google Indexing - Last 7 Days</p>
+                    <div className="flex items-end gap-2 h-24">
+                      {siteStats.indexing.last_7d.map((d) => {
+                        const max = Math.max(...siteStats.indexing.last_7d.map((x) => x.count), 1)
+                        const heightPct = (d.count / max) * 100
+                        const label = new Date(d.date + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+                        return (
+                          <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
+                            <div className="text-[10px] font-semibold text-white/70">{d.count}</div>
+                            <div
+                              className="w-full rounded-t"
+                              style={{
+                                height: `${Math.max(heightPct, 4)}%`,
+                                background: "linear-gradient(180deg,#00FF87,#00FFFF)",
+                                minHeight: 4,
+                                opacity: d.count === 0 ? 0.15 : 1,
+                              }}
+                            />
+                            <div className="text-[10px] text-white/40">{label}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-white/30">
+                    Fetched {new Date(siteStats.fetched_at).toLocaleString("en-GB")}
+                  </p>
+                </div>
+              )}
+            </DarkCard>
 
             {/* Grant VIP */}
             <DarkCard>
