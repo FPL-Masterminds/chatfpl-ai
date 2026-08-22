@@ -4,6 +4,7 @@ import {
   getDisplayName,
   FPL_HEADERS,
   isEligiblePlayer,
+  filterEligiblePlayers,
 } from "@/lib/fpl-player-page"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -142,7 +143,7 @@ export async function getTransferTrendsHub(): Promise<TransferTrendsHubData | nu
 
     const { teamMap, posMap, fdrByTeam, opponentByTeam } = await fetchBootstrapMaps(bootstrap, gw)
 
-    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligible = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
     const idToSlug = new Map<number, string>()
     for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
@@ -208,7 +209,7 @@ export async function getTransferTrendSlugs(
     const gw: number = nextEvent?.id ?? (currentEvent ? currentEvent.id + 1 : 1)
 
     const { teamMap, posMap } = await fetchBootstrapMaps(bootstrap, gw)
-    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligible = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
     const idToSlug = new Map<number, string>()
     for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
@@ -265,7 +266,7 @@ export async function getTransferTrendPageData(
 
     const { teamMap, posMap, fdrByTeam, opponentByTeam } = await fetchBootstrapMaps(bootstrap, gw)
 
-    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligible = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
     const idOut = slugLookup.get(outSlug)
     const idIn  = slugLookup.get(inSlug)

@@ -122,6 +122,34 @@ export function isEligiblePlayer(p: any): boolean {
 }
 
 /**
+ * Preseason-safe wrapper around `isEligiblePlayer`.
+ *
+ * The strict minutes-based rule keeps the sitemap tight from about GW10
+ * onwards, but during preseason and the opening weeks nobody has 1000
+ * minutes and every hub renders empty. This helper inspects the full
+ * element set and, if no player has crossed 1000 minutes yet, relaxes
+ * eligibility to "available + notable" (ownership >= 2% or projected
+ * points >= 4 next GW). Once real minutes accumulate it hands over to
+ * the strict rule automatically.
+ *
+ * Every hub aggregator and the sitemap should call this helper instead
+ * of `.filter(isEligiblePlayer)` to stay aligned.
+ */
+export function filterEligiblePlayers(elements: any[]): any[] {
+  const anyMidseason = elements.some((p: any) => (p.minutes ?? 0) >= 1000)
+  if (anyMidseason) return elements.filter(isEligiblePlayer)
+
+  return elements.filter((p: any) => {
+    if (isEligiblePlayer(p)) return true
+    const sel    = parseFloat(p.selected_by_percent ?? "0")
+    const ep     = parseFloat(p.ep_next ?? "0")
+    const status = p.status ?? "a"
+    if (status !== "a") return false
+    return sel >= 2.0 || ep >= 4.0
+  })
+}
+
+/**
  * Build a grammatically correct phrase describing a fixture window.
  * Use it like: `${name} faces tough fixtures over ${fixtureWindowPhrase(count)}.`
  *
@@ -145,7 +173,7 @@ export function fixtureWindowPhrase(actualCount: number, requestedCount = 4): st
 export async function getEligibleSlugs(): Promise<{ slug: string }[]> {
   try {
     const bootstrap = await getBootstrap()
-    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligible = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugMap = buildSlugLookup(eligible, bootstrap.teams ?? [])
     return Array.from(slugMap.keys()).map((slug) => ({ slug }))
   } catch {
@@ -301,7 +329,7 @@ export async function getPlayerPageData(
     })
 
     // Resolve slug → player (eligible-only set so slugs match generateStaticParams)
-    const eligibleElements = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligibleElements = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const elementId = slugLookup.get(slug)
     if (!elementId) return null
@@ -692,7 +720,7 @@ export async function getPlayerTransferData(
     })
 
     // Eligible-only lookup so slugs match generateStaticParams
-    const eligibleElements = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligibleElements = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const elementId = slugLookup.get(slug)
     if (!elementId) return null
@@ -1559,7 +1587,7 @@ export async function getCaptainHub(): Promise<CaptainHubData | null> {
       })
     } catch { /* fixtures optional */ }
 
-    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligible = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
     const idToSlug = new Map<number, string>()
     for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
@@ -1654,7 +1682,7 @@ export async function getDifferentialHub(): Promise<DifferentialHubData | null> 
       })
     } catch { /* optional */ }
 
-    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligible = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
     const idToSlug = new Map<number, string>()
     for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
@@ -1851,7 +1879,7 @@ export async function getBestValueHub(
       })
     } catch { /* fixtures optional */ }
 
-    const eligible   = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligible   = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
     const idToSlug   = new Map<number, string>()
     for (const [slug, id] of slugLookup) idToSlug.set(id, slug)
@@ -1978,7 +2006,7 @@ export async function getTeamHub(
     } catch { /* fixtures optional */ }
 
     const allElements      = bootstrap.elements ?? []
-    const eligibleElements = allElements.filter(isEligiblePlayer)
+    const eligibleElements = filterEligiblePlayers(allElements)
     const slugLookup       = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const idToSlug         = new Map<number, string>()
     for (const [slug, id] of slugLookup) idToSlug.set(id, slug)

@@ -5,6 +5,7 @@ import {
   FPL_HEADERS,
   formatFplNews,
   isEligiblePlayer,
+  filterEligiblePlayers,
   fixtureWindowPhrase,
   FixtureGW,
   FixtureMatch,
@@ -140,7 +141,7 @@ export async function getComparisonData(
     })
 
     // Eligible-only lookup so slugs match getComparisonSlugs / generateStaticParams
-    const eligibleElements = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligibleElements = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligibleElements, bootstrap.teams ?? [])
     const idA = slugLookup.get(slugA)
     const idB = slugLookup.get(slugB)
@@ -203,7 +204,7 @@ export async function getComparisonSlugs(limit = 500): Promise<{ playerA: string
       teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code }
     })
 
-    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligible = filterEligiblePlayers(bootstrap.elements ?? [])
 
     const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
 
@@ -577,7 +578,7 @@ export async function getComparisonHub(): Promise<ComparisonHubData | null> {
       posMap[et.id] = et.singular_name_short
     })
 
-    const eligible = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const eligible = filterEligiblePlayers(bootstrap.elements ?? [])
     const slugLookup = buildSlugLookup(eligible, bootstrap.teams ?? [])
     const idToSlug = new Map<number, string>()
     for (const [slug, id] of slugLookup) idToSlug.set(id, slug)

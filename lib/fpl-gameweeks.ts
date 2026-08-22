@@ -3,6 +3,7 @@ import {
   buildSlugLookup,
   getDisplayName,
   isEligiblePlayer,
+  filterEligiblePlayers,
   FPL_HEADERS,
 } from "@/lib/fpl-player-page"
 import type { FplCardPlayer } from "@/components/fpl-player-hero"
@@ -505,7 +506,7 @@ export async function getGameweekDetail(gw: number): Promise<GameweekDetailData 
 
     // BGW players — only players with a captain analysis page, sorted by ownership
     const bgwTeamIds    = new Set(gwSummary.bgwTeams.map((t) => t.teamId))
-    const bgwEligible   = (bootstrap.elements ?? []).filter(isEligiblePlayer)
+    const bgwEligible   = filterEligiblePlayers(bootstrap.elements ?? [])
     const bgwSlugLookup = buildSlugLookup(bgwEligible, bootstrap.teams ?? [])
     const bgwSlugById   = invertSlugMap(bgwSlugLookup)
     const bgwPlayers: DGWPlayer[] = bgwEligible
