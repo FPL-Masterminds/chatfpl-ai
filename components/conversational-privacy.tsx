@@ -47,7 +47,7 @@ const PRIVACY_DATA = [
   {
     id: "changes",
     question: "What if the policy changes?",
-    answer: "We'll update this page and change the 'last updated' date. If it's a significant change, we'll let you know by email too. Last updated: January 2025.",
+    answer: "We'll update this page and change the 'last updated' date. If it's a significant change, we'll let you know by email too. Last updated: August 2026.",
   },
   {
     id: "questions",
