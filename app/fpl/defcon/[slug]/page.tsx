@@ -10,8 +10,9 @@ import { DefconPlayerCard } from "@/components/defcon-player-card"
 import { Reveal } from "@/components/scroll-reveal"
 import { SeasonEnded } from "@/components/season-ended"
 import { HubPlayerPhoto } from "@/components/hub-player-photo"
+import { DefconComingSoon } from "@/components/defcon-coming-soon"
 import { isSeasonOver } from "@/lib/fpl-player-page"
-import { getDefconPlayerPage, getDefconPlayerSlugs, DEFCON_POSITION_META } from "@/lib/fpl-defcon"
+import { getDefconPlayerPage, getDefconPlayerSlugs, getDefconHub, DEFCON_POSITION_META } from "@/lib/fpl-defcon"
 
 export const revalidate = 43200
 export const dynamicParams = true
@@ -52,7 +53,15 @@ export default async function DefconPlayerPage({
   if (await isSeasonOver()) return <SeasonEnded />
   const { slug } = await params
   const data = await getDefconPlayerPage(slug)
-  if (!data) notFound()
+  if (!data) {
+    // Either the hub is not ready yet (early season) or the slug is genuinely
+    // unknown. Distinguish so genuine 404s still 404.
+    const hub = await getDefconHub()
+    if (hub && !hub.ready) {
+      return <DefconComingSoon gw={hub.gw} maxMinutes={hub.maxMinutes} playerName={slug.replace(/-/g, " ")} />
+    }
+    notFound()
+  }
 
   const { player, gw, positionRank, positionTotal, positionSlug, peers, qaItems, verdict, early } = data
   const posMeta = DEFCON_POSITION_META[positionSlug]

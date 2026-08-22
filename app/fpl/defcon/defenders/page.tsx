@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { SeasonEnded } from "@/components/season-ended"
 import { DevHeader } from "@/components/dev-header"
 import { DefconPositionRender } from "@/components/defcon-position-render"
+import { DefconComingSoon } from "@/components/defcon-coming-soon"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { getDefconPositionHub } from "@/lib/fpl-defcon"
 
@@ -37,5 +38,6 @@ export default async function DefconDefendersPage() {
       </div>
     )
   }
+  if (!data.ready) return <DefconComingSoon gw={data.gw} maxMinutes={data.maxMinutes} positionLabel="Defenders" />
   return <DefconPositionRender data={data} />
 }

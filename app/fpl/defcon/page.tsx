@@ -6,6 +6,7 @@ import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
 import { Reveal } from "@/components/scroll-reveal"
 import { SeasonEnded } from "@/components/season-ended"
 import { DefconPlayerCard } from "@/components/defcon-player-card"
+import { DefconComingSoon } from "@/components/defcon-coming-soon"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { getDefconHub, DEFCON_PRICE_META } from "@/lib/fpl-defcon"
 
@@ -15,8 +16,13 @@ export const dynamic = "force-dynamic"
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getDefconHub()
   const gw = data?.gw ?? "?"
-  const title = `Fantasy Premier League DEFCON: Best Defensive Contribution Picks for Gameweek ${gw} | ChatFPL AI`
-  const description = `The most reliable DEFCON defenders and midfielders in Fantasy Premier League for Gameweek ${gw}, ranked by defensive contributions per 90 minutes. Full data, fixture context and price-banded breakdowns.`
+  const ready = data?.ready ?? false
+  const title = ready
+    ? `Fantasy Premier League DEFCON: Best Defensive Contribution Picks for Gameweek ${gw} | ChatFPL AI`
+    : `Fantasy Premier League DEFCON: The 2025/26 Defensive Contribution Guide | ChatFPL AI`
+  const description = ready
+    ? `The most reliable DEFCON defenders and midfielders in Fantasy Premier League for Gameweek ${gw}, ranked by defensive contributions per 90 minutes. Full data, fixture context and price-banded breakdowns.`
+    : `DEFCON is the 2025/26 Fantasy Premier League bonus for defenders and midfielders hitting the CBIT threshold. Full rankings launch once the season has enough data to publish reliable per-90 rates.`
   return {
     title,
     description,
@@ -70,6 +76,8 @@ export default async function DefconHubPage() {
       </div>
     )
   }
+
+  if (!data.ready) return <DefconComingSoon gw={data.gw} maxMinutes={data.maxMinutes} />
 
   const { gw, defenders, midfielders, early } = data
 

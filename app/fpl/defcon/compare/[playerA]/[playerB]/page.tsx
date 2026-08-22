@@ -9,10 +9,12 @@ import { ConversationalPlayer } from "@/components/conversational-player"
 import { Reveal } from "@/components/scroll-reveal"
 import { SeasonEnded } from "@/components/season-ended"
 import { HubPlayerPhoto } from "@/components/hub-player-photo"
+import { DefconComingSoon } from "@/components/defcon-coming-soon"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import {
   getDefconCompare,
   getDefconComparePairs,
+  getDefconHub,
   DEFCON_POSITION_META,
   extractPriceRaw,
   type DefconPlayer,
@@ -200,7 +202,19 @@ export default async function DefconComparePage({
   if (await isSeasonOver()) return <SeasonEnded />
   const { playerA: slugA, playerB: slugB } = await params
   const data = await getDefconCompare(slugA, slugB)
-  if (!data) notFound()
+  if (!data) {
+    const hub = await getDefconHub()
+    if (hub && !hub.ready) {
+      return (
+        <DefconComingSoon
+          gw={hub.gw}
+          maxMinutes={hub.maxMinutes}
+          compareOf={{ a: slugA.replace(/-/g, " "), b: slugB.replace(/-/g, " ") }}
+        />
+      )
+    }
+    notFound()
+  }
 
   const { playerA, playerB, gw, positionSlug, cbitThreshold, qaItems, verdict, early } = data
   const posMeta = DEFCON_POSITION_META[positionSlug]

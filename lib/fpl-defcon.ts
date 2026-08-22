@@ -37,6 +37,18 @@ const MINS_FLOOR_EARLY = 90
 /** DEF/MID sitemap-worthy per-90 floor once we have a mature sample. */
 const DC90_FLOOR_MIDSEASON = 0.3
 
+/**
+ * DATA READINESS. Below this line the FPL API's defensive_contribution and
+ * per-90 fields cannot be trusted for the current season because they either
+ * carry residual last-season totals or divide by too-small a denominator.
+ *
+ * DEFCON pages will only render live numbers once at least one player in the
+ * league has this many minutes played (roughly four full 90-minute matches).
+ * Below the threshold every page renders a "coming soon" placeholder with
+ * context and links out - no stats, no rankings, no compare pages.
+ */
+export const DEFCON_READY_MINUTES = 360
+
 /** Price bands - mirror the best-value hub for consistency. */
 export const DEFCON_PRICE_META: Record<string, { cap: number; label: string; nice: string }> = {
   "under-4m":   { cap: 40, label: "£4.0m", nice: "£4.0m" },
@@ -82,6 +94,8 @@ export interface DefconHubData {
   defenders: DefconPlayer[]
   midfielders: DefconPlayer[]
   early: boolean
+  ready: boolean
+  maxMinutes: number
 }
 
 export interface DefconPositionHubData {
@@ -92,6 +106,8 @@ export interface DefconPositionHubData {
   positionSingular: string
   cbitThreshold: number
   early: boolean
+  ready: boolean
+  maxMinutes: number
 }
 
 export interface DefconPriceHubData extends DefconPositionHubData {
@@ -203,7 +219,9 @@ async function loadDefconContext() {
   const slugById = new Map<number, string>()
   for (const [slug, id] of slugLookup) slugById.set(id, slug)
 
+  const maxMinutes = allElements.reduce((max: number, p: any) => Math.max(max, p.minutes ?? 0), 0)
   const anyMidseason = allElements.some((p: any) => (p.minutes ?? 0) >= MIDSEASON_MINUTE_THRESHOLD)
+  const ready = maxMinutes >= DEFCON_READY_MINUTES
   const minsFloor = anyMidseason ? MINS_FLOOR_MIDSEASON : MINS_FLOOR_EARLY
 
   const rawDefcon = allElements
@@ -234,6 +252,8 @@ async function loadDefconContext() {
     gw,
     players,
     early: !anyMidseason,
+    ready,
+    maxMinutes,
     slugById,
     teamMap,
     posMap,
@@ -248,9 +268,12 @@ async function loadDefconContext() {
 export async function getDefconHub(): Promise<DefconHubData | null> {
   try {
     const ctx = await loadDefconContext()
+    if (!ctx.ready) {
+      return { gw: ctx.gw, defenders: [], midfielders: [], early: ctx.early, ready: false, maxMinutes: ctx.maxMinutes }
+    }
     const defenders = ctx.players.filter(p => p.elementType === 2).slice(0, 10)
     const midfielders = ctx.players.filter(p => p.elementType === 3).slice(0, 10)
-    return { gw: ctx.gw, defenders, midfielders, early: ctx.early }
+    return { gw: ctx.gw, defenders, midfielders, early: ctx.early, ready: true, maxMinutes: ctx.maxMinutes }
   } catch {
     return null
   }
@@ -261,7 +284,9 @@ export async function getDefconPositionHub(positionSlug: string): Promise<Defcon
     const meta = DEFCON_POSITION_META[positionSlug]
     if (!meta) return null
     const ctx = await loadDefconContext()
-    const players = ctx.players.filter(p => p.elementType === meta.elementType).slice(0, 40)
+    const players = ctx.ready
+      ? ctx.players.filter(p => p.elementType === meta.elementType).slice(0, 40)
+      : []
     return {
       gw: ctx.gw,
       players,
@@ -270,6 +295,8 @@ export async function getDefconPositionHub(positionSlug: string): Promise<Defcon
       positionSingular: meta.singular,
       cbitThreshold: meta.cbitThreshold,
       early: ctx.early,
+      ready: ctx.ready,
+      maxMinutes: ctx.maxMinutes,
     }
   } catch {
     return null
@@ -285,10 +312,12 @@ export async function getDefconPriceHub(
     const priceMeta = DEFCON_PRICE_META[priceSlug]
     if (!posMeta || !priceMeta) return null
     const ctx = await loadDefconContext()
-    const players = ctx.players
-      .filter(p => p.elementType === posMeta.elementType)
-      .filter(p => parseFloat(p.price.replace("£", "").replace("m", "")) <= priceMeta.cap / 10)
-      .slice(0, 30)
+    const players = ctx.ready
+      ? ctx.players
+          .filter(p => p.elementType === posMeta.elementType)
+          .filter(p => parseFloat(p.price.replace("£", "").replace("m", "")) <= priceMeta.cap / 10)
+          .slice(0, 30)
+      : []
     return {
       gw: ctx.gw,
       players,
@@ -297,6 +326,8 @@ export async function getDefconPriceHub(
       positionSingular: posMeta.singular,
       cbitThreshold: posMeta.cbitThreshold,
       early: ctx.early,
+      ready: ctx.ready,
+      maxMinutes: ctx.maxMinutes,
       priceSlug,
       priceLabel: priceMeta.label,
       priceCap: priceMeta.cap,
@@ -326,6 +357,9 @@ export interface DefconPlayerPageData {
 export async function getDefconPlayerPage(slug: string): Promise<DefconPlayerPageData | null> {
   try {
     const ctx = await loadDefconContext()
+    // Suppress individual DEFCON pages entirely until the season has enough
+    // sample - they will simply 404 back to the placeholder hub.
+    if (!ctx.ready) return null
     const player = ctx.players.find(p => p.slug === slug)
     if (!player) return null
 
@@ -382,6 +416,7 @@ export async function getDefconCompare(
 ): Promise<DefconCompareData | null> {
   try {
     const ctx = await loadDefconContext()
+    if (!ctx.ready) return null
     const playerA = ctx.players.find(p => p.slug === slugA)
     const playerB = ctx.players.find(p => p.slug === slugB)
     if (!playerA || !playerB) return null
@@ -418,6 +453,7 @@ export async function getDefconCompare(
 export async function getDefconPlayerSlugs(): Promise<{ slug: string }[]> {
   try {
     const ctx = await loadDefconContext()
+    if (!ctx.ready) return []
     return ctx.players.map(p => ({ slug: p.slug }))
   } catch {
     return []
@@ -432,6 +468,7 @@ export async function getDefconPlayerSlugs(): Promise<{ slug: string }[]> {
 export async function getDefconComparePairs(): Promise<{ playerA: string; playerB: string }[]> {
   try {
     const ctx = await loadDefconContext()
+    if (!ctx.ready) return []
     const pairs: { playerA: string; playerB: string }[] = []
     for (const et of [2, 3]) {
       const top = ctx.players.filter(p => p.elementType === et).slice(0, 20)
