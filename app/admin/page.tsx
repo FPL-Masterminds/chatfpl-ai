@@ -58,6 +58,25 @@ interface Analytics {
   allTimeMessages: number
 }
 
+interface TopPage {
+  page: string
+  clicks: number
+  impressions: number
+  ctr: number
+  position: number
+}
+
+interface TopPagesData {
+  rows: TopPage[]
+  totals: { clicks: number; impressions: number }
+  days: number
+  startDate: string
+  endDate: string
+  fetched_at: string
+  error?: string
+  hint?: string
+}
+
 interface SiteStats {
   sitemap: {
     total_urls: number | null
@@ -148,7 +167,7 @@ export default function AdminPage() {
   const [data, setData] = useState<AccountData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [activeTab, setActiveTab] = useState<"account" | "rewards" | "admin" | "archive">("account")
+  const [activeTab, setActiveTab] = useState<"account" | "rewards" | "admin" | "analytics" | "archive">("account")
   const [archivedConversations, setArchivedConversations] = useState<any[]>([])
   const [archiveLoading, setArchiveLoading] = useState(false)
   const [vipEmail, setVipEmail] = useState("")
@@ -176,6 +195,10 @@ export default function AdminPage() {
   const [emailPrefError, setEmailPrefError] = useState<string | null>(null)
   const [siteStats, setSiteStats] = useState<SiteStats | null>(null)
   const [siteStatsLoading, setSiteStatsLoading] = useState(false)
+  const [topPages, setTopPages] = useState<TopPagesData | null>(null)
+  const [topPagesLoading, setTopPagesLoading] = useState(false)
+  const [topPagesError, setTopPagesError] = useState<string | null>(null)
+  const [topPagesDays, setTopPagesDays] = useState<7 | 28 | 90>(28)
 
   useEffect(() => { fetchAccountData() }, [])
 
@@ -191,6 +214,12 @@ export default function AdminPage() {
   useEffect(() => {
     if (data?.user.role === "admin") fetchCustomerEvents(eventsRange, eventsType)
   }, [eventsRange, eventsType])
+
+  useEffect(() => {
+    if (activeTab === "analytics" && data?.user.role === "admin" && !topPages && !topPagesLoading) {
+      fetchTopPages(topPagesDays)
+    }
+  }, [activeTab, data?.user.role])
 
   const fetchAccountData = async () => {
     try {
@@ -342,6 +371,27 @@ export default function AdminPage() {
     }
   }
 
+  const fetchTopPages = async (days: 7 | 28 | 90 = topPagesDays) => {
+    try {
+      setTopPagesLoading(true)
+      setTopPagesError(null)
+      const res = await fetch(`/api/admin/top-pages?days=${days}&limit=25`, { cache: "no-store" })
+      const j = await res.json()
+      if (!res.ok) {
+        setTopPagesError(j.error ?? `HTTP ${res.status}`)
+        if (j.hint) setTopPagesError(`${j.error} - ${j.hint}`)
+        setTopPages(null)
+      } else {
+        setTopPages(j)
+      }
+    } catch (err: any) {
+      setTopPagesError(err?.message ?? "Failed to fetch")
+      setTopPages(null)
+    } finally {
+      setTopPagesLoading(false)
+    }
+  }
+
   const handleToggleMarketingEmails = async (nextOptOut: boolean) => {
     if (!data) return
     setEmailPrefError(null)
@@ -431,6 +481,7 @@ export default function AdminPage() {
     ...(isAdmin ? [
       { id: "rewards", label: `Reward Management${pendingClaims.length > 0 ? ` (${pendingClaims.length})` : ""}` },
       { id: "admin", label: "Administration" },
+      { id: "analytics", label: "Analytics" },
     ] : []),
   ] as const
 
@@ -992,88 +1043,6 @@ export default function AdminPage() {
         {activeTab === "admin" && isAdmin && (
           <div className="space-y-5">
 
-            {/* Site Stats - operational at-a-glance panel */}
-            <DarkCard>
-              <div className="flex items-center justify-between mb-3">
-                <SectionLabel>Site Stats</SectionLabel>
-                <button
-                  onClick={fetchSiteStats}
-                  disabled={siteStatsLoading}
-                  className="text-xs font-semibold text-[#00FF87] hover:text-[#00FFFF] disabled:opacity-40"
-                >
-                  {siteStatsLoading ? "Refreshing..." : "Refresh"}
-                </button>
-              </div>
-
-              {!siteStats ? (
-                <p className="text-sm text-white/50">
-                  {siteStatsLoading ? "Loading..." : "No data yet - try refreshing."}
-                </p>
-              ) : (
-                <div className="space-y-5">
-                  {/* Row 1: 3 big number tiles */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
-                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Sitemap URLs</p>
-                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
-                        {siteStats.sitemap.total_urls === null ? "—" : siteStats.sitemap.total_urls.toLocaleString()}
-                      </p>
-                      <p className="text-[11px] text-white/40 mt-1">Live count from /sitemap.xml</p>
-                    </div>
-                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
-                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Indexed Today</p>
-                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
-                        {siteStats.indexing.submitted_today.toLocaleString()}
-                      </p>
-                      <p className="text-[11px] text-white/40 mt-1">
-                        {siteStats.indexing.submitted_total.toLocaleString()} lifetime
-                      </p>
-                    </div>
-                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4 col-span-2 md:col-span-1">
-                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Active Now (15m)</p>
-                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
-                        {siteStats.activity.active_chatters_15m}
-                      </p>
-                      <p className="text-[11px] text-white/40 mt-1">
-                        {siteStats.activity.unique_users_24h} in last 24h · {siteStats.activity.valid_sessions} live sessions
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Row 2: GSC 7-day bar chart */}
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-white/60 mb-2">Google Indexing - Last 7 Days</p>
-                    <div className="flex items-end gap-2 h-24">
-                      {siteStats.indexing.last_7d.map((d) => {
-                        const max = Math.max(...siteStats.indexing.last_7d.map((x) => x.count), 1)
-                        const heightPct = (d.count / max) * 100
-                        const label = new Date(d.date + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short" })
-                        return (
-                          <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
-                            <div className="text-[10px] font-semibold text-white/70">{d.count}</div>
-                            <div
-                              className="w-full rounded-t"
-                              style={{
-                                height: `${Math.max(heightPct, 4)}%`,
-                                background: "linear-gradient(180deg,#00FF87,#00FFFF)",
-                                minHeight: 4,
-                                opacity: d.count === 0 ? 0.15 : 1,
-                              }}
-                            />
-                            <div className="text-[10px] text-white/40">{label}</div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  <p className="text-[10px] text-white/30">
-                    Fetched {new Date(siteStats.fetched_at).toLocaleString("en-GB")}
-                  </p>
-                </div>
-              )}
-            </DarkCard>
-
             {/* Grant VIP */}
             <DarkCard>
               <SectionLabel>Grant VIP Access</SectionLabel>
@@ -1222,6 +1191,176 @@ export default function AdminPage() {
                       <p className="mt-1 text-sm text-white">{event.detail}</p>
                     </div>
                   ))}
+                </div>
+              )}
+            </DarkCard>
+          </div>
+        )}
+
+        {/* ── Analytics Tab (admin) ── */}
+        {activeTab === "analytics" && isAdmin && (
+          <div className="space-y-5">
+
+            {/* Site Stats - operational at-a-glance panel */}
+            <DarkCard>
+              <div className="flex items-center justify-between mb-3">
+                <SectionLabel>Site Stats</SectionLabel>
+                <button
+                  onClick={fetchSiteStats}
+                  disabled={siteStatsLoading}
+                  className="text-xs font-semibold text-[#00FF87] hover:text-[#00FFFF] disabled:opacity-40"
+                >
+                  {siteStatsLoading ? "Refreshing..." : "Refresh"}
+                </button>
+              </div>
+
+              {!siteStats ? (
+                <p className="text-sm text-white/50">
+                  {siteStatsLoading ? "Loading..." : "No data yet - try refreshing."}
+                </p>
+              ) : (
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Sitemap URLs</p>
+                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                        {siteStats.sitemap.total_urls === null ? "—" : siteStats.sitemap.total_urls.toLocaleString()}
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">Live count from /sitemap.xml</p>
+                    </div>
+                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4">
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Indexed Today</p>
+                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                        {siteStats.indexing.submitted_today.toLocaleString()}
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">
+                        {siteStats.indexing.submitted_total.toLocaleString()} lifetime
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.04] p-4 col-span-2 md:col-span-1">
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Active Now (15m)</p>
+                      <p className="text-3xl font-bold text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }}>
+                        {siteStats.activity.active_chatters_15m}
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">
+                        {siteStats.activity.unique_users_24h} in last 24h · {siteStats.activity.valid_sessions} live sessions
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-white/60 mb-2">Google Indexing - Last 7 Days</p>
+                    <div className="flex items-end gap-2 h-24">
+                      {siteStats.indexing.last_7d.map((d) => {
+                        const max = Math.max(...siteStats.indexing.last_7d.map((x) => x.count), 1)
+                        const heightPct = (d.count / max) * 100
+                        const label = new Date(d.date + "T00:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+                        return (
+                          <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
+                            <div className="text-[10px] font-semibold text-white/70">{d.count}</div>
+                            <div
+                              className="w-full rounded-t"
+                              style={{
+                                height: `${Math.max(heightPct, 4)}%`,
+                                background: "linear-gradient(180deg,#00FF87,#00FFFF)",
+                                minHeight: 4,
+                                opacity: d.count === 0 ? 0.15 : 1,
+                              }}
+                            />
+                            <div className="text-[10px] text-white/40">{label}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-white/30">
+                    Fetched {new Date(siteStats.fetched_at).toLocaleString("en-GB")}
+                  </p>
+                </div>
+              )}
+            </DarkCard>
+
+            {/* Top pages by Google Search traffic */}
+            <DarkCard>
+              <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+                <SectionLabel>Top Pages by Google Search Traffic</SectionLabel>
+                <div className="flex items-center gap-2">
+                  {[7, 28, 90].map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => { setTopPagesDays(d as 7 | 28 | 90); fetchTopPages(d as 7 | 28 | 90) }}
+                      className={`text-xs font-semibold px-3 py-1 rounded-full transition ${
+                        topPagesDays === d
+                          ? "bg-[#00FF87]/20 text-[#00FF87]"
+                          : "text-white/50 hover:text-white/80"
+                      }`}
+                    >
+                      {d}d
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => fetchTopPages(topPagesDays)}
+                    disabled={topPagesLoading}
+                    className="text-xs font-semibold text-[#00FF87] hover:text-[#00FFFF] disabled:opacity-40 ml-2"
+                  >
+                    {topPagesLoading ? "Loading..." : "Refresh"}
+                  </button>
+                </div>
+              </div>
+
+              {topPagesError ? (
+                <div className="rounded-xl border border-amber-400/30 bg-amber-400/[0.06] p-4 text-sm text-amber-100/90">
+                  <p className="font-semibold mb-1">Couldn&apos;t load Google Search Console data</p>
+                  <p className="text-xs">{topPagesError}</p>
+                </div>
+              ) : !topPages ? (
+                <p className="text-sm text-white/50">{topPagesLoading ? "Loading top pages..." : "No data yet."}</p>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-6 text-sm text-white/70">
+                    <div>
+                      <span className="text-white font-semibold">{topPages.totals.clicks.toLocaleString()}</span> clicks
+                    </div>
+                    <div>
+                      <span className="text-white font-semibold">{topPages.totals.impressions.toLocaleString()}</span> impressions
+                    </div>
+                    <div className="text-xs text-white/40">
+                      {topPages.startDate} → {topPages.endDate}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-white/8 overflow-hidden">
+                    <div className="grid grid-cols-[1fr_60px_90px_60px_60px] bg-emerald-400/[0.06] px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-emerald-400/70 gap-2">
+                      <span>Page</span>
+                      <span className="text-right">Clicks</span>
+                      <span className="text-right">Impressions</span>
+                      <span className="text-right">CTR</span>
+                      <span className="text-right">Pos.</span>
+                    </div>
+                    <div className="max-h-[500px] overflow-y-auto">
+                      {topPages.rows.length === 0 ? (
+                        <p className="px-3 py-3 text-sm text-white/30">No pages have received clicks in this window.</p>
+                      ) : topPages.rows.map((r) => {
+                        const path = r.page.replace(/^https?:\/\/[^/]+/, "") || "/"
+                        return (
+                          <div key={r.page} className="grid grid-cols-[1fr_60px_90px_60px_60px] border-t border-white/5 px-3 py-2 text-sm gap-2 items-center">
+                            <a href={r.page} target="_blank" rel="noopener noreferrer" className="truncate text-white hover:text-[#00FF87]" title={r.page}>
+                              {path}
+                            </a>
+                            <span className="text-right font-semibold text-[#00FF87]">{r.clicks.toLocaleString()}</span>
+                            <span className="text-right text-white/70">{r.impressions.toLocaleString()}</span>
+                            <span className="text-right text-white/60">{(r.ctr * 100).toFixed(1)}%</span>
+                            <span className="text-right text-white/60">{r.position.toFixed(1)}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-white/30">
+                    Data from Google Search Console · last updated {new Date(topPages.fetched_at).toLocaleString("en-GB")}
+                  </p>
                 </div>
               )}
             </DarkCard>
