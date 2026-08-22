@@ -193,7 +193,7 @@ export async function POST(request: Request) {
               const clubLabel = team ? `${team.name} (${team.short_name})` : "";
               const injuryNews = p.news ? `[${p.news}]` : "";
               return {
-                formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|xGC:${p.expected_goals_conceded}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
+                formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|xGC:${p.expected_goals_conceded}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|DC:${p.defensive_contribution ?? 0}|DC90:${p.defensive_contribution_per_90 ?? 0}|CBIT:${(p.clearances_blocks_interceptions ?? 0) + (p.tackles ?? 0)}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
                 rawData: p,
                 team: team?.short_name,
                 position: position?.singular_name_short,
@@ -481,7 +481,7 @@ ${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWind
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
-Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|xG|xA|xGI|xGC|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|Status|Fitness%|[InjuryNews]|PhotoURL
+Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|xG|xA|xGI|xGC|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|DC|DC90|CBIT|Status|Fitness%|[InjuryNews]|PhotoURL
 ${filteredPlayers.map((p: any) => p.formatted).join("\n")}
 
 TEAMS:
@@ -496,6 +496,9 @@ FIELD EXPLANATIONS:
 - xGC = Expected goals conceded this season (useful for defenders/goalkeepers)
 - TI_GW = Transfers IN this gameweek (trending players)
 - TO_GW = Transfers OUT this gameweek
+- DC = Defensive Contribution matches this season (times +2pt DEFCON bonus was earned). DEFCON only applies to DEF and MID - ignore for GKP/FWD.
+- DC90 = DEFCON matches per 90 minutes. Use as the PRIMARY DEFCON ranking signal (accounts for minutes played).
+- CBIT = raw Clearances+Blocks+Interceptions+Tackles count this season.
 - Status: a=available, d=doubtful, i=injured, u=unavailable, s=suspended
 - Fitness% = Chance of playing next round (0-100)
 
@@ -527,7 +530,8 @@ SQUAD: 2 GKP, 5 DEF, 5 MID, 3 FWD (15 total). Max 3 per club.
 STARTING XI: 1 GKP + 10 outfield. Min 3 DEF, 2 MID, 1 FWD.
 VALID FORMATIONS: 3-4-3, 3-5-2, 4-3-3, 4-4-2, 4-5-1, 5-2-3, 5-3-2, 5-4-1
 POINTS: Goals GKP/DEF=6, MID=5, FWD=4. Assists=3. CS (60+ min) GKP/DEF=4, MID=1. Captain doubles.
-TRANSFERS: 1 free/GW, max 2 rollover. Extra = -4pts each.
+TRANSFERS: Pre-season (before GW1 deadline) = UNLIMITED free transfers. From GW1 onwards = 1 free/GW, max 5 rollover (changed from 2 in 2024/25). Extra = -4pts each.
+DEFCON: New 2025/26 scoring. Defenders +2pts at 10+ CBIT in a match; Midfielders +2pts at 12+ CBIT+recoveries. GKP/FWD do NOT earn DEFCON. Field DC = total matches earned; DC90 = per 90 minutes (use as primary DEFCON ranking); CBIT = raw combined count.
 
 PERSONALITY:
 - You are ChatFPL AI. Use "I" not "ChatFPL AI has..."

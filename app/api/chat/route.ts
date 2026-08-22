@@ -212,7 +212,7 @@ export async function POST(request: Request) {
           const clubLabel = team ? `${team.name} (${team.short_name})` : "";
           const injuryNews = p.news ? `[${p.news}]` : '';
             return {
-            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|xGC:${p.expected_goals_conceded}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
+            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|xGC:${p.expected_goals_conceded}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|DC:${p.defensive_contribution ?? 0}|DC90:${p.defensive_contribution_per_90 ?? 0}|CBIT:${(p.clearances_blocks_interceptions ?? 0) + (p.tackles ?? 0)}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
             rawData: p,
             team: team?.short_name,
             position: position?.singular_name_short
@@ -534,7 +534,7 @@ ${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
-Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|xG|xA|xGI|xGC|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|Status|Fitness%|[InjuryNews]|PhotoURL
+Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|xG|xA|xGI|xGC|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|DC|DC90|CBIT|Status|Fitness%|[InjuryNews]|PhotoURL
 ${filteredPlayers.map(p => p.formatted).join("\n")}
 
 TEAMS:
@@ -559,6 +559,9 @@ FIELD EXPLANATIONS:
 - Minutes = Total minutes played this season
 - YC/RC = Yellow/Red cards this season
 - Saves/Pens/PensMissed = Goalkeeper/penalty stats
+- DC = Defensive Contributions this season - total matches where the player earned the +2 DEFCON bonus. DEFCON = new scoring system for 2025/26: defenders earn +2 pts when their combined Clearances+Blocks+Interceptions+Tackles (CBIT) reaches 10+ in a match; midfielders earn +2 pts when CBIT+Ball Recoveries reaches 12+. Goalkeepers and Forwards do NOT earn DEFCON points - ignore DC for them.
+- DC90 = Defensive Contributions per 90 minutes played - the reliability signal. Use this as the primary DEFCON ranking metric (raw DC favours high-minutes players unfairly). A DEF or MID at DC90 above ~0.7 is genuinely DEFCON-reliable.
+- CBIT = Clearances + Blocks + Interceptions + Tackles (raw combined count). Useful context for defenders and defensive midfielders.
 - Status: a=available, d=doubtful, i=injured, u=unavailable, s=suspended
 - Fitness% = Chance of playing next round (0-100)
 - [InjuryNews] = Latest injury/availability news if any
@@ -654,8 +657,9 @@ POINTS SCORING:
 - Captain scores double, Vice-captain doubles only if captain does not play
 
 TRANSFERS:
-- 1 free transfer per GW, rolls over to max 2 if unused
-- Each additional transfer costs 4 points (a hit)
+- PRE-SEASON (before the Gameweek 1 deadline): managers have UNLIMITED free transfers to build and reshape their squad. Never tell a pre-season user they only have "1 free transfer" - check the CURRENT GAMEWEEK data above and if it's Gameweek 1 with a future deadline, transfers are unrestricted.
+- From Gameweek 1 deadline onwards: 1 free transfer per GW, unused transfers bank up to a MAXIMUM OF 5 (rule changed for 2024/25 season - it is no longer capped at 2)
+- Each additional transfer beyond the free/banked allowance costs 4 points (a hit)
 - Wildcard: unlimited free transfers, squad changes are permanent
 - Free Hit: unlimited transfers for one GW only, squad reverts next GW
 - Bench Boost: all bench players score points this GW
