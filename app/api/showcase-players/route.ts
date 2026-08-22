@@ -82,11 +82,16 @@ export async function GET() {
 
   let json: any
   try {
+    // Do NOT let Vercel's fetch data cache hold the FPL bootstrap. When we
+    // previously used `revalidate: 1800`, Vercel kept a stale snapshot alive
+    // and even after a code deploy that lowered the TTL it continued serving
+    // the old cached response until its original 30-minute clock ran out.
+    // That was why live-match points (Pickford's clean sheet, Bruno's 90
+    // minutes) sat at 0 on the homepage carousel even though FPL itself had
+    // updated hours earlier. `cache: "no-store"` means every miss on our
+    // 3-minute in-memory cache goes straight to FPL for fresh data.
     const res = await fetch(FPL_URL, {
-      // 3 minutes matches the in-memory cache above. FPL's bootstrap-static
-      // is cheap for them and lets live-match points surface quickly during
-      // an active gameweek.
-      next: { revalidate: 180 },
+      cache: "no-store",
       headers: { "User-Agent": "Mozilla/5.0 (compatible; ChatFPL/1.0)" },
     })
     if (!res.ok) throw new Error(`FPL API returned ${res.status}`)
