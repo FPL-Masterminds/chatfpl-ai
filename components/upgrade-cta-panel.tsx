@@ -5,20 +5,24 @@ import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 
 /**
- * The green-bordered call-to-action panel that appears at the bottom of every
- * programmatic pSEO page. Three variants:
+ * The green-bordered call-to-action panel used at the bottom of every
+ * programmatic pSEO page. Four variants:
  *
- *   Logged out       -> "Try ChatFPL AI for free"           -> /signup
- *   Logged in, Free  -> "Upgrade to Premium - £7.99/month"  -> Stripe checkout
- *   Logged in, paid  -> "Ask ChatFPL AI"                    -> /chat
+ *   Logged out       -> "Try ChatFPL AI for free"               -> /signup
+ *   Free             -> "Upgrade to Premium - £7.99/month"       -> Stripe
+ *   Premium (£7.99)  -> "Upgrade to Elite - £14.99/month"        -> Stripe
+ *   Elite            -> "Ask ChatFPL AI"                         -> /chat
  *
- * The heading is page-specific (e.g. "Want to know if Riccardo Calafiori fits
- * your specific squad?") and passed in as a prop. Everything below the heading
- * is state-aware.
+ * The heading is always page-specific and passed in.  `subline` and
+ * `chatQuery` are optional and useful for pages that already have a
+ * smart context-aware CTA (individual compare / transfer-trends pages)
+ * where we want to keep the tailored subline and pass a pre-filled
+ * prompt into the chat for paid users.
  *
- * The upgrade CTA hits /api/stripe/create-checkout-session directly, matching
- * the flow used by the admin dashboard's upgrade card and the homepage
- * pricing slider - so a click here goes straight to Stripe.
+ * Both upgrades hit /api/stripe/create-checkout-session directly, which
+ * already handles the "user already has an active sub" case with Stripe
+ * proration - so a Premium → Elite click updates the subscription in
+ * place rather than starting a fresh checkout.
  */
 
 const PANEL_STYLE: React.CSSProperties = {
@@ -59,14 +63,24 @@ function ShimmerAndArrow() {
   )
 }
 
-export function UpgradeCTAPanel({ heading }: { heading: React.ReactNode }) {
+type Plan = "unknown" | "free" | "premium" | "elite"
+
+export interface UpgradeCTAPanelProps {
+  heading: React.ReactNode
+  /** Page-specific body copy. Overrides the state-based default subline. */
+  subline?: React.ReactNode
+  /** Pre-filled chat prompt. If set, paid users go to /chat?q=<query>. */
+  chatQuery?: string
+}
+
+export function UpgradeCTAPanel({ heading, subline, chatQuery }: UpgradeCTAPanelProps) {
   const { status } = useSession()
-  const [plan, setPlan] = useState<"unknown" | "free" | "paid">("unknown")
+  const [plan, setPlan] = useState<Plan>("unknown")
   const [checkoutLoading, setCheckoutLoading] = useState(false)
 
   // Only hit /api/account once we know the user is authenticated. During SSR
   // and before hydration `status` is "loading" - we render the safe default
-  // (the free/signup CTA) until we know better.
+  // (the signup CTA) until we know better.
   useEffect(() => {
     if (status !== "authenticated") return
     let cancelled = false
@@ -75,7 +89,7 @@ export function UpgradeCTAPanel({ heading }: { heading: React.ReactNode }) {
       .then((d) => {
         if (cancelled) return
         const raw = (d?.subscription?.plan || "Free").toString().toLowerCase()
-        setPlan(raw === "premium" || raw === "elite" ? "paid" : "free")
+        setPlan(raw === "elite" ? "elite" : raw === "premium" ? "premium" : "free")
       })
       .catch(() => !cancelled && setPlan("free"))
     return () => {
@@ -83,13 +97,13 @@ export function UpgradeCTAPanel({ heading }: { heading: React.ReactNode }) {
     }
   }, [status])
 
-  async function startCheckout() {
+  async function startCheckout(targetPlan: "Premium" | "Elite") {
     setCheckoutLoading(true)
     try {
       const res = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: "Premium" }),
+        body: JSON.stringify({ plan: targetPlan }),
       })
       const j = await res.json().catch(() => null)
       if (res.ok && j?.url) {
@@ -102,32 +116,42 @@ export function UpgradeCTAPanel({ heading }: { heading: React.ReactNode }) {
     setCheckoutLoading(false)
   }
 
-  // Decide which of the three CTAs to render. Treat "loading" and
-  // "unauthenticated" the same at the button level - the safest default
-  // when we don't yet know is the signup CTA, which is what a logged-out
-  // user should see.
   const isLoggedIn = status === "authenticated"
-  const isFreePaid = isLoggedIn && plan === "free"
-  const isPaidUser = isLoggedIn && plan === "paid"
+  const chatHref = chatQuery ? `/chat?q=${encodeURIComponent(chatQuery)}` : "/chat"
 
-  let subline: string
+  let defaultSubline: string
   let buttonNode: React.ReactNode
 
-  if (isPaidUser) {
-    subline = "Continue the conversation in the chat - your plan covers it."
+  if (isLoggedIn && plan === "elite") {
+    defaultSubline = "Continue the conversation in the chat - your Elite plan covers it."
     buttonNode = (
-      <Link href="/chat" className={BUTTON_CLASS} style={BUTTON_STYLE}>
+      <Link href={chatHref} className={BUTTON_CLASS} style={BUTTON_STYLE}>
         <ShimmerAndArrow />
         Ask ChatFPL AI
       </Link>
     )
-  } else if (isFreePaid) {
-    subline =
+  } else if (isLoggedIn && plan === "premium") {
+    defaultSubline =
+      "Upgrade to Elite for 500 messages a month, priority AI and everything in Premium. Cancel anytime."
+    buttonNode = (
+      <button
+        type="button"
+        onClick={() => startCheckout("Elite")}
+        disabled={checkoutLoading}
+        className={BUTTON_CLASS}
+        style={BUTTON_STYLE}
+      >
+        <ShimmerAndArrow />
+        {checkoutLoading ? "Loading..." : "Upgrade to Elite - £14.99/month"}
+      </button>
+    )
+  } else if (isLoggedIn && plan === "free") {
+    defaultSubline =
       "Upgrade to Premium for 100 messages a month, live FPL data and dashboard access. Cancel anytime."
     buttonNode = (
       <button
         type="button"
-        onClick={startCheckout}
+        onClick={() => startCheckout("Premium")}
         disabled={checkoutLoading}
         className={BUTTON_CLASS}
         style={BUTTON_STYLE}
@@ -136,8 +160,19 @@ export function UpgradeCTAPanel({ heading }: { heading: React.ReactNode }) {
         {checkoutLoading ? "Loading..." : "Upgrade to Premium - £7.99/month"}
       </button>
     )
+  } else if (isLoggedIn) {
+    // Session is confirmed but /api/account hasn't returned yet. Never fall
+    // through to the /signup CTA in this state - it would misroute paying
+    // users away from Stripe. Neutral chat link is safe for all tiers.
+    defaultSubline = "Continue the conversation in the chat."
+    buttonNode = (
+      <Link href={chatHref} className={BUTTON_CLASS} style={BUTTON_STYLE}>
+        <ShimmerAndArrow />
+        Ask ChatFPL AI
+      </Link>
+    )
   } else {
-    subline = "Get 20 free messages. No credit card required."
+    defaultSubline = "Get 20 free messages. No credit card required."
     buttonNode = (
       <Link href="/signup" className={BUTTON_CLASS} style={BUTTON_STYLE}>
         <ShimmerAndArrow />
@@ -154,7 +189,7 @@ export function UpgradeCTAPanel({ heading }: { heading: React.ReactNode }) {
       <h3 className="text-xl font-bold text-white mb-3 leading-tight">
         {heading}
       </h3>
-      <p className="text-sm text-white/70 mb-7">{subline}</p>
+      <p className="text-sm text-white/70 mb-7">{subline ?? defaultSubline}</p>
       {buttonNode}
     </div>
   )
