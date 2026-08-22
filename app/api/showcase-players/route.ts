@@ -8,9 +8,13 @@ export const dynamic = "force-dynamic"
 
 const FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/"
 
-// Cache for 15 minutes
+// Cache for 3 minutes. Was 15 - too long during live gameweeks because the
+// FPL API only rolls this-week's points into `total_points` after the whole
+// gameweek settles. A short cache lets live match points (goals, clean
+// sheets, bonus) surface on the homepage carousel within a few minutes of
+// happening rather than being stuck stale for a quarter of an hour.
 let cache: { data: ShowcasePlayers; ts: number } | null = null
-const CACHE_MS = 15 * 60 * 1000
+const CACHE_MS = 3 * 60 * 1000
 
 // Empty response used when FPL is unreachable and no cache is available.
 // Better to return zero-length arrays than 500 the whole route - the client
@@ -79,7 +83,10 @@ export async function GET() {
   let json: any
   try {
     const res = await fetch(FPL_URL, {
-      next: { revalidate: 1800 },
+      // 3 minutes matches the in-memory cache above. FPL's bootstrap-static
+      // is cheap for them and lets live-match points surface quickly during
+      // an active gameweek.
+      next: { revalidate: 180 },
       headers: { "User-Agent": "Mozilla/5.0 (compatible; ChatFPL/1.0)" },
     })
     if (!res.ok) throw new Error(`FPL API returned ${res.status}`)
@@ -128,12 +135,23 @@ function buildShowcaseData(json: any): ShowcasePlayers {
     ? availableAll.filter((p: any) => p.minutes > 200)
     : availableAll
 
+  // Running-total helper. FPL's `total_points` only includes gameweeks that
+  // have fully settled - a Saturday clean sheet does not appear there until
+  // the whole GW closes on Monday. `event_points` holds the current, live
+  // gameweek's provisional score. Summing them gives the "what the manager
+  // is actually looking at right now" number that reflects live matches.
+  //
+  // FPL clears event_points when the GW settles (at which point those points
+  // are already inside total_points), so there is no double-counting window.
+  const runningTotal = (p: any): number =>
+    (p.total_points ?? 0) + (p.event_points ?? 0)
+
   const toPlayer = (p: any): ShowcasePlayer => ({
     name: p.web_name,
     club: teamFullNames[p.team] ?? "???",
     position: posMap[p.element_type] ?? "MID",
     price: `£${(p.now_cost / 10).toFixed(1)}m`,
-    totalPts: p.total_points,
+    totalPts: runningTotal(p),
     form: parseFloat(p.form).toFixed(1),
     photoUrl: fplPhotoUrlFromElement(p.photo, p.code),
     teamCode: teamCodes[p.team] ?? 0,
@@ -141,14 +159,15 @@ function buildShowcaseData(json: any): ShowcasePlayers {
 
   // Rank helper: prefer real season points + form once we have data, otherwise
   // fall back to ep_next (FPL's own preseason projection) and ownership.
+  // Uses runningTotal so live-gameweek scores influence ranking too.
   const rank = (p: any) =>
     anyMidseason
-      ? p.total_points * 2 + parseFloat(p.form) * 10
+      ? runningTotal(p) * 2 + parseFloat(p.form) * 10
       : parseFloat(p.ep_next || "0") * 20 + parseFloat(p.selected_by_percent || "0")
 
   const topPts = [...active]
     .filter((p: any) => (anyMidseason ? parseFloat(p.form) >= 4.0 : true))
-    .sort((a: any, b: any) => (anyMidseason ? b.total_points - a.total_points : rank(b) - rank(a)))
+    .sort((a: any, b: any) => (anyMidseason ? runningTotal(b) - runningTotal(a) : rank(b) - rank(a)))
     .slice(0, 5)
     .map(toPlayer)
 
@@ -246,8 +265,8 @@ function buildShowcaseData(json: any): ShowcasePlayers {
     // 2. Cheapest starting GK
     safe(() => { const p = topFiltered(active, p => p.element_type === 1, p => -p.now_cost); return toFact(p, `${fn(p)} of ${club(p)} is the cheapest starting goalkeeper in FPL at just £${(p.now_cost / 10).toFixed(1)}m`) }),
 
-    // 3. Best points-per-million
-    safe(() => { const p = topFiltered(active, p => p.minutes > 450, p => p.total_points / (p.now_cost / 10)); return toFact(p, `${fn(p)} of ${club(p)} offers the best value in FPL this season at ${(p.total_points / (p.now_cost / 10)).toFixed(1)} points per £1m spent`) }),
+    // 3. Best points-per-million (uses running total so live GW points count)
+    safe(() => { const p = topFiltered(active, p => p.minutes > 450, p => runningTotal(p) / (p.now_cost / 10)); return toFact(p, `${fn(p)} of ${club(p)} offers the best value in FPL this season at ${(runningTotal(p) / (p.now_cost / 10)).toFixed(1)} points per £1m spent`) }),
 
     // 4. Highest form
     safe(() => { const p = top(active, p => parseFloat(p.form)); return toFact(p, `${fn(p)} of ${club(p)} is the hottest ${posLabel[p.element_type]} in FPL right now with a form score of ${parseFloat(p.form).toFixed(1)}`) }),
@@ -273,8 +292,9 @@ function buildShowcaseData(json: any): ShowcasePlayers {
     // 11. Most transferred-in overall this season
     safe(() => { const p = top(allPlayers, p => p.transfers_in); return toFact(p, `${fn(p)} of ${club(p)} has been brought into FPL squads ${fmtTransfers(p.transfers_in)} times this season, more than any other player`) }),
 
-    // 12. Most total points
-    safe(() => { const p = top(allPlayers, p => p.total_points); return toFact(p, `${fn(p)} of ${club(p)} leads the FPL points table this season with ${p.total_points} points`) }),
+    // 12. Most total points (uses runningTotal so live match points are folded
+    //     into the leader table before the gameweek fully settles)
+    safe(() => { const p = top(allPlayers, p => runningTotal(p)); return toFact(p, `${fn(p)} of ${club(p)} leads the FPL points table this season with ${runningTotal(p)} points`) }),
 
     // 13. Highest points-per-game
     safe(() => { const p = topFiltered(active, p => p.element_type !== 1 && p.minutes > 450, p => parseFloat(p.points_per_game)); return toFact(p, `${fn(p)} of ${club(p)} averages ${parseFloat(p.points_per_game).toFixed(1)} FPL points per game this season, the highest of any outfield player`) }),
