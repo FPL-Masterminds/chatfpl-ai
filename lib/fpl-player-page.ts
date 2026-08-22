@@ -14,6 +14,8 @@ const PLAYER_FIELDS = [
   "form","total_points","ep_next","goals_scored","assists",
   "news","status","chance_of_playing_next_round","minutes",
   "transfers_in_event","transfers_out_event","cost_change_event",
+  "defensive_contribution","defensive_contribution_per_90",
+  "clearances_blocks_interceptions","tackles",
 ] as const
 
 const TEAM_FIELDS   = ["id","name","short_name","code"] as const

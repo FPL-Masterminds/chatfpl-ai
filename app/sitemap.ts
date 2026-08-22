@@ -7,6 +7,12 @@ import { getInjurySlugs } from '@/lib/fpl-injury'
 import { getTransferTrendSlugs } from '@/lib/fpl-transfer-trends'
 import { getFixtureSlugs } from '@/lib/fpl-fixtures'
 import { getGameweekSlugs, getDGWPlayerSlugs } from '@/lib/fpl-gameweeks'
+import {
+  getDefconPlayerSlugs,
+  getDefconComparePairs,
+  DEFCON_STATIC_HUB_PARAMS,
+  DEFCON_STATIC_PRICE_PARAMS,
+} from '@/lib/fpl-defcon'
 
 const baseUrl = 'https://www.chatfpl.ai'
 
@@ -74,6 +80,9 @@ function getRouteMetadata(route: string) {
   if (route.startsWith('/fpl/fixtures/')) return { priority: 0.93, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/transfer-trends/')) return { priority: 0.92, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/best/')) return { priority: 0.95, changeFrequency: 'daily' as const }
+  if (route === '/fpl/defcon') return { priority: 1.0, changeFrequency: 'daily' as const }
+  if (route.startsWith('/fpl/defcon/compare/')) return { priority: 0.88, changeFrequency: 'daily' as const }
+  if (route.startsWith('/fpl/defcon/')) return { priority: 0.93, changeFrequency: 'daily' as const }
   if (route.startsWith('/fpl/team/')) return { priority: 0.9, changeFrequency: 'daily' as const }
   if (['/about', '/faq', '/contact'].includes(route)) return { priority: 0.8, changeFrequency: 'weekly' as const }
   if (['/terms', '/privacy'].includes(route)) return { priority: 0.5, changeFrequency: 'monthly' as const }
@@ -141,6 +150,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const dgwPlayerSlugs  = await getDGWPlayerSlugs()
   const dgwPlayerRoutes = dgwPlayerSlugs.map(({ slug }) => `/fpl/double-gameweek/${slug}`)
 
+  // DEFCON hub — master + position + price-band + individual player + compare pages
+  const defconPositionRoutes = DEFCON_STATIC_HUB_PARAMS.map(({ position }) => `/fpl/defcon/${position}`)
+  const defconPriceRoutes    = DEFCON_STATIC_PRICE_PARAMS.map(({ position, price }) => `/fpl/defcon/${position}/${price}`)
+  const defconPlayerSlugs    = await getDefconPlayerSlugs()
+  const defconPlayerRoutes   = defconPlayerSlugs.map(({ slug }) => `/fpl/defcon/${slug}`)
+  const defconComparePairs   = await getDefconComparePairs()
+  const defconCompareRoutes  = defconComparePairs.map(({ playerA, playerB }) => `/fpl/defcon/compare/${playerA}/${playerB}`)
+
   const allRoutes = [
     ...staticRoutes,
     "/fpl/captains",
@@ -163,6 +180,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...fixtureRoutes,
     ...gwDetailRoutes,
     ...dgwPlayerRoutes,
+    "/fpl/defcon",
+    ...defconPositionRoutes,
+    ...defconPriceRoutes,
+    ...defconPlayerRoutes,
+    ...defconCompareRoutes,
   ]
 
   return allRoutes.map((route) => {
