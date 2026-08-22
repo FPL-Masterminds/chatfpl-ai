@@ -77,7 +77,9 @@ export async function POST(request: Request) {
       from: process.env.EMAIL_FROM!,
       to: email,
       subject: "Reset Your ChatFPL AI Password",
-      html: wrapEmailContent(emailContent),
+      html: wrapEmailContent(emailContent, {
+        unsubscribeToken: user.unsubscribe_token,
+      }),
     });
 
     console.log("Resend API response:", JSON.stringify(emailResponse, null, 2));

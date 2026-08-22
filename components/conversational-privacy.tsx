@@ -40,6 +40,11 @@ const PRIVACY_DATA = [
     answer: "Yes - standard stuff. Cookies keep you logged in and help us understand how the site is being used. You can block them through your browser settings, though some parts of the service may not work properly if you do.",
   },
   {
+    id: "emails",
+    question: "What emails will you send me?",
+    answer: "Two kinds. First, service emails you need to run your account - things like verifying your email, resetting your password, billing receipts and important account updates. Second, occasional product emails about new features, tips and offers relating to ChatFPL AI. You can unsubscribe from the product emails at any time using the link in every email footer, or by visiting the unsubscribe page. Service emails will keep coming because you need them to use the account.",
+  },
+  {
     id: "changes",
     question: "What if the policy changes?",
     answer: "We'll update this page and change the 'last updated' date. If it's a significant change, we'll let you know by email too. Last updated: January 2025.",

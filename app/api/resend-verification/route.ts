@@ -73,7 +73,9 @@ export async function POST(request: Request) {
         from: process.env.EMAIL_FROM || "ChatFPL AI <noreply@chatfpl.ai>",
         to: email,
         subject: "Verify your ChatFPL AI email",
-        html: wrapEmailContent(emailContent),
+        html: wrapEmailContent(emailContent, {
+          unsubscribeToken: user.unsubscribe_token,
+        }),
       });
 
       return NextResponse.json(

@@ -25,6 +25,8 @@ model User {
   referred_by              String?        // User ID of the referrer
   fpl_team_id              Int?           // Public FPL team ID — no credentials, just the number from the FPL URL
   pending_upgrade          String?        @db.VarChar(20) // "Premium" or "Elite" — set at signup when user came from a pricing CTA, consumed after email verification to auto-launch Stripe checkout
+  marketing_opt_out        Boolean        @default(false) // Whether the user has opted out of product/marketing emails (transactional emails still send)
+  unsubscribe_token        String?        @unique @db.VarChar(64) // One-click unsubscribe token embedded in email footers
   
   accounts      Account[]
   sessions      Session[]

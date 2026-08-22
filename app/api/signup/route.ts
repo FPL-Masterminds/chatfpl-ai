@@ -59,6 +59,11 @@ export async function POST(request: Request) {
     const tokenExpiry = new Date();
     tokenExpiry.setHours(tokenExpiry.getHours() + 24); // 24 hour expiry
 
+    // One-time unsubscribe token embedded in every marketing email footer
+    // (PECR requirement). Random per user so it can be revoked without
+    // affecting anyone else.
+    const unsubscribeToken = crypto.randomBytes(24).toString("hex");
+
     const now = new Date();
     const oneMonthLater = new Date();
     oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
@@ -91,6 +96,7 @@ export async function POST(request: Request) {
         emailVerificationExpires: tokenExpiry,
         referred_by: referrerId,
         pending_upgrade: pendingUpgrade,
+        unsubscribe_token: unsubscribeToken,
         subscriptions: {
           create: {
             plan: "Free",
@@ -145,7 +151,7 @@ export async function POST(request: Request) {
         from: process.env.EMAIL_FROM || "ChatFPL AI <noreply@chatfpl.ai>",
         to: email,
         subject: "Welcome to ChatFPL AI - Verify Your Email 🎉",
-        html: wrapEmailContent(emailContent),
+        html: wrapEmailContent(emailContent, { unsubscribeToken }),
       });
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);

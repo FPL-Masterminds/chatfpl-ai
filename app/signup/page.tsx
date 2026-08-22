@@ -132,7 +132,7 @@ function SignupForm() {
       setMessages(p => [...p, { id: `u-confirm`, role: "user", text: val, masked: true }])
       setStep("terms")
       botSay(
-        "Last step. To create your account you'll need to agree to our Terms of Service and Privacy Policy.",
+        "Last step. To create your account you'll need to agree to our Terms of Service and Privacy Policy. We'll also send occasional emails about product updates and offers - you can unsubscribe any time.",
         "ask-terms",
       )
     }
@@ -364,6 +364,11 @@ function SignupForm() {
                     <Link href="/privacy" className="text-[#00FF87] hover:underline">
                       Privacy Policy
                     </Link>
+                    , and that we may occasionally email you about product updates and offers. You can{" "}
+                    <Link href="/unsubscribe" className="text-[#00FF87] hover:underline">
+                      unsubscribe
+                    </Link>{" "}
+                    any time.
                   </p>
                 </motion.div>
               )}
