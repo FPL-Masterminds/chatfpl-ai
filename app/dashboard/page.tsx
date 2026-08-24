@@ -1133,13 +1133,20 @@ function SeasonStoryPanel({
   }
 
   const liveGw = storyData?.live_gw ?? data.current_gw ?? null
+  const archivedGwCount = storyData?.completed_gws?.length ?? 0
+  const waitingForLiveGw =
+    Boolean(leagueId) &&
+    Boolean(liveGw) &&
+    stories.length === 0 &&
+    archivedGwCount === 0
+
   const storyStatus: SeasonStoryPanelStatus =
     storyData?.status ??
     (loadFailed
       ? "unavailable"
       : stories.length > 0
         ? "ready"
-        : leagueId && liveGw
+        : waitingForLiveGw
           ? "waiting_for_gw"
           : "unavailable")
 
@@ -1149,6 +1156,19 @@ function SeasonStoryPanel({
         <div className="h-8 w-8 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
         <p className="text-sm text-white/70">Writing your league story...</p>
       </div>
+    )
+  }
+
+  if (waitingForLiveGw || storyStatus === "waiting_for_gw") {
+    const gwLabel = liveGw ? `Gameweek ${liveGw}` : "This gameweek"
+    const leagueBit = leagueName ? ` for ${leagueName}` : ""
+    const chapter = archivedGwCount > 0 ? "next chapter" : "first write-up"
+    return (
+      <SeasonStoryMessagePanel
+        titleWhite={`${gwLabel} is `}
+        titleGradient="still live"
+        body={`Your ${chapter}${leagueBit} lands once the gameweek closes and final scores are in. Check back after the deadline.`}
+      />
     )
   }
 
@@ -1169,19 +1189,6 @@ function SeasonStoryPanel({
         titleWhite="Join a "
         titleGradient="mini-league"
         body="Season Story is built for private mini-leagues. Join one on FPL, then come back here once your team is linked."
-      />
-    )
-  }
-
-  if (storyStatus === "waiting_for_gw") {
-    const gwLabel = liveGw ? `Gameweek ${liveGw}` : "This gameweek"
-    const leagueBit = leagueName ? ` for ${leagueName}` : ""
-    const chapter = (storyData?.completed_gws?.length ?? 0) > 0 ? "next chapter" : "first write-up"
-    return (
-      <SeasonStoryMessagePanel
-        titleWhite={`${gwLabel} is `}
-        titleGradient="still live"
-        body={`Your ${chapter}${leagueBit} lands once the gameweek closes and final scores are in. Check back after the deadline.`}
       />
     )
   }

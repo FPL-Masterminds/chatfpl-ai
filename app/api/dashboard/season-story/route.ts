@@ -74,6 +74,48 @@ function jsonResponse(body: Record<string, unknown>) {
   return NextResponse.json(body, { status: 200 })
 }
 
+function waitingResponse(
+  leagueId: number,
+  leagueName: string,
+  leagueList: { id: number; name: string; rank: number }[],
+  liveGwId: number,
+  isAdmin: boolean
+) {
+  return jsonResponse({
+    status: "waiting_for_gw",
+    league_id: leagueId,
+    league_name: leagueName,
+    is_admin: isAdmin,
+    available_leagues: leagueList,
+    stories: [],
+    completed_gws: [],
+    preview_gws: [],
+    live_gw: liveGwId,
+  })
+}
+
+function tryGenerateStories(
+  leagueId: number,
+  leagueName: string,
+  members: MemberHistoryInput[],
+  teamId: number,
+  completedGws: CompletedGw[],
+  fixtures: { event: number; team_h: number; team_a: number }[],
+  teams: { id: number; name: string; short_name: string }[]
+) {
+  const fixtureContexts = new Map(
+    completedGws.map((g) => [g.gw, getGWFixtureContext(fixtures, teams, g.gw)])
+  )
+  return generateAllSeasonStories(
+    leagueId,
+    leagueName,
+    members,
+    teamId,
+    completedGws,
+    fixtureContexts
+  )
+}
+
 async function fetchLeagueStandings(leagueId: number) {
   const firstRes = await fetch(
     `https://fantasy.premierleague.com/api/leagues-classic/${leagueId}/standings/?page_standings=1`,
@@ -147,6 +189,10 @@ export async function GET(request: Request) {
   const teamId = user.fpl_team_id
   const url = new URL(request.url)
   const requestedLeagueId = Number(url.searchParams.get("league") ?? "")
+  let resolvedLeague: { id: number; name: string } | null = null
+  let resolvedLiveGw: number | null = null
+  let resolvedLeagueList: { id: number; name: string; rank: number }[] = []
+  const isAdmin = user.role === "admin"
 
   try {
     const [bootstrapRes, entryRes, fixturesRes] = await Promise.all([
@@ -199,6 +245,7 @@ export async function GET(request: Request) {
       name: l.name,
       rank: l.entry_rank ?? 0,
     }))
+    resolvedLeagueList = leagueList
 
     if (!leagueData?.standings?.results?.length) {
       return NextResponse.json({
@@ -219,27 +266,49 @@ export async function GET(request: Request) {
       .filter((e) => e.finished)
       .map((e) => ({ gw: e.id, avg: e.average_entry_score ?? 0 }))
 
-    const isAdmin = user.role === "admin"
     const standingsRows = leagueData.standings.results as StandingRow[]
     const leagueName = leagueData.league?.name ?? activeLeague.name
+    resolvedLeague = { id: activeLeague.id, name: leagueName }
+    resolvedLiveGw = liveGw?.id ?? null
 
-    // Live GW, no finished weeks yet: skip heavy history fetches for regular users.
-    if (!isAdmin && liveGw && finishedGws.length === 0) {
-      return jsonResponse({
-        status: "waiting_for_gw",
-        league_id: activeLeague.id,
-        league_name: leagueName,
-        is_admin: false,
-        available_leagues: leagueList,
-        stories: [],
-        completed_gws: [],
-        preview_gws: [],
-        live_gw: liveGw.id,
-      })
+    // Opening gameweek still live: fast path for everyone. Admins may get a preview.
+    if (liveGw && finishedGws.length === 0) {
+      if (isAdmin) {
+        try {
+          const previewGws: CompletedGw[] = [
+            { gw: liveGw.id, avg: liveGw.average_entry_score ?? 0, provisional: true },
+          ]
+          const members = membersFromStandings(standingsRows, liveGw.id)
+          const stories = tryGenerateStories(
+            activeLeague.id,
+            leagueName,
+            members,
+            teamId,
+            previewGws,
+            fixtures,
+            teams
+          )
+          if (stories.length > 0) {
+            return jsonResponse({
+              status: "ready",
+              league_id: activeLeague.id,
+              league_name: leagueName,
+              is_admin: true,
+              available_leagues: leagueList,
+              stories,
+              completed_gws: [],
+              preview_gws: [liveGw.id],
+              live_gw: liveGw.id,
+            })
+          }
+        } catch (previewErr) {
+          console.error("Season story admin preview error:", previewErr)
+        }
+      }
+      return waitingResponse(activeLeague.id, leagueName, leagueList, liveGw.id, isAdmin)
     }
 
     const completedGws: CompletedGw[] = [...finishedGws]
-    const provisionalOnly = isAdmin && liveGw && finishedGws.length === 0
     if (isAdmin && liveGw && !completedGws.some((g) => g.gw === liveGw.id)) {
       completedGws.push({
         gw: liveGw.id,
@@ -248,28 +317,25 @@ export async function GET(request: Request) {
       })
     }
 
-    let members: MemberHistoryInput[]
-    if (provisionalOnly) {
-      members = membersFromStandings(standingsRows, liveGw!.id)
-    } else {
-      members = await fetchMemberHistories(standingsRows)
-      if (liveGw && completedGws.some((g) => g.provisional && g.gw === liveGw.id)) {
-        members = mergeMembersWithStandings(members, standingsRows, liveGw.id)
-      }
+    let members = await fetchMemberHistories(standingsRows)
+    if (liveGw && completedGws.some((g) => g.provisional && g.gw === liveGw.id)) {
+      members = mergeMembersWithStandings(members, standingsRows, liveGw.id)
     }
 
-    const fixtureContexts = new Map(
-      completedGws.map((g) => [g.gw, getGWFixtureContext(fixtures, teams, g.gw)])
-    )
-
-    const stories = generateAllSeasonStories(
-      activeLeague.id,
-      leagueName,
-      members,
-      teamId,
-      completedGws,
-      fixtureContexts
-    )
+    let stories: ReturnType<typeof generateAllSeasonStories> = []
+    try {
+      stories = tryGenerateStories(
+        activeLeague.id,
+        leagueName,
+        members,
+        teamId,
+        completedGws,
+        fixtures,
+        teams
+      )
+    } catch (genErr) {
+      console.error("Season story generation error:", genErr)
+    }
 
     const finishedGwCount = finishedGws.length
     let status: "ready" | "waiting_for_gw" | "unavailable" = "ready"
@@ -290,17 +356,23 @@ export async function GET(request: Request) {
     })
   } catch (err) {
     console.error("Season story API error:", err)
-    return NextResponse.json(
-      {
-        status: "unavailable",
-        league_id: null,
-        league_name: null,
-        available_leagues: [],
-        stories: [],
-        completed_gws: [],
-        live_gw: null,
-      },
-      { status: 200 }
-    )
+    if (resolvedLeague && resolvedLiveGw) {
+      return waitingResponse(
+        resolvedLeague.id,
+        resolvedLeague.name,
+        resolvedLeagueList,
+        resolvedLiveGw,
+        isAdmin
+      )
+    }
+    return jsonResponse({
+      status: "unavailable",
+      league_id: resolvedLeague?.id ?? null,
+      league_name: resolvedLeague?.name ?? null,
+      available_leagues: resolvedLeagueList,
+      stories: [],
+      completed_gws: [],
+      live_gw: resolvedLiveGw,
+    })
   }
 }
