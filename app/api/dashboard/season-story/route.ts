@@ -5,6 +5,7 @@ import { generateAllSeasonStories, type MemberHistoryInput } from "@/lib/season-
 import { getGWFixtureContext } from "@/lib/season-story-fixtures"
 
 export const runtime = "nodejs"
+export const maxDuration = 60
 
 const H = { "User-Agent": "ChatFPL/1.0" }
 const MAX_LEAGUE_PAGES = 4
@@ -92,7 +93,17 @@ export async function GET(request: Request) {
     ])
 
     if (!bootstrapRes.ok || !entryRes.ok) {
-      return NextResponse.json({ error: "FPL API unavailable" }, { status: 502 })
+      return NextResponse.json(
+        {
+          status: "unavailable",
+          league_id: null,
+          league_name: null,
+          available_leagues: [],
+          stories: [],
+          completed_gws: [],
+        },
+        { status: 200 }
+      )
     }
 
     const bootstrap = await bootstrapRes.json()
@@ -109,37 +120,43 @@ export async function GET(request: Request) {
 
     if (!activeLeague) {
       return NextResponse.json({
+        status: "no_league",
         league_id: null,
         league_name: null,
         available_leagues: [],
         stories: [],
         completed_gws: [],
+        live_gw: null,
       })
     }
 
     const leagueData = await fetchLeagueStandings(activeLeague.id)
+    const leagueList = privateLeagues.map((l: { id: number; name: string; entry_rank: number }) => ({
+      id: l.id,
+      name: l.name,
+      rank: l.entry_rank ?? 0,
+    }))
+
     if (!leagueData?.standings?.results?.length) {
       return NextResponse.json({
+        status: "league_unavailable",
         league_id: activeLeague.id,
         league_name: leagueData?.league?.name ?? activeLeague.name,
-        available_leagues: privateLeagues.map((l: { id: number; name: string; entry_rank: number }) => ({
-          id: l.id,
-          name: l.name,
-          rank: l.entry_rank ?? 0,
-        })),
+        available_leagues: leagueList,
         stories: [],
         completed_gws: [],
+        live_gw: null,
       })
     }
 
     const events: { id: number; finished: boolean; is_current?: boolean; average_entry_score?: number }[] =
       bootstrap.events ?? []
+    const liveGw = events.find((e) => e.is_current && !e.finished) ?? null
     const completedGws = events
       .filter((e) => e.finished)
       .map((e) => ({ gw: e.id, avg: e.average_entry_score ?? 0 }))
 
     const isAdmin = user.role === "admin"
-    const liveGw = events.find((e) => e.is_current && !e.finished)
     if (isAdmin && liveGw && !completedGws.some((g) => g.gw === liveGw.id)) {
       completedGws.push({
         gw: liveGw.id,
@@ -164,21 +181,36 @@ export async function GET(request: Request) {
       fixtureContexts
     )
 
+    const finishedGwCount = completedGws.filter((g) => !("provisional" in g && g.provisional)).length
+    let status: "ready" | "waiting_for_gw" | "unavailable" = "ready"
+    if (stories.length === 0) {
+      status = liveGw && finishedGwCount === 0 ? "waiting_for_gw" : "unavailable"
+    }
+
     return NextResponse.json({
+      status,
       league_id: activeLeague.id,
       league_name: leagueName,
       is_admin: isAdmin,
-      available_leagues: privateLeagues.map((l: { id: number; name: string; entry_rank: number }) => ({
-        id: l.id,
-        name: l.name,
-        rank: l.entry_rank ?? 0,
-      })),
+      available_leagues: leagueList,
       stories,
-      completed_gws: completedGws.filter((g) => !g.provisional).map((g) => g.gw),
-      preview_gws: completedGws.filter((g) => g.provisional).map((g) => g.gw),
+      completed_gws: completedGws.filter((g) => !("provisional" in g && g.provisional)).map((g) => g.gw),
+      preview_gws: completedGws.filter((g) => "provisional" in g && g.provisional).map((g) => g.gw),
+      live_gw: liveGw?.id ?? null,
     })
   } catch (err) {
     console.error("Season story API error:", err)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json(
+      {
+        status: "unavailable",
+        league_id: null,
+        league_name: null,
+        available_leagues: [],
+        stories: [],
+        completed_gws: [],
+        live_gw: null,
+      },
+      { status: 200 }
+    )
   }
 }

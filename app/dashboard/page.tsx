@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { DevHeader } from "@/components/dev-header"
 import { Footer } from "@/components/footer"
 import { SeasonStoryFormattedText } from "@/components/season-story-text"
+import { SeasonStoryMessagePanel } from "@/components/season-story-message"
 import type { SeasonStoryEntities } from "@/lib/season-story"
 import {
   ResponsiveContainer, ComposedChart, AreaChart, Area, Bar, Line,
@@ -1048,7 +1049,15 @@ interface SeasonStory {
   provisional?: boolean
 }
 
+type SeasonStoryPanelStatus =
+  | "ready"
+  | "waiting_for_gw"
+  | "no_league"
+  | "league_unavailable"
+  | "unavailable"
+
 interface SeasonStoryData {
+  status?: SeasonStoryPanelStatus
   league_id: number | null
   league_name: string | null
   is_admin?: boolean
@@ -1056,6 +1065,7 @@ interface SeasonStoryData {
   stories: SeasonStory[]
   completed_gws: number[]
   preview_gws?: number[]
+  live_gw?: number | null
 }
 
 function SeasonStoryPanel({
@@ -1067,17 +1077,21 @@ function SeasonStoryPanel({
 }) {
   const [storyData, setStoryData] = useState<SeasonStoryData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [activeGw, setActiveGw] = useState<number | null>(null)
   const [switchingLeague, setSwitchingLeague] = useState(false)
 
   const loadStories = async (leagueId?: number) => {
     setLoading(true)
-    setError(false)
+    setLoadFailed(false)
     try {
       const q = leagueId ? `?league=${leagueId}` : data.league_id ? `?league=${data.league_id}` : ""
       const res = await fetch(`/api/dashboard/season-story${q}`)
-      if (!res.ok) { setError(true); return }
+      if (!res.ok) {
+        setLoadFailed(true)
+        setStoryData(null)
+        return
+      }
       const json: SeasonStoryData = await res.json()
       setStoryData(json)
       const latest = json.stories[json.stories.length - 1]?.gw ?? null
@@ -1086,7 +1100,8 @@ function SeasonStoryPanel({
         return latest
       })
     } catch {
-      setError(true)
+      setLoadFailed(true)
+      setStoryData(null)
     } finally {
       setLoading(false)
       setSwitchingLeague(false)
@@ -1117,78 +1132,63 @@ function SeasonStoryPanel({
     managers: [],
   }
 
+  const storyStatus = storyData?.status ?? (loadFailed ? "unavailable" : stories.length > 0 ? "ready" : "unavailable")
+  const liveGw = storyData?.live_gw ?? data.current_gw ?? null
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[320px] gap-3">
         <div className="h-8 w-8 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
-        <p className="text-sm text-white/70">Building your season stories...</p>
+        <p className="text-sm text-white/70">Writing your league story...</p>
       </div>
     )
   }
 
-  if (error) {
+  if (storyStatus === "unavailable" || loadFailed) {
     return (
-      <div
-        className="relative rounded-2xl overflow-hidden"
-        style={{
-          padding: "1px",
-          background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
-          backgroundSize: "220% 220%",
-          animation: "glow_scroll 4s linear infinite",
-        }}
-      >
-        <div className="relative rounded-2xl bg-black px-6 py-10 text-center overflow-hidden">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-[0.07]"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)",
-              backgroundSize: "48px 48px",
-            }}
-          />
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,255,135,0.10), transparent)",
-            }}
-          />
-          <div className="relative max-w-md mx-auto">
-            <h3 className="text-2xl font-bold tracking-tight leading-tight">
-              <span className="text-white">Could not load </span>
-              <span
-                className="text-transparent bg-clip-text"
-                style={{
-                  backgroundImage: "linear-gradient(to right, #00ff85, #02efff)",
-                  WebkitBackgroundClip: "text",
-                }}
-              >
-                Season Story
-              </span>
-            </h3>
-            <p className="text-sm text-white/55 mt-3 leading-relaxed">
-              The FPL API may be temporarily unavailable. Try again in a moment.
-            </p>
-            <button
-              onClick={() => loadStories(leagueId ?? undefined)}
-              className="mt-6 inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-bold text-black transition-transform hover:scale-[1.02]"
-              style={{ background: "linear-gradient(to right, #00FF87, #00FFFF)" }}
-            >
-              Try again
-            </button>
-          </div>
-        </div>
-      </div>
+      <SeasonStoryMessagePanel
+        titleWhite="Having trouble loading "
+        titleGradient="your story"
+        body="Give it another go in a moment. Your league write-ups will appear here once we can pull them through."
+        action={{ label: "Try again", onClick: () => loadStories(leagueId ?? undefined) }}
+      />
     )
   }
 
-  if (!leagueId || stories.length === 0) {
+  if (storyStatus === "no_league" || !leagueId) {
     return (
-      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-8 text-center">
-        <p className="text-white font-medium">No stories yet.</p>
-        <p className="text-sm text-white/70 mt-2">
-          Season Story write-ups appear after each gameweek finishes. Join a private mini-league to see league narratives here.
-        </p>
-      </div>
+      <SeasonStoryMessagePanel
+        titleWhite="Join a "
+        titleGradient="mini-league"
+        body="Season Story is built for private mini-leagues. Join one on FPL, then come back here once your team is linked."
+      />
+    )
+  }
+
+  if (storyStatus === "waiting_for_gw") {
+    const gwLabel = liveGw ? `Gameweek ${liveGw}` : "This gameweek"
+    const leagueBit = leagueName ? ` for ${leagueName}` : ""
+    return (
+      <SeasonStoryMessagePanel
+        titleWhite={`${gwLabel} is `}
+        titleGradient="still live"
+        body={`Your first write-up${leagueBit} lands once the gameweek closes and final scores are in. Check back after the deadline.`}
+      />
+    )
+  }
+
+  if (storyStatus === "league_unavailable" || stories.length === 0) {
+    return (
+      <SeasonStoryMessagePanel
+        titleWhite="Your league story is "
+        titleGradient="on the way"
+        body={
+          leagueName
+            ? `${leagueName} is linked, but there is nothing to show yet. Check back once a gameweek has finished.`
+            : "Your mini-league is linked, but there is nothing to show yet. Check back once a gameweek has finished."
+        }
+        action={{ label: "Refresh", onClick: () => loadStories(leagueId ?? undefined) }}
+      />
     )
   }
 
@@ -1263,7 +1263,7 @@ function SeasonStoryPanel({
             <div className="rounded-xl border border-amber-400/30 bg-amber-400/[0.08] px-4 py-3">
               <p className="text-sm font-semibold text-amber-200">Live preview (admin only)</p>
               <p className="text-xs text-amber-200/80 mt-1">
-                Gameweek {activeStory.gw} is still in progress. Scores and ranks will update as fixtures finish. This tab becomes permanent for all managers once FPL marks the gameweek complete.
+                Gameweek {activeStory.gw} is still in progress. Scores and ranks update as matches finish. This preview locks in for everyone once the gameweek closes.
               </p>
             </div>
           )}
