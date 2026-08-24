@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Send } from "lucide-react"
 import Link from "next/link"
+import { ChatMessageContent } from "@/components/chat-message-content"
+import type { ChatModelProfile } from "@/lib/chat-model-profile"
 
 const STATIC_PROMPTS = [
   "Analyse my team",
@@ -133,6 +135,7 @@ export default function ChatPage() {
   const [renameValue, setRenameValue] = useState("")
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [mobileEdgeOpen, setMobileEdgeOpen] = useState(false)
+  const [chatModelProfile, setChatModelProfile] = useState<ChatModelProfile>("legacy")
 
   const [insights, setInsights] = useState<Insights | null>(null)
   const [countdown, setCountdown] = useState<Countdown>({ days: "--", hours: "--", minutes: "--", seconds: "--" })
@@ -239,6 +242,14 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!authorized) return
+    fetch("/api/chat/config")
+      .then((r) => r.json())
+      .then((d) => { if (d.profile) setChatModelProfile(d.profile) })
+      .catch(() => {})
+  }, [authorized])
+
+  useEffect(() => {
+    if (!authorized) return
     fetch("/api/fpl-insights")
       .then((r) => r.json())
       .then((d) => { if (!d.error) setInsights(d) })
@@ -339,23 +350,6 @@ export default function ChatPage() {
     }
   }
 
-  const renderMessageContent = (content: string) => {
-    const parts = content.split(/!\[([^\]]*)\]\(([^)]+)\)/)
-    const elements: (string | React.ReactElement)[] = []
-    for (let i = 0; i < parts.length; i++) {
-      if (i % 3 === 0 && parts[i]) elements.push(parts[i])
-      else if (i % 3 === 1) {
-        const alt = parts[i]; const url = parts[i + 1]
-        // Inline player photos rendered from markdown ![alt](url) in Dify replies.
-        // Previous size: h-12 (48px). Bumped ~20% to h-14 (56px) on 2026-08-21;
-        // revert to h-12 if this feels too heavy.
-        if (url) elements.push(<img key={`img-${i}`} src={url} alt={alt} className="inline-block h-14 w-auto rounded mx-1" />)
-        i++
-      }
-    }
-    return elements
-  }
-
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: input, timestamp: new Date() }
@@ -403,6 +397,11 @@ export default function ChatPage() {
               setConversationId(evt.conversation_id)
               setMessagesUsed(evt.messages_used)
               setMessagesLimit(evt.messages_limit)
+              if (evt.content) {
+                setMessages(prev => prev.map(m =>
+                  m.id === aiMsgId ? { ...m, content: evt.content } : m
+                ))
+              }
             } else if (evt.type === "error") {
               throw new Error(evt.message)
             }
@@ -691,16 +690,7 @@ export default function ChatPage() {
                             <div className="h-2 w-2 animate-bounce rounded-full bg-blue-400" />
                           </div>
                         ) : (
-                          message.content.split("\n\n").map((para, i) => (
-                            <p key={i} className="whitespace-pre-wrap">
-                              {para.split("\n").map((line, j) => (
-                                <span key={j}>
-                                  {renderMessageContent(line)}
-                                  {j < para.split("\n").length - 1 && <br />}
-                                </span>
-                              ))}
-                            </p>
-                          ))
+                          <ChatMessageContent content={message.content} profile={chatModelProfile} />
                         )}
                       </div>
                     </div>

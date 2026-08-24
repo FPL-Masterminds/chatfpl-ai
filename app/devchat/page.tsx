@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Send } from "lucide-react"
 import Link from "next/link"
+import { ChatMessageContent } from "@/components/chat-message-content"
+import type { ChatModelProfile } from "@/lib/chat-model-profile"
 
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
 
@@ -104,6 +106,7 @@ export default function DevChatPage() {
   const [renameValue, setRenameValue] = useState("")
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [mobileEdgeOpen, setMobileEdgeOpen] = useState(false)
+  const [chatModelProfile, setChatModelProfile] = useState<ChatModelProfile>("legacy")
 
   // Insights state
   const [insights, setInsights] = useState<Insights | null>(null)
@@ -185,6 +188,14 @@ export default function DevChatPage() {
       }
     }
     load()
+  }, [authorized])
+
+  useEffect(() => {
+    if (!authorized) return
+    fetch("/api/chat/config")
+      .then((r) => r.json())
+      .then((d) => { if (d.profile) setChatModelProfile(d.profile) })
+      .catch(() => {})
   }, [authorized])
 
   // Fetch FPL insights
@@ -281,20 +292,6 @@ export default function DevChatPage() {
       setMessages(conv.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })))
       setConversationId(convId)
     }
-  }
-
-  const renderMessageContent = (content: string) => {
-    const parts = content.split(/!\[([^\]]*)\]\(([^)]+)\)/)
-    const elements: (string | React.ReactElement)[] = []
-    for (let i = 0; i < parts.length; i++) {
-      if (i % 3 === 0 && parts[i]) elements.push(parts[i])
-      else if (i % 3 === 1) {
-        const alt = parts[i]; const url = parts[i + 1]
-        if (url) elements.push(<img key={`img-${i}`} src={url} alt={alt} className="inline-block h-12 w-auto rounded mx-1" />)
-        i++
-      }
-    }
-    return elements
   }
 
   const handleSend = async () => {
@@ -574,16 +571,7 @@ export default function DevChatPage() {
                         </div>
                       </div>
                       <div className="text-sm leading-7 text-white/85 space-y-2">
-                        {message.content.split("\n\n").map((para, i) => (
-                          <p key={i} className="whitespace-pre-wrap">
-                            {para.split("\n").map((line, j) => (
-                              <span key={j}>
-                                {renderMessageContent(line)}
-                                {j < para.split("\n").length - 1 && <br />}
-                              </span>
-                            ))}
-                          </p>
-                        ))}
+                        <ChatMessageContent content={message.content} profile={chatModelProfile} />
                       </div>
                     </div>
                   )

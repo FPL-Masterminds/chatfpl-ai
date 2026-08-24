@@ -18,6 +18,20 @@ import {
   fplPhotoUrlFromElement,
   type FplPhotoRow,
 } from "@/lib/fpl-player-photo";
+import {
+  formatTransferWindowContext,
+  getTransferWindowStatus,
+} from "@/lib/fpl-transfer-window";
+import {
+  getChatFormattingRules,
+  normalizeAssistantChatFormatting,
+} from "@/lib/chat-message-format";
+import { getChatModelProfile } from "@/lib/chat-model-profile";
+import {
+  formatCurrentGwFixtureStatus,
+  formatTeamFixtureStateLabel,
+  teamFixtureStateInGw,
+} from "@/lib/fpl-gw-live-status";
 
 export const runtime = "nodejs";
 
@@ -106,6 +120,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
 
+    const chatModelProfile = getChatModelProfile();
+
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       include: {
@@ -189,6 +205,9 @@ export async function POST(request: Request) {
             const currentGameweek =
               fplData.events?.find((e: any) => e.is_current) || fplData.events?.[0];
             const nextGameweek = fplData.events?.find((e: any) => e.is_next);
+            const transferWindowContext = formatTransferWindowContext(
+              getTransferWindowStatus(fplData.events ?? []),
+            );
 
             const allPlayers = fplData.elements?.map((p: any) => {
               const team = fplData.teams?.find((t: any) => t.id === p.team);
@@ -199,7 +218,7 @@ export async function POST(request: Request) {
               const clubLabel = team ? `${team.name} (${team.short_name})` : "";
               const injuryNews = p.news ? `[${p.news}]` : "";
               return {
-                formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|xGC:${p.expected_goals_conceded}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|DC:${p.defensive_contribution ?? 0}|DC90:${p.defensive_contribution_per_90 ?? 0}|CBIT:${(p.clearances_blocks_interceptions ?? 0) + (p.tackles ?? 0)}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
+                formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|GWpts:${p.event_points ?? 0}|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|xGC:${p.expected_goals_conceded}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|DC:${p.defensive_contribution ?? 0}|DC90:${p.defensive_contribution_per_90 ?? 0}|CBIT:${(p.clearances_blocks_interceptions ?? 0) + (p.tackles ?? 0)}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
                 rawData: p,
                 team: team?.short_name,
                 position: position?.singular_name_short,
@@ -288,7 +307,10 @@ export async function POST(request: Request) {
                         .filter(Boolean)
                         .join("");
                       const injNote = p.news ? `|${p.news}` : "";
-                      return `${p.web_name}${flags ? " " + flags : ""}|${t?.short_name}|${pos?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.form}form|${p.total_points}pts|${p.chance_of_playing_next_round ?? 100}%fit${injNote}`;
+                      const fixtureState = formatTeamFixtureStateLabel(
+                        teamFixtureStateInGw(p.team, currentGW, fixturesData),
+                      );
+                      return `${p.web_name}${flags ? " " + flags : ""}|${t?.short_name}|${pos?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|GWpts:${p.event_points ?? 0}|${p.form}form|${p.total_points}pts|${fixtureState}|${p.chance_of_playing_next_round ?? 100}%fit${injNote}`;
                     };
 
                     const startingXI = picksData.picks
@@ -483,6 +505,14 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
               return `${day}-${month}-${year} ${hours}:${minutes}`;
             };
 
+            const gwFixtureStatusContext = formatCurrentGwFixtureStatus(
+              currentGW,
+              currentGameweek?.name || `Gameweek ${currentGW}`,
+              Boolean(currentGameweek?.finished),
+              fixturesData,
+              fplData.teams ?? [],
+            );
+
             fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
 CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.id})
@@ -491,17 +521,20 @@ CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.
 
 ${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : "Unknown"}` : ""}
 
-${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWindowLabel}) - Format: OPPONENT(H/A-Difficulty):
+${transferWindowContext}
+
+${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWindowLabel}) - Format: OPPONENT(H/A-Difficulty):
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
-Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|xG|xA|xGI|xGC|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|DC|DC90|CBIT|Status|Fitness%|[InjuryNews]|PhotoURL
+Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|GWpts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|xG|xA|xGI|xGC|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|DC|DC90|CBIT|Status|Fitness%|[InjuryNews]|PhotoURL
 ${filteredPlayers.map((p: any) => p.formatted).join("\n")}
 
 TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
+- GWpts = Points scored THIS gameweek only (live). 0 often means the player's fixture has not started yet - check CURRENT GW FIXTURE STATUS before criticising.
 - xPNext = Expected points for NEXT gameweek (FPL official prediction)
 - xPThis = Expected points for CURRENT gameweek
 - xG = Expected goals this season (FPL/Opta data)
@@ -532,19 +565,14 @@ FIXTURE DIFFICULTY: 1=Easy, 2=Favorable, 3=Medium, 4=Tough, 5=Very Difficult. H=
 - Do not generalise or speak hypothetically. Use the actual posts you were given.
 
 FORMATTING RULES:
-- Format your response with clear paragraphs separated by TWO blank lines
-- Use bullet points (•) for lists and multiple items
-- Use HYPHENS (-) not em-dashes
-- Keep each paragraph short (2-3 sentences max)
-- IMPORTANT: When mentioning a player, ALWAYS include their photo using: ![Full Name Exactly As In Data](PhotoURL)
-- PhotoURL MUST be copied character-for-character from the end of that player's row. Never invent or alter the URL.
+${getChatFormattingRules(chatModelProfile)}
 
 FPL RULES (MANDATORY):
 SQUAD: 2 GKP, 5 DEF, 5 MID, 3 FWD (15 total). Max 3 per club.
 STARTING XI: 1 GKP + 10 outfield. Min 3 DEF, 2 MID, 1 FWD.
 VALID FORMATIONS: 3-4-3, 3-5-2, 4-3-3, 4-4-2, 4-5-1, 5-2-3, 5-3-2, 5-4-1
 POINTS: Goals GKP/DEF=6, MID=5, FWD=4. Assists=3. CS (60+ min) GKP/DEF=4, MID=1. Captain doubles.
-TRANSFERS: Pre-season (before GW1 deadline) = UNLIMITED free transfers. From GW1 onwards = 1 free/GW, max 5 rollover (changed from 2 in 2024/25). Extra = -4pts each.
+TRANSFERS: Follow the TRANSFER WINDOW block above (computed from live FPL deadlines). Wildcard/Free Hit = unlimited after GW1 deadline. Extra transfers = -4pts each.
 DEFCON: New 2025/26 scoring. Defenders +2pts at 10+ CBIT in a match; Midfielders +2pts at 12+ CBIT+recoveries. GKP/FWD do NOT earn DEFCON. Field DC = total matches earned; DC90 = per 90 minutes (use as primary DEFCON ranking); CBIT = raw combined count.
 
 PERSONALITY:
@@ -674,7 +702,10 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
       data: { conversation_id: conversation.id, role: "user", content: message },
     });
 
-    const fixedAnswer = fixAssistantMarkdownPlayerPhotos(difyData.answer, photoRowsForFix);
+    const fixedAnswer = normalizeAssistantChatFormatting(
+      fixAssistantMarkdownPlayerPhotos(difyData.answer, photoRowsForFix),
+      chatModelProfile,
+    );
 
     const totalTokens =
       typeof difyData?.metadata?.usage?.total_tokens === "number"

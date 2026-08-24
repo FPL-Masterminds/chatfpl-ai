@@ -13,6 +13,20 @@ import {
   fplPhotoUrlFromElement,
   type FplPhotoRow,
 } from "@/lib/fpl-player-photo";
+import {
+  formatTransferWindowContext,
+  getTransferWindowStatus,
+} from "@/lib/fpl-transfer-window";
+import {
+  getChatFormattingRules,
+  normalizeAssistantChatFormatting,
+} from "@/lib/chat-message-format";
+import { getChatModelProfile } from "@/lib/chat-model-profile";
+import {
+  formatCurrentGwFixtureStatus,
+  formatTeamFixtureStateLabel,
+  teamFixtureStateInGw,
+} from "@/lib/fpl-gw-live-status";
 
 export const runtime = "nodejs";
 
@@ -102,6 +116,8 @@ export async function POST(request: Request) {
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
+
+    const chatModelProfile = getChatModelProfile();
 
     // Get user with usage tracking and subscription
     const user = await prisma.user.findUnique({
@@ -209,6 +225,9 @@ export async function POST(request: Request) {
         // Extract key data
         const currentGameweek = fplData.events?.find((e: any) => e.is_current) || fplData.events?.[0];
         const nextGameweek = fplData.events?.find((e: any) => e.is_next);
+        const transferWindowContext = formatTransferWindowContext(
+          getTransferWindowStatus(fplData.events ?? []),
+        );
         
         // Get ALL players first
         const allPlayers = fplData.elements?.map((p: any) => {
@@ -218,7 +237,7 @@ export async function POST(request: Request) {
           const clubLabel = team ? `${team.name} (${team.short_name})` : "";
           const injuryNews = p.news ? `[${p.news}]` : '';
             return {
-            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|xGC:${p.expected_goals_conceded}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|DC:${p.defensive_contribution ?? 0}|DC90:${p.defensive_contribution_per_90 ?? 0}|CBIT:${(p.clearances_blocks_interceptions ?? 0) + (p.tackles ?? 0)}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
+            formatted: `${p.web_name}|${p.first_name} ${p.second_name}|${clubLabel}|${position?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.total_points}pts|GWpts:${p.event_points ?? 0}|${p.form}form|${p.points_per_game}ppg|${p.selected_by_percent}%own|TI_GW:${p.transfers_in_event}|TO_GW:${p.transfers_out_event}|TI_Total:${p.transfers_in}|TO_Total:${p.transfers_out}|${p.minutes}min|xPNext:${p.ep_next}|xPThis:${p.ep_this}|G:${p.goals_scored}|A:${p.assists}|CS:${p.clean_sheets}|xG:${p.expected_goals}|xA:${p.expected_assists}|xGI:${p.expected_goal_involvements}|xGC:${p.expected_goals_conceded}|Bonus:${p.bonus}|BPS:${p.bps}|ICT:${p.ict_index}|Inf:${p.influence}|Cre:${p.creativity}|Thr:${p.threat}|YC:${p.yellow_cards}|RC:${p.red_cards}|Saves:${p.saves}|Pens:${p.penalties_saved}|PensMissed:${p.penalties_missed}|DC:${p.defensive_contribution ?? 0}|DC90:${p.defensive_contribution_per_90 ?? 0}|CBIT:${(p.clearances_blocks_interceptions ?? 0) + (p.tackles ?? 0)}|${p.status}|${p.chance_of_playing_next_round || 100}%fit${injuryNews}|${photoUrl}`,
             rawData: p,
             team: team?.short_name,
             position: position?.singular_name_short
@@ -286,7 +305,10 @@ export async function POST(request: Request) {
                     pick.multiplier === 3 ? "(3xC)" : "",
                   ].filter(Boolean).join("");
                   const injNote = p.news ? `|${p.news}` : "";
-                  return `${p.web_name}${flags ? " " + flags : ""}|${t?.short_name}|${pos?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.form}form|${p.total_points}pts|${p.chance_of_playing_next_round ?? 100}%fit${injNote}`;
+                  const fixtureState = formatTeamFixtureStateLabel(
+                    teamFixtureStateInGw(p.team, currentGW, fixturesData),
+                  );
+                  return `${p.web_name}${flags ? " " + flags : ""}|${t?.short_name}|${pos?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|GWpts:${p.event_points ?? 0}|${p.form}form|${p.total_points}pts|${fixtureState}|${p.chance_of_playing_next_round ?? 100}%fit${injNote}`;
                 };
 
                 const startingXI = picksData.picks.filter((p: any) => p.position <= 11).map(formatPick).filter(Boolean).join("\n");
@@ -535,6 +557,16 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
           return `${day}-${month}-${year} ${hours}:${minutes}`;
         };
 
+        const gwFixtureStatusContext = currentGWId
+          ? formatCurrentGwFixtureStatus(
+              currentGWId,
+              currentGameweek?.name || `Gameweek ${currentGWId}`,
+              Boolean(currentGameweek?.finished),
+              fixturesData,
+              fplData.teams ?? [],
+            )
+          : "";
+
         // Build context string with filtered players
         fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
@@ -544,17 +576,20 @@ CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.
 
 ${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : 'Unknown'}` : ""}
 
-${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}) - Format: OPPONENT(H/A-Difficulty):
+${transferWindowContext}
+
+${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}) - Format: OPPONENT(H/A-Difficulty):
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
-Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|xG|xA|xGI|xGC|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|DC|DC90|CBIT|Status|Fitness%|[InjuryNews]|PhotoURL
+Format: WebName|FullName|ClubFullName (ShortCode)|Pos|Price|TotalPts|GWpts|Form|PPG|Ownership%|TI_GW|TO_GW|TI_Total|TO_Total|Minutes|xPNext|xPThis|Goals|Assists|CleanSheets|xG|xA|xGI|xGC|Bonus|BPS|ICT|Inf|Cre|Thr|YellowCards|RedCards|Saves|PensSaved|PensMissed|DC|DC90|CBIT|Status|Fitness%|[InjuryNews]|PhotoURL
 ${filteredPlayers.map(p => p.formatted).join("\n")}
 
 TEAMS:
 ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
+- GWpts = Points scored THIS gameweek only (live). 0 often means the player's fixture has not started yet - check CURRENT GW FIXTURE STATUS before criticising.
 - xPNext = Expected points for NEXT gameweek (FPL's official prediction) — always use this for forward-looking recommendations. CRITICAL: if xPNext is 0.0 for a player, it means their club has a BLANK GAMEWEEK and they will score 0 points this week — do NOT recommend them for captaincy or transfer in regardless of their form or ownership.
 - xPThis = Expected points for the CURRENT gameweek (FPL's official prediction). IMPORTANT: once a gameweek has concluded, the FPL API resets this field to 0.0 — that value simply means the gameweek is over or the player had no remaining fixture that round. A value of 0.0 does NOT mean the player performed poorly, had a blank, or was injured. Never interpret xPThis=0.0 as negative; always rely on xPNext for upcoming gameweek predictions.
 - TI_GW = Transfers IN this gameweek (shows trending players)
@@ -616,17 +651,9 @@ The em-dash character (—) is STRICTLY FORBIDDEN in every part of your response
 - Scan your entire response before outputting. If you find a single — character, replace it. There are no exceptions.
 
 FORMATTING RULES:
-- Format your response with clear paragraphs separated by TWO blank lines
-- Use bullet points (•) for lists and multiple items
-- Add a blank line between each major section or topic
-- Use hyphens ( - ) not em-dashes (—) for all dashes. This is mandatory.
-- Keep each paragraph short (2-3 sentences max)
+${getChatFormattingRules(chatModelProfile)}
 - Add extra spacing between different players or topics for readability
 - Make comparisons easy to read with clear formatting and spacing
-- IMPORTANT: When mentioning a player, ALWAYS include their photo using: ![Full Name Exactly As In Data](PhotoURL)
-- PhotoURL MUST be copied character-for-character from the end of that player's row in LIVE FPL DATA (final field after the last |). Never invent, shorten, or alter the URL.
-- Example shape: "![Mohamed Salah](PASTE_EXACT_PhotoURL_FROM_ROW) Mohamed Salah is in great form..."
-
 
 FPL RULES (MANDATORY - never contradict or guess at these):
 
@@ -671,9 +698,7 @@ POINTS SCORING:
 - Captain scores double, Vice-captain doubles only if captain does not play
 
 TRANSFERS:
-- PRE-SEASON (before the Gameweek 1 deadline): managers have UNLIMITED free transfers to build and reshape their squad. Never tell a pre-season user they only have "1 free transfer" - check the CURRENT GAMEWEEK data above and if it's Gameweek 1 with a future deadline, transfers are unrestricted.
-- From Gameweek 1 deadline onwards: 1 free transfer per GW, unused transfers bank up to a MAXIMUM OF 5 (rule changed for 2024/25 season - it is no longer capped at 2)
-- Each additional transfer beyond the free/banked allowance costs 4 points (a hit)
+- Follow the TRANSFER WINDOW block above. It is computed from live FPL deadlines and overrides any guesswork from CURRENT GAMEWEEK Finished status.
 - Wildcard: unlimited free transfers, squad changes are permanent
 - Free Hit: unlimited transfers for one GW only, squad reverts next GW
 - Bench Boost: all bench players score points this GW
@@ -841,9 +866,12 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
 
           // Fix hallucinated player photo URLs in the accumulated response
           // Also strip any em-dashes that slipped through (belt-and-braces)
-          const fixedAnswer = fixAssistantMarkdownPlayerPhotos(fullAnswer, photoRowsForFix)
-            .replace(/\u2014/g, " - ")
-            .replace(/\u2013/g, " - ");
+          const fixedAnswer = normalizeAssistantChatFormatting(
+            fixAssistantMarkdownPlayerPhotos(fullAnswer, photoRowsForFix)
+              .replace(/\u2014/g, " - ")
+              .replace(/\u2013/g, " - "),
+            chatModelProfile,
+          );
 
           // ── DB operations (run after stream completes) ─────────────────
           await prisma.usageTracking.update({
@@ -887,6 +915,7 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
             conversation_id: conversation.id,
             messages_used: usage.messages_used + 1,
             messages_limit: usage.messages_limit,
+            ...(chatModelProfile === "structured" ? { content: fixedAnswer } : {}),
           });
         } catch (err: any) {
           console.error("Streaming error:", err);
