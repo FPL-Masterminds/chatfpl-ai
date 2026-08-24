@@ -66,12 +66,12 @@ function StructuredChatMessageLine({ line }: { line: string }) {
     rest = rest.slice(leadingImg[0].length).trim();
     const namePrice = rest.match(/^(.+?)\s+-\s+(£[\d.]+m)\s*$/i);
     return (
-      <div className="my-2 flex items-start gap-3">
+      <div className="my-2 flex items-center gap-3">
         {bulletPrefix ? (
-          <span className="mt-3 shrink-0 text-white/85">{bulletPrefix.trim()}</span>
+          <span className="shrink-0 text-white/85">{bulletPrefix.trim()}</span>
         ) : null}
         <PlayerPhoto alt={alt} url={url} />
-        <div className="min-w-0 flex-1 pt-0.5 leading-7 text-white/85">
+        <div className="min-w-0 flex-1 text-base leading-snug text-white/85">
           {namePrice ? (
             <span className="font-semibold text-white">
               {namePrice[1]} - {namePrice[2]}
