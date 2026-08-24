@@ -7,9 +7,8 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { DevHeader } from "@/components/dev-header"
 import { Footer } from "@/components/footer"
-import { SeasonStoryFormattedText } from "@/components/season-story-text"
+import { ConversationalSeasonStory } from "@/components/conversational-season-story"
 import { SeasonStoryMessagePanel } from "@/components/season-story-message"
-import type { SeasonStoryEntities } from "@/lib/season-story"
 import { fplPlayerPhotoUrl } from "@/lib/fpl-player-photo"
 import {
   ResponsiveContainer, ComposedChart, AreaChart, Area, Bar, Line,
@@ -1037,7 +1036,9 @@ function LeaguePanel({
 // ─── Season Story ────────────────────────────────────────────────────────────
 
 interface SeasonStoryBlock {
+  slot?: string
   label?: string
+  question?: string
   text: string
   style: "lede" | "section" | "personal" | "closing" | "fixture"
 }
@@ -1046,7 +1047,11 @@ interface SeasonStory {
   gw: number
   headline: string
   paragraphs: SeasonStoryBlock[]
-  entities: SeasonStoryEntities
+  entities: {
+    league: string
+    teams: string[]
+    managers: string[]
+  }
   provisional?: boolean
 }
 
@@ -1209,11 +1214,6 @@ function SeasonStoryPanel({
   const leagueId = storyData?.league_id ?? data.league_id
   const stories = storyData?.stories ?? []
   const activeStory = stories.find((s) => s.gw === activeGw) ?? stories[stories.length - 1] ?? null
-  const storyEntities: SeasonStoryEntities = activeStory?.entities ?? {
-    league: leagueName ?? "",
-    teams: [],
-    managers: [],
-  }
 
   const liveGw = storyData?.live_gw ?? null
   const archivedGwCount = storyData?.completed_gws?.length ?? 0
@@ -1374,7 +1374,7 @@ function SeasonStoryPanel({
       </div>
 
       {activeStory && (
-        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-6 lg:p-8 space-y-6">
+        <div className="space-y-4">
           {activeStory.provisional && (
             <div className="rounded-xl border border-amber-400/30 bg-amber-400/[0.08] px-4 py-3">
               <p className="text-sm font-semibold text-amber-200">Live preview (admin only)</p>
@@ -1383,56 +1383,24 @@ function SeasonStoryPanel({
               </p>
             </div>
           )}
-          <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-white/70 mb-1">Gameweek {activeStory.gw}</p>
-            <h2 className="text-lg font-bold text-white/90 leading-tight">
-              <SeasonStoryFormattedText text={activeStory.headline} entities={storyEntities} />
-            </h2>
-          </div>
 
-          <div className="space-y-8 max-w-2xl">
-            {activeStory.paragraphs.map((block, i) => {
-              const isLede = block.style === "lede"
-              const isPersonal = block.style === "personal"
-              const isClosing = block.style === "closing"
-              const isFixture = block.style === "fixture"
-
-              return (
-                <div
-                  key={i}
-                  className={
-                    isPersonal
-                      ? "rounded-xl border border-cyan-400/20 bg-cyan-400/[0.06] px-5 py-4"
-                      : isClosing
-                        ? "pt-2 border-t border-white/10"
-                        : isFixture
-                          ? "rounded-xl border border-amber-400/15 bg-amber-400/[0.04] px-5 py-4"
-                          : ""
-                  }
-                >
-                  {block.label && (
-                    <p className={`text-[11px] uppercase tracking-[0.2em] font-semibold mb-2 ${
-                      isPersonal ? "text-cyan-300/80" : isFixture ? "text-amber-300/80" : "text-emerald-300/70"
-                    }`}>
-                      {block.label}
-                    </p>
-                  )}
-                  <p
-                    className={
-                      isLede
-                        ? "text-lg text-white/90 leading-[1.85] font-medium"
-                        : isClosing
-                          ? "text-sm text-white/60 leading-[1.75] italic"
-                          : isPersonal
-                            ? "text-base text-white/95 leading-[1.8]"
-                            : "text-base text-white/90 leading-[1.8]"
-                    }
-                  >
-                    <SeasonStoryFormattedText text={block.text} entities={storyEntities} />
-                  </p>
-                </div>
-              )
-            })}
+          <div
+            className="w-full flex flex-col"
+            style={{ height: "clamp(420px, 58vh, 720px)" }}
+          >
+            <ConversationalSeasonStory
+              key={`${leagueId}-${activeStory.gw}`}
+              gw={activeStory.gw}
+              leagueName={leagueName ?? ""}
+              provisional={activeStory.provisional}
+              items={activeStory.paragraphs.map((block, i) => ({
+                id: block.slot ?? `block-${i}`,
+                question:
+                  block.question ??
+                  (block.label ? `What about ${block.label}?` : "What happened this gameweek?"),
+                answer: block.text,
+              }))}
+            />
           </div>
         </div>
       )}

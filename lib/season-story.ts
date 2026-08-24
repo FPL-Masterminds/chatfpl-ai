@@ -37,6 +37,7 @@ import {
 } from "./season-story-analytics"
 import type { GWFixtureContext } from "./season-story-fixtures"
 import { pickFromPool } from "./season-story-seed"
+import { pickStoryQuestion } from "./season-story-questions"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -132,7 +133,9 @@ export interface SeasonStoryEntities {
 export type SeasonStoryBlockStyle = "lede" | "section" | "personal" | "closing" | "fixture"
 
 export interface SeasonStoryBlock {
+  slot: string
   label?: string
+  question: string
   text: string
   style: SeasonStoryBlockStyle
 }
@@ -423,7 +426,13 @@ export function generateSeasonStory(facts: SeasonStoryFacts): SeasonStory {
     const text = render(templates, facts, slot)
     if (!text) continue
     const meta = SLOT_META[slot] ?? { style: "section" as const }
-    paragraphs.push({ label: meta.label, text, style: meta.style })
+    paragraphs.push({
+      slot,
+      label: meta.label,
+      question: pickStoryQuestion(slot, facts.gw, facts.leagueId),
+      text,
+      style: meta.style,
+    })
   }
 
   return {
