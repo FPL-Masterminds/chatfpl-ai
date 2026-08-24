@@ -1286,7 +1286,7 @@ function SeasonStoryPanel({
           )}
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-white/70 mb-1">Gameweek {activeStory.gw}</p>
-            <h2 className="text-xl font-bold text-white/90 leading-tight">
+            <h2 className="text-lg font-bold text-white/90 leading-tight">
               <SeasonStoryFormattedText text={activeStory.headline} entities={storyEntities} />
             </h2>
           </div>
@@ -1321,12 +1321,12 @@ function SeasonStoryPanel({
                   <p
                     className={
                       isLede
-                        ? "text-[19px] text-white/90 leading-[1.85] font-medium"
+                        ? "text-lg text-white/90 leading-[1.85] font-medium"
                         : isClosing
-                          ? "text-[15px] text-white/60 leading-[1.75] italic"
+                          ? "text-sm text-white/60 leading-[1.75] italic"
                           : isPersonal
-                            ? "text-[17px] text-white/95 leading-[1.8]"
-                            : "text-[17px] text-white/90 leading-[1.8]"
+                            ? "text-base text-white/95 leading-[1.8]"
+                            : "text-base text-white/90 leading-[1.8]"
                     }
                   >
                     <SeasonStoryFormattedText text={block.text} entities={storyEntities} />
