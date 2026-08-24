@@ -28,11 +28,18 @@ import {
 } from "@/lib/chat-message-format";
 import { getChatModelProfile } from "@/lib/chat-model-profile";
 import {
+  filterUpcomingFixtures,
+  formatAdviceGameweekNote,
   formatCurrentGwFixtureStatus,
+  formatPlanningGwFixtureStatus,
   formatTeamFixtureStateLabel,
+  fplLiveFetchOptions,
+  parseAdviceGameweekFromMessage,
+  resolveFplGameweekContext,
   teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com";
@@ -187,8 +194,8 @@ export async function POST(request: Request) {
       (async () => {
         try {
           const [fplResponse, fixturesResponse] = await Promise.all([
-            fetch("https://fantasy.premierleague.com/api/bootstrap-static/"),
-            fetch("https://fantasy.premierleague.com/api/fixtures/"),
+            fetch("https://fantasy.premierleague.com/api/bootstrap-static/", fplLiveFetchOptions()),
+            fetch("https://fantasy.premierleague.com/api/fixtures/", fplLiveFetchOptions()),
           ]);
 
           if (fplResponse.ok && fixturesResponse.ok) {
@@ -202,11 +209,15 @@ export async function POST(request: Request) {
               photoUrl: fplPhotoUrlFromElement(p.photo, p.code),
             }));
 
-            const currentGameweek =
-              fplData.events?.find((e: any) => e.is_current) || fplData.events?.[0];
-            const nextGameweek = fplData.events?.find((e: any) => e.is_next);
+            const events = fplData.events ?? [];
+            const gwContext = resolveFplGameweekContext(events, fixturesData);
+            const currentGameweek = gwContext.currentEvent;
+            const nextGameweek = gwContext.nextEvent;
+            const currentGW = gwContext.currentGwId;
+            const planningGwId = gwContext.planningGwId;
+            const adviceGwId = parseAdviceGameweekFromMessage(message, planningGwId);
             const transferWindowContext = formatTransferWindowContext(
-              getTransferWindowStatus(fplData.events ?? []),
+              getTransferWindowStatus(events),
             );
 
             const allPlayers = fplData.elements?.map((p: any) => {
@@ -224,8 +235,6 @@ export async function POST(request: Request) {
                 position: position?.singular_name_short,
               };
             }) || [];
-
-            const currentGW = currentGameweek?.id || 1;
 
             let userTeamContext = "";
             let squadElementIds: number[] = [];
@@ -458,9 +467,7 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
             filteredPlayers = squadInjection.players;
             filterNote += squadInjection.noteSuffix;
 
-            const upcomingFixtures = fixturesData.filter(
-              (f: any) => f.event >= currentGW && f.event <= currentGW + 4 && !f.finished
-            );
+            const upcomingFixtures = filterUpcomingFixtures(fixturesData, adviceGwId, 4);
 
             const upcomingGwCount = new Set(upcomingFixtures.map((f: any) => f.event)).size;
             const fixtureWindowLabel = upcomingGwCount === 0
@@ -505,25 +512,42 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
               return `${day}-${month}-${year} ${hours}:${minutes}`;
             };
 
-            const gwFixtureStatusContext = formatCurrentGwFixtureStatus(
-              currentGW,
-              currentGameweek?.name || `Gameweek ${currentGW}`,
-              Boolean(currentGameweek?.finished),
+            const gwFixtureStatusContext = currentGameweek
+              ? formatCurrentGwFixtureStatus(
+                  currentGW,
+                  currentGameweek.name || `Gameweek ${currentGW}`,
+                  Boolean(currentGameweek.finished) || gwContext.currentGwComplete,
+                  fixturesData,
+                  fplData.teams ?? [],
+                )
+              : "";
+
+            const planningFixtureContext = formatPlanningGwFixtureStatus(
+              adviceGwId,
+              events,
               fixturesData,
               fplData.teams ?? [],
             );
 
+            const adviceGwNote = formatAdviceGameweekNote(
+              currentGW,
+              gwContext.currentGwComplete,
+              adviceGwId,
+            );
+
             fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
-CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.id})
+CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGW})
 - Deadline: ${currentGameweek?.deadline_time ? formatDeadline(currentGameweek.deadline_time) : "Unknown"}
-- Finished: ${currentGameweek?.finished ? "Yes" : "No"}
+- Finished: ${currentGameweek?.finished || gwContext.currentGwComplete ? "Yes" : "No"}
 
-${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : "Unknown"}` : ""}
+${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} (ID: ${nextGameweek.id}) - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : "Unknown"}` : ""}
+
+${adviceGwNote}
 
 ${transferWindowContext}
 
-${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWindowLabel}) - Format: OPPONENT(H/A-Difficulty):
+${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
@@ -535,7 +559,7 @@ ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
 - GWpts = Points scored THIS gameweek only (live). 0 often means the player's fixture has not started yet - check CURRENT GW FIXTURE STATUS before criticising.
-- xPNext = Expected points for NEXT gameweek (FPL official prediction)
+- xPNext = Expected points for the ADVICE/PLANNING gameweek (Gameweek ${adviceGwId}, FPL official prediction)
 - xPThis = Expected points for CURRENT gameweek
 - xG = Expected goals this season (FPL/Opta data)
 - xA = Expected assists this season

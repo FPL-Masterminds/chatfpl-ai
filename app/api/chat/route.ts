@@ -23,11 +23,18 @@ import {
 } from "@/lib/chat-message-format";
 import { getChatModelProfile } from "@/lib/chat-model-profile";
 import {
+  filterUpcomingFixtures,
+  formatAdviceGameweekNote,
   formatCurrentGwFixtureStatus,
+  formatPlanningGwFixtureStatus,
   formatTeamFixtureStateLabel,
+  fplLiveFetchOptions,
+  parseAdviceGameweekFromMessage,
+  resolveFplGameweekContext,
   teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 // ─── Reddit cache (30-minute module-level TTL) ────────────────────────────────
@@ -206,8 +213,8 @@ export async function POST(request: Request) {
     try {
       // Fetch both bootstrap data and fixtures
       const [fplResponse, fixturesResponse] = await Promise.all([
-        fetch("https://fantasy.premierleague.com/api/bootstrap-static/"),
-        fetch("https://fantasy.premierleague.com/api/fixtures/")
+        fetch("https://fantasy.premierleague.com/api/bootstrap-static/", fplLiveFetchOptions()),
+        fetch("https://fantasy.premierleague.com/api/fixtures/", fplLiveFetchOptions()),
       ]);
       
       if (fplResponse.ok && fixturesResponse.ok) {
@@ -223,10 +230,15 @@ export async function POST(request: Request) {
         }));
         
         // Extract key data
-        const currentGameweek = fplData.events?.find((e: any) => e.is_current) || fplData.events?.[0];
-        const nextGameweek = fplData.events?.find((e: any) => e.is_next);
+        const events = fplData.events ?? [];
+        const gwContext = resolveFplGameweekContext(events, fixturesData);
+        const currentGameweek = gwContext.currentEvent;
+        const nextGameweek = gwContext.nextEvent;
+        const currentGW = gwContext.currentGwId;
+        const planningGwId = gwContext.planningGwId;
+        const adviceGwId = parseAdviceGameweekFromMessage(message, planningGwId);
         const transferWindowContext = formatTransferWindowContext(
-          getTransferWindowStatus(fplData.events ?? []),
+          getTransferWindowStatus(events),
         );
         
         // Get ALL players first
@@ -243,8 +255,6 @@ export async function POST(request: Request) {
             position: position?.singular_name_short
           };
         }) || [];
-
-        const currentGW = currentGameweek?.id || 1;
 
         // Fetch user's personal FPL team data before filtering so squad players
         // are always included in the player rows sent to the model.
@@ -467,9 +477,7 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
         filteredPlayers = squadInjection.players;
         filterNote += squadInjection.noteSuffix;
 
-        const upcomingFixtures = fixturesData.filter((f: any) => 
-          f.event >= currentGW && f.event <= currentGW + 4 && !f.finished
-        );
+        const upcomingFixtures = filterUpcomingFixtures(fixturesData, adviceGwId, 4);
 
         // Distinct upcoming GWs (caps at season end so we don't claim 5 weeks
         // of fixtures when only 3 remain)
@@ -507,36 +515,33 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
           .map(([team, fixtures]) => `${team}: ${fixtures.join(', ')}`)
           .join('\n');
 
-        // Explicit DGW detection — teams with 2+ fixtures in the current GW
-        const currentGWId = currentGameweek?.id;
-        const dgwTeams = currentGWId
-          ? (fplData.teams ?? []).filter((team: any) =>
-              fixturesData.filter((f: any) =>
-                f.event === currentGWId &&
-                (f.team_h === team.id || f.team_a === team.id)
-              ).length >= 2
-            ).map((t: any) => t.name)
-          : [];
+        const adviceGwIdForStructure = adviceGwId;
+        const dgwTeams = (fplData.teams ?? []).filter((team: any) =>
+          fixturesData.filter((f: any) =>
+            f.event === adviceGwIdForStructure &&
+            (f.team_h === team.id || f.team_a === team.id)
+          ).length >= 2
+        ).map((t: any) => t.name);
         const dgwNote = dgwTeams.length > 0
-          ? `\nDOUBLE GAMEWEEK ${currentGWId} TEAMS (each has TWO fixtures this week): ${dgwTeams.join(', ')}\n`
+          ? `\nDOUBLE GAMEWEEK ${adviceGwIdForStructure} TEAMS (each has TWO fixtures this week): ${dgwTeams.join(', ')}\n`
           : '';
 
-        // Explicit BGW detection — teams with ZERO fixtures in the current GW
-        const bgwTeams = currentGWId
-          ? (fplData.teams ?? []).filter((team: any) =>
-              fixturesData.filter((f: any) =>
-                f.event === currentGWId &&
-                (f.team_h === team.id || f.team_a === team.id)
-              ).length === 0
-            ).map((t: any) => t.name)
-          : [];
+        const bgwTeams = (fplData.teams ?? []).filter((team: any) =>
+          fixturesData.filter((f: any) =>
+            f.event === adviceGwIdForStructure &&
+            (f.team_h === team.id || f.team_a === team.id)
+          ).length === 0
+        ).map((t: any) => t.name);
         const bgwNote = bgwTeams.length > 0
-          ? `\nBLANK GAMEWEEK ${currentGWId} TEAMS (NO fixture scheduled this week — xPNext will be 0.0): ${bgwTeams.join(', ')}\n`
+          ? `\nBLANK GAMEWEEK ${adviceGwIdForStructure} TEAMS (NO fixture scheduled this week — xPNext will be 0.0): ${bgwTeams.join(', ')}\n`
           : '';
 
         console.log('=== FIXTURE DATA DEBUG ===');
         console.log('Total fixtures fetched:', fixturesData.length);
         console.log('Current GW:', currentGW);
+        console.log('Planning GW:', planningGwId);
+        console.log('Advice GW:', adviceGwId);
+        console.log('Current GW complete:', gwContext.currentGwComplete);
         console.log('Filtered fixtures count:', upcomingFixtures.length);
         console.log('Arsenal fixtures:', teamFixtures['ARS']);
         console.log('Fixture runs text length:', fixtureRunsText.length);
@@ -557,28 +562,43 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
           return `${day}-${month}-${year} ${hours}:${minutes}`;
         };
 
-        const gwFixtureStatusContext = currentGWId
+        const gwFixtureStatusContext = currentGameweek
           ? formatCurrentGwFixtureStatus(
-              currentGWId,
-              currentGameweek?.name || `Gameweek ${currentGWId}`,
-              Boolean(currentGameweek?.finished),
+              currentGW,
+              currentGameweek.name || `Gameweek ${currentGW}`,
+              Boolean(currentGameweek.finished) || gwContext.currentGwComplete,
               fixturesData,
               fplData.teams ?? [],
             )
           : "";
 
+        const planningFixtureContext = formatPlanningGwFixtureStatus(
+          adviceGwId,
+          events,
+          fixturesData,
+          fplData.teams ?? [],
+        );
+
+        const adviceGwNote = formatAdviceGameweekNote(
+          currentGW,
+          gwContext.currentGwComplete,
+          adviceGwId,
+        );
+
         // Build context string with filtered players
         fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
-CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGameweek?.id})
+CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGW})
 - Deadline: ${currentGameweek?.deadline_time ? formatDeadline(currentGameweek.deadline_time) : 'Unknown'}
-- Finished: ${currentGameweek?.finished ? "Yes" : "No"}
+- Finished: ${currentGameweek?.finished || gwContext.currentGwComplete ? "Yes" : "No"}
 
-${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : 'Unknown'}` : ""}
+${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} (ID: ${nextGameweek.id}) - Deadline: ${nextGameweek.deadline_time ? formatDeadline(nextGameweek.deadline_time) : 'Unknown'}` : ""}
+
+${adviceGwNote}
 
 ${transferWindowContext}
 
-${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}) - Format: OPPONENT(H/A-Difficulty):
+${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
@@ -590,7 +610,7 @@ ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
 - GWpts = Points scored THIS gameweek only (live). 0 often means the player's fixture has not started yet - check CURRENT GW FIXTURE STATUS before criticising.
-- xPNext = Expected points for NEXT gameweek (FPL's official prediction) — always use this for forward-looking recommendations. CRITICAL: if xPNext is 0.0 for a player, it means their club has a BLANK GAMEWEEK and they will score 0 points this week — do NOT recommend them for captaincy or transfer in regardless of their form or ownership.
+- xPNext = Expected points for the ADVICE/PLANNING gameweek (Gameweek ${adviceGwId}, FPL's official prediction) — always use this for forward-looking captaincy and transfer recommendations. CRITICAL: if xPNext is 0.0 for a player, it means their club has a BLANK GAMEWEEK and they will score 0 points that week — do NOT recommend them for captaincy or transfer in regardless of their form or ownership.
 - xPThis = Expected points for the CURRENT gameweek (FPL's official prediction). IMPORTANT: once a gameweek has concluded, the FPL API resets this field to 0.0 — that value simply means the gameweek is over or the player had no remaining fixture that round. A value of 0.0 does NOT mean the player performed poorly, had a blank, or was injured. Never interpret xPThis=0.0 as negative; always rely on xPNext for upcoming gameweek predictions.
 - TI_GW = Transfers IN this gameweek (shows trending players)
 - TO_GW = Transfers OUT this gameweek (shows who managers are selling)

@@ -14,7 +14,94 @@ export interface FplTeamLike {
   name: string;
 }
 
+export interface FplEventLike {
+  id: number;
+  name: string;
+  is_current?: boolean;
+  is_next?: boolean;
+  finished?: boolean;
+  deadline_time?: string;
+}
+
 export type TeamFixtureState = "not_started" | "live" | "finished" | "blank";
+
+const FPL_FETCH_OPTS = { cache: "no-store" as const };
+
+export function fplLiveFetchOptions() {
+  return FPL_FETCH_OPTS;
+}
+
+export function isFixtureComplete(fixture: FplFixtureLike): boolean {
+  return Boolean(fixture.finished || fixture.finished_provisional);
+}
+
+export function isGameweekComplete(
+  gwId: number,
+  eventFinished: boolean,
+  fixtures: FplFixtureLike[],
+): boolean {
+  if (eventFinished) return true;
+  const gwFixtures = fixtures.filter((f) => f.event === gwId);
+  if (gwFixtures.length === 0) return false;
+  return gwFixtures.every(isFixtureComplete);
+}
+
+/** Resolve which GW is live vs which GW captaincy/transfer advice should target. */
+export function resolveFplGameweekContext(
+  events: FplEventLike[],
+  fixtures: FplFixtureLike[],
+): {
+  currentEvent: FplEventLike | null;
+  nextEvent: FplEventLike | null;
+  currentGwId: number;
+  planningGwId: number;
+  currentGwComplete: boolean;
+} {
+  const sorted = [...events].sort((a, b) => a.id - b.id);
+  const currentEvent = events.find((e) => e.is_current) ?? sorted[0] ?? null;
+  const nextEvent = events.find((e) => e.is_next) ?? null;
+  const currentGwId = currentEvent?.id ?? 1;
+  const currentGwComplete = isGameweekComplete(
+    currentGwId,
+    Boolean(currentEvent?.finished),
+    fixtures,
+  );
+  const maxGwId = sorted[sorted.length - 1]?.id ?? currentGwId;
+  const planningGwId =
+    nextEvent?.id ??
+    (currentGwComplete ? Math.min(currentGwId + 1, maxGwId) : currentGwId);
+
+  return {
+    currentEvent,
+    nextEvent,
+    currentGwId,
+    planningGwId,
+    currentGwComplete,
+  };
+}
+
+/** Parse an explicit GW number from the user's message (e.g. "GW2"). */
+export function parseAdviceGameweekFromMessage(message: string, fallback: number): number {
+  const match =
+    message.match(/\bgw\s*(\d+)\b/i) ?? message.match(/\bgameweek\s*(\d+)\b/i);
+  if (!match) return fallback;
+  const gw = Number.parseInt(match[1], 10);
+  if (!Number.isFinite(gw) || gw < 1 || gw > 38) return fallback;
+  return gw;
+}
+
+export function filterUpcomingFixtures(
+  fixtures: FplFixtureLike[],
+  startGw: number,
+  window = 4,
+): FplFixtureLike[] {
+  return fixtures.filter(
+    (f) =>
+      f.event >= startGw &&
+      f.event <= startGw + window &&
+      !isFixtureComplete(f),
+  );
+}
 
 function formatKickoffUk(isoString: string): string {
   const date = new Date(isoString);
@@ -51,6 +138,55 @@ export function formatTeamFixtureStateLabel(state: TeamFixtureState): string {
     case "blank":
       return "blank GW (no fixture)";
   }
+}
+
+export function formatPlanningGwFixtureStatus(
+  planningGwId: number,
+  events: FplEventLike[],
+  fixtures: FplFixtureLike[],
+  teams: FplTeamLike[],
+): string {
+  const planningEvent = events.find((e) => e.id === planningGwId);
+  const gwName = planningEvent?.name ?? `Gameweek ${planningGwId}`;
+  const gwFixtures = fixtures.filter((f) => f.event === planningGwId);
+  if (!gwFixtures.length) return "";
+
+  const fixtureLines = gwFixtures.map((f) => {
+    const home = teams.find((t) => t.id === f.team_h)?.short_name ?? "???";
+    const away = teams.find((t) => t.id === f.team_a)?.short_name ?? "???";
+    const kick = f.kickoff_time ? formatKickoffUk(f.kickoff_time) : "TBC";
+    if (isFixtureComplete(f)) return `${home} v ${away}: finished`;
+    if (f.started) return `${home} v ${away}: live`;
+    return `${home} v ${away}: kicks off ${kick} UK`;
+  });
+
+  return [
+    `PLANNING GAMEWEEK FIXTURES (${gwName}, ID ${planningGwId}):`,
+    "- Use this block for captaincy, transfer, and fixture-run advice.",
+    "- TEAM FIXTURE RUNS below start from this gameweek. The first opponent listed for each club is their NEXT fixture.",
+    "- NEVER describe a fixture marked finished here as upcoming, next, or still to play.",
+    `- Fixtures: ${fixtureLines.join(" | ")}`,
+  ].join("\n");
+}
+
+export function formatAdviceGameweekNote(
+  currentGwId: number,
+  currentGwComplete: boolean,
+  adviceGwId: number,
+): string {
+  if (!currentGwComplete && adviceGwId === currentGwId) {
+    return `ADVICE GAMEWEEK: ${adviceGwId} (same as the live/current round).`;
+  }
+  if (currentGwComplete && adviceGwId > currentGwId) {
+    return [
+      `ADVICE GAMEWEEK: ${adviceGwId}.`,
+      `CRITICAL: Gameweek ${currentGwId} is COMPLETE (all fixtures finished).`,
+      `Captaincy, transfers, and fixture mentions must target Gameweek ${adviceGwId} only.`,
+      `xPNext on each player row is FPL's official prediction FOR Gameweek ${adviceGwId}.`,
+      `Do NOT cite Gameweek ${currentGwId} opponents as next or upcoming.`,
+    ].join("\n");
+  }
+  return `ADVICE GAMEWEEK: ${adviceGwId}.`;
 }
 
 export function formatCurrentGwFixtureStatus(
