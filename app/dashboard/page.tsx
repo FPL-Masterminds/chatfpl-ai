@@ -1070,6 +1070,54 @@ interface SeasonStoryData {
   live_gw?: number | null
 }
 
+function SeasonStoryLeaguePicker({
+  leagues,
+  leagueId,
+  hasMultiple,
+  switchingLeague,
+  onLeagueSwitch,
+}: {
+  leagues: { id: number; name: string; rank: number }[]
+  leagueId: number | null | undefined
+  hasMultiple: boolean
+  switchingLeague: boolean
+  onLeagueSwitch: (id: number) => void
+}) {
+  if (!hasMultiple) return null
+  return (
+    <div
+      className="relative rounded-full shrink-0"
+      style={{
+        padding: "1.5px",
+        background:
+          "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
+        backgroundSize: "220% 220%",
+        animation: "glow_scroll 4s linear infinite",
+      }}
+    >
+      <select
+        value={leagueId ?? ""}
+        onChange={(e) => onLeagueSwitch(Number(e.target.value))}
+        disabled={switchingLeague}
+        className="appearance-none bg-black rounded-full pl-4 pr-9 py-1.5 text-xs uppercase tracking-[0.16em] font-semibold text-white cursor-pointer focus:outline-none disabled:opacity-60 max-w-[min(100%,280px)] truncate"
+        title="Switch mini-league"
+      >
+        {leagues.map((l) => (
+          <option key={l.id} value={l.id} className="bg-[#0a0a0a] text-white normal-case tracking-normal">
+            {l.name}
+          </option>
+        ))}
+      </select>
+      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-emerald-400">
+        {switchingLeague ? "" : "▼"}
+      </span>
+      {switchingLeague && (
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
+      )}
+    </div>
+  )
+}
+
 function SeasonStoryPanel({
   data,
   onLeagueChange,
@@ -1177,14 +1225,31 @@ function SeasonStoryPanel({
   if (storyStatus === "league_too_large") {
     const leagueBit = leagueName ? `${leagueName} has` : "This league has"
     const switchBit = hasMultiple
-      ? " If you are in a smaller mini-league with your mates, switch to it using the league dropdown above."
+      ? " Pick a smaller mini-league from the dropdown if you have one with your mates."
       : ""
     return (
-      <SeasonStoryMessagePanel
-        titleWhite="This league is "
-        titleGradient="a bit too big"
-        body={`Sorry about that. Season Story is built for mini-leagues of up to 200 managers, and ${leagueBit} more than we can cover in one fair write-up.${switchBit} Your League tab still shows standings for the managers we can load.`}
-      />
+      <div className="space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-white">Season Story</p>
+            {leagueName ? (
+              <p className="text-xs text-white/70 mt-0.5">{leagueName}</p>
+            ) : null}
+          </div>
+          <SeasonStoryLeaguePicker
+            leagues={leagues}
+            leagueId={leagueId}
+            hasMultiple={hasMultiple}
+            switchingLeague={switchingLeague}
+            onLeagueSwitch={handleLeagueSwitch}
+          />
+        </div>
+        <SeasonStoryMessagePanel
+          titleWhite="This league is "
+          titleGradient="a bit too big"
+          body={`Sorry about that. Season Story is built for mini-leagues of up to 200 managers, and ${leagueBit} more than we can cover in one fair write-up.${switchBit} Your League tab still shows standings for the managers we can load.`}
+        />
+      </div>
     )
   }
 
@@ -1234,35 +1299,13 @@ function SeasonStoryPanel({
           </p>
         </div>
         {hasMultiple && (
-          <div
-            className="relative rounded-full shrink-0"
-            style={{
-              padding: "1.5px",
-              background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
-              backgroundSize: "220% 220%",
-              animation: "glow_scroll 4s linear infinite",
-            }}
-          >
-            <select
-              value={leagueId ?? ""}
-              onChange={(e) => handleLeagueSwitch(Number(e.target.value))}
-              disabled={switchingLeague}
-              className="appearance-none bg-black rounded-full pl-4 pr-9 py-1.5 text-xs uppercase tracking-[0.16em] font-semibold text-white cursor-pointer focus:outline-none disabled:opacity-60"
-              title="Switch mini-league"
-            >
-              {leagues.map((l) => (
-                <option key={l.id} value={l.id} className="bg-[#0a0a0a] text-white normal-case tracking-normal">
-                  {l.name}
-                </option>
-              ))}
-            </select>
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-emerald-400">
-              {switchingLeague ? "" : "▼"}
-            </span>
-            {switchingLeague && (
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
-            )}
-          </div>
+          <SeasonStoryLeaguePicker
+            leagues={leagues}
+            leagueId={leagueId}
+            hasMultiple={hasMultiple}
+            switchingLeague={switchingLeague}
+            onLeagueSwitch={handleLeagueSwitch}
+          />
         )}
       </div>
 
