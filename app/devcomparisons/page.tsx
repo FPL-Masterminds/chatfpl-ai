@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getComparisonHub, type ComparisonHubPair } from "@/lib/fpl-comparison"
+import { formComparisonPairLine } from "@/lib/fpl-form-copy"
 import { DevHeader } from "@/components/dev-header"
 import { Reveal } from "@/components/scroll-reveal"
 import { HubCardExpand } from "@/components/hub-card-expand"
@@ -19,7 +20,7 @@ const BORDER  = "rgba(255,255,255,0.07)"
 
 // ─── Text generation ──────────────────────────────────────────────────────────
 
-function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: number, randomBase: number): string {
+function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: number, randomBase: number, formSampleGws: number): string {
   const { nameA, nameB, epA, epB, formA, formB, totalPtsA, totalPtsB,
           goalsA, goalsB, assistsA, assistsB, priceA, priceB,
           ptsPerMillionA, ptsPerMillionB, ownershipA, ownershipB, position } = pair
@@ -44,7 +45,7 @@ function buildCompareText(pair: ComparisonHubPair, gw: number | string, rank: nu
 
   if (variant === 0) {
     return `The expected points model has ${epWinner} at ${epLeader} for Gameweek ${gw}, against ${epTrailer} for ${epLoser}, a gap of ${gap} points heading into this gameweek. ` +
-      `Form supports that picture: ${formWinner} has averaged ${formLeader} points per game over the last six gameweeks, while ${formLoser} is averaging ${formTrailer}. ` +
+      `${formComparisonPairLine(formWinner, formLeader, formLoser, formTrailer, formSampleGws)} ` +
       `Both players are competing for budget space in millions of squads, and the decision often comes down to who carries better short-term momentum. ` +
       `The full fixture run and detailed head-to-head breakdown are available on the comparison page.`
   }
@@ -329,7 +330,7 @@ export default async function DevComparisonsPage() {
                 pair={pair}
                 rank={i + 1}
                 gw={gw}
-                text={buildCompareText(pair, gw, i + 1, randomBase)}
+                text={buildCompareText(pair, gw, i + 1, randomBase, data.formSampleGws)}
               />
             </Reveal>
           ))}

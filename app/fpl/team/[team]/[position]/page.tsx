@@ -17,6 +17,7 @@ import {
   POSITION_META,
   type CaptainHubPlayer,
 } from "@/lib/fpl-player-page"
+import { formOfPhrase, formPeriodPhrase } from "@/lib/fpl-form-copy"
 
 export const revalidate = 43200
 export const dynamic = "force-dynamic"
@@ -72,6 +73,7 @@ function buildTeamText(
   positionSingular: string,
   index: number,
   randomBase: number,
+  formSampleGws: number,
 ): string {
   const name      = player.displayName
   const ep        = player.ep_next.toFixed(1)
@@ -86,8 +88,8 @@ function buildTeamText(
   const epNum     = parseFloat(ep)
   const prospect  = epNum >= 5 ? "a strong return candidate" : epNum >= 3 ? "a reasonable option" : "a speculative pick"
   const formLine  = formNum > 0
-    ? `Form of ${form} points per game over the last six gameweeks.`
-    : `No recent form returns over the last six gameweeks.`
+    ? `${formOfPhrase(form, formSampleGws)}.`
+    : `No recent form returns ${formPeriodPhrase(formSampleGws)}.`
 
   const variant = (randomBase + index) % 3
 
@@ -361,7 +363,7 @@ export default async function TeamPositionPage({
                   player={player}
                   even={i % 2 === 0}
                   gw={gw}
-                  text={buildTeamText(player, gw, teamName, posMeta.singular, i, randomBase)}
+                  text={buildTeamText(player, gw, teamName, posMeta.singular, i, randomBase, data.formSampleGws)}
                 />
               </Reveal>
             ))

@@ -10,6 +10,12 @@ import {
   FixtureGW,
   FixtureMatch,
 } from "@/lib/fpl-player-page"
+import {
+  countFormSampleGameweeks,
+  formComparisonSharperLine,
+  formPpgPhrase,
+  shouldLeadWithForm,
+} from "@/lib/fpl-form-copy"
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
@@ -40,6 +46,7 @@ export interface ComparisonPlayer {
 
 export interface ComparisonData {
   gw: number
+  formSampleGws: number
   playerA: ComparisonPlayer
   playerB: ComparisonPlayer
   fixtureRunA: FixtureGW[]
@@ -179,6 +186,7 @@ export async function getComparisonData(
 
     return {
       gw: nextGW,
+      formSampleGws: countFormSampleGameweeks(events),
       playerA,
       playerB,
       fixtureRunA,
@@ -267,7 +275,7 @@ function avgNextFdr(fixtureRun: FixtureGW[]): number {
 }
 
 export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
-  const { playerA: a, playerB: b, fixtureRunA, fixtureRunB, gw } = d
+  const { playerA: a, playerB: b, fixtureRunA, fixtureRunB, gw, formSampleGws } = d
   const fwPhrase = fixtureWindowPhrase(Math.max(fixtureRunA.length, fixtureRunB.length))
 
   // Keeper-aware season output sentence. Goalkeepers are not measured on
@@ -368,10 +376,24 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
     )
   }
 
-  if (Math.abs(a.formVal - b.formVal) > 0.5) {
+  if (Math.abs(a.formVal - b.formVal) > 0.5 && shouldLeadWithForm(formSampleGws)) {
     const betterForm = a.formVal > b.formVal ? a : b
+    const worseForm = a.formVal > b.formVal ? b : a
     verdictBullets.push(
-      `${betterForm.displayName} is in sharper form with ${betterForm.form} points per game over the last six gameweeks.`
+      formComparisonSharperLine(
+        betterForm.displayName,
+        betterForm.form,
+        formSampleGws,
+        betterForm.totalPts,
+        worseForm.totalPts,
+        worseForm.displayName,
+      ),
+    )
+  } else if (a.totalPts !== b.totalPts && formSampleGws < 3) {
+    const betterPts = a.totalPts > b.totalPts ? a : b
+    const worsePts = a.totalPts > b.totalPts ? b : a
+    verdictBullets.push(
+      `${betterPts.displayName} leads on season points (${betterPts.totalPts} vs ${worsePts.totalPts} for ${worsePts.displayName}).`,
     )
   }
 
@@ -417,8 +439,8 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
     }
     if (a.ownership < 10) {
       caseForA.push(`With only ${a.ownership}% ownership, ${a.webName} offers differential value to boost your rank if they deliver.`)
-    } else if (a.formVal > b.formVal) {
-      caseForA.push(`${a.webName} has shown better recent form at ${a.form} points per game over the last six gameweeks.`)
+    } else if (a.formVal > b.formVal && shouldLeadWithForm(formSampleGws)) {
+      caseForA.push(`${a.webName} has shown better recent form at ${formPpgPhrase(a.form, formSampleGws)}.`)
     } else {
       caseForA.push(`${a.webName}'s fixture run looks ${avgFdrA <= 2.5 ? "favourable" : avgFdrA >= 3.5 ? "testing" : "manageable"} over ${fwPhrase}.`)
     }
@@ -444,8 +466,8 @@ export function buildComparisonText(d: ComparisonData): ComparisonTextResult {
     }
     if (b.ownership < 10) {
       caseForB.push(`With only ${b.ownership}% ownership, ${b.webName} offers differential value to boost your rank if they deliver.`)
-    } else if (b.formVal > a.formVal) {
-      caseForB.push(`${b.webName} has shown better recent form at ${b.form} points per game over the last six gameweeks.`)
+    } else if (b.formVal > a.formVal && shouldLeadWithForm(formSampleGws)) {
+      caseForB.push(`${b.webName} has shown better recent form at ${formPpgPhrase(b.form, formSampleGws)}.`)
     } else {
       caseForB.push(`${b.webName}'s fixture run looks ${avgFdrB <= 2.5 ? "favourable" : avgFdrB >= 3.5 ? "testing" : "manageable"} over ${fwPhrase}.`)
     }
@@ -558,6 +580,7 @@ export interface ComparisonHubPair {
 
 export interface ComparisonHubData {
   gw: number
+  formSampleGws: number
   pairs: ComparisonHubPair[]
 }
 
@@ -666,7 +689,7 @@ export async function getComparisonHub(): Promise<ComparisonHubData | null> {
       .slice(0, 25)
       .sort((a, b) => b.combinedOwnership - a.combinedOwnership)
 
-    return { gw, pairs }
+    return { gw, formSampleGws: countFormSampleGameweeks(events), pairs }
   } catch {
     return null
   }

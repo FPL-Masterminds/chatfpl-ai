@@ -317,7 +317,7 @@ export default async function FixtureHubPage() {
                 rank={i + 1}
                 even={(i + 1) % 2 === 0}
                 gw={gw}
-                text={buildFixtureHubText(player, gw, i + 1)}
+                text={buildFixtureHubText(player, gw, i + 1, data.formSampleGws)}
               />
             </Reveal>
           ))}

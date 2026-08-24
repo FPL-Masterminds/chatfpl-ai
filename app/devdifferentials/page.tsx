@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getDifferentialHub, type DifferentialHubPlayer } from "@/lib/fpl-player-page"
+import { formOfPhrase, formPpgPhrase } from "@/lib/fpl-form-copy"
 import { DevHeader } from "@/components/dev-header"
 import { Reveal } from "@/components/scroll-reveal"
 import { HubCardExpand } from "@/components/hub-card-expand"
@@ -19,7 +20,7 @@ const FDR_LABELS = ["", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"]
 // randomBase is generated once per page render in the page function;
 // rank offset ensures adjacent players never share a template
 
-function buildDiffText(player: DifferentialHubPlayer, gw: number | string, rank: number, randomBase: number): string {
+function buildDiffText(player: DifferentialHubPlayer, gw: number | string, rank: number, randomBase: number, formSampleGws: number): string {
   const name      = player.displayName
   const ownership = player.ownership
   const ep        = player.ep_next.toFixed(1)
@@ -39,7 +40,7 @@ function buildDiffText(player: DifferentialHubPlayer, gw: number | string, rank:
       `which makes this one of the more compelling rank-swing opportunities available. ` +
       `A return here gains on roughly ${swingPct}% of the field, and at ${price}, the financial commitment is low. ` +
       `The model projects ${ep} expected points against ${fixture}, rated ${fdrLabel} for difficulty, ` +
-      `with recent form sitting at ${form} per game over six gameweeks. ` +
+      `with recent form sitting at ${formPpgPhrase(form, formSampleGws)}. ` +
       `The numbers are there to back the punt rather than just hope for it.`
   }
 
@@ -47,14 +48,14 @@ function buildDiffText(player: DifferentialHubPlayer, gw: number | string, rank:
     // Fixture + momentum angle
     return `${name} faces ${fixture} in Gameweek ${gw}, a fixture rated ${fdrLabel} for difficulty, ` +
       `and the broader data supports a return. ` +
-      `Form of ${form} points per game over the last six gameweeks and projected expected points of ${ep} ` +
+      `${formOfPhrase(form, formSampleGws)} and projected expected points of ${ep} ` +
       `suggest this is more than a speculative pick. ` +
       `Ownership sits at just ${ownership}%, meaning the vast majority of rivals won't benefit if ${name} delivers. ` +
       `That is exactly the asymmetry differential picking is built around.`
   }
 
   // Form + rank-swing angle
-  return `Form of ${form} points per game over the last six gameweeks and a ${fdrLabel} fixture ` +
+  return `${formOfPhrase(form, formSampleGws)} and a ${fdrLabel} fixture ` +
     `against ${fixture} in Gameweek ${gw} make ${name} one of the cleaner differential cases this week. ` +
     `Expected points of ${ep} put them among the stronger low-ownership options available. ` +
     `The ownership figure tells the real story: just ${ownership}%. ` +
@@ -256,7 +257,7 @@ export default async function DevDifferentialsPage() {
                 rank={i + 1}
                 even={(i + 1) % 2 === 0}
                 gw={gw}
-                text={buildDiffText(player, gw, i + 1, randomBase)}
+                text={buildDiffText(player, gw, i + 1, randomBase, data.formSampleGws)}
               />
             </Reveal>
           ))}

@@ -6,6 +6,12 @@ import {
   filterEligiblePlayers,
   FPL_HEADERS,
 } from "@/lib/fpl-player-page"
+import {
+  countFormSampleGameweeks,
+  formBulletLine,
+  formOfPhrase,
+  formPpgPhrase,
+} from "@/lib/fpl-form-copy"
 import type { FplCardPlayer } from "@/components/fpl-player-hero"
 import type { PlayerQA } from "@/components/conversational-player"
 
@@ -75,6 +81,7 @@ export interface GameweekSummary {
 
 export interface GameweekHub {
   currentGW: number
+  formSampleGws: number
   nextDGW: number | null
   gameweeks: GameweekSummary[]
   topDGWPlayers: DGWPlayer[]
@@ -258,7 +265,7 @@ function dgwPlayerToCard(p: DGWPlayer): FplCardPlayer {
 
 // ─── Text generation ──────────────────────────────────────────────────────────
 
-export function buildDGWHubText(player: DGWPlayer): string {
+export function buildDGWHubText(player: DGWPlayer, formSampleGws: number): string {
   const name     = player.displayName
   const fix1     = player.dgwFixtures[0]
   const fix2     = player.dgwFixtures[1]
@@ -268,11 +275,11 @@ export function buildDGWHubText(player: DGWPlayer): string {
 
   return `${name} faces ${f1Label} and ${f2Label} in Gameweek ${player.dgwGW}. ` +
     `Single-game expected points of ${player.ep_next.toFixed(1)} project to a combined ${proj} across the double. ` +
-    `Form of ${player.form} over the last six gameweeks backs the projection. ` +
+    `${formOfPhrase(player.form, formSampleGws)} backs the projection. ` +
     `At ${player.ownership}% ownership, getting ${name} right this week directly impacts rank.`
 }
 
-export function buildDGWPlayerPageText(player: DGWPlayer, gw: number): {
+export function buildDGWPlayerPageText(player: DGWPlayer, gw: number, formSampleGws: number): {
   verdictLabel: string
   verdictText: string
   verdictBullets: string[]
@@ -300,7 +307,7 @@ export function buildDGWPlayerPageText(player: DGWPlayer, gw: number): {
   const verdictBullets = [
     `Two fixtures in Gameweek ${gw}: ${f1Label} and ${f2Label}`,
     `Single-game expected points: ${ep}. Projected across both games: ${proj}`,
-    `Form: ${player.form} points per game over the last six gameweeks`,
+    formBulletLine(player.form, formSampleGws),
     `Owned by ${player.ownership}% of FPL managers`,
   ]
   if (!isAvail && player.news) verdictBullets.push(player.news)
@@ -308,7 +315,7 @@ export function buildDGWPlayerPageText(player: DGWPlayer, gw: number): {
   const caseFor = [
     `Two fixtures in Gameweek ${gw}: ${f1Label} and ${f2Label}`,
     `Projected ${proj} combined expected points across both games`,
-    `Recent form of ${player.form} points per game shows consistent involvement`,
+    `Recent form of ${formPpgPhrase(player.form, formSampleGws)} shows consistent involvement`,
     `At ${player.ownership}% ownership, a points haul here has significant rank impact`,
   ]
 
@@ -326,7 +333,7 @@ export function buildDGWPlayerPageText(player: DGWPlayer, gw: number): {
   const qaItems: PlayerQA[] = [
     {
       question: `What are ${name}'s fixtures in Double Gameweek ${gw}?`,
-      answer:   `${name} plays ${f1Label} and ${f2Label} in Gameweek ${gw}. The model projects ${ep} expected points per game, giving a combined projection of ${proj} across both fixtures. Form over the last six gameweeks is ${player.form} points per game.`,
+      answer:   `${name} plays ${f1Label} and ${f2Label} in Gameweek ${gw}. The model projects ${ep} expected points per game, giving a combined projection of ${proj} across both fixtures. ${formBulletLine(player.form, formSampleGws)}.`,
     },
     {
       question: `Should I captain ${name} in Double Gameweek ${gw}?`,
@@ -449,7 +456,13 @@ export async function getGameweekHub(): Promise<GameweekHub | null> {
     }
     topDGWPlayers.sort((a, b) => b.ep_next - a.ep_next)
 
-    return { currentGW, nextDGW, gameweeks, topDGWPlayers: topDGWPlayers.slice(0, 25) }
+    return {
+      currentGW,
+      formSampleGws: countFormSampleGameweeks(events),
+      nextDGW,
+      gameweeks,
+      topDGWPlayers: topDGWPlayers.slice(0, 25),
+    }
   } catch {
     return null
   }
@@ -621,7 +634,7 @@ export async function getDGWPlayerData(slug: string): Promise<DGWPlayerPageData 
       .map((p: any) => ({ name: getDisplayName(p), slug: slugMap.get(p.id) ?? "" }))
       .filter((r) => r.slug)
 
-    const textData = buildDGWPlayerPageText(player, dgwGW)
+    const textData = buildDGWPlayerPageText(player, dgwGW, countFormSampleGameweeks(events))
 
     return {
       gw: dgwGW,

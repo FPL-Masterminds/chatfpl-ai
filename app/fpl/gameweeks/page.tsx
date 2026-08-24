@@ -356,7 +356,7 @@ export default async function GameweeksHubPage() {
                     <PlayerCard
                       player={player}
                       even={(i + 1) % 2 === 0}
-                      text={buildDGWHubText(player)}
+                      text={buildDGWHubText(player, data.formSampleGws)}
                     />
                   </Reveal>
                 ))}

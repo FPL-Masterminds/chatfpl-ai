@@ -7,6 +7,12 @@ import {
   fixtureWindowPhrase,
   FPL_HEADERS,
 } from "@/lib/fpl-player-page"
+import {
+  formBulletLine,
+  formOfPhrase,
+  formPpgPhrase,
+  countFormSampleGameweeks,
+} from "@/lib/fpl-form-copy"
 import type { FplCardPlayer } from "@/components/fpl-player-hero"
 import type { PlayerQA } from "@/components/conversational-player"
 
@@ -52,6 +58,7 @@ export interface SimilarFixturePlayer {
 
 export interface FixturePageData {
   gw: number
+  formSampleGws: number
   player: FixtureHubPlayer
   showcasePlayers: FplCardPlayer[]   // 5 cards for hero: 2 left, center, 2 right
   similarPlayers: SimilarFixturePlayer[]  // same position, similar FDR
@@ -108,7 +115,8 @@ function verdictFromAvg(avg: number): string {
 export function buildFixtureHubText(
   player: FixtureHubPlayer,
   gw: number | string,
-  rank: number
+  rank: number,
+  formSampleGws: number,
 ): string {
   const name    = player.displayName
   const fix1    = player.fixtures[0]
@@ -138,7 +146,7 @@ export function buildFixtureHubText(
       `${favCount >= 3
         ? `the schedule offers ${favCount} favourable matchups over ${fwPhrase} - a genuine window to accumulate points`
         : `the upcoming fixtures mix easier and tougher opponents, so form will be the deciding factor`}. ` +
-      `Form of ${player.form} per game over the last six gameweeks ` +
+      `Form of ${formPpgPhrase(player.form, formSampleGws)} ` +
       `${parseFloat(player.form) >= 5 ? "backs the fixture case" : "is the variable to track"}. ` +
       `The full analysis is available on their individual page.`
   }
@@ -154,7 +162,7 @@ export function buildFixtureHubText(
 
 // ─── Text generation — individual fixture page ────────────────────────────────
 
-export function buildFixturePageText(player: FixtureHubPlayer, gw: number): {
+export function buildFixturePageText(player: FixtureHubPlayer, gw: number, formSampleGws: number): {
   verdictLabel: string
   verdictText: string
   verdictBullets: string[]
@@ -196,7 +204,7 @@ export function buildFixturePageText(player: FixtureHubPlayer, gw: number): {
   if (fix1) verdictBullets.push(`Next fixture: ${fixture1} - rated ${fdr1Label} for difficulty`)
   if (favCount >= 3) verdictBullets.push(`${favCount} of ${fixCount} fixtures fall in the favourable bracket`)
   if (hardCount >= 2) verdictBullets.push(`${hardCount} challenging fixtures over ${fwPhrase} - selectivity matters`)
-  verdictBullets.push(`Form: ${player.form} points per game over the last six gameweeks`)
+  verdictBullets.push(formBulletLine(player.form, formSampleGws))
   if (!blankGW) verdictBullets.push(`Expected points for Gameweek ${gw}: ${player.ep_next.toFixed(1)}`)
 
   // Case for
@@ -205,7 +213,7 @@ export function buildFixturePageText(player: FixtureHubPlayer, gw: number): {
     caseFor.push(`Favourable fixture run ahead - ${favCount} winnable games over ${fwPhrase}`)
   }
   if (parseFloat(player.form) >= 4.0) {
-    caseFor.push(`Strong recent form: ${player.form} points per game over the last six gameweeks`)
+    caseFor.push(`Strong recent form: ${formPpgPhrase(player.form, formSampleGws)}`)
   }
   if (player.ownership < 10) {
     caseFor.push(`Low ownership of ${player.ownership}% - a good return creates a significant rank advantage`)
@@ -385,6 +393,7 @@ async function buildFixturePlayer(
 
 export async function getFixtureHub(): Promise<{
   gw: number
+  formSampleGws: number
   players: FixtureHubPlayer[]
 } | null> {
   try {
@@ -433,7 +442,7 @@ export async function getFixtureHub(): Promise<{
       return b.ep_next - a.ep_next
     })
 
-    return { gw: currentGW, players: sorted.slice(0, 30) }
+    return { gw: currentGW, formSampleGws: countFormSampleGameweeks(events), players: sorted.slice(0, 30) }
   } catch {
     return null
   }
@@ -516,7 +525,13 @@ export async function getFixturePageData(slug: string): Promise<FixturePageData 
       .slice(0, 6)
       .map((p) => ({ name: p.displayName, slug: p.slug, verdictLabel: p.verdictLabel }))
 
-    return { gw: currentGW, player, showcasePlayers, similarPlayers }
+    return {
+      gw: currentGW,
+      formSampleGws: countFormSampleGameweeks(events),
+      player,
+      showcasePlayers,
+      similarPlayers,
+    }
   } catch {
     return null
   }

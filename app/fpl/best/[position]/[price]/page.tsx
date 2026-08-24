@@ -17,6 +17,7 @@ import {
   PRICE_META,
   type CaptainHubPlayer,
 } from "@/lib/fpl-player-page"
+import { formOfPhrase, formPpgPhrase } from "@/lib/fpl-form-copy"
 
 export const revalidate = 43200
 export const dynamic = "force-dynamic"
@@ -69,6 +70,7 @@ function buildValueText(
   priceLabel: string,
   positionSingular: string,
   randomBase: number,
+  formSampleGws: number,
 ): string {
   const name      = player.displayName
   const ep        = player.ep_next.toFixed(1)
@@ -81,7 +83,7 @@ function buildValueText(
     ? `${player.opponentName} (${player.isHome ? "H" : "A"})`
     : "their next opponent"
   const formLine  = formNum > 0
-    ? `Form of ${form} points per game over the last six gameweeks backs the projection.`
+    ? `${formOfPhrase(form, formSampleGws)} backs the projection.`
     : `Recent form returns have been limited, making the fixture the primary case.`
 
   const variant = (randomBase + rank) % 3
@@ -106,7 +108,7 @@ function buildValueText(
 
   return `The case for ${name} in the under-${priceLabel} ${positionSingular.toLowerCase()} bracket comes down to three things: ` +
     `a ${fdrLabel} fixture against ${fixture} in Gameweek ${gw}, ` +
-    `${formNum > 0 ? `form of ${form} points per game over the last six gameweeks,` : `limited recent form returns,`} ` +
+    `${formNum > 0 ? `${formPpgPhrase(form, formSampleGws)},` : `limited recent form returns,`} ` +
     `and ${ep} expected points from the model. ` +
     `At ${price}, ${name} does not require you to sacrifice depth elsewhere in the squad ` +
     `to the same degree as premium options. ` +
@@ -357,7 +359,7 @@ export default async function BestValueHubPage({
                   rank={i + 1}
                   even={(i + 1) % 2 === 0}
                   gw={gw}
-                  text={buildValueText(player, gw, i + 1, priceLabel, positionSingular, randomBase)}
+                  text={buildValueText(player, gw, i + 1, priceLabel, positionSingular, randomBase, data.formSampleGws)}
                 />
               </Reveal>
             ))

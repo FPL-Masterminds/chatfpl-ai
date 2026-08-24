@@ -207,7 +207,7 @@ export default async function FixturePlayerPage({
   const {
     verdictLabel, verdictText, verdictBullets,
     caseFor, caseAgainst, qaItems, welcome, ctaLeadin,
-  } = buildFixturePageText(player, gw)
+  } = buildFixturePageText(player, gw, data.formSampleGws)
 
   const verdictBorderColor =
     verdictLabel === "Favourable" ? GREEN :

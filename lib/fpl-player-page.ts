@@ -1,6 +1,13 @@
 import { unstable_cache } from "next/cache"
 import type { FplCardPlayer } from "@/components/fpl-player-hero"
 import type { PlayerQA } from "@/components/conversational-player"
+import {
+  countFormSampleGameweeks,
+  formAverageTierLine,
+  formBulletLine,
+  formPtsGamePhrase,
+  formPpgPhrase,
+} from "@/lib/fpl-form-copy"
 
 // ─── Shared cached bootstrap fetch ───────────────────────────────────────────
 // The raw FPL bootstrap-static response is 2.6MB which exceeds Vercel's 2MB
@@ -70,6 +77,7 @@ export interface PlayerData {
 
 export interface PlayerPageData {
   gw: number
+  formSampleGws: number
   player: PlayerData
   opponent: string
   isHome: boolean
@@ -418,7 +426,17 @@ export async function getPlayerPageData(
         return { name: p.web_name, slug: rSlug }
       })
 
-    return { gw: nextGW, player, opponent, isHome, fdr, showcasePlayers, relatedPlayers, slug }
+    return {
+      gw: nextGW,
+      formSampleGws: countFormSampleGameweeks(events),
+      player,
+      opponent,
+      isHome,
+      fdr,
+      showcasePlayers,
+      relatedPlayers,
+      slug,
+    }
   } catch {
     return null
   }
@@ -449,11 +467,7 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
 
   const verdictColor = "#00FF87"
 
-  const formText =
-    formVal >= 8 ? `${p.webName} is in exceptional form, averaging ${p.form} pts/game over the last 6 gameweeks.`
-    : formVal >= 6 ? `${p.webName} is in good form, averaging ${p.form} pts/game over the last 6 gameweeks.`
-    : formVal >= 4 ? `${p.webName}'s form is moderate at ${p.form} pts/game over the last 6 gameweeks.`
-    : `${p.webName} has been out of form recently, averaging just ${p.form} pts/game over the last 6 gameweeks.`
+  const formText = formAverageTierLine(p.webName, p.form, formVal, d.formSampleGws)
 
   const fixtureText =
     hasImmediateBlank
@@ -493,10 +507,10 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
 
   const verdictBullets = [
     formVal >= 6
-      ? `Form: ${p.form} pts/game over the last 6 gameweeks - above average returns`
+      ? `Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - above average returns`
       : formVal >= 4
-      ? `Form: ${p.form} pts/game over the last 6 gameweeks - moderate returns`
-      : `Form: ${p.form} pts/game over the last 6 gameweeks - below expectations`,
+      ? `Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - moderate returns`
+      : `Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - below expectations`,
     hasImmediateBlank
       ? `Fixture: Blank Gameweek ${gw} - no fixture scheduled this week`
       : fdr <= 2
@@ -514,11 +528,11 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
   const caseAgainst: string[] = []
 
   if (formVal >= 6)
-    caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - one of the better-returning players in his position right now.`)
+    caseFor.push(`Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - one of the better-returning players in his position right now.`)
   else if (formVal >= 4)
-    caseAgainst.push(`Form: only ${p.form} pts/game over the last 6 gameweeks - returns have been below the level expected for a captain pick.`)
+    caseAgainst.push(`Form: only ${formPtsGamePhrase(p.form, d.formSampleGws)} - returns have been below the level expected for a captain pick.`)
   else
-    caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - poor recent returns make him a risky armband choice.`)
+    caseAgainst.push(`Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - poor recent returns make him a risky armband choice.`)
 
   if (hasImmediateBlank) {
     caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in Gameweek ${gw}. There is no captaincy case this week.`)
@@ -846,6 +860,7 @@ export async function getPlayerTransferData(
 
     return {
       gw: nextGW,
+      formSampleGws: countFormSampleGameweeks(events),
       player,
       opponent,
       isHome,
@@ -975,10 +990,10 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   // Verdict bullets
   const verdictBullets = [
     formVal >= 6
-      ? `Form: ${p.form} pts/game over the last 6 gameweeks - strong recent output`
+      ? `Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - strong recent output`
       : formVal >= 4
-      ? `Form: ${p.form} pts/game over the last 6 gameweeks - moderate returns`
-      : `Form: ${p.form} pts/game over the last 6 gameweeks - below expectations`,
+      ? `Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - moderate returns`
+      : `Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - below expectations`,
     hasDoubleGW
       ? `Double Gameweek: ${p.webName} has 2 fixtures in GW${doubleGWs[0].gw} - significantly higher points ceiling`
       : easyCount >= 2
@@ -994,9 +1009,9 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   const caseAgainst: string[] = []
 
   // Form
-  if (formVal >= 6) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - one of the better-returning players right now.`)
-  else if (formVal >= 4) caseAgainst.push(`Form: only ${p.form} pts/game over the last 6 gameweeks - returns have not justified the price recently.`)
-  else caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - the current numbers do not make a strong case for a transfer.`)
+  if (formVal >= 6) caseFor.push(`Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - one of the better-returning players right now.`)
+  else if (formVal >= 4) caseAgainst.push(`Form: only ${formPtsGamePhrase(p.form, d.formSampleGws)} - returns have not justified the price recently.`)
+  else caseAgainst.push(`Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - the current numbers do not make a strong case for a transfer.`)
 
   // Double GW — always a strong case for buying
   if (hasDoubleGW) {
@@ -1063,8 +1078,8 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
         runContext,
         "",
         formVal >= 5
-          ? `${p.webName} is in decent form, averaging ${p.form} pts/game over the last 6 gameweeks.`
-          : `${p.webName} has averaged ${p.form} pts/game over the last 6 gameweeks - form that needs to improve to justify a premium transfer.`,
+          ? `${p.webName} is in decent form, averaging ${formPtsGamePhrase(p.form, d.formSampleGws)}.`
+          : `${p.webName} has averaged ${formPtsGamePhrase(p.form, d.formSampleGws)} - form that needs to improve to justify a premium transfer.`,
         "",
         `At ${p.price} he is a significant budget commitment. The real question is who you would sell to fit him in and whether that trade weakens your squad elsewhere.`,
         "",
@@ -1218,10 +1233,10 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
   // ─── Verdict bullets ────────────────────────────────────────────────────────
   const verdictBullets: string[] = [
     formVal < 3
-      ? `Form: ${p.form} pts/game over the last 6 gameweeks - poor output for a player at this price`
+      ? `Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - poor output for a player at this price`
       : formVal < 5
-      ? `Form: ${p.form} pts/game over the last 6 gameweeks - below the level you want from a premium asset`
-      : `Form: ${p.form} pts/game over the last 6 gameweeks - still producing at a reasonable level`,
+      ? `Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - below the level you want from a premium asset`
+      : `Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - still producing at a reasonable level`,
     hasDoubleGW
       ? `Double Gameweek: ${p.webName} has 2 fixtures in GW${doubleGWs[0].gw} - high ceiling in the short term`
       : hardCount >= 3
@@ -1251,8 +1266,8 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
   const caseAgainst: string[] = []
 
   if (p.chance < 75) caseFor.push(`Availability: ${p.news ? formatFplNews(p.news) : "Fitness doubt"} - a player you cannot rely on to start is worth reconsidering at this price.`)
-  if (formVal < 3) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - poor output that is hard to justify at ${p.price}.`)
-  else if (formVal < 5) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - below the standard you want from a player at this price.`)
+  if (formVal < 3) caseFor.push(`Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - poor output that is hard to justify at ${p.price}.`)
+  else if (formVal < 5) caseFor.push(`Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - below the standard you want from a player at this price.`)
   if (hardCount >= 3) caseFor.push(`Fixture run: ${hardCount} of the next ${allMatches.length} fixtures are rated 4 or above for difficulty. There are cheaper options with better schedules.`)
   if (hasImmediateBlank) caseFor.push(`Blank Gameweek: ${p.webName} has no fixture in GW${gw}. Holding him this week costs you a week of returns.`)
   else if (hasBlankInRun && !hasDoubleGW) caseFor.push(`Blank ahead: ${p.webName} has no fixture in GW${blankGWs[0].gw}. Factor that into how many weeks of returns you are actually getting.`)
@@ -1267,7 +1282,7 @@ export function buildSellPageText(d: PlayerTransferPageData): SellPageTextResult
   if (easyCount >= 3) caseAgainst.push(`Fixture run: ${easyCount} favourable fixtures over ${fwPhrase}. The schedule softens, which typically improves returns.`)
   else if (easyCount >= 2) caseAgainst.push(`Fixture run: ${easyCount} manageable fixtures ahead. Patience may be rewarded over the coming weeks.`)
   if (priceChangeGW > 0) caseAgainst.push(`Price rising: ${p.webName} has gained £${priceChangeGW.toFixed(1)}m this gameweek. Selling now means a lower sell price than if you wait.`)
-  if (formVal >= 6) caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - currently one of the better-returning players in the game.`)
+  if (formVal >= 6) caseAgainst.push(`Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - currently one of the better-returning players in the game.`)
   if (ptsPerMillion >= 16) caseAgainst.push(`Season value: ${ptsPerMillion} points per million this season remains strong. A short run of poor form does not erase that.`)
 
   if (caseFor.length === 0)     caseFor.push(`${p.webName} is not producing at the level you need from an asset at ${p.price}. The budget could work harder elsewhere.`)
@@ -1432,7 +1447,7 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
   }
   if (p.ep_next >= 6) caseFor.push(`Expected points: ${p.ep_next} xPts projected for GW${gw} - the model backs a return at worthwhile odds for a differential play.`)
   else if (p.ep_next >= 4 && !isNotDiff) caseFor.push(`Expected points: ${p.ep_next} xPts for GW${gw} - a reasonable floor for a differential pick. Not elite projection, but viable.`)
-  if (formVal >= 6) caseFor.push(`Form: ${p.form} pts/game over the last 6 gameweeks - actively scoring, not just theoretically differential.`)
+  if (formVal >= 6) caseFor.push(`Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - actively scoring, not just theoretically differential.`)
   else if (formVal >= 4 && !isNotDiff) caseFor.push(`Form: ${p.form} pts/game - moderate recent output. The differential case is not purely speculative.`)
   if (hasDoubleGW) caseFor.push(`Double Gameweek: a DGW amplifies the differential upside significantly. Two chances to return means a higher ceiling for a low-owned pick.`)
   if (easyCount >= 3) caseFor.push(`Fixture run: ${easyCount} favourable fixtures over ${fwPhrase} - a sustained differential window, not a one-week gamble.`)
@@ -1440,7 +1455,7 @@ export function buildDifferentialPageText(d: PlayerTransferPageData): Differenti
   if (!isNotDiff && p.chance >= 100 && !p.news) caseFor.push(`Availability: no fitness concerns - a differential who misses through injury is the worst outcome.`)
 
   if (isNotDiff) caseAgainst.push(`Ownership: at ${p.ownership}%, ${p.webName} is a template player. Not owning him is the differential decision - and it carries significant rank risk if he returns.`)
-  if (formVal < 3) caseAgainst.push(`Form: ${p.form} pts/game over the last 6 gameweeks - low ownership can reflect what the broader game has already assessed.`)
+  if (formVal < 3) caseAgainst.push(`Form: ${formPtsGamePhrase(p.form, d.formSampleGws)} - low ownership can reflect what the broader game has already assessed.`)
   else if (formVal < 4 && !isNotDiff) caseAgainst.push(`Form: ${p.form} pts/game - below what you want from a differential who needs to deliver to justify the squad spot.`)
   if (hasImmediateBlank) caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in Gameweek ${gw}. There is no differential opportunity this week.`)
   else if (p.ep_next < 4) caseAgainst.push(`Expected points: only ${p.ep_next} xPts projected for GW${gw}. A differential needs some return floor to be viable - the model does not back one this week.`)
@@ -1550,6 +1565,7 @@ export interface CaptainHubPlayer {
 
 export interface CaptainHubData {
   gw: number
+  formSampleGws: number
   players: CaptainHubPlayer[]
 }
 
@@ -1631,7 +1647,7 @@ export async function getCaptainHub(): Promise<CaptainHubData | null> {
       }
     })
 
-    return { gw, players }
+    return { gw, formSampleGws: countFormSampleGameweeks(events), players }
   } catch {
     return null
   }
@@ -1646,6 +1662,7 @@ export interface DifferentialHubPlayer extends CaptainHubPlayer {
 
 export interface DifferentialHubData {
   gw: number
+  formSampleGws: number
   players: DifferentialHubPlayer[]
 }
 
@@ -1736,7 +1753,7 @@ export async function getDifferentialHub(): Promise<DifferentialHubData | null> 
       }
     })
 
-    return { gw, players }
+    return { gw, formSampleGws: countFormSampleGameweeks(events), players }
   } catch {
     return null
   }
@@ -1792,6 +1809,7 @@ export const BEST_VALUE_COMBOS: { position: string; price: string }[] = [
 
 export interface BestValueHubData {
   gw: number
+  formSampleGws: number
   players: CaptainHubPlayer[]
   positionSlug: string
   priceSlug: string
@@ -1928,6 +1946,7 @@ export async function getBestValueHub(
 
     return {
       gw,
+      formSampleGws: countFormSampleGameweeks(events),
       players,
       positionSlug,
       priceSlug,
@@ -1947,6 +1966,7 @@ export const TEAM_POSITION_SLUGS = ["goalkeepers", "defenders", "midfielders", "
 
 export interface TeamHubData {
   gw: number
+  formSampleGws: number
   teamName: string
   teamShort: string
   teamCode: number
@@ -2058,6 +2078,7 @@ export async function getTeamHub(
 
     return {
       gw,
+      formSampleGws: countFormSampleGameweeks(events),
       teamName:     team.name,
       teamShort:    team.short_name,
       teamCode:     team.code,
