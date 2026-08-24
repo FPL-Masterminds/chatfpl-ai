@@ -1,5 +1,5 @@
 import type { MemberGWRow, MemberHistoryInput, SeasonStoryFacts } from "./season-story"
-import { pts, spellN } from "./season-story-copy"
+import { pts, spellN, mgr } from "./season-story-copy"
 
 function stdDev(values: number[]): number {
   if (values.length < 2) return 0
@@ -64,12 +64,12 @@ export function computeMilestones(
 ): string[] {
   const out: string[] = []
   if (gw === 1) {
-    out.push(`${gwWinner.team} set the early benchmark with ${pts(gwWinner.gwPts)} in the opening gameweek`)
+    out.push(`${mgr(gwWinner)} set the early benchmark with ${pts(gwWinner.gwPts)} in the opening gameweek`)
     return out
   }
 
   if (gwWinner.gwPts > leagueRecordGwScore) {
-    out.push(`${gwWinner.team} posted a league-record ${pts(gwWinner.gwPts)} in Gameweek ${gw}`)
+    out.push(`${mgr(gwWinner)} posted a league-record ${pts(gwWinner.gwPts)} in Gameweek ${gw}`)
   }
 
   if (user && prevUser) {

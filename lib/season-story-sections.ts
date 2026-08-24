@@ -12,6 +12,9 @@ import {
   spoonRacePrefix,
   mgr,
   mgrTeam,
+  possessiveMgr,
+  podiumManagers,
+  podiumManagersRanked,
 } from "./season-story-copy"
 import { pickFromPool, composeStory, type StoryLine } from "./season-story-seed"
 import {
@@ -59,13 +62,13 @@ const PODIUM_LATER: Tpl[] = [
   (f) => {
     if (f.podiumJoined.length === 0 && f.podiumDropped.length === 0) {
       return sanitizeParagraph(composeStory(f, "podium", [
-        [(ff) => `The top three held firm: ${ff.podium.map((p) => p.team).join(", ")}.`],
+        [(ff) => `The top three held firm: ${podiumManagers(ff.podium)}.`],
         [(ff) => `That kind of stability at the summit is valuable in a long mini-league season.`],
         [(ff) => `No new names broke into the podium places in ${gwName(ff.gw)}.`],
       ]))
     }
-    const joined = f.podiumJoined.map((p) => p.team).join(", ")
-    const dropped = f.podiumDropped.map((p) => p.team).join(", ")
+    const joined = f.podiumJoined.map((p) => mgr(p)).join(", ")
+    const dropped = f.podiumDropped.map((p) => mgr(p)).join(", ")
     return sanitizeParagraph(composeStory(f, "podium", [
       [
         () => `The podium changed hands in ${gwName(f.gw)}.`,
@@ -79,19 +82,19 @@ const PODIUM_LATER: Tpl[] = [
         () => joined ? `${joined} climbed into the podium.` : dropped ? `${dropped} fell out of the top three.` : "",
       ],
       [
-        (ff) => `The current top three reads ${ff.podium.map((p) => `${p.team} (${p.totalPts})`).join(", ")}.`,
-        (ff) => `The new podium line is ${ff.podium.map((p, i) => `${ord(i + 1)} ${p.team}`).join(", ")}.`,
-        (ff) => `The summit trio is now ${ff.podium.map((p) => p.team).join(", ")}.`,
+        (ff) => `The current top three reads ${ff.podium.map((p) => `${mgr(p)} (${p.totalPts})`).join(", ")}.`,
+        (ff) => `The new podium line is ${podiumManagersRanked(ff.podium)}.`,
+        (ff) => `The summit trio is now ${podiumManagers(ff.podium)}.`,
       ],
     ]))
   },
   (f) => {
-    const top3 = f.podium.map((p, i) => `${ord(i + 1)}: ${p.team}`).join("; ")
+    const top3 = f.podium.map((p, i) => `${ord(i + 1)}: ${mgr(p)}`).join("; ")
     if (f.podiumJoined.length > 0 || f.podiumDropped.length > 0) {
       return sanitizeParagraph(pickFromPool([
-        (ff) => `Podium shuffle: ${ff.podiumDropped.map((p) => p.team).join(", ") || "nobody"} fell out of the top three, while ${ff.podiumJoined.map((p) => p.team).join(", ") || "nobody"} climbed into it. The new podium line is ${top3}.`,
-        (ff) => `The top three turned over in ${gwName(ff.gw)}. Out: ${ff.podiumDropped.map((p) => p.team).join(", ") || "nobody"}. In: ${ff.podiumJoined.map((p) => p.team).join(", ") || "nobody"}. The podium now reads ${top3}.`,
-        (ff) => `Fresh faces at the summit: ${ff.podiumJoined.map((p) => p.team).join(", ") || "none"} joined the podium after ${ff.podiumDropped.map((p) => p.team).join(", ") || "nobody"} dropped out. Current line: ${top3}.`,
+        (ff) => `Podium shuffle: ${ff.podiumDropped.map((p) => mgr(p)).join(", ") || "nobody"} fell out of the top three, while ${ff.podiumJoined.map((p) => mgr(p)).join(", ") || "nobody"} climbed into it. The new podium line is ${top3}.`,
+        (ff) => `The top three turned over in ${gwName(ff.gw)}. Out: ${ff.podiumDropped.map((p) => mgr(p)).join(", ") || "nobody"}. In: ${ff.podiumJoined.map((p) => mgr(p)).join(", ") || "nobody"}. The podium now reads ${top3}.`,
+        (ff) => `Fresh faces at the summit: ${ff.podiumJoined.map((p) => mgr(p)).join(", ") || "none"} joined the podium after ${ff.podiumDropped.map((p) => mgr(p)).join(", ") || "nobody"} dropped out. Current line: ${top3}.`,
       ], f, "podium", 0)(f))
     }
     return sanitizeParagraph(pickFromPool([
@@ -107,10 +110,10 @@ const PODIUM_LATER: Tpl[] = [
 function movementBody(f: SeasonStoryFacts): string {
   let line = ""
   if (f.biggestClimber && f.biggestClimber.rankChange >= 2) {
-    line += `${f.biggestClimber.team} climbed ${spellN(f.biggestClimber.rankChange)} places to ${ord(f.biggestClimber.rank)}. `
+    line += `${mgr(f.biggestClimber)} climbed ${spellN(f.biggestClimber.rankChange)} places to ${ord(f.biggestClimber.rank)}. `
   }
   if (f.biggestFaller && f.biggestFaller.rankChange >= 2) {
-    line += `${f.biggestFaller.team} fell ${spellN(f.biggestFaller.rankChange)} places to ${ord(f.biggestFaller.rank)}. `
+    line += `${mgr(f.biggestFaller)} fell ${spellN(f.biggestFaller.rankChange)} places to ${ord(f.biggestFaller.rank)}. `
   }
   return line.trim()
 }
@@ -158,7 +161,7 @@ const GAP_GAIN: StoryLine[] = [
   (f) => `The gap to the leader moved in your favour this week.`,
   (f) => `You clawed ground back on the leader in ${gwName(f.gw)}.`,
   (f) => `The title race tightened from your perspective.`,
-  (f) => `You gained meaningful ground on ${f.leader?.team ?? "the leader"}.`,
+  (f) => `You gained meaningful ground on ${f.leader ? mgr(f.leader) : "the leader"}.`,
   (f) => `The chase felt a little closer after ${gwName(f.gw)}.`,
   (f) => `Your gap to the summit shrank this week.`,
   (f) => `The leader is still ahead, but not by as much.`,
@@ -168,7 +171,7 @@ const GAP_GAIN: StoryLine[] = [
 const GAP_LOSS: StoryLine[] = [
   (f) => `The leader pulled further clear of you in ${gwName(f.gw)}.`,
   (f) => `The gap widened again this week.`,
-  (f) => `You lost ground on ${f.leader?.team ?? "the leader"}.`,
+  (f) => `You lost ground on ${f.leader ? mgr(f.leader) : "the leader"}.`,
   (f) => `The summit feels a little further away now.`,
   (f) => `The leader stretched their advantage.`,
   (f) => `Your chase hit a speed bump in ${gwName(f.gw)}.`,
@@ -177,7 +180,7 @@ const GAP_LOSS: StoryLine[] = [
 ]
 
 const GAP_STEADY: StoryLine[] = [
-  (f) => `Your gap to ${f.leader?.team ?? "the leader"} held steady this week.`,
+  (f) => `Your gap to ${f.leader ? mgr(f.leader) : "the leader"} held steady this week.`,
   (f) => `Neither side gained meaningful ground in the race for the summit.`,
   (f) => `The distance to the leader stayed the same.`,
   (f) => `A stalemate week in the title chase.`,
@@ -188,10 +191,10 @@ const GAP_STEADY: StoryLine[] = [
 ]
 
 const GAP_DETAIL: StoryLine[] = [
-  (f) => f.gapToLeaderChange && f.gapToLeaderChange > 0 ? `You gained ${pts(f.gapToLeaderChange)} on ${f.leader.team} and now trail by ${pts(f.gapToLeader)} overall.` : "",
+  (f) => f.gapToLeaderChange && f.gapToLeaderChange > 0 ? `You gained ${pts(f.gapToLeaderChange)} on ${mgr(f.leader)} and now trail by ${pts(f.gapToLeader)} overall.` : "",
   (f) => f.gapToLeaderChange && f.gapToLeaderChange < 0 ? `The gap widened by ${pts(Math.abs(f.gapToLeaderChange))} and now stands at ${pts(f.gapToLeader)}.` : "",
   (f) => f.gapToLeaderChange === 0 ? `The gap remains ${pts(f.gapToLeader)} points.` : "",
-  (f) => `You trail ${f.leader?.team ?? "the leader"} by ${pts(f.gapToLeader)} overall.`,
+  (f) => `You trail ${f.leader ? mgr(f.leader) : "the leader"} by ${pts(f.gapToLeader)} overall.`,
   (f) => `The deficit is ${pts(f.gapToLeader)} points.`,
   (f) => `${pts(f.gapToLeader)} points separate you from the top.`,
   (f) => `The chase stands at ${pts(f.gapToLeader)} points.`,
@@ -213,15 +216,15 @@ const SUBPLOTS_RAW: Tpl[] = [
   (f) => {
     const bits: string[] = []
     if (f.chipPlayers.length > 0) {
-      bits.push(`${spellN(f.chipPlayers.length)} manager${f.chipPlayers.length > 1 ? "s" : ""} deployed chips, including ${f.chipPlayers.slice(0, 2).map((p) => p.team).join(" and ")}`)
+      bits.push(`${spellN(f.chipPlayers.length)} manager${f.chipPlayers.length > 1 ? "s" : ""} deployed chips, including ${f.chipPlayers.slice(0, 2).map((p) => mgr(p)).join(" and ")}`)
     } else if (f.gw >= 2) {
       bits.push(`Nobody in ${f.leagueName} used a chip, leaving plenty of firepower in reserve`)
     }
     if (f.hitTakers.length > 0) {
-      bits.push(`${f.hitTakers[0].team} paid ${pts(f.hitTakers[0].transferCost)} for extra transfers`)
+      bits.push(`${mgr(f.hitTakers[0])} paid ${pts(f.hitTakers[0].transferCost)} for extra transfers`)
     }
     if (f.benchHero && f.benchHero.benchPts >= benchMentionMinPts(f.gw)) {
-      bits.push(`${f.benchHero.team} left ${pts(f.benchHero.benchPts)} on the bench`)
+      bits.push(`${mgr(f.benchHero)} left ${pts(f.benchHero.benchPts)} on the bench`)
     }
 
     const intros: StoryLine[] = [
@@ -281,14 +284,14 @@ const CHIP_VERDICT_RAW: Tpl[] = [
     const verdict = v.vsFplAvg >= 10 ? "a strong return" : v.vsFplAvg >= 0 ? "a respectable return" : "a disappointing return"
     const vsLeague = Math.round(v.vsLeagueAvg)
     const leagueBit = vsLeague >= 0 ? `${pts(vsLeague)} above the ${f.leagueName} mean` : `${pts(Math.abs(vsLeague))} below the ${f.leagueName} mean`
-    return `${v.team}'s ${v.chip} delivered ${pts(v.gwPts)}, ${verdict} against the FPL average of ${pts(f.fplAvg)} and ${leagueBit}. ${f.chipVerdicts.length > 1 ? `Others played chips too, but ${v.team} set the tone.` : ""}`
+    return `${possessiveMgr(v)} ${v.chip} delivered ${pts(v.gwPts)}, ${verdict} against the FPL average of ${pts(f.fplAvg)} and ${leagueBit}. ${f.chipVerdicts.length > 1 ? `Others played chips too, but ${mgr(v)} set the tone.` : ""}`
   },
 ]
 
 const HIT_REGRET_RAW: Tpl[] = [
   (f) => {
     if (f.hitRegret.length === 0) return ""
-    const names = f.hitRegret.slice(0, 3).map((h) => `${h.team} (${pts(h.gwPts)} after a ${pts(h.transferCost)} hit)`).join(", ")
+    const names = f.hitRegret.slice(0, 3).map((h) => `${mgr(h)} (${pts(h.gwPts)} after a ${pts(h.transferCost)} hit)`).join(", ")
     return `Transfer aggression did not pay off for everyone. ${names} ${f.hitRegret.length === 1 ? "still underperformed" : "all underperformed"} the ${pts(f.fplAvg)} gameweek average.`
   },
 ]
@@ -306,7 +309,7 @@ const MILESTONE_RAW: Tpl[] = [
 const CONSISTENCY_RAW: Tpl[] = [
   (f) => {
     if (!f.consistencyManager) return ""
-    return `Consistency crown: over the last few gameweeks, ${f.consistencyManager.team} has been the steadiest manager in the room. ${f.consistencyManager.manager}'s returns have fluctuated less than anyone else's in ${f.leagueName}.`
+    return `Consistency crown: over the last few gameweeks, ${mgr(f.consistencyManager)} has been the steadiest manager in the room. ${possessiveMgr(f.consistencyManager)} returns have fluctuated less than anyone else's in ${f.leagueName}.`
   },
 ]
 
@@ -316,7 +319,7 @@ const RIVALRY_LATER: Tpl[] = [
     const gap = rivalGapPhrase(f)
     const streak =
       f.rivalStreakTotal >= 3
-        ? `You have outscored ${f.directRival.team} in ${spellN(f.rivalStreakWins)} of the last ${spellN(f.rivalStreakTotal)} gameweeks.`
+        ? `You have outscored ${mgr(f.directRival)} in ${spellN(f.rivalStreakWins)} of the last ${spellN(f.rivalStreakTotal)} gameweeks.`
         : ""
     const h2h =
       f.h2hUserWins + f.h2hRivalWins + f.h2hDraws >= 3
@@ -324,14 +327,14 @@ const RIVALRY_LATER: Tpl[] = [
         : ""
 
     return sanitizeParagraph(pickFromPool([
-      (ff) => `Your nearest rival in the table is ${ff.directRival!.team}, managed by ${ff.directRival!.manager}, currently ${gap}.${streak ? ` ${streak}` : ""}${h2h} Mini-league FPL is personal, and this is the relationship that will shape your season.`,
-      (ff) => `The manager just above or below you is ${ff.directRival!.team}, ${gap}.${streak ? ` ${streak}` : ""}${h2h} This is the rivalry that matters week to week.`,
-      (ff) => `${ff.directRival!.team} is your direct rival in ${ff.leagueName}, ${gap}.${streak ? ` ${streak}` : ""}${h2h} Every gameweek is a mini derby.`,
-      (ff) => `Keep an eye on ${ff.directRival!.manager} and ${ff.directRival!.team}. They sit ${gap}.${streak ? ` ${streak}` : ""}${h2h}`,
-      (ff) => `The personal battle in ${ff.leagueName} is with ${ff.directRival!.team}, currently ${gap}.${streak ? ` ${streak}` : ""}${h2h}`,
-      (ff) => `Your season-long subplot: ${ff.directRival!.team}, ${gap}.${streak ? ` ${streak}` : ""}${h2h}`,
-      (ff) => `${ff.directRival!.team} is the name on your radar, ${gap}.${streak ? ` ${streak}` : ""}${h2h} Mini-league FPL gets personal fast.`,
-      (ff) => `The rivalry column: ${ff.directRival!.team} (${gap}).${streak ? ` ${streak}` : ""}${h2h}`,
+      (ff) => `Your nearest rival in the table is ${mgr(ff.directRival!)}, currently ${gap}.${streak ? ` ${streak}` : ""}${h2h} Mini-league FPL is personal, and this is the relationship that will shape your season.`,
+      (ff) => `The manager just above or below you is ${mgr(ff.directRival!)}, ${gap}.${streak ? ` ${streak}` : ""}${h2h} This is the rivalry that matters week to week.`,
+      (ff) => `${mgr(ff.directRival!)} is your direct rival in ${ff.leagueName}, ${gap}.${streak ? ` ${streak}` : ""}${h2h} Every gameweek is a mini derby.`,
+      (ff) => `Keep an eye on ${mgr(ff.directRival!)}. They sit ${gap}.${streak ? ` ${streak}` : ""}${h2h}`,
+      (ff) => `The personal battle in ${ff.leagueName} is with ${mgr(ff.directRival!)}, currently ${gap}.${streak ? ` ${streak}` : ""}${h2h}`,
+      (ff) => `Your season-long subplot: ${mgr(ff.directRival!)}, ${gap}.${streak ? ` ${streak}` : ""}${h2h}`,
+      (ff) => `${mgr(ff.directRival!)} is the name on your radar, ${gap}.${streak ? ` ${streak}` : ""}${h2h} Mini-league FPL gets personal fast.`,
+      (ff) => `The rivalry column: ${mgr(ff.directRival!)} (${gap}).${streak ? ` ${streak}` : ""}${h2h}`,
     ], f, "rivalry", 0)(f))
   },
 ]
@@ -397,13 +400,13 @@ const CODA_GW1: Tpl[] = [(f) => poolCodaGW1(f)]
 
 const CODA_LATER: Tpl[] = [
   (f) => sanitizeParagraph(pickFromPool([
-    (ff) => `${ff.leagueName} leaves ${gwName(ff.gw)} with ${ff.leader.team} on top and ${ff.gwWinner.team} as the weekly champion. ${gwsRemaining(ff.gw).charAt(0).toUpperCase() + gwsRemaining(ff.gw).slice(1)}.`,
-    (ff) => `Roll on the next gameweek. ${ff.leader.team} sit first, ${ff.gwWinner.team} take the weekly honours, and ${ff.leagueName} has ${gwsRemaining(ff.gw)} before the season is done.`,
-    (ff) => `${gwName(ff.gw)} is logged. ${ff.leader.team} lead, ${ff.gwWinner.team} won the week. ${gwsRemaining(ff.gw)}.`,
-    (ff) => `Until next time: ${ff.leader.team} on top, ${ff.gwWinner.team} with the weekly crown.`,
-    (ff) => `The chapter closes with ${ff.leader.team} first and ${ff.gwWinner.team} best of the week.`,
-    (ff) => `${ff.leagueName} moves on. Leader: ${ff.leader.team}. Weekly winner: ${ff.gwWinner.team}.`,
-    (ff) => `Next deadline awaits. ${ff.leader.team} lead the chase.`,
+    (ff) => `${ff.leagueName} leaves ${gwName(ff.gw)} with ${mgr(ff.leader)} on top and ${mgr(ff.gwWinner)} as the weekly champion. ${gwsRemaining(ff.gw).charAt(0).toUpperCase() + gwsRemaining(ff.gw).slice(1)}.`,
+    (ff) => `Roll on the next gameweek. ${mgr(ff.leader)} sit first, ${mgr(ff.gwWinner)} take the weekly honours, and ${ff.leagueName} has ${gwsRemaining(ff.gw)} before the season is done.`,
+    (ff) => `${gwName(ff.gw)} is logged. ${mgr(ff.leader)} lead, ${mgr(ff.gwWinner)} won the week. ${gwsRemaining(ff.gw)}.`,
+    (ff) => `Until next time: ${mgr(ff.leader)} on top, ${mgr(ff.gwWinner)} with the weekly crown.`,
+    (ff) => `The chapter closes with ${mgr(ff.leader)} first and ${mgr(ff.gwWinner)} best of the week.`,
+    (ff) => `${ff.leagueName} moves on. Leader: ${mgr(ff.leader)}. Weekly winner: ${mgr(ff.gwWinner)}.`,
+    (ff) => `Next deadline awaits. ${mgr(ff.leader)} lead the chase.`,
     (ff) => `${gwName(ff.gw)} done. ${gwsRemaining(ff.gw)} in ${ff.leagueName}.`,
   ], f, "coda", 0)(f)),
 ]

@@ -59,30 +59,30 @@ const GW1_LEDE_A: StoryLine[] = [
 ]
 
 const GW1_LEDE_B: StoryLine[] = [
-  (f) => `${f.gwWinner.manager} and ${f.gwWinner.team} set the early standard with ${pts(f.gwWinner.gwPts)}, the best return among ${spellN(f.leagueSize)} managers.`,
-  (f) => `${f.gwWinner.team} topped the weekly charts on ${pts(f.gwWinner.gwPts)}, with ${f.gwWinner.manager} claiming the first honours.`,
-  (f) => `Nobody in ${f.leagueName} matched ${f.gwWinner.team} this week. ${f.gwWinner.manager} posted ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `The weekly crown goes to ${f.gwWinner.team} after ${pts(f.gwWinner.gwPts)} from ${f.gwWinner.manager}.`,
-  (f) => `${f.gwWinner.team} led the scoring race on ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `Top scorer: ${f.gwWinner.team} (${pts(f.gwWinner.gwPts)}), managed by ${f.gwWinner.manager}.`,
-  (f) => `${f.gwWinner.manager} delivered the week's peak score of ${pts(f.gwWinner.gwPts)} with ${f.gwWinner.team}.`,
-  (f) => `The number to beat was ${pts(f.gwWinner.gwPts)}, posted by ${f.gwWinner.team}.`,
-  (f) => `${f.gwWinner.team} finished clear of the field on ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `First weekly winner: ${f.gwWinner.team}, courtesy of ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `${f.gwWinner.manager}'s ${pts(f.gwWinner.gwPts)} set the tone for everyone else.`,
-  (f) => `The early pace-setter was ${f.gwWinner.team} on ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `${f.gwWinner.team} set the bar at ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `The opening weekly high came from ${f.gwWinner.manager} on ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `${mgr(f.gwWinner)} set the early standard with ${pts(f.gwWinner.gwPts)}, the best return among ${spellN(f.leagueSize)} managers.`,
+  (f) => `${mgr(f.gwWinner)} topped the weekly charts on ${pts(f.gwWinner.gwPts)}, claiming the first honours.`,
+  (f) => `Nobody in ${f.leagueName} matched ${mgr(f.gwWinner)} this week. ${possessiveMgr(f.gwWinner)} ${pts(f.gwWinner.gwPts)} set the pace.`,
+  (f) => `The weekly crown goes to ${mgr(f.gwWinner)} after ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `${mgr(f.gwWinner)} led the scoring race on ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `Top scorer: ${mgrTeam(f.gwWinner)} on ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `${mgr(f.gwWinner)} delivered the week's peak score of ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `The number to beat was ${pts(f.gwWinner.gwPts)}, posted by ${mgr(f.gwWinner)}.`,
+  (f) => `${mgr(f.gwWinner)} finished clear of the field on ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `First weekly winner: ${mgr(f.gwWinner)}, courtesy of ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `${possessiveMgr(f.gwWinner)} ${pts(f.gwWinner.gwPts)} set the tone for everyone else.`,
+  (f) => `The early pace-setter was ${mgr(f.gwWinner)} on ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `${mgr(f.gwWinner)} set the bar at ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `The opening weekly high came from ${mgr(f.gwWinner)} on ${pts(f.gwWinner.gwPts)}.`,
   (f) => `${pts(f.gwWinner.gwPts)} was the score that framed everyone else's week.`,
-  (f) => `${f.gwWinner.team} owned the weekly chart with ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `The first weekly bragging rights go to ${f.gwWinner.team}.`,
-  (f) => `${f.gwWinner.manager} struck first with ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `Week one's best return: ${pts(f.gwWinner.gwPts)} from ${f.gwWinner.team}.`,
-  (f) => `${f.gwWinner.team} posted the week's benchmark of ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `The opening honours belong to ${f.gwWinner.team} on ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `${f.gwWinner.manager} leads the weekly conversation after ${pts(f.gwWinner.gwPts)}.`,
-  (f) => `The first statement score was ${pts(f.gwWinner.gwPts)} from ${f.gwWinner.team}.`,
-  (f) => `${f.gwWinner.team} drew first blood on ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `${mgr(f.gwWinner)} owned the weekly chart with ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `The first weekly bragging rights go to ${mgr(f.gwWinner)}.`,
+  (f) => `${mgr(f.gwWinner)} struck first with ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `Week one's best return: ${pts(f.gwWinner.gwPts)} from ${mgr(f.gwWinner)}.`,
+  (f) => `${mgr(f.gwWinner)} posted the week's benchmark of ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `The opening honours belong to ${mgr(f.gwWinner)} on ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `${mgr(f.gwWinner)} leads the weekly conversation after ${pts(f.gwWinner.gwPts)}.`,
+  (f) => `The first statement score was ${pts(f.gwWinner.gwPts)} from ${mgr(f.gwWinner)}.`,
+  (f) => `${mgr(f.gwWinner)} drew first blood on ${pts(f.gwWinner.gwPts)}.`,
 ]
 
 const GW1_LEDE_C: StoryLine[] = [
@@ -183,47 +183,47 @@ export function poolLedeLater(f: SeasonStoryFacts): string {
 // ─── Standings GW1 ───────────────────────────────────────────────────────────
 
 const GW1_STAND_A: StoryLine[] = [
-  (f) => `After the opening gameweek, ${f.leader.team} leads ${f.leagueName}.`,
-  (f) => `${f.leader.manager} and ${f.leader.team} head the table after gameweek one.`,
-  (f) => `The opening standings have ${f.leader.team} in front.`,
-  (f) => `First place after week one: ${f.leader.team}.`,
-  (f) => `${f.leader.team} sits top of ${f.leagueName} after the opener.`,
-  (f) => `The early summit belongs to ${f.leader.manager} and ${f.leader.team}.`,
-  (f) => `${f.leagueName} has its first leader: ${f.leader.team}.`,
-  (f) => `Someone had to strike first. ${f.leader.team} did.`,
-  (f) => `The first leaderboard has ${f.leader.team} on top.`,
-  (f) => `${f.leader.team} holds the early advantage in ${f.leagueName}.`,
-  (f) => `The opening table is led by ${f.leader.team}.`,
-  (f) => `${f.leader.manager} sits first after gameweek one.`,
+  (f) => `After the opening gameweek, ${mgr(f.leader)} leads ${f.leagueName}.`,
+  (f) => `${mgr(f.leader)} heads the table after gameweek one.`,
+  (f) => `The opening standings have ${mgr(f.leader)} in front.`,
+  (f) => `First place after week one: ${mgr(f.leader)}.`,
+  (f) => `${mgr(f.leader)} sits top of ${f.leagueName} after the opener.`,
+  (f) => `The early summit belongs to ${mgr(f.leader)}.`,
+  (f) => `${f.leagueName} has its first leader: ${mgr(f.leader)}.`,
+  (f) => `Someone had to strike first. ${mgr(f.leader)} did.`,
+  (f) => `The first leaderboard has ${mgr(f.leader)} on top.`,
+  (f) => `${mgr(f.leader)} holds the early advantage in ${f.leagueName}.`,
+  (f) => `The opening table is led by ${mgr(f.leader)}.`,
+  (f) => `${mgr(f.leader)} sits first after gameweek one.`,
 ]
 
 const GW1_STAND_B: StoryLine[] = [
   (f) => `${f.leader.totalPts} points put them ahead of the field.`,
   (f) => `They lead on ${f.leader.totalPts} points.`,
   (f) => `The early total is ${f.leader.totalPts} points.`,
-  (f) => `${f.leader.manager} tops the chart on ${f.leader.totalPts}.`,
+  (f) => `${mgr(f.leader)} tops the chart on ${f.leader.totalPts}.`,
   (f) => `Their opening return totals ${f.leader.totalPts} points.`,
   (f) => `${f.leader.totalPts} is the number everyone else is chasing.`,
-  (f) => `The first leaderboard reads ${f.leader.totalPts} for ${f.leader.team}.`,
+  (f) => `The first leaderboard reads ${f.leader.totalPts} for ${mgr(f.leader)}.`,
   (f) => `On ${f.leader.totalPts} points, they set the early pace.`,
   (f) => `The benchmark is ${f.leader.totalPts} points.`,
   (f) => `${f.leader.totalPts} points is the early target.`,
   (f) => `The summit score is ${f.leader.totalPts}.`,
-  (f) => `${f.leader.team} leads on ${f.leader.totalPts}.`,
+  (f) => `${mgr(f.leader)} leads on ${f.leader.totalPts}.`,
 ]
 
 const GW1_STAND_C: StoryLine[] = [
-  (f) => f.second ? `${f.second.team} is closest on ${f.second.totalPts}, just ${pts(f.gapFirstSecond)} back.` : `The chasing pack is already forming.`,
+  (f) => f.second ? `${mgr(f.second)} is closest on ${f.second.totalPts}, just ${pts(f.gapFirstSecond)} back.` : `The chasing pack is already forming.`,
   (f) => `It is far too early to call the league, but the pecking order has begun.`,
   (f) => `${pts(f.pointsSpread)} points separate first from last already.`,
   (f) => `The first leaderboard of the season is on the wall.`,
-  (f) => `Plenty of season left, but ${f.leader.manager} enjoys the view from the top for now.`,
+  (f) => `Plenty of season left, but ${mgr(f.leader)} enjoys the view from the top for now.`,
   (f) => `Every rival knows who they are hunting.`,
   (f) => `The race is young, yet someone leads it.`,
   (f) => `Week one always creates an early reference point. This is yours.`,
   (f) => `The early hierarchy in ${f.leagueName} has a name at the top.`,
-  (f) => `Nobody owns the title yet, but ${f.leader.team} leads the chase.`,
-  (f) => `The opening order will change, but not the fact that ${f.leader.team} struck first.`,
+  (f) => `Nobody owns the title yet, but ${mgr(f.leader)} leads the chase.`,
+  (f) => `The opening order will change, but not the fact that ${mgr(f.leader)} struck first.`,
   (f) => `First place is occupied. The rest of the table knows it.`,
 ]
 
@@ -239,18 +239,18 @@ const LATER_STAND_A: StoryLine[] = GW1_STAND_A.map((fn) => (f) => {
 })
 
 const LATER_STAND_B: StoryLine[] = [
-  (f) => f.newLeader && f.leaderChangedFrom ? `There was a change at the top: ${f.leader.team} replaced ${f.leaderChangedFrom.team} as leader.` : f.gw >= 2 ? `${f.leader.team} held their position at the summit.` : "",
-  (f) => f.second ? `${f.second.team} trails by ${pts(f.gapFirstSecond)} on ${f.second.totalPts}.` : "",
+  (f) => f.newLeader && f.leaderChangedFrom ? `There was a change at the top: ${mgr(f.leader)} replaced ${mgr(f.leaderChangedFrom)} as leader.` : f.gw >= 2 ? `${mgr(f.leader)} held their position at the summit.` : "",
+  (f) => f.second ? `${mgr(f.second)} trails by ${pts(f.gapFirstSecond)} on ${f.second.totalPts}.` : "",
   (f) => f.tightLeague && f.gw >= 3 ? `This remains a tight league, with ${pts(f.pointsSpread)} from first to last.` : "",
   (f) => f.runawayLeader ? `A ${pts(f.gapFirstSecond)}-point cushion is starting to look significant.` : "",
   (f) => `${pts(f.pointsSpread)} points span the full ${f.leagueName} table.`,
   (f) => `The chasing pack still has time to respond.`,
   (f) => `Every point at the top carries extra weight now.`,
   (f) => `The season total matters as much as the weekly score.`,
-  (f) => `${f.leader.manager} leads on ${f.leader.totalPts} overall.`,
+  (f) => `${mgr(f.leader)} leads on ${f.leader.totalPts} overall.`,
   (f) => `The summit score is ${f.leader.totalPts} points.`,
-  (f) => `${f.leader.team} remains the benchmark in ${f.leagueName}.`,
-  (f) => `The title picture centres on ${f.leader.team}.`,
+  (f) => `${mgr(f.leader)} remains the benchmark in ${f.leagueName}.`,
+  (f) => `The title picture centres on ${mgr(f.leader)}.`,
 ]
 
 const LATER_STAND_C: StoryLine[] = [
@@ -258,7 +258,7 @@ const LATER_STAND_C: StoryLine[] = [
   (f) => `The standings are taking shape across ${f.leagueName}.`,
   (f) => `There is still a long road ahead in the title race.`,
   (f) => `Rivals will be plotting their response before the next deadline.`,
-  (f) => `${f.leader.manager} will not assume this lead is safe.`,
+  (f) => `${mgr(f.leader)} will not assume this lead is safe.`,
   (f) => `The table never lies, even when the season is young.`,
   (f) => `Mini-league pressure builds from the top down.`,
   (f) => `Another week, another reference point at the summit.`,
@@ -275,14 +275,14 @@ export function poolStandingsLater(f: SeasonStoryFacts): string {
 // ─── Podium GW1 ────────────────────────────────────────────────────────────────
 
 const GW1_POD_A: StoryLine[] = [
-  (f) => `The opening top three: ${f.podium.map((p) => p.team).join(", ")}.`,
-  (f) => `After gameweek one, the podium reads ${f.podium.map((p) => p.team).join(", ")}.`,
-  (f) => `First-week podium: ${f.podium.map((p, i) => `${ord(i + 1)} ${p.team}`).join(", ")}.`,
-  (f) => `The early top three is ${f.podium.map((p) => p.team).join(", ")}.`,
-  (f) => `${f.leagueName} begins with ${f.podium[0]?.team ?? "the leader"} at the sharp end.`,
+  (f) => `The opening top three: ${podiumManagers(f.podium)}.`,
+  (f) => `After gameweek one, the podium reads ${podiumManagers(f.podium)}.`,
+  (f) => `First-week podium: ${podiumManagersRanked(f.podium)}.`,
+  (f) => `The early top three is ${podiumManagers(f.podium)}.`,
+  (f) => `${f.leagueName} begins with ${f.podium[0] ? mgr(f.podium[0]) : "the leader"} at the sharp end.`,
   (f) => `The first podium line-up is set.`,
   (f) => `Three names lead the early charge in ${f.leagueName}.`,
-  (f) => `The opening hierarchy starts with ${f.podium.map((p) => p.team).join(", ")}.`,
+  (f) => `The opening hierarchy starts with ${podiumManagers(f.podium)}.`,
 ]
 
 const GW1_POD_B: StoryLine[] = [
@@ -314,7 +314,7 @@ const GW1_PERSONAL_A: StoryLine[] = [
 ]
 
 const GW1_PERSONAL_B: StoryLine[] = [
-  (f) => !f.user ? "" : f.gapToLeader > 0 ? `You trail ${f.leader.team} by ${pts(f.gapToLeader)}.` : f.user.rank === 1 ? `The target is on your back already.` : `You share top spot.`,
+  (f) => !f.user ? "" : f.gapToLeader > 0 ? `You trail ${mgr(f.leader)} by ${pts(f.gapToLeader)}.` : f.user.rank === 1 ? `The target is on your back already.` : `You share top spot.`,
   (f) => !f.user ? "" : fplAvgComparisonPhrase(f.user.gwPts, f.fplAvg),
   (f) => !f.user ? "" : `Plenty of time to change the picture.`,
   (f) => !f.user ? "" : `The season is only just underway.`,
@@ -331,14 +331,14 @@ export function poolPersonalGW1(f: SeasonStoryFacts): string {
 // ─── Spoon GW1 ─────────────────────────────────────────────────────────────────
 
 const GW1_SPOON_A: StoryLine[] = [
-  (f) => `${f.woodenSpoon.team} props up the table after the opening gameweek.`,
-  (f) => `At the foot of ${f.leagueName} after week one: ${f.woodenSpoon.team}.`,
-  (f) => `Last place after the opener belongs to ${f.woodenSpoon.team}.`,
-  (f) => `${f.woodenSpoon.team} anchors the bottom after gameweek one.`,
-  (f) => `The basement after week one: ${f.woodenSpoon.team}.`,
-  (f) => `${f.woodenSpoon.manager} and ${f.woodenSpoon.team} sit last after the opener.`,
-  (f) => `The wooden spoon position after week one goes to ${f.woodenSpoon.team}.`,
-  (f) => `${f.woodenSpoon.team} is propping up ${f.leagueName} after the first gameweek.`,
+  (f) => `${mgr(f.woodenSpoon)} props up the table after the opening gameweek.`,
+  (f) => `At the foot of ${f.leagueName} after week one: ${mgr(f.woodenSpoon)}.`,
+  (f) => `Last place after the opener belongs to ${mgr(f.woodenSpoon)}.`,
+  (f) => `${mgr(f.woodenSpoon)} anchors the bottom after gameweek one.`,
+  (f) => `The basement after week one: ${mgr(f.woodenSpoon)}.`,
+  (f) => `${mgrTeam(f.woodenSpoon)} sit last after the opener.`,
+  (f) => `The wooden spoon position after week one goes to ${mgr(f.woodenSpoon)}.`,
+  (f) => `${mgr(f.woodenSpoon)} is propping up ${f.leagueName} after the first gameweek.`,
 ]
 
 const GW1_SPOON_B: StoryLine[] = [
@@ -370,13 +370,13 @@ const GW1_CODA_A: StoryLine[] = [
 ]
 
 const GW1_CODA_B: StoryLine[] = [
-  (f) => `${f.leader.team} lead, ${f.gwWinner.team} won the week.`,
-  (f) => `${f.gwWinner.team} take the weekly honours; ${f.leader.team} top the table.`,
-  (f) => `${f.leader.manager} sits first; ${f.gwWinner.team} posted the best score.`,
-  (f) => `The early leader is ${f.leader.team}; the weekly high came from ${f.gwWinner.team}.`,
-  (f) => `${f.leader.team} head the standings after a ${pts(f.gwWinner.gwPts)}-point statement from ${f.gwWinner.team}.`,
-  (f) => `Bragging rights for the week go to ${f.gwWinner.team}.`,
-  (f) => `${f.leader.team} are top; ${f.gwWinner.team} set the weekly pace.`,
+  (f) => `${mgr(f.leader)} leads, ${mgr(f.gwWinner)} won the week.`,
+  (f) => `${mgr(f.gwWinner)} take the weekly honours; ${mgr(f.leader)} top the table.`,
+  (f) => `${mgr(f.leader)} sits first; ${mgr(f.gwWinner)} posted the best score.`,
+  (f) => `The early leader is ${mgr(f.leader)}; the weekly high came from ${mgr(f.gwWinner)}.`,
+  (f) => `${mgr(f.leader)} head the standings after a ${pts(f.gwWinner.gwPts)}-point statement from ${mgr(f.gwWinner)}.`,
+  (f) => `Bragging rights for the week go to ${mgr(f.gwWinner)}.`,
+  (f) => `${mgr(f.leader)} are top; ${mgr(f.gwWinner)} set the weekly pace.`,
   (f) => `The table and the weekly chart both have early names on them.`,
 ]
 
