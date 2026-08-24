@@ -303,6 +303,8 @@ export async function GET(request: Request) {
     });
 
     const h = picksData?.entry_history;
+    const overallPoints = h?.total_points ?? entry.summary_overall_points ?? 0;
+    const overallRank = h?.overall_rank ?? entry.summary_overall_rank ?? 0;
 
     // Transfer targets — top available players by position, ranked by ep_next
     const squadElementIds = new Set((picksData?.picks ?? []).map((p: any) => p.element));
@@ -341,8 +343,8 @@ export async function GET(request: Request) {
     return NextResponse.json({
       team_name: entry.name,
       manager_name: `${entry.player_first_name ?? ""} ${entry.player_last_name ?? ""}`.trim(),
-      overall_points: entry.summary_overall_points ?? 0,
-      overall_rank: entry.summary_overall_rank ?? 0,
+      overall_points: overallPoints,
+      overall_rank: overallRank,
       gw_points: h?.points ?? 0,
       gw_rank: h?.rank ?? null,
       team_value: (h?.value ?? entry.last_deadline_value ?? 0) / 10,
