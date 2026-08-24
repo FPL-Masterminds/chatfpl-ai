@@ -9,6 +9,9 @@ import {
   isFirstGameweek,
   fplAvgComparisonShort,
   benchMentionMinPts,
+  spoonRacePrefix,
+  mgr,
+  mgrTeam,
 } from "./season-story-copy"
 import { pickFromPool, composeStory, type StoryLine } from "./season-story-seed"
 import {
@@ -375,21 +378,17 @@ const SPOON_GW1: Tpl[] = [(f) => poolSpoonGW1(f)]
 const SPOON_LATER: Tpl[] = [
   (f) => {
     const spoon = f.woodenSpoon
-    const second = f.secondBottom
-    const race =
-      second && f.spoonRaceGap <= 8
-        ? `The wooden spoon race is tight: ${second.team} is only ${pts(f.spoonRaceGap)} ahead of last place. `
-        : `At the bottom, ${spoon.team} is ${pts(f.gapFirstLast)} off the leader. `
+    const race = spoonRacePrefix(f)
 
     return sanitizeParagraph(pickFromPool([
-      (ff) => `${race}${spoon.team} props up the table on ${spoon.totalPts} points after ${pts(spoon.gwPts)} in ${gwName(ff.gw)}. ${ff.gw < 38 ? `There is still time to climb.` : `The final table is set.`}`,
-      (ff) => `${race}Last place belongs to ${spoon.team} on ${spoon.totalPts} after ${gwName(ff.gw)}.`,
-      (ff) => `${race}${spoon.team} anchors the basement on ${spoon.totalPts}.`,
-      (ff) => `${race}The foot of ${ff.leagueName} is occupied by ${spoon.team}.`,
-      (ff) => `${race}${spoon.manager} and ${spoon.team} sit last on ${spoon.totalPts}.`,
-      (ff) => `${race}The basement: ${spoon.team}, ${spoon.totalPts} points.`,
-      (ff) => `${race}${spoon.team} is propping up the table after ${pts(spoon.gwPts)} in ${gwName(ff.gw)}.`,
-      (ff) => `${race}Wooden spoon watch: ${spoon.team} on ${spoon.totalPts}.`,
+      (ff) => `${race}${mgr(spoon)} props up the table on ${spoon.totalPts} points after ${pts(spoon.gwPts)} in ${gwName(ff.gw)}. ${ff.gw < 38 ? `There is still time to climb.` : `The final table is set.`}`,
+      (ff) => `${race}Last place belongs to ${mgr(spoon)} on ${spoon.totalPts} after ${gwName(ff.gw)}.`,
+      (ff) => `${race}${mgr(spoon)} anchors the basement on ${spoon.totalPts}.`,
+      (ff) => `${race}The foot of ${ff.leagueName} is occupied by ${mgr(spoon)}.`,
+      (ff) => `${race}${mgrTeam(spoon)} sit last on ${spoon.totalPts}.`,
+      (ff) => `${race}The basement: ${mgr(spoon)}, ${spoon.totalPts} points.`,
+      (ff) => `${race}${mgr(spoon)} is propping up the table after ${pts(spoon.gwPts)} in ${gwName(ff.gw)}.`,
+      (ff) => `${race}Wooden spoon watch: ${mgr(spoon)} on ${spoon.totalPts}.`,
     ], f, "spoon", 0)(f))
   },
 ]

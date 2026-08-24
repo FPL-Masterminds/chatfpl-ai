@@ -47,6 +47,71 @@ export function ord(n: number): string {
   return n + (s[(v - 20) % 10] || s[v] || s[0])
 }
 
+/** FPL manager's real name (player_name), falling back to team name. */
+export function mgr(row: { manager: string; team?: string }): string {
+  const name = row.manager?.trim()
+  if (name) return name
+  return row.team?.trim() || "Unknown"
+}
+
+/** Manager name with FPL team in brackets when both exist. */
+export function mgrTeam(row: { manager: string; team: string }): string {
+  const name = mgr(row)
+  const team = row.team?.trim()
+  if (!team || team === name) return name
+  return `${name} (${team})`
+}
+
+export function possessiveMgr(row: { manager: string; team?: string }): string {
+  const name = mgr(row)
+  return name.endsWith("s") ? `${name}'` : `${name}'s`
+}
+
+export function podiumManagers(rows: { manager: string; team: string }[]): string {
+  return rows.map((p) => mgr(p)).join(", ")
+}
+
+export function podiumManagersRanked(rows: { manager: string; team: string }[]): string {
+  return rows.map((p, i) => `${ord(i + 1)} ${mgr(p)}`).join(", ")
+}
+
+type SpoonRaceRow = { manager: string; team: string; totalPts: number }
+
+/** Second sentence for basement copy. Skips nonsensical "0 points above last" when tied. */
+export function spoonBasementFollowUp(f: {
+  secondBottom: SpoonRaceRow | null
+  woodenSpoon: SpoonRaceRow
+  spoonRaceGap: number
+}): string {
+  const second = f.secondBottom
+  if (!second) return "A long season remains to climb out."
+
+  if (f.spoonRaceGap === 0) {
+    return `${mgr(second)} and ${mgr(f.woodenSpoon)} are tied on ${f.woodenSpoon.totalPts} points at the foot of the table.`
+  }
+  if (f.spoonRaceGap > 0 && f.spoonRaceGap <= 8) {
+    return `${mgr(second)} sits just ${pts(f.spoonRaceGap)} above last place.`
+  }
+  return "A long season remains to climb out."
+}
+
+/** Prefix for later-gameweek basement paragraphs. */
+export function spoonRacePrefix(f: {
+  secondBottom: SpoonRaceRow | null
+  woodenSpoon: SpoonRaceRow
+  spoonRaceGap: number
+  gapFirstLast: number
+}): string {
+  const second = f.secondBottom
+  if (second && f.spoonRaceGap === 0) {
+    return `${mgr(second)} and ${mgr(f.woodenSpoon)} are level on points at the bottom. `
+  }
+  if (second && f.spoonRaceGap > 0 && f.spoonRaceGap <= 8) {
+    return `The wooden spoon race is tight: ${mgr(second)} is only ${pts(f.spoonRaceGap)} ahead of last place. `
+  }
+  return `At the bottom, ${mgr(f.woodenSpoon)} is ${pts(f.gapFirstLast)} off the leader. `
+}
+
 export function gwName(gw: number): string {
   return `Gameweek ${gw}`
 }

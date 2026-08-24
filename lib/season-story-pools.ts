@@ -9,6 +9,12 @@ import {
   spellN,
   fplAvgComparisonPhrase,
   sanitizeParagraph,
+  mgr,
+  mgrTeam,
+  possessiveMgr,
+  podiumManagers,
+  podiumManagersRanked,
+  spoonBasementFollowUp,
 } from "./season-story-copy"
 import { composeStory, type StoryLine } from "./season-story-seed"
 
@@ -336,7 +342,7 @@ const GW1_SPOON_A: StoryLine[] = [
 ]
 
 const GW1_SPOON_B: StoryLine[] = [
-  (f) => f.secondBottom && f.spoonRaceGap <= 8 ? `${f.secondBottom.team} sits just ${pts(f.spoonRaceGap)} above last place.` : `A long season remains to climb out.`,
+  (f) => spoonBasementFollowUp(f),
   (f) => `There is a full season ahead to climb.`,
   (f) => `Week one is never the whole story at the bottom.`,
   (f) => `Plenty of gameweeks left to escape the basement.`,
