@@ -199,7 +199,7 @@ export default function AdminPage() {
   const [topPagesLoading, setTopPagesLoading] = useState(false)
   const [topPagesError, setTopPagesError] = useState<string | null>(null)
   const [topPagesSteps, setTopPagesSteps] = useState<string[]>([])
-  const [topPagesDays, setTopPagesDays] = useState<7 | 28 | 90>(28)
+  const [topPagesDays, setTopPagesDays] = useState<1 | 7 | 28 | 90>(28)
 
   useEffect(() => { fetchAccountData() }, [])
 
@@ -372,7 +372,7 @@ export default function AdminPage() {
     }
   }
 
-  const fetchTopPages = async (days: 7 | 28 | 90 = topPagesDays) => {
+  const fetchTopPages = async (days: 1 | 7 | 28 | 90 = topPagesDays) => {
     try {
       setTopPagesLoading(true)
       setTopPagesError(null)
@@ -1184,7 +1184,10 @@ export default function AdminPage() {
                     <div key={event.id} className="rounded-xl border border-white/8 bg-white/[0.03] p-3">
                       <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${event.type === "signup" ? "bg-blue-400/15 text-blue-300" : "text-black"}`} style={event.type === "subscription" ? { background: "linear-gradient(90deg,#00FF87,#00CFFF)" } : {}}>
+                          <span
+                            className="text-[10px] font-bold px-2 py-0.5 rounded-full text-black"
+                            style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}
+                          >
                             {event.type === "signup" ? "Signup" : "Paid"}
                           </span>
                           <p className="text-sm font-semibold text-white">{event.title}</p>
@@ -1289,17 +1292,22 @@ export default function AdminPage() {
               <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
                 <SectionLabel>Top Pages by Google Search Traffic</SectionLabel>
                 <div className="flex items-center gap-2">
-                  {[7, 28, 90].map((d) => (
+                  {([
+                    { days: 1, label: "24h" },
+                    { days: 7, label: "7d" },
+                    { days: 28, label: "28d" },
+                    { days: 90, label: "90d" },
+                  ] as const).map(({ days, label }) => (
                     <button
-                      key={d}
-                      onClick={() => { setTopPagesDays(d as 7 | 28 | 90); fetchTopPages(d as 7 | 28 | 90) }}
+                      key={days}
+                      onClick={() => { setTopPagesDays(days); fetchTopPages(days) }}
                       className={`text-xs font-semibold px-3 py-1 rounded-full transition ${
-                        topPagesDays === d
+                        topPagesDays === days
                           ? "bg-[#00FF87]/20 text-[#00FF87]"
                           : "text-white/50 hover:text-white/80"
                       }`}
                     >
-                      {d}d
+                      {label}
                     </button>
                   ))}
                   <button

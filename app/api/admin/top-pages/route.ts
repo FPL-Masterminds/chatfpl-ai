@@ -198,7 +198,7 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const daysRaw = parseInt(url.searchParams.get("days") ?? "28", 10);
-  const days = [7, 28, 90].includes(daysRaw) ? daysRaw : 28;
+  const days = [1, 7, 28, 90].includes(daysRaw) ? daysRaw : 28;
   const limitRaw = parseInt(url.searchParams.get("limit") ?? "25", 10);
   const limit = Math.min(Math.max(limitRaw, 5), 100);
 
