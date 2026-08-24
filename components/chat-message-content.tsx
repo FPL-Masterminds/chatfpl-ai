@@ -33,6 +33,12 @@ const PLAYER_PHOTO_GLOW_STYLE: React.CSSProperties = {
   boxShadow: "0 0 6px 1px rgba(255,255,255,0.28)",
 };
 
+// Chat player headshots: 10% larger than the original h-10 / h-14 (40px / 56px).
+const CHAT_PLAYER_PHOTO_HEIGHT_PX = {
+  sm: 44,
+  md: 61.6,
+} as const;
+
 function PlayerPhoto({
   alt,
   url,
@@ -42,13 +48,13 @@ function PlayerPhoto({
   url: string;
   size?: "sm" | "md";
 }) {
-  const height = size === "sm" ? "h-10" : "h-14";
   return (
     <span className="inline-flex shrink-0 flex-col items-stretch leading-none">
       <img
         src={url}
         alt={alt}
-        className={`${height} w-auto block object-contain object-bottom`}
+        className="block w-auto object-contain object-bottom"
+        style={{ height: CHAT_PLAYER_PHOTO_HEIGHT_PX[size] }}
       />
       <span style={PLAYER_PHOTO_GLOW_STYLE} aria-hidden />
     </span>
