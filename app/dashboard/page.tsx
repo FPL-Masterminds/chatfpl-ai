@@ -1219,9 +1219,9 @@ function SeasonStoryPanel({
             </h2>
           </div>
 
-          <div className="space-y-5 max-w-3xl">
+          <div className="space-y-6 max-w-2xl">
             {activeStory.paragraphs.map((para, i) => (
-              <p key={i} className="text-base text-white/90 leading-[1.75]">
+              <p key={i} className="text-[17px] text-white/90 leading-[1.8]">
                 {para}
               </p>
             ))}

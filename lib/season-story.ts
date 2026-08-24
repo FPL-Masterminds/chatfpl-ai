@@ -1,11 +1,36 @@
 import {
   LEDE,
   STANDINGS,
+  PODIUM,
   MOVEMENT,
+  GAP_DYNAMICS,
   SUBPLOTS,
+  CHIP_VERDICT,
+  HIT_REGRET,
+  MILESTONES,
+  CONSISTENCY,
+  RIVALRY,
   PERSONAL,
+  SPOON_RACE,
   CODA,
-} from "./season-story-paragraphs"
+  FIXTURE,
+  PERSONALITY,
+  CAPTAINCY,
+} from "./season-story-sections"
+import {
+  computeChipVerdicts,
+  computeConsistencyCrown,
+  computeHeadToHead,
+  computeLeagueAvgGwPts,
+  computeLeagueMedianGwPts,
+  computeLeaguePersonality,
+  computeLeagueRecordGwScore,
+  computeMilestones,
+  computePodiumShuffle,
+  computeRivalStreak,
+} from "./season-story-analytics"
+import type { GWFixtureContext } from "./season-story-fixtures"
+import { sanitizeParagraph } from "./season-story-copy"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -26,6 +51,15 @@ export interface MemberGWRow {
 }
 
 export type SeasonPhase = "opening" | "early" | "mid" | "second_half" | "run_in" | "final"
+
+export interface ChipVerdict {
+  team: string
+  manager: string
+  chip: string
+  gwPts: number
+  vsLeagueAvg: number
+  vsFplAvg: number
+}
 
 export interface SeasonStoryFacts {
   gw: number
@@ -54,6 +88,31 @@ export interface SeasonStoryFacts {
   tightLeague: boolean
   runawayLeader: boolean
   woodenSpoon: MemberGWRow
+  fixtureContext: GWFixtureContext | null
+  leaguePersonality: string
+  leagueAvgGwPts: number
+  leagueMedianGwPts: number
+  podium: MemberGWRow[]
+  prevPodium: MemberGWRow[]
+  podiumJoined: MemberGWRow[]
+  podiumDropped: MemberGWRow[]
+  podiumHeld: MemberGWRow[]
+  directRival: MemberGWRow | null
+  rivalStreakWins: number
+  rivalStreakTotal: number
+  h2hUserWins: number
+  h2hRivalWins: number
+  h2hDraws: number
+  gapToLeaderChange: number | null
+  milestones: string[]
+  chipVerdicts: ChipVerdict[]
+  hitRegret: MemberGWRow[]
+  consistencyManager: { team: string; manager: string; stdDev: number } | null
+  secondBottom: MemberGWRow | null
+  spoonRaceGap: number
+  userVsMedian: number
+  leagueRecordGwScore: number
+  isLeagueRecordGw: boolean
 }
 
 export interface SeasonStory {
@@ -97,7 +156,7 @@ function pickVariant<T>(variants: T[], leagueId: number, gw: number, slot: strin
 
 function render(templates: ((f: SeasonStoryFacts) => string)[], facts: SeasonStoryFacts, slot: string): string {
   const tpl = pickVariant(templates, facts.leagueId, facts.gw, slot)
-  return tpl(facts).trim()
+  return sanitizeParagraph(tpl(facts).trim())
 }
 
 export function getSeasonPhase(gw: number): SeasonPhase {
@@ -113,21 +172,24 @@ export function getSeasonPhase(gw: number): SeasonPhase {
 function buildRowsAtGW(
   members: MemberHistoryInput[],
   gw: number,
-  userEntryId: number
+  userEntryId: number,
+  prevRankMap?: Map<number, number>
 ): MemberGWRow[] {
   const raw = members
     .map((m) => {
       const curr = m.current.find((c) => c.event === gw)
       if (!curr) return null
       const chipsPlayed = (m.chips ?? []).filter((c) => c.event === gw).map((c) => c.name)
+      const prev = prevRankMap?.get(m.entryId) ?? null
+      const rank = 0
       return {
         entryId: m.entryId,
         team: m.team,
         manager: m.manager,
         gwPts: curr.points,
         totalPts: curr.total_points,
-        rank: 0,
-        prevRank: null as number | null,
+        rank,
+        prevRank: prev,
         rankChange: 0,
         benchPts: curr.points_on_bench ?? 0,
         transferCost: curr.event_transfers_cost ?? 0,
@@ -139,19 +201,26 @@ function buildRowsAtGW(
     .filter((r): r is MemberGWRow => r !== null)
 
   raw.sort((a, b) => b.totalPts - a.totalPts || b.gwPts - a.gwPts)
-  raw.forEach((r, i) => { r.rank = i + 1 })
-
-  if (gw > 1) {
-    const prevRows = buildRowsAtGW(members, gw - 1, userEntryId)
-    const prevRankMap = new Map(prevRows.map((r) => [r.entryId, r.rank]))
-    raw.forEach((r) => {
-      const prev = prevRankMap.get(r.entryId) ?? null
-      r.prevRank = prev
-      r.rankChange = prev !== null ? prev - r.rank : 0
-    })
-  }
-
+  raw.forEach((r, i) => {
+    r.rank = i + 1
+    r.rankChange = r.prevRank !== null ? r.prevRank - r.rank : 0
+  })
   return raw
+}
+
+function buildGWCache(
+  members: MemberHistoryInput[],
+  userEntryId: number,
+  throughGw: number
+): Map<number, MemberGWRow[]> {
+  const cache = new Map<number, MemberGWRow[]>()
+  let prevRanks = new Map<number, number>()
+  for (let g = 1; g <= throughGw; g++) {
+    const rows = buildRowsAtGW(members, g, userEntryId, prevRanks)
+    cache.set(g, rows)
+    prevRanks = new Map(rows.map((r) => [r.entryId, r.rank]))
+  }
+  return cache
 }
 
 export function buildSeasonStoryFacts(
@@ -160,35 +229,80 @@ export function buildSeasonStoryFacts(
   leagueName: string,
   members: MemberHistoryInput[],
   userEntryId: number,
-  fplAvg: number
+  fplAvg: number,
+  fixtureContext: GWFixtureContext | null = null
 ): SeasonStoryFacts | null {
-  const rows = buildRowsAtGW(members, gw, userEntryId)
-  if (rows.length === 0) return null
+  const cache = buildGWCache(members, userEntryId, gw)
+  const rows = cache.get(gw)
+  if (!rows || rows.length === 0) return null
 
+  const prevRows = gw > 1 ? cache.get(gw - 1) ?? [] : []
   const sortedByGw = [...rows].sort((a, b) => b.gwPts - a.gwPts)
   const gwWinner = sortedByGw[0]
   const leader = rows[0]
   const second = rows[1] ?? null
   const woodenSpoon = rows[rows.length - 1]
+  const secondBottom = rows.length >= 2 ? rows[rows.length - 2] : null
   const gapFirstSecond = second ? leader.totalPts - second.totalPts : 0
   const gapFirstLast = leader.totalPts - woodenSpoon.totalPts
+  const spoonRaceGap = secondBottom ? secondBottom.totalPts - woodenSpoon.totalPts : 0
   const user = rows.find((r) => r.isUser) ?? null
+  const prevUser = prevRows.find((r) => r.isUser) ?? null
   const gapToLeader = user ? leader.totalPts - user.totalPts : 0
+
+  let gapToLeaderChange: number | null = null
+  if (user && gw > 1) {
+    const prevUserRow = prevRows.find((r) => r.entryId === user.entryId)
+    const prevLeaderRow = prevRows[0]
+    if (prevUserRow && prevLeaderRow) {
+      const oldGap = prevLeaderRow.totalPts - prevUserRow.totalPts
+      gapToLeaderChange = oldGap - gapToLeader
+    }
+  }
 
   const climbers = rows.filter((r) => r.rankChange > 0).sort((a, b) => b.rankChange - a.rankChange)
   const fallers = rows.filter((r) => r.rankChange < 0).sort((a, b) => a.rankChange - b.rankChange)
 
-  const prevLeader = gw > 1 ? buildRowsAtGW(members, gw - 1, userEntryId)[0] : null
+  const prevLeader = prevRows[0] ?? null
   const newLeader = !!(prevLeader && prevLeader.entryId !== leader.entryId)
   const leaderChangedFrom = newLeader ? prevLeader : null
 
   const chipPlayers = rows.filter((r) => r.chipsPlayed.length > 0)
   const hitTakers = rows.filter((r) => r.transferCost > 0).sort((a, b) => b.transferCost - a.transferCost)
+  const hitRegret = hitTakers.filter((r) => r.gwPts < fplAvg)
   const benchHero = [...rows].sort((a, b) => b.benchPts - a.benchPts)[0]
   const beatAvgCount = rows.filter((r) => r.gwPts > fplAvg).length
+  const leagueAvgGwPts = computeLeagueAvgGwPts(rows)
+  const leagueMedianGwPts = computeLeagueMedianGwPts(rows)
+  const userVsMedian = user ? user.gwPts - leagueMedianGwPts : 0
 
   const tightLeague = gapFirstSecond <= 12 || gapFirstLast <= 30
   const runawayLeader = gapFirstSecond >= 25
+
+  const podium = rows.slice(0, 3)
+  const prevPodium = prevRows.slice(0, 3)
+  const { dropped, joined, held } = computePodiumShuffle(podium, prevPodium)
+
+  const directRival = user
+    ? (user.rank > 1
+      ? rows.find((r) => r.rank === user.rank - 1)
+      : rows.find((r) => r.rank === 2)) ?? null
+    : null
+
+  const rivalStreak = directRival
+    ? computeRivalStreak(members, userEntryId, directRival.entryId, gw)
+    : { wins: 0, total: 0 }
+  const h2h = directRival
+    ? computeHeadToHead(members, userEntryId, directRival.entryId, gw)
+    : { userWins: 0, rivalWins: 0, draws: 0 }
+
+  const leagueRecordGwScore = computeLeagueRecordGwScore(members, gw)
+  const isLeagueRecordGw = gwWinner.gwPts > leagueRecordGwScore || gw === 1
+
+  const milestones = computeMilestones(gw, rows, user, prevUser, gwWinner, members, leagueRecordGwScore)
+  const chipVerdicts = computeChipVerdicts(chipPlayers, leagueAvgGwPts, fplAvg)
+  const consistencyManager = computeConsistencyCrown(members, gw)
+  const leaguePersonality = computeLeaguePersonality(rows, fplAvg, chipPlayers.length, gapFirstLast)
 
   return {
     gw,
@@ -217,29 +331,67 @@ export function buildSeasonStoryFacts(
     tightLeague,
     runawayLeader,
     woodenSpoon,
+    fixtureContext,
+    leaguePersonality,
+    leagueAvgGwPts,
+    leagueMedianGwPts,
+    podium,
+    prevPodium,
+    podiumJoined: joined,
+    podiumDropped: dropped,
+    podiumHeld: held,
+    directRival,
+    rivalStreakWins: rivalStreak.wins,
+    rivalStreakTotal: rivalStreak.total,
+    h2hUserWins: h2h.userWins,
+    h2hRivalWins: h2h.rivalWins,
+    h2hDraws: h2h.draws,
+    gapToLeaderChange,
+    milestones,
+    chipVerdicts,
+    hitRegret,
+    consistencyManager,
+    secondBottom,
+    spoonRaceGap,
+    userVsMedian,
+    leagueRecordGwScore,
+    isLeagueRecordGw,
   }
 }
 
 export function generateSeasonStory(facts: SeasonStoryFacts): SeasonStory {
-  const paragraphs: string[] = []
-
-  const slots: { templates: ((f: SeasonStoryFacts) => string)[]; slot: string }[] = [
+  const slots: { templates: ((f: SeasonStoryFacts) => string)[]; slot: string; skip?: (f: SeasonStoryFacts) => boolean }[] = [
     { templates: LEDE, slot: "lede" },
+    { templates: FIXTURE, slot: "fixture", skip: (f) => !f.fixtureContext?.isDGW && !f.fixtureContext?.isBGW },
+    { templates: PERSONALITY, slot: "personality" },
     { templates: STANDINGS, slot: "standings" },
+    { templates: PODIUM, slot: "podium" },
     { templates: MOVEMENT, slot: "movement" },
+    { templates: GAP_DYNAMICS, slot: "gap", skip: (f) => !f.user },
+    { templates: CAPTAINCY, slot: "captaincy", skip: (f) => !f.user },
     { templates: SUBPLOTS, slot: "subplots" },
-    { templates: PERSONAL, slot: "personal" },
+    { templates: CHIP_VERDICT, slot: "chip_verdict", skip: (f) => f.chipVerdicts.length === 0 },
+    { templates: HIT_REGRET, slot: "hit_regret", skip: (f) => f.hitRegret.length === 0 },
+    { templates: MILESTONES, slot: "milestones", skip: (f) => f.milestones.length === 0 && !f.isLeagueRecordGw },
+    { templates: CONSISTENCY, slot: "consistency", skip: (f) => !f.consistencyManager },
+    { templates: RIVALRY, slot: "rivalry", skip: (f) => !f.directRival || !f.user },
+    { templates: PERSONAL, slot: "personal", skip: (f) => !f.user },
+    { templates: SPOON_RACE, slot: "spoon" },
     { templates: CODA, slot: "coda" },
   ]
 
-  for (const { templates, slot } of slots) {
-    const text = render(templates, facts, slot).trim()
+  const paragraphs: string[] = []
+  for (const { templates, slot, skip } of slots) {
+    if (skip?.(facts)) continue
+    const text = render(templates, facts, slot)
     if (text) paragraphs.push(text)
   }
 
-  const headline = `${facts.leagueName} · Gameweek ${facts.gw}`
-
-  return { gw: facts.gw, headline, paragraphs }
+  return {
+    gw: facts.gw,
+    headline: `${facts.leagueName} · Gameweek ${facts.gw}`,
+    paragraphs,
+  }
 }
 
 export function generateAllSeasonStories(
@@ -247,11 +399,20 @@ export function generateAllSeasonStories(
   leagueName: string,
   members: MemberHistoryInput[],
   userEntryId: number,
-  completedGws: { gw: number; avg: number; provisional?: boolean }[]
+  completedGws: { gw: number; avg: number; provisional?: boolean }[],
+  fixtureContexts: Map<number, GWFixtureContext> = new Map()
 ): SeasonStory[] {
   return completedGws
     .map(({ gw, avg, provisional }) => {
-      const facts = buildSeasonStoryFacts(gw, leagueId, leagueName, members, userEntryId, avg)
+      const facts = buildSeasonStoryFacts(
+        gw,
+        leagueId,
+        leagueName,
+        members,
+        userEntryId,
+        avg,
+        fixtureContexts.get(gw) ?? null
+      )
       if (!facts) return null
       const story = generateSeasonStory(facts)
       if (provisional) story.provisional = true

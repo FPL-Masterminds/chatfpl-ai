@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generateAllSeasonStories, type MemberHistoryInput } from "@/lib/season-story"
+import { getGWFixtureContext } from "@/lib/season-story-fixtures"
 
 export const runtime = "nodejs"
 
@@ -84,9 +85,10 @@ export async function GET(request: Request) {
   const requestedLeagueId = Number(url.searchParams.get("league") ?? "")
 
   try {
-    const [bootstrapRes, entryRes] = await Promise.all([
+    const [bootstrapRes, entryRes, fixturesRes] = await Promise.all([
       fetch("https://fantasy.premierleague.com/api/bootstrap-static/", { headers: H }),
       fetch(`https://fantasy.premierleague.com/api/entry/${teamId}/`, { headers: H }),
+      fetch("https://fantasy.premierleague.com/api/fixtures/", { headers: H }),
     ])
 
     if (!bootstrapRes.ok || !entryRes.ok) {
@@ -95,6 +97,8 @@ export async function GET(request: Request) {
 
     const bootstrap = await bootstrapRes.json()
     const entry = await entryRes.json()
+    const fixtures: { event: number; team_h: number; team_a: number }[] = fixturesRes.ok ? await fixturesRes.json() : []
+    const teams: { id: number; name: string; short_name: string }[] = bootstrap.teams ?? []
 
     const privateLeagues = (entry.leagues?.classic ?? []).filter(
       (l: { league_type: string }) => l.league_type === "x"
@@ -147,12 +151,17 @@ export async function GET(request: Request) {
     const members = await fetchMemberHistories(leagueData.standings.results)
     const leagueName = leagueData.league?.name ?? activeLeague.name
 
+    const fixtureContexts = new Map(
+      completedGws.map((g) => [g.gw, getGWFixtureContext(fixtures, teams, g.gw)])
+    )
+
     const stories = generateAllSeasonStories(
       activeLeague.id,
       leagueName,
       members,
       teamId,
-      completedGws
+      completedGws,
+      fixtureContexts
     )
 
     return NextResponse.json({
