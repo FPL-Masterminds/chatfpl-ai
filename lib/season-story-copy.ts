@@ -43,6 +43,36 @@ export function gwsLeft(gw: number): string {
   return left === 1 ? "one gameweek remains" : `${spellN(left)} gameweeks remain`
 }
 
+/** Phrase for "with X gameweeks remaining" (avoids "has X gameweeks remain"). */
+export function gwsRemaining(gw: number): string {
+  const left = 38 - gw
+  return left === 1 ? "one gameweek remaining" : `${spellN(left)} gameweeks remaining`
+}
+
+export function isFirstGameweek(gw: number): boolean {
+  return gw === 1
+}
+
+/** Rank movement narratives need a prior week to compare against. */
+export function canDiscussRankMovement(gw: number): boolean {
+  return gw >= 4
+}
+
+/** Head-to-head and streak copy needs several weeks of history. */
+export function canDiscussRivalryArc(gw: number): boolean {
+  return gw >= 5
+}
+
+/** Week-on-week gap change needs a prior gameweek. */
+export function canDiscussGapChange(gw: number): boolean {
+  return gw >= 2
+}
+
+function capitalizeSentence(s: string): string {
+  if (!s) return s
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
 export function phaseNote(gw: number, phase: string, leagueName: string): string {
   if (phase === "opening") {
     return gw === 1
@@ -58,7 +88,10 @@ export function phaseNote(gw: number, phase: string, leagueName: string): string
 /** Ensure no sentence in a paragraph begins with a digit. */
 export function sanitizeParagraph(text: string): string {
   const parts = text.split(/(?<=[.!?])\s+/).filter(Boolean)
-  return parts.map((sentence) => fixLeadingNumber(sentence.trim())).join(" ")
+  return parts
+    .map((sentence) => fixLeadingNumber(sentence.trim()))
+    .map(capitalizeSentence)
+    .join(" ")
 }
 
 function fixLeadingNumber(sentence: string): string {

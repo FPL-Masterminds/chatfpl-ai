@@ -63,10 +63,13 @@ export function computeMilestones(
   leagueRecordGwScore: number
 ): string[] {
   const out: string[] = []
-  if (gwWinner.gwPts >= leagueRecordGwScore && gw > 1) {
-    out.push(`${gwWinner.team} posted a league-record ${pts(gwWinner.gwPts)} in Gameweek ${gw}`)
-  } else if (gw === 1) {
+  if (gw === 1) {
     out.push(`${gwWinner.team} set the early benchmark with ${pts(gwWinner.gwPts)} in the opening gameweek`)
+    return out
+  }
+
+  if (gwWinner.gwPts > leagueRecordGwScore) {
+    out.push(`${gwWinner.team} posted a league-record ${pts(gwWinner.gwPts)} in Gameweek ${gw}`)
   }
 
   if (user && prevUser) {
@@ -80,12 +83,6 @@ export function computeMilestones(
     if (user.rank === 1 && prevUser.rank !== 1) {
       out.push(`You took the league lead for the first time on ${user.totalPts} points`)
     }
-  }
-
-  const prevLeader = gw > 1 ? null : null // handled elsewhere via newLeader
-
-  if (gw === 1 && rows.length > 0) {
-    out.push(`The opening gameweek established the first pecking order across ${spellN(rows.length)} managers`)
   }
 
   return out

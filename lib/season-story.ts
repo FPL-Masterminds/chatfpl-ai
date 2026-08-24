@@ -1,7 +1,16 @@
 import {
-  LEDE,
-  STANDINGS,
-  PODIUM,
+  ledeFor,
+  standingsFor,
+  podiumFor,
+  personalFor,
+  spoonFor,
+  codaFor,
+  canDiscussRankMovement,
+  canDiscussRivalryArc,
+  canDiscussGapChange,
+  FIXTURE,
+  PERSONALITY,
+  CAPTAINCY,
   MOVEMENT,
   GAP_DYNAMICS,
   SUBPLOTS,
@@ -10,12 +19,6 @@ import {
   MILESTONES,
   CONSISTENCY,
   RIVALRY,
-  PERSONAL,
-  SPOON_RACE,
-  CODA,
-  FIXTURE,
-  PERSONALITY,
-  CAPTAINCY,
 } from "./season-story-sections"
 import {
   computeChipVerdicts,
@@ -360,29 +363,36 @@ export function buildSeasonStoryFacts(
 }
 
 export function generateSeasonStory(facts: SeasonStoryFacts): SeasonStory {
-  const slots: { templates: ((f: SeasonStoryFacts) => string)[]; slot: string; skip?: (f: SeasonStoryFacts) => boolean }[] = [
-    { templates: LEDE, slot: "lede" },
-    { templates: FIXTURE, slot: "fixture", skip: (f) => !f.fixtureContext?.isDGW && !f.fixtureContext?.isBGW },
-    { templates: PERSONALITY, slot: "personality" },
-    { templates: STANDINGS, slot: "standings" },
-    { templates: PODIUM, slot: "podium" },
-    { templates: MOVEMENT, slot: "movement" },
-    { templates: GAP_DYNAMICS, slot: "gap", skip: (f) => !f.user },
-    { templates: CAPTAINCY, slot: "captaincy", skip: (f) => !f.user },
-    { templates: SUBPLOTS, slot: "subplots" },
-    { templates: CHIP_VERDICT, slot: "chip_verdict", skip: (f) => f.chipVerdicts.length === 0 },
-    { templates: HIT_REGRET, slot: "hit_regret", skip: (f) => f.hitRegret.length === 0 },
-    { templates: MILESTONES, slot: "milestones", skip: (f) => f.milestones.length === 0 && !f.isLeagueRecordGw },
-    { templates: CONSISTENCY, slot: "consistency", skip: (f) => !f.consistencyManager },
-    { templates: RIVALRY, slot: "rivalry", skip: (f) => !f.directRival || !f.user },
-    { templates: PERSONAL, slot: "personal", skip: (f) => !f.user },
-    { templates: SPOON_RACE, slot: "spoon" },
-    { templates: CODA, slot: "coda" },
+  type Slot = {
+    getTemplates: (f: SeasonStoryFacts) => ((f: SeasonStoryFacts) => string)[]
+    slot: string
+    skip?: (f: SeasonStoryFacts) => boolean
+  }
+
+  const slots: Slot[] = [
+    { getTemplates: ledeFor, slot: "lede" },
+    { getTemplates: () => FIXTURE, slot: "fixture", skip: (f) => !f.fixtureContext?.isDGW && !f.fixtureContext?.isBGW },
+    { getTemplates: () => PERSONALITY, slot: "personality" },
+    { getTemplates: standingsFor, slot: "standings" },
+    { getTemplates: podiumFor, slot: "podium" },
+    { getTemplates: () => MOVEMENT, slot: "movement", skip: (f) => !canDiscussRankMovement(f.gw) },
+    { getTemplates: () => GAP_DYNAMICS, slot: "gap", skip: (f) => !f.user || !canDiscussGapChange(f.gw) },
+    { getTemplates: () => CAPTAINCY, slot: "captaincy", skip: (f) => !f.user },
+    { getTemplates: () => SUBPLOTS, slot: "subplots" },
+    { getTemplates: () => CHIP_VERDICT, slot: "chip_verdict", skip: (f) => f.chipVerdicts.length === 0 },
+    { getTemplates: () => HIT_REGRET, slot: "hit_regret", skip: (f) => f.hitRegret.length === 0 },
+    { getTemplates: () => MILESTONES, slot: "milestones", skip: (f) => f.milestones.length === 0 },
+    { getTemplates: () => CONSISTENCY, slot: "consistency", skip: (f) => !f.consistencyManager },
+    { getTemplates: () => RIVALRY, slot: "rivalry", skip: (f) => !f.directRival || !f.user || !canDiscussRivalryArc(f.gw) },
+    { getTemplates: personalFor, slot: "personal", skip: (f) => !f.user },
+    { getTemplates: spoonFor, slot: "spoon" },
+    { getTemplates: codaFor, slot: "coda" },
   ]
 
   const paragraphs: string[] = []
-  for (const { templates, slot, skip } of slots) {
+  for (const { getTemplates, slot, skip } of slots) {
     if (skip?.(facts)) continue
+    const templates = getTemplates(facts)
     const text = render(templates, facts, slot)
     if (text) paragraphs.push(text)
   }
