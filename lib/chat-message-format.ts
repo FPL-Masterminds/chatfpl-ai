@@ -26,12 +26,16 @@ export const LEGACY_CHAT_FORMATTING_RULES = `FORMATTING RULES:
 export const STRUCTURED_CHAT_FORMATTING_RULES = `FORMATTING RULES (plain text UI - do not use ** or ###):
 - NEVER use **bold** or ### headers. They show as literal asterisks and hashes in the chat UI.
 - Use short section titles as a plain line in Title Case, then a blank line.
-- Use bullet points (•) for lists. Keep paragraphs short (2-3 sentences).
+- Use bullet points (•) for lists.
 - Add a blank line between major sections.
-- PLAYER PHOTOS: put the photo on its own line at the start of that bullet, then your analysis on the following line(s). Example:
-  •
-  ![Bruno Fernandes](PhotoURL)
-  Bruno Fernandes looks like the safest captain pick with 4.0 xPNext and strong fixtures.
+- LENGTH: Match the depth the question needs. Simple questions can be concise. Team analyses, transfer plans, captaincy breakdowns, and player comparisons should be thorough - use as many bullets and paragraphs as needed. Do not artificially shorten a squad review.
+- PLAYER PHOTOS (mandatory layout - same as gpt-5-mini):
+  • ![Full Name Exactly As In Data](PhotoURL) Full Name - £X.Xm
+  Put the photo, full name, hyphen, and price from LIVE FPL DATA all on ONE line. Never output a photo without the name and price on that same line.
+  Then put your analysis on the next line(s), e.g. "- Why - ..." for transfer targets.
+  Example:
+  • ![Adrien Truffert](PhotoURL) Adrien Truffert - £4.7m
+  - Why - Bournemouth have a strong run and he offers attacking upside from full-back.
 - NEVER embed a photo in the middle of a sentence.
 - PhotoURL MUST be copied character-for-character from the end of that player's row in LIVE FPL DATA.
 - Use hyphens ( - ) not em-dashes.`;

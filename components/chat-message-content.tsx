@@ -63,7 +63,8 @@ function StructuredChatMessageLine({ line }: { line: string }) {
   const leadingImg = rest.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*/);
   if (leadingImg) {
     const [, alt, url] = leadingImg;
-    rest = rest.slice(leadingImg[0].length);
+    rest = rest.slice(leadingImg[0].length).trim();
+    const namePrice = rest.match(/^(.+?)\s+-\s+(£[\d.]+m)\s*$/i);
     return (
       <div className="my-2 flex items-start gap-3">
         {bulletPrefix ? (
@@ -71,7 +72,15 @@ function StructuredChatMessageLine({ line }: { line: string }) {
         ) : null}
         <PlayerPhoto alt={alt} url={url} />
         <div className="min-w-0 flex-1 pt-0.5 leading-7 text-white/85">
-          {parseBold(rest, "lead")}
+          {namePrice ? (
+            <span className="font-semibold text-white">
+              {namePrice[1]} - {namePrice[2]}
+            </span>
+          ) : rest ? (
+            parseBold(rest, "lead")
+          ) : (
+            <span className="font-semibold text-white">{alt}</span>
+          )}
         </div>
       </div>
     );
