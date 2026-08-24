@@ -122,12 +122,19 @@ for (const email of emails) {
     select: {
       email: true,
       name: true,
+      role: true,
       marketing_opt_out: true,
       unsubscribe_token: true,
+      emailVerified: true,
+      subscriptions: { select: { plan: true }, orderBy: { id: "desc" }, take: 1 },
     },
   });
 
   if (!user) { results.skipped.push({ email, reason: "not found" }); continue; }
+  if (!user.emailVerified) { results.skipped.push({ email, reason: "unverified" }); continue; }
+  if (user.role === "admin") { results.skipped.push({ email, reason: "admin" }); continue; }
+  const plan = user.subscriptions[0]?.plan ?? "Unknown";
+  if (plan !== "Free") { results.skipped.push({ email, reason: `plan=${plan}` }); continue; }
   if (user.marketing_opt_out) { results.skipped.push({ email, reason: "opted out" }); continue; }
   if (!user.unsubscribe_token) { results.skipped.push({ email, reason: "no token - run backfill" }); continue; }
 
