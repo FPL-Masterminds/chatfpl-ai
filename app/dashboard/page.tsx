@@ -1055,6 +1055,7 @@ type SeasonStoryPanelStatus =
   | "waiting_for_gw"
   | "no_league"
   | "league_unavailable"
+  | "league_too_large"
   | "unavailable"
 
 interface SeasonStoryData {
@@ -1169,6 +1170,20 @@ function SeasonStoryPanel({
         titleWhite={`${gwLabel} is `}
         titleGradient="still live"
         body={`Your ${chapter}${leagueBit} lands once the gameweek closes and final scores are in. Check back after the deadline.`}
+      />
+    )
+  }
+
+  if (storyStatus === "league_too_large") {
+    const leagueBit = leagueName ? `${leagueName} has` : "This league has"
+    const switchBit = hasMultiple
+      ? " If you are in a smaller mini-league with your mates, switch to it using the league dropdown above."
+      : ""
+    return (
+      <SeasonStoryMessagePanel
+        titleWhite="This league is "
+        titleGradient="a bit too big"
+        body={`Sorry about that. Season Story is built for mini-leagues of up to 200 managers, and ${leagueBit} more than we can cover in one fair write-up.${switchBit} Your League tab still shows standings for the managers we can load.`}
       />
     )
   }

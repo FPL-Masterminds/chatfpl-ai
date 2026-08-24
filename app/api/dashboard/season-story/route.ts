@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic"
 
 const H = { "User-Agent": "ChatFPL/1.0" }
 const MAX_LEAGUE_PAGES = 4
+const SEASON_STORY_MAX_MANAGERS = 200
 const HISTORY_BATCH = 15
 
 type StandingRow = {
@@ -216,6 +217,14 @@ function tryGenerateStories(
   )
 }
 
+/** True when FPL has more managers than Season Story can fairly cover. */
+function isLeagueTooLargeForSeasonStory(leagueData: {
+  standings?: { results?: unknown[]; has_next?: boolean }
+}): boolean {
+  const count = leagueData.standings?.results?.length ?? 0
+  return count >= SEASON_STORY_MAX_MANAGERS && Boolean(leagueData.standings?.has_next)
+}
+
 async function fetchLeagueStandings(leagueId: number) {
   const firstRes = await fetch(
     `https://fantasy.premierleague.com/api/leagues-classic/${leagueId}/standings/?page_standings=1`,
@@ -359,6 +368,22 @@ export async function GET(request: Request) {
       })
     }
 
+    const leagueName = leagueData.league?.name ?? activeLeague.name
+
+    if (isLeagueTooLargeForSeasonStory(leagueData)) {
+      return jsonResponse({
+        status: "league_too_large",
+        league_id: activeLeague.id,
+        league_name: leagueName,
+        is_admin: isAdmin,
+        available_leagues: leagueList,
+        stories: [],
+        completed_gws: [],
+        preview_gws: [],
+        live_gw: null,
+      })
+    }
+
     const events: { id: number; finished: boolean; is_current?: boolean; average_entry_score?: number }[] =
       bootstrap.events ?? []
     const finishedGws: CompletedGw[] = events
@@ -372,7 +397,6 @@ export async function GET(request: Request) {
         : null
 
     const standingsRows = leagueData.standings.results as StandingRow[]
-    const leagueName = leagueData.league?.name ?? activeLeague.name
     resolvedLeague = { id: activeLeague.id, name: leagueName }
     resolvedLiveGw = liveGw?.id ?? null
 
