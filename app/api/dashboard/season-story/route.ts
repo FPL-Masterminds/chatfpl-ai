@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generateAllSeasonStories, type MemberHistoryInput } from "@/lib/season-story"
-import { getGWFixtureContext } from "@/lib/season-story-fixtures"
+import { getGWFixtureContext, isGameweekStoryReady } from "@/lib/season-story-fixtures"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -217,7 +217,7 @@ export async function GET(request: Request) {
 
     const bootstrap = await bootstrapRes.json()
     const entry = await entryRes.json()
-    const fixtures: { event: number; team_h: number; team_a: number }[] = fixturesRes.ok ? await fixturesRes.json() : []
+    const fixtures = fixturesRes.ok ? await fixturesRes.json() : []
     const teams: { id: number; name: string; short_name: string }[] = bootstrap.teams ?? []
 
     const privateLeagues = (entry.leagues?.classic ?? []).filter(
@@ -261,10 +261,15 @@ export async function GET(request: Request) {
 
     const events: { id: number; finished: boolean; is_current?: boolean; average_entry_score?: number }[] =
       bootstrap.events ?? []
-    const liveGw = events.find((e) => e.is_current && !e.finished) ?? null
     const finishedGws: CompletedGw[] = events
-      .filter((e) => e.finished)
+      .filter((e) => isGameweekStoryReady(e.id, e.finished, fixtures))
       .map((e) => ({ gw: e.id, avg: e.average_entry_score ?? 0 }))
+
+    const currentEvent = events.find((e) => e.is_current) ?? null
+    const liveGw =
+      currentEvent && !isGameweekStoryReady(currentEvent.id, currentEvent.finished, fixtures)
+        ? currentEvent
+        : null
 
     const standingsRows = leagueData.standings.results as StandingRow[]
     const leagueName = leagueData.league?.name ?? activeLeague.name

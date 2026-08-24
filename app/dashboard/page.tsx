@@ -1132,11 +1132,11 @@ function SeasonStoryPanel({
     managers: [],
   }
 
-  const liveGw = storyData?.live_gw ?? data.current_gw ?? null
+  const liveGw = storyData?.live_gw ?? null
   const archivedGwCount = storyData?.completed_gws?.length ?? 0
   const waitingForLiveGw =
     Boolean(leagueId) &&
-    Boolean(liveGw) &&
+    liveGw != null &&
     stories.length === 0 &&
     archivedGwCount === 0
 

@@ -5,8 +5,28 @@ export interface GWFixtureContext {
   bgwTeamNames: string[]
 }
 
+type FPLFixture = {
+  event: number
+  team_h: number
+  team_a: number
+  finished?: boolean
+  finished_provisional?: boolean
+}
+
+/** True when FPL has closed the GW or every fixture in it is done (incl. provisional). */
+export function isGameweekStoryReady(
+  gw: number,
+  eventFinished: boolean,
+  fixtures: FPLFixture[]
+): boolean {
+  if (eventFinished) return true
+  const gwFixtures = fixtures.filter((f) => f.event === gw)
+  if (gwFixtures.length === 0) return false
+  return gwFixtures.every((f) => f.finished || f.finished_provisional)
+}
+
 export function getGWFixtureContext(
-  fixtures: { event: number; team_h: number; team_a: number }[],
+  fixtures: FPLFixture[],
   teams: { id: number; name: string; short_name: string }[],
   gw: number
 ): GWFixtureContext {
