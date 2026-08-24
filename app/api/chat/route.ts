@@ -3,6 +3,12 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resetFreeMessagesIfExpired } from "@/lib/reset-free-messages";
 import {
+  findMentionedPlayers,
+  findMentionedTeamCodes,
+  injectSquadPlayers,
+  type ChatPlayerRow,
+} from "@/lib/chat-player-filter";
+import {
   fixAssistantMarkdownPlayerPhotos,
   fplPhotoUrlFromElement,
   type FplPhotoRow,
@@ -219,12 +225,110 @@ export async function POST(request: Request) {
           };
         }) || [];
 
+        const currentGW = currentGameweek?.id || 1;
+
+        // Fetch user's personal FPL team data before filtering so squad players
+        // are always included in the player rows sent to the model.
+        let userTeamContext = "";
+        let squadElementIds: number[] = [];
+        if (user.fpl_team_id) {
+          try {
+            const [entryRes, picksRes, historyRes] = await Promise.all([
+              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/`, {
+                headers: { "User-Agent": "ChatFPL/1.0" },
+              }),
+              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/event/${currentGW}/picks/`, {
+                headers: { "User-Agent": "ChatFPL/1.0" },
+              }),
+              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/history/`, {
+                headers: { "User-Agent": "ChatFPL/1.0" },
+              }),
+            ]);
+
+            const entryData = entryRes.ok ? await entryRes.json() : null;
+            const picksData = picksRes.ok ? await picksRes.json() : null;
+            const historyData = historyRes.ok ? await historyRes.json() : null;
+            squadElementIds = (picksData?.picks ?? []).map((p: any) => p.element);
+
+            if (entryData) {
+              const teamName = entryData.name || "Unknown";
+              const managerName = `${entryData.player_first_name || ""} ${entryData.player_last_name || ""}`.trim();
+              const overallPoints = entryData.summary_overall_points ?? "?";
+              const overallRank = (entryData.summary_overall_rank ?? "?").toLocaleString?.() ?? entryData.summary_overall_rank ?? "?";
+              const teamValue = entryData.last_deadline_value != null ? `£${(entryData.last_deadline_value / 10).toFixed(1)}m` : "?";
+              const bank = entryData.last_deadline_bank != null ? `£${(entryData.last_deadline_bank / 10).toFixed(1)}m` : "?";
+              const totalTransfers = entryData.last_deadline_total_transfers ?? "?";
+
+              const playedChips: any[] = historyData?.chips || entryData?.chips || [];
+              const chipsUsed: string[] = playedChips.map((c: any) => `${c.name} (GW${c.event})`);
+              const usedNames: string[] = playedChips.map((c: any) => c.name);
+
+              const wildcardsUsed = usedNames.filter((n) => n === "wildcard").length;
+              const chipsAvailable: string[] = [];
+              if (wildcardsUsed < 2) chipsAvailable.push(`wildcard (${wildcardsUsed === 0 ? "both still available" : "1 used, 1 remaining"})`);
+              if (!usedNames.includes("freehit")) chipsAvailable.push("freehit");
+              if (!usedNames.includes("bboost")) chipsAvailable.push("bboost (bench boost)");
+              if (!usedNames.includes("3xc")) chipsAvailable.push("3xc (triple captain)");
+
+              let squadSection = "";
+              if (picksData?.picks) {
+                const elementMap: { [key: number]: any } = {};
+                (fplData.elements || []).forEach((p: any) => { elementMap[p.id] = p; });
+
+                const formatPick = (pick: any): string | null => {
+                  const p = elementMap[pick.element];
+                  if (!p) return null;
+                  const t = fplData.teams?.find((t: any) => t.id === p.team);
+                  const pos = fplData.element_types?.find((pt: any) => pt.id === p.element_type);
+                  const flags = [
+                    pick.is_captain ? "(C)" : "",
+                    pick.is_vice_captain ? "(VC)" : "",
+                    pick.multiplier === 3 ? "(3xC)" : "",
+                  ].filter(Boolean).join("");
+                  const injNote = p.news ? `|${p.news}` : "";
+                  return `${p.web_name}${flags ? " " + flags : ""}|${t?.short_name}|${pos?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.form}form|${p.total_points}pts|${p.chance_of_playing_next_round ?? 100}%fit${injNote}`;
+                };
+
+                const startingXI = picksData.picks.filter((p: any) => p.position <= 11).map(formatPick).filter(Boolean).join("\n");
+                const bench = picksData.picks.filter((p: any) => p.position > 11).map(formatPick).filter(Boolean).join("\n");
+
+                const h = picksData.entry_history;
+                const gwStats = h
+                  ? `GW${currentGW} points: ${h.points} | Transfers: ${h.event_transfers} (cost: ${h.event_transfers_cost}pts) | Points on bench: ${h.points_on_bench}`
+                  : "";
+                const activeChip = picksData.active_chip ? `Active chip this GW: ${picksData.active_chip}` : "";
+
+                squadSection = `
+Starting XI:
+${startingXI}
+
+Bench:
+${bench}
+
+${gwStats}${activeChip ? "\n" + activeChip : ""}`;
+              }
+
+              userTeamContext = `USER'S FPL TEAM (Team ID: ${user.fpl_team_id}):
+Team: ${teamName} | Manager: ${managerName}
+Overall Points: ${overallPoints} | Overall Rank: ${overallRank}
+Team Value: ${teamValue} | Bank: ${bank} | Total Transfers Used: ${totalTransfers}
+Chips Used: ${chipsUsed.length > 0 ? chipsUsed.join(", ") : "None yet"}
+Chips Still Available: ${chipsAvailable.length > 0 ? chipsAvailable.join(", ") : "All used"}
+${squadSection}
+
+IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my transfers", or anything personal, refer to the squad data above. Use their actual picks and stats to give personalised advice.
+`;
+            }
+          } catch (teamErr) {
+            console.error("FPL team data fetch error:", teamErr);
+          }
+        }
+
         // Smart filtering based on question keywords
         const messageLower = message.toLowerCase();
-        let filteredPlayers = allPlayers;
+        let filteredPlayers: ChatPlayerRow[] = allPlayers;
         let filterNote = "";
 
-        // Detect comprehensive preview / newsletter-style questions — slim the payload
         const isNewsletterMode = (
           messageLower.includes('preview report') ||
           messageLower.includes('newsletter') ||
@@ -233,12 +337,10 @@ export async function POST(request: Request) {
           (messageLower.includes('double gameweek') && messageLower.includes('differential') && messageLower.includes('captain'))
         );
 
-        // Check for specific player names mentioned (skip in newsletter mode)
-        const mentionedPlayers = isNewsletterMode ? [] : allPlayers.filter(p =>
-          messageLower.includes(p.rawData.web_name.toLowerCase()) ||
-          messageLower.includes(p.rawData.first_name.toLowerCase()) ||
-          messageLower.includes(p.rawData.second_name.toLowerCase())
-        );
+        const mentionedPlayers = isNewsletterMode
+          ? []
+          : findMentionedPlayers(message, allPlayers, squadElementIds);
+        const mentionedTeamCodes = findMentionedTeamCodes(message, fplData.teams ?? []);
 
         if (isNewsletterMode) {
           // For broad reports, send only the top 80 most relevant players to leave
@@ -263,6 +365,13 @@ export async function POST(request: Request) {
               .slice(0, 100)
           ];
           filterNote = `Focused on mentioned players plus top alternatives`;
+        }
+        else if (
+          mentionedTeamCodes.length > 0 &&
+          (messageLower.includes("squad") || messageLower.includes("team") || mentionedTeamCodes.length === 1)
+        ) {
+          filteredPlayers = allPlayers.filter((p) => mentionedTeamCodes.includes(p.team ?? ""));
+          filterNote = `Showing ${mentionedTeamCodes.join(", ")} squad players`;
         }
         else if (messageLower.includes('differential') || messageLower.includes('under the radar') || messageLower.includes('hidden gem')) {
           // Differentials: Low ownership (<12%), decent form, playing regularly
@@ -332,105 +441,10 @@ export async function POST(request: Request) {
           filterNote = `Showing top 150 most relevant players (by points, form, and minutes)`;
         }
 
-        // Get upcoming fixtures grouped by team (up to 5 GWs - fewer at season end)
-        const currentGW = currentGameweek?.id || 1;
+        const squadInjection = injectSquadPlayers(filteredPlayers, squadElementIds, allPlayers);
+        filteredPlayers = squadInjection.players;
+        filterNote += squadInjection.noteSuffix;
 
-        // Fetch user's personal FPL team data if they have saved a Team ID
-        let userTeamContext = "";
-        if (user.fpl_team_id) {
-          try {
-            const [entryRes, picksRes, historyRes] = await Promise.all([
-              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/`, {
-                headers: { "User-Agent": "ChatFPL/1.0" },
-              }),
-              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/event/${currentGW}/picks/`, {
-                headers: { "User-Agent": "ChatFPL/1.0" },
-              }),
-              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/history/`, {
-                headers: { "User-Agent": "ChatFPL/1.0" },
-              }),
-            ]);
-
-            const entryData = entryRes.ok ? await entryRes.json() : null;
-            const picksData = picksRes.ok ? await picksRes.json() : null;
-            const historyData = historyRes.ok ? await historyRes.json() : null;
-
-            if (entryData) {
-              const teamName = entryData.name || "Unknown";
-              const managerName = `${entryData.player_first_name || ""} ${entryData.player_last_name || ""}`.trim();
-              const overallPoints = entryData.summary_overall_points ?? "?";
-              const overallRank = (entryData.summary_overall_rank ?? "?").toLocaleString?.() ?? entryData.summary_overall_rank ?? "?";
-              const teamValue = entryData.last_deadline_value != null ? `£${(entryData.last_deadline_value / 10).toFixed(1)}m` : "?";
-              const bank = entryData.last_deadline_bank != null ? `£${(entryData.last_deadline_bank / 10).toFixed(1)}m` : "?";
-              const totalTransfers = entryData.last_deadline_total_transfers ?? "?";
-
-              // Use history endpoint for chip data — it's the reliable source
-              const playedChips: any[] = historyData?.chips || entryData?.chips || [];
-              const chipsUsed: string[] = playedChips.map((c: any) => `${c.name} (GW${c.event})`);
-              const usedNames: string[] = playedChips.map((c: any) => c.name);
-
-              // Wildcards: managers get 2 per season — track usage count
-              const wildcardsUsed = usedNames.filter((n) => n === "wildcard").length;
-              const chipsAvailable: string[] = [];
-              if (wildcardsUsed < 2) chipsAvailable.push(`wildcard (${wildcardsUsed === 0 ? "both still available" : "1 used, 1 remaining"})`);
-              if (!usedNames.includes("freehit")) chipsAvailable.push("freehit");
-              if (!usedNames.includes("bboost")) chipsAvailable.push("bboost (bench boost)");
-              if (!usedNames.includes("3xc")) chipsAvailable.push("3xc (triple captain)");
-
-              let squadSection = "";
-              if (picksData?.picks) {
-                const elementMap: { [key: number]: any } = {};
-                (fplData.elements || []).forEach((p: any) => { elementMap[p.id] = p; });
-
-                const formatPick = (pick: any): string | null => {
-                  const p = elementMap[pick.element];
-                  if (!p) return null;
-                  const t = fplData.teams?.find((t: any) => t.id === p.team);
-                  const pos = fplData.element_types?.find((pt: any) => pt.id === p.element_type);
-                  const flags = [
-                    pick.is_captain ? "(C)" : "",
-                    pick.is_vice_captain ? "(VC)" : "",
-                    pick.multiplier === 3 ? "(3xC)" : "",
-                  ].filter(Boolean).join("");
-                  const injNote = p.news ? `|${p.news}` : "";
-                  return `${p.web_name}${flags ? " " + flags : ""}|${t?.short_name}|${pos?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|${p.form}form|${p.total_points}pts|${p.chance_of_playing_next_round ?? 100}%fit${injNote}`;
-                };
-
-                const startingXI = picksData.picks.filter((p: any) => p.position <= 11).map(formatPick).filter(Boolean).join("\n");
-                const bench = picksData.picks.filter((p: any) => p.position > 11).map(formatPick).filter(Boolean).join("\n");
-
-                const h = picksData.entry_history;
-                const gwStats = h
-                  ? `GW${currentGW} points: ${h.points} | Transfers: ${h.event_transfers} (cost: ${h.event_transfers_cost}pts) | Points on bench: ${h.points_on_bench}`
-                  : "";
-                const activeChip = picksData.active_chip ? `Active chip this GW: ${picksData.active_chip}` : "";
-
-                squadSection = `
-Starting XI:
-${startingXI}
-
-Bench:
-${bench}
-
-${gwStats}${activeChip ? "\n" + activeChip : ""}`;
-              }
-
-              userTeamContext = `USER'S FPL TEAM (Team ID: ${user.fpl_team_id}):
-Team: ${teamName} | Manager: ${managerName}
-Overall Points: ${overallPoints} | Overall Rank: ${overallRank}
-Team Value: ${teamValue} | Bank: ${bank} | Total Transfers Used: ${totalTransfers}
-Chips Used: ${chipsUsed.length > 0 ? chipsUsed.join(", ") : "None yet"}
-Chips Still Available: ${chipsAvailable.length > 0 ? chipsAvailable.join(", ") : "All used"}
-${squadSection}
-
-IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my transfers", or anything personal, refer to the squad data above. Use their actual picks and stats to give personalised advice.
-`;
-            }
-          } catch (teamErr) {
-            console.error("FPL team data fetch error:", teamErr);
-            // Silent fail - chat continues without team data
-          }
-        }
         const upcomingFixtures = fixturesData.filter((f: any) => 
           f.event >= currentGW && f.event <= currentGW + 4 && !f.finished
         );

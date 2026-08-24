@@ -198,6 +198,7 @@ export default function AdminPage() {
   const [topPages, setTopPages] = useState<TopPagesData | null>(null)
   const [topPagesLoading, setTopPagesLoading] = useState(false)
   const [topPagesError, setTopPagesError] = useState<string | null>(null)
+  const [topPagesSteps, setTopPagesSteps] = useState<string[]>([])
   const [topPagesDays, setTopPagesDays] = useState<7 | 28 | 90>(28)
 
   useEffect(() => { fetchAccountData() }, [])
@@ -375,17 +376,19 @@ export default function AdminPage() {
     try {
       setTopPagesLoading(true)
       setTopPagesError(null)
+      setTopPagesSteps([])
       const res = await fetch(`/api/admin/top-pages?days=${days}&limit=25`, { cache: "no-store" })
       const j = await res.json()
       if (!res.ok) {
-        setTopPagesError(j.error ?? `HTTP ${res.status}`)
-        if (j.hint) setTopPagesError(`${j.error} - ${j.hint}`)
+        setTopPagesError(j.hint ? `${j.error} - ${j.hint}` : (j.error ?? `HTTP ${res.status}`))
+        setTopPagesSteps(Array.isArray(j.steps) ? j.steps : [])
         setTopPages(null)
       } else {
         setTopPages(j)
       }
     } catch (err: any) {
       setTopPagesError(err?.message ?? "Failed to fetch")
+      setTopPagesSteps([])
       setTopPages(null)
     } finally {
       setTopPagesLoading(false)
@@ -1313,6 +1316,13 @@ export default function AdminPage() {
                 <div className="rounded-xl border border-amber-400/30 bg-amber-400/[0.06] p-4 text-sm text-amber-100/90">
                   <p className="font-semibold mb-1">Couldn&apos;t load Google Search Console data</p>
                   <p className="text-xs">{topPagesError}</p>
+                  {topPagesSteps.length > 0 ? (
+                    <ol className="mt-3 space-y-1 text-xs list-decimal list-inside text-amber-100/80">
+                      {topPagesSteps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                  ) : null}
                 </div>
               ) : !topPages ? (
                 <p className="text-sm text-white/50">{topPagesLoading ? "Loading top pages..." : "No data yet."}</p>

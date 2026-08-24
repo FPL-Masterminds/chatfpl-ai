@@ -8,6 +8,12 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resetFreeMessagesIfExpired } from "@/lib/reset-free-messages";
 import {
+  findMentionedPlayers,
+  findMentionedTeamCodes,
+  injectSquadPlayers,
+  type ChatPlayerRow,
+} from "@/lib/chat-player-filter";
+import {
   fixAssistantMarkdownPlayerPhotos,
   fplPhotoUrlFromElement,
   type FplPhotoRow,
@@ -200,110 +206,10 @@ export async function POST(request: Request) {
               };
             }) || [];
 
-            const messageLower = message.toLowerCase();
-            let filteredPlayers = allPlayers;
-            let filterNote = "";
-
-            const mentionedPlayers = allPlayers.filter(
-              (p: any) =>
-                messageLower.includes(p.rawData.web_name.toLowerCase()) ||
-                messageLower.includes(p.rawData.first_name.toLowerCase()) ||
-                messageLower.includes(p.rawData.second_name.toLowerCase())
-            );
-
-            if (mentionedPlayers.length > 0 && mentionedPlayers.length <= 5) {
-              filteredPlayers = [
-                ...mentionedPlayers,
-                ...allPlayers
-                  .filter((p: any) => !mentionedPlayers.includes(p))
-                  .sort((a: any, b: any) => b.rawData.total_points - a.rawData.total_points)
-                  .slice(0, 100),
-              ];
-              filterNote = "Focused on mentioned players plus top alternatives";
-            } else if (
-              messageLower.includes("differential") ||
-              messageLower.includes("under the radar") ||
-              messageLower.includes("hidden gem")
-            ) {
-              filteredPlayers = allPlayers
-                .filter(
-                  (p: any) =>
-                    parseFloat(p.rawData.selected_by_percent) < 12 &&
-                    parseFloat(p.rawData.form) > 3.0 &&
-                    p.rawData.minutes > 200
-                )
-                .slice(0, 150);
-              filterNote = "Showing players with <12% ownership, good form, and regular minutes";
-            } else if (
-              messageLower.includes("premium") ||
-              messageLower.includes("expensive") ||
-              messageLower.includes("high price")
-            ) {
-              filteredPlayers = allPlayers
-                .filter((p: any) => p.rawData.now_cost >= 90)
-                .slice(0, 100);
-              filterNote = "Showing premium players (£9.0m+)";
-            } else if (
-              messageLower.includes("budget") ||
-              messageLower.includes("cheap") ||
-              messageLower.includes("enabler")
-            ) {
-              filteredPlayers = allPlayers
-                .filter((p: any) => p.rawData.now_cost < 60)
-                .slice(0, 150);
-              filterNote = "Showing budget players (<£6.0m)";
-            } else if (messageLower.includes("captain")) {
-              filteredPlayers = allPlayers
-                .filter(
-                  (p: any) =>
-                    p.rawData.total_points > 30 && parseFloat(p.rawData.form) > 4.0
-                )
-                .sort((a: any, b: any) => b.rawData.total_points - a.rawData.total_points)
-                .slice(0, 120);
-              filterNote = "Showing top captaincy options based on points and form";
-            } else if (
-              messageLower.includes("transfer") ||
-              messageLower.includes("who to get") ||
-              messageLower.includes("who should i bring in")
-            ) {
-              filteredPlayers = allPlayers
-                .filter(
-                  (p: any) =>
-                    parseFloat(p.rawData.form) > 4.0 &&
-                    p.rawData.total_points > 20 &&
-                    p.rawData.status === "a"
-                )
-                .sort((a: any, b: any) => parseFloat(b.rawData.form) - parseFloat(a.rawData.form))
-                .slice(0, 150);
-              filterNote = "Showing in-form transfer targets";
-            } else if (messageLower.match(/\b(gk|goalkeeper|keeper)\b/)) {
-              filteredPlayers = allPlayers.filter((p: any) => p.position === "GKP").slice(0, 80);
-              filterNote = "Showing goalkeepers only";
-            } else if (messageLower.match(/\b(def|defender|defence|defense)\b/)) {
-              filteredPlayers = allPlayers.filter((p: any) => p.position === "DEF").slice(0, 120);
-              filterNote = "Showing defenders only";
-            } else if (messageLower.match(/\b(mid|midfielder|midfield)\b/)) {
-              filteredPlayers = allPlayers.filter((p: any) => p.position === "MID").slice(0, 150);
-              filterNote = "Showing midfielders only";
-            } else if (messageLower.match(/\b(fwd|forward|striker|attacker)\b/)) {
-              filteredPlayers = allPlayers.filter((p: any) => p.position === "FWD").slice(0, 100);
-              filterNote = "Showing forwards only";
-            } else {
-              filteredPlayers = allPlayers
-                .filter(
-                  (p: any) =>
-                    p.rawData.total_points > 15 ||
-                    parseFloat(p.rawData.form) > 4.0 ||
-                    p.rawData.minutes > 300
-                )
-                .sort((a: any, b: any) => b.rawData.total_points - a.rawData.total_points)
-                .slice(0, 150);
-              filterNote = "Showing top 150 most relevant players (by points, form, and minutes)";
-            }
-
             const currentGW = currentGameweek?.id || 1;
 
             let userTeamContext = "";
+            let squadElementIds: number[] = [];
             if (user.fpl_team_id) {
               try {
                 const [entryRes, picksRes, historyRes] = await Promise.all([
@@ -323,6 +229,7 @@ export async function POST(request: Request) {
                 const entryData = entryRes.ok ? await entryRes.json() : null;
                 const picksData = picksRes.ok ? await picksRes.json() : null;
                 const historyData = historyRes.ok ? await historyRes.json() : null;
+                squadElementIds = (picksData?.picks ?? []).map((p: any) => p.element);
 
                 if (entryData) {
                   const teamName = entryData.name || "Unknown";
@@ -421,6 +328,113 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
                 // silent fail
               }
             }
+
+            const messageLower = message.toLowerCase();
+            let filteredPlayers: ChatPlayerRow[] = allPlayers;
+            let filterNote = "";
+
+            const mentionedPlayers = findMentionedPlayers(message, allPlayers, squadElementIds);
+            const mentionedTeamCodes = findMentionedTeamCodes(message, fplData.teams ?? []);
+
+            if (mentionedPlayers.length > 0 && mentionedPlayers.length <= 5) {
+              filteredPlayers = [
+                ...mentionedPlayers,
+                ...allPlayers
+                  .filter((p: any) => !mentionedPlayers.includes(p))
+                  .sort((a: any, b: any) => b.rawData.total_points - a.rawData.total_points)
+                  .slice(0, 100),
+              ];
+              filterNote = "Focused on mentioned players plus top alternatives";
+            } else if (
+              mentionedTeamCodes.length > 0 &&
+              (messageLower.includes("squad") || messageLower.includes("team") || mentionedTeamCodes.length === 1)
+            ) {
+              filteredPlayers = allPlayers.filter((p) => mentionedTeamCodes.includes(p.team ?? ""));
+              filterNote = `Showing ${mentionedTeamCodes.join(", ")} squad players`;
+            } else if (
+              messageLower.includes("differential") ||
+              messageLower.includes("under the radar") ||
+              messageLower.includes("hidden gem")
+            ) {
+              filteredPlayers = allPlayers
+                .filter(
+                  (p: any) =>
+                    parseFloat(p.rawData.selected_by_percent) < 12 &&
+                    parseFloat(p.rawData.form) > 3.0 &&
+                    p.rawData.minutes > 200
+                )
+                .slice(0, 150);
+              filterNote = "Showing players with <12% ownership, good form, and regular minutes";
+            } else if (
+              messageLower.includes("premium") ||
+              messageLower.includes("expensive") ||
+              messageLower.includes("high price")
+            ) {
+              filteredPlayers = allPlayers
+                .filter((p: any) => p.rawData.now_cost >= 90)
+                .slice(0, 100);
+              filterNote = "Showing premium players (£9.0m+)";
+            } else if (
+              messageLower.includes("budget") ||
+              messageLower.includes("cheap") ||
+              messageLower.includes("enabler")
+            ) {
+              filteredPlayers = allPlayers
+                .filter((p: any) => p.rawData.now_cost < 60)
+                .slice(0, 150);
+              filterNote = "Showing budget players (<£6.0m)";
+            } else if (messageLower.includes("captain")) {
+              filteredPlayers = allPlayers
+                .filter(
+                  (p: any) =>
+                    p.rawData.total_points > 30 && parseFloat(p.rawData.form) > 4.0
+                )
+                .sort((a: any, b: any) => b.rawData.total_points - a.rawData.total_points)
+                .slice(0, 120);
+              filterNote = "Showing top captaincy options based on points and form";
+            } else if (
+              messageLower.includes("transfer") ||
+              messageLower.includes("who to get") ||
+              messageLower.includes("who should i bring in")
+            ) {
+              filteredPlayers = allPlayers
+                .filter(
+                  (p: any) =>
+                    parseFloat(p.rawData.form) > 4.0 &&
+                    p.rawData.total_points > 20 &&
+                    p.rawData.status === "a"
+                )
+                .sort((a: any, b: any) => parseFloat(b.rawData.form) - parseFloat(a.rawData.form))
+                .slice(0, 150);
+              filterNote = "Showing in-form transfer targets";
+            } else if (messageLower.match(/\b(gk|goalkeeper|keeper)\b/)) {
+              filteredPlayers = allPlayers.filter((p: any) => p.position === "GKP").slice(0, 80);
+              filterNote = "Showing goalkeepers only";
+            } else if (messageLower.match(/\b(def|defender|defence|defense)\b/)) {
+              filteredPlayers = allPlayers.filter((p: any) => p.position === "DEF").slice(0, 120);
+              filterNote = "Showing defenders only";
+            } else if (messageLower.match(/\b(mid|midfielder|midfield)\b/)) {
+              filteredPlayers = allPlayers.filter((p: any) => p.position === "MID").slice(0, 150);
+              filterNote = "Showing midfielders only";
+            } else if (messageLower.match(/\b(fwd|forward|striker|attacker)\b/)) {
+              filteredPlayers = allPlayers.filter((p: any) => p.position === "FWD").slice(0, 100);
+              filterNote = "Showing forwards only";
+            } else {
+              filteredPlayers = allPlayers
+                .filter(
+                  (p: any) =>
+                    p.rawData.total_points > 15 ||
+                    parseFloat(p.rawData.form) > 4.0 ||
+                    p.rawData.minutes > 300
+                )
+                .sort((a: any, b: any) => b.rawData.total_points - a.rawData.total_points)
+                .slice(0, 150);
+              filterNote = "Showing top 150 most relevant players (by points, form, and minutes)";
+            }
+
+            const squadInjection = injectSquadPlayers(filteredPlayers, squadElementIds, allPlayers);
+            filteredPlayers = squadInjection.players;
+            filterNote += squadInjection.noteSuffix;
 
             const upcomingFixtures = fixturesData.filter(
               (f: any) => f.event >= currentGW && f.event <= currentGW + 4 && !f.finished

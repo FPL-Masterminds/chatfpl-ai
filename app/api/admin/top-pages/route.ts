@@ -37,11 +37,119 @@ export const maxDuration = 30;
 // cases even when they can query specific properties. Instead we just try
 // each candidate directly with the actual query and use the first that
 // returns 200.
-const CANDIDATE_PROPERTIES = [
+const FALLBACK_PROPERTIES = [
   "sc-domain:chatfpl.ai",
   "https://www.chatfpl.ai/",
   "https://chatfpl.ai/",
 ];
+
+type GoogleApiError = {
+  reason?: string;
+  message?: string;
+  activationUrl?: string;
+};
+
+function parseGoogleError(raw: string): GoogleApiError {
+  try {
+    const parsed = JSON.parse(raw);
+    const detail = parsed?.error?.details?.[0] ?? parsed?.error;
+    const reason =
+      detail?.reason ??
+      parsed?.error?.errors?.[0]?.reason ??
+      parsed?.error?.status;
+    const message =
+      detail?.message ??
+      parsed?.error?.message ??
+      parsed?.error?.errors?.[0]?.message;
+    const activationUrl =
+      detail?.metadata?.activationUrl ??
+      parsed?.error?.details?.find((d: any) => d?.metadata?.activationUrl)?.metadata
+        ?.activationUrl;
+    return { reason, message, activationUrl };
+  } catch {
+    return { message: raw };
+  }
+}
+
+function buildGscFailureHint(
+  attempts: { property: string; status: number; error: string; parsed: GoogleApiError }[],
+  serviceAccount: string,
+  projectId?: string,
+): { error: string; hint: string; steps: string[] } {
+  const parsed = attempts.map((a) => a.parsed);
+  const serviceDisabled = parsed.some(
+    (p) =>
+      p.reason === "accessNotConfigured" ||
+      p.reason === "SERVICE_DISABLED" ||
+      p.message?.includes("Search Console API has not been used") ||
+      p.message?.includes("API has not been enabled"),
+  );
+  const permissionDenied = parsed.some(
+    (p) =>
+      p.reason === "forbidden" ||
+      p.message?.includes("does not have sufficient permission"),
+  );
+
+  if (serviceDisabled) {
+    const activation =
+      parsed.find((p) => p.activationUrl)?.activationUrl ??
+      (projectId
+        ? `https://console.cloud.google.com/apis/library/searchconsole.googleapis.com?project=${projectId}`
+        : "https://console.cloud.google.com/apis/library/searchconsole.googleapis.com");
+    return {
+      error: "Google Search Console API is not enabled for the indexing project",
+      hint:
+        "The daily indexing cron uses a different API. Search Analytics needs the Search Console API enabled separately in Google Cloud.",
+      steps: [
+        `Open ${activation} and click Enable.`,
+        "Wait 2-5 minutes for Google to propagate the change.",
+        `Confirm ${serviceAccount} is listed on the chatfpl.ai property in Search Console with Full permission (Restricted often blocks API reads).`,
+        "Refresh this panel.",
+      ],
+    };
+  }
+
+  if (permissionDenied) {
+    return {
+      error: "Search Console returned 403 for every property variant",
+      hint:
+        "The service account can submit URLs for indexing but cannot read Search Analytics yet.",
+      steps: [
+        "Open Google Search Console for chatfpl.ai: Settings > Users and permissions.",
+        `Find ${serviceAccount} and change permission from Restricted to Full.`,
+        "If it is already Full, remove and re-add the user, then wait 15-30 minutes.",
+        "Refresh this panel.",
+      ],
+    };
+  }
+
+  return {
+    error: "Failed to query Search Console",
+    hint: "Check the attempts array in the server response for upstream details.",
+    steps: [
+      `Confirm ${serviceAccount} is on the chatfpl.ai property in Search Console.`,
+      "Enable the Search Console API in the chatfpl-indexing Google Cloud project.",
+      "Try again after 15-30 minutes if you just changed permissions.",
+    ],
+  };
+}
+
+async function listGscSites(
+  token: string,
+): Promise<{ ok: true; sites: string[] } | { ok: false; status: number; error: string; parsed: GoogleApiError }> {
+  const res = await fetch("https://www.googleapis.com/webmasters/v3/sites", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const raw = await res.text();
+  if (!res.ok) {
+    return { ok: false, status: res.status, error: raw, parsed: parseGoogleError(raw) };
+  }
+  const body = JSON.parse(raw);
+  const sites = (body.siteEntry ?? [])
+    .map((entry: { siteUrl?: string }) => entry.siteUrl)
+    .filter(Boolean);
+  return { ok: true, sites };
+}
 
 async function queryGsc(
   token: string,
@@ -49,8 +157,11 @@ async function queryGsc(
   startDate: string,
   endDate: string,
   rowLimit: number,
-): Promise<{ ok: true; body: any } | { ok: false; status: number; error: string }> {
-  const url = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(property)}/searchAnalytics/query`;
+): Promise<
+  | { ok: true; body: any }
+  | { ok: false; status: number; error: string; parsed: GoogleApiError }
+> {
+  const url = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(property)}/searchAnalytics/query`;
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -65,7 +176,8 @@ async function queryGsc(
     }),
   });
   if (!res.ok) {
-    return { ok: false, status: res.status, error: await res.text() };
+    const error = await res.text();
+    return { ok: false, status: res.status, error, parsed: parseGoogleError(error) };
   }
   return { ok: true, body: await res.json() };
 }
@@ -126,35 +238,56 @@ export async function GET(request: Request) {
     const token = (await client.getAccessToken()).token;
     if (!token) throw new Error("No access token from GoogleAuth");
 
+    const serviceAccount = credentials.client_email ?? "unknown service account";
+    const projectId = credentials.project_id;
+
+    const siteList = await listGscSites(token);
+    const candidateProperties = [
+      ...(siteList.ok ? siteList.sites : []),
+      ...FALLBACK_PROPERTIES,
+    ].filter((property, index, all) => all.indexOf(property) === index);
+
     // Try each candidate in turn. First 200 wins. Collect the failures
     // so if all miss we can return a diagnostic instead of a black box.
-    const attempts: { property: string; status: number; error: string }[] = [];
+    const attempts: {
+      property: string;
+      status: number;
+      error: string;
+      parsed: GoogleApiError;
+    }[] = [];
     let property: string | null = null;
     let body: any = null;
-    for (const candidate of CANDIDATE_PROPERTIES) {
+    for (const candidate of candidateProperties) {
       const result = await queryGsc(token, candidate, startDate, endDate, limit);
       if (result.ok) {
         property = candidate;
         body = result.body;
         break;
       }
-      attempts.push({ property: candidate, status: result.status, error: result.error });
+      attempts.push({
+        property: candidate,
+        status: result.status,
+        error: result.error,
+        parsed: result.parsed,
+      });
     }
 
     if (!property) {
-      // All candidates failed. The most likely 403 means the service account
-      // isn't yet visible to Search Console for this property, which usually
-      // means "we just added it and Google hasn't propagated" (5-30 min) or
-      // the wrong property variant is registered.
+      const failure = buildGscFailureHint(attempts, serviceAccount, projectId);
       const has403 = attempts.some((a) => a.status === 403);
       return NextResponse.json({
-        error: has403
-          ? "Search Console returned 403 for every property variant"
-          : "Failed to query Search Console",
-        hint: has403
-          ? "The service account should be listed on the chatfpl.ai property in Search Console. If you just added it, wait 15-30 minutes for Google to propagate. Otherwise the property might be registered under a variant we don't know about - check Search Console's property selector for the exact spelling."
-          : "Check server logs for the upstream error.",
-        attempts,
+        error: failure.error,
+        hint: failure.hint,
+        steps: failure.steps,
+        serviceAccount,
+        siteList: siteList.ok ? siteList.sites : null,
+        siteListError: siteList.ok ? null : siteList.parsed,
+        attempts: attempts.map((a) => ({
+          property: a.property,
+          status: a.status,
+          reason: a.parsed.reason,
+          message: a.parsed.message,
+        })),
       }, { status: has403 ? 403 : 502 });
     }
 
