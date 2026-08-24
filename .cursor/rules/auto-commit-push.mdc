@@ -1,0 +1,39 @@
+---
+description: Always commit and push code changes so the user can see them on Vercel
+alwaysApply: true
+---
+
+# Auto Commit and Push
+
+After making code changes in this repo, **always commit and push without asking**.
+
+The user deploys via Vercel from `main`. Uncommitted work is invisible to them.
+
+## Required workflow
+
+When you finish a task that changed files:
+
+1. Run `git status` and `git diff` to review what changed.
+2. Stage all relevant files (never `.env`, credentials, or secrets).
+3. Commit with a clear message focused on why.
+4. Push to `origin` on the current branch (usually `main`).
+5. Tell the user the commit hash briefly. Do not ask "want me to commit?"
+
+## Do not
+
+- Ask whether to commit or push after implementing something.
+- Leave completed work only on disk.
+- Use `--force` on `main`/`master`.
+- Skip hooks unless the user explicitly requests it.
+
+## Exceptions
+
+- **Question-only or review-only tasks** with no file edits: no commit.
+- **User explicitly says not to commit** for that task: obey that once.
+- **Commit fails** (hook, conflict): fix and create a new commit; do not amend unless the user rule for amend applies.
+
+## Example
+
+User: "Fix the Season Story error styling."
+
+Agent: makes the edit, commits, pushes, replies with what shipped and the hash.
