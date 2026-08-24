@@ -21,6 +21,7 @@ import {
   canDiscussRankMovement,
   canDiscussRivalryArc,
   canDiscussGapChange,
+  benchMentionMinPts,
 } from "./season-story-copy"
 import {
   computeChipVerdicts,
@@ -353,7 +354,7 @@ export function buildSeasonStoryFacts(
     userBeatAvg: user ? user.gwPts > fplAvg : false,
     chipPlayers,
     hitTakers,
-    benchHero: benchHero && benchHero.benchPts >= 12 ? benchHero : null,
+    benchHero: benchHero && benchHero.benchPts >= benchMentionMinPts(gw) ? benchHero : null,
     beatAvgCount,
     tightLeague,
     runawayLeader,

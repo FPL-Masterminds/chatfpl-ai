@@ -95,13 +95,99 @@ function waitingResponse(
   })
 }
 
-function standingsOnlyMembers(
-  standingsRows: StandingRow[],
-  finishedGws: CompletedGw[]
+type TacticalSnapshot = {
+  chips: { name: string; event: number }[]
+  gwRow: {
+    points_on_bench?: number
+    event_transfers?: number
+    event_transfers_cost?: number
+  } | null
+}
+
+function buildMembersWithTactical(
+  rows: StandingRow[],
+  gw: number,
+  tactical: Map<number, TacticalSnapshot>
 ): MemberHistoryInput[] {
-  if (finishedGws.length === 0) return membersFromStandings(standingsRows, 1)
-  const maxGw = Math.max(...finishedGws.map((g) => g.gw))
-  return membersFromStandings(standingsRows, maxGw)
+  return rows.map((r) => {
+    const snap = tactical.get(r.entry)
+    const gwHistory = snap?.gwRow
+    return {
+      entryId: r.entry,
+      team: r.entry_name,
+      manager: r.player_name,
+      current: [
+        {
+          event: gw,
+          points: r.event_total,
+          total_points: r.total,
+          points_on_bench: gwHistory?.points_on_bench ?? 0,
+          event_transfers: gwHistory?.event_transfers ?? 0,
+          event_transfers_cost: gwHistory?.event_transfers_cost ?? 0,
+        },
+      ],
+      chips: snap?.chips ?? [],
+    }
+  })
+}
+
+async function fetchMemberTacticalData(
+  entries: { entry: number }[],
+  gw: number
+): Promise<Map<number, TacticalSnapshot>> {
+  const map = new Map<number, TacticalSnapshot>()
+  for (let i = 0; i < entries.length; i += HISTORY_BATCH) {
+    const batch = entries.slice(i, i + HISTORY_BATCH)
+    await Promise.all(
+      batch.map(async (e) => {
+        const empty: TacticalSnapshot = { chips: [], gwRow: null }
+        try {
+          const r = await fetch(
+            `https://fantasy.premierleague.com/api/entry/${e.entry}/history/`,
+            { headers: H }
+          )
+          if (!r.ok) {
+            map.set(e.entry, empty)
+            return
+          }
+          const hist = await r.json()
+          map.set(e.entry, {
+            chips: hist?.chips ?? [],
+            gwRow:
+              (hist?.current ?? []).find((c: { event: number }) => c.event === gw) ?? null,
+          })
+        } catch {
+          map.set(e.entry, empty)
+        }
+      })
+    )
+  }
+  return map
+}
+
+async function resolveStoryMembers(
+  standingsRows: StandingRow[],
+  maxFinishedGw: number,
+  liveGwId: number | null,
+  needsFullHistory: boolean,
+  mergeLiveProvisional: boolean
+): Promise<MemberHistoryInput[]> {
+  if (needsFullHistory) {
+    let members = await fetchMemberHistories(standingsRows)
+    if (mergeLiveProvisional && liveGwId) {
+      members = mergeMembersWithStandings(members, standingsRows, liveGwId)
+    }
+    const targetGw = maxFinishedGw || liveGwId || 1
+    if (!membersHaveGwData(members, targetGw)) {
+      const tactical = await fetchMemberTacticalData(standingsRows, targetGw)
+      return buildMembersWithTactical(standingsRows, targetGw, tactical)
+    }
+    return members
+  }
+
+  const gw = maxFinishedGw || liveGwId || 1
+  const tactical = await fetchMemberTacticalData(standingsRows, gw)
+  return buildMembersWithTactical(standingsRows, gw, tactical)
 }
 
 function membersHaveGwData(members: MemberHistoryInput[], gw: number): boolean {
@@ -297,7 +383,8 @@ export async function GET(request: Request) {
           const previewGws: CompletedGw[] = [
             { gw: liveGw.id, avg: liveGw.average_entry_score ?? 0, provisional: true },
           ]
-          const members = membersFromStandings(standingsRows, liveGw.id)
+          const tactical = await fetchMemberTacticalData(standingsRows, liveGw.id)
+          const members = buildMembersWithTactical(standingsRows, liveGw.id, tactical)
           const stories = tryGenerateStories(
             activeLeague.id,
             leagueName,
@@ -337,23 +424,18 @@ export async function GET(request: Request) {
     }
 
     const maxFinishedGw = finishedGws.length > 0 ? Math.max(...finishedGws.map((g) => g.gw)) : 0
-    const gw1OnlyComplete = maxFinishedGw <= 1 && finishedGws.length > 0 && !liveGw
+    const needsFullHistory = maxFinishedGw > 1
+    const mergeLiveProvisional = Boolean(
+      isAdmin && liveGw && completedGws.some((g) => g.provisional && g.gw === liveGw.id)
+    )
 
-    let members: MemberHistoryInput[]
-    if (gw1OnlyComplete) {
-      // Opening gameweek: standings already have every manager's GW score.
-      // Skipping per-entry history avoids timeouts on large leagues.
-      members = standingsOnlyMembers(standingsRows, finishedGws)
-    } else {
-      members = await fetchMemberHistories(standingsRows)
-      if (liveGw && completedGws.some((g) => g.provisional && g.gw === liveGw.id)) {
-        members = mergeMembersWithStandings(members, standingsRows, liveGw.id)
-      }
-      const targetGw = maxFinishedGw || liveGw?.id || 1
-      if (!membersHaveGwData(members, targetGw)) {
-        members = standingsOnlyMembers(standingsRows, finishedGws)
-      }
-    }
+    const members = await resolveStoryMembers(
+      standingsRows,
+      maxFinishedGw,
+      liveGw?.id ?? null,
+      needsFullHistory,
+      mergeLiveProvisional
+    )
 
     let stories: ReturnType<typeof generateAllSeasonStories> = []
     try {

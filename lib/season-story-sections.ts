@@ -8,6 +8,7 @@ import {
   sanitizeParagraph,
   isFirstGameweek,
   fplAvgComparisonShort,
+  benchMentionMinPts,
 } from "./season-story-copy"
 import { pickFromPool, composeStory, type StoryLine } from "./season-story-seed"
 import {
@@ -216,7 +217,7 @@ const SUBPLOTS_RAW: Tpl[] = [
     if (f.hitTakers.length > 0) {
       bits.push(`${f.hitTakers[0].team} paid ${pts(f.hitTakers[0].transferCost)} for extra transfers`)
     }
-    if (f.benchHero && f.benchHero.benchPts >= 12) {
+    if (f.benchHero && f.benchHero.benchPts >= benchMentionMinPts(f.gw)) {
       bits.push(`${f.benchHero.team} left ${pts(f.benchHero.benchPts)} on the bench`)
     }
 

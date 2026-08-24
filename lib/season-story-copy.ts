@@ -98,6 +98,11 @@ export function phaseNote(gw: number, phase: string, leagueName: string): string
   return "We are deep enough into the campaign for patterns to matter more than luck."
 }
 
+/** Minimum bench points worth calling out in copy (lower bar on opening GW). */
+export function benchMentionMinPts(gw: number): number {
+  return gw === 1 ? 8 : 12
+}
+
 /** Ensure no sentence in a paragraph begins with a digit. */
 export function sanitizeParagraph(text: string): string {
   const parts = text.split(/(?<=[.!?])\s+/).filter(Boolean)
