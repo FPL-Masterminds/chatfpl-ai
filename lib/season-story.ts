@@ -5,9 +5,6 @@ import {
   personalFor,
   spoonFor,
   codaFor,
-  canDiscussRankMovement,
-  canDiscussRivalryArc,
-  canDiscussGapChange,
   FIXTURE,
   PERSONALITY,
   CAPTAINCY,
@@ -20,6 +17,11 @@ import {
   CONSISTENCY,
   RIVALRY,
 } from "./season-story-sections"
+import {
+  canDiscussRankMovement,
+  canDiscussRivalryArc,
+  canDiscussGapChange,
+} from "./season-story-copy"
 import {
   computeChipVerdicts,
   computeConsistencyCrown,
