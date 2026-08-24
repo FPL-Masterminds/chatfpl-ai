@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { FPL_PLAYER_PHOTO_SILHOUETTE, fplPlayerPhotoUrl } from "@/lib/fpl-player-photo"
 
-const SILHOUETTE = "https://resources.premierleague.com/premierleague25/photos/players/110x140/Photo-Missing.png"
+const SILHOUETTE = FPL_PLAYER_PHOTO_SILHOUETTE
 
 export function HubPlayerPhoto({
   code,
@@ -22,9 +23,7 @@ export function HubPlayerPhoto({
     }
   }, [])
 
-  const src = errored
-    ? SILHOUETTE
-    : `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
+  const src = errored ? SILHOUETTE : fplPlayerPhotoUrl(code)
 
   return (
     // eslint-disable-next-line @next/next/no-img-element

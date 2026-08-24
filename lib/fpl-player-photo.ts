@@ -5,6 +5,9 @@
  * - same URL fantasy.premierleague.com itself uses. Portrait 110x140 crop is
  * important: the player head is meant to overhang the top of each card.
  *
+ * Do NOT use the legacy `/premierleague/photos/players/.../p{code}.png` path.
+ * That dataset is stale (old kits, wrong clubs).
+ *
  * The season suffix (`premierleague25`) rolls forward with each new campaign,
  * so this is overridable via FPL_PLAYER_PHOTO_BASE without a redeploy.
  */
@@ -16,16 +19,29 @@ export function getFplPlayerPhotoBase(): string {
   );
 }
 
-/** Build PNG URL from bootstrap `elements[].photo` (e.g. "154561.jpg") or numeric `code`. */
+/** Bust browser/CDN caches when PL refreshes headshots mid-season. */
+export function getFplPlayerPhotoCacheBust(): string {
+  return process.env.FPL_PLAYER_PHOTO_CACHE_BUST?.trim() || "2526";
+}
+
+/** Build PNG URL from bootstrap `elements[].code` (preferred) or `photo` field. */
 export function fplPhotoUrlFromElement(photo: string | undefined, code: number | undefined): string {
+  if (code != null && code > 0) return fplPlayerPhotoUrl(code);
   const base = getFplPlayerPhotoBase();
   const stripped = String(photo || "")
     .replace(/\.(jpg|jpeg|png)$/i, "")
     .trim();
-  const id = stripped || (code != null ? String(code) : "");
-  if (!id) return "";
-  return `${base}/${id}.png`;
+  if (!stripped) return "";
+  return `${base}/${stripped}.png?${getFplPlayerPhotoCacheBust()}`;
 }
+
+/** Client-safe URL from FPL player `code` (e.g. 244851 for Cole Palmer). */
+export function fplPlayerPhotoUrl(code: number): string {
+  const base = getFplPlayerPhotoBase();
+  return `${base}/${code}.png?${getFplPlayerPhotoCacheBust()}`;
+}
+
+export const FPL_PLAYER_PHOTO_SILHOUETTE = `${getFplPlayerPhotoBase()}/Photo-Missing.png`;
 
 export type FplPhotoRow = {
   web_name: string;

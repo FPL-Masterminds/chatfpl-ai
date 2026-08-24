@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { fplPhotoUrlFromElement } from "@/lib/fpl-player-photo";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const session = await auth();
@@ -195,7 +197,7 @@ export async function GET(request: Request) {
         ep_next: parseFloat(p.ep_next ?? "0"),
         chance: p.chance_of_playing_next_round ?? 100,
         news: p.news ?? "",
-        photo_url: `https://resources.premierleague.com/premierleague25/photos/players/110x140/${p.code}.png`,
+        photo_url: fplPhotoUrlFromElement(p.photo, p.code),
         next_fixtures: teamFixtureMap[p.team] ?? [],
       };
     }).filter(Boolean);

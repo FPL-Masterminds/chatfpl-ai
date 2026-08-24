@@ -6,6 +6,7 @@ import { getGWFixtureContext, isGameweekStoryReady } from "@/lib/season-story-fi
 
 export const runtime = "nodejs"
 export const maxDuration = 60
+export const dynamic = "force-dynamic"
 
 const H = { "User-Agent": "ChatFPL/1.0" }
 const MAX_LEAGUE_PAGES = 4
@@ -92,6 +93,19 @@ function waitingResponse(
     preview_gws: [],
     live_gw: liveGwId,
   })
+}
+
+function standingsOnlyMembers(
+  standingsRows: StandingRow[],
+  finishedGws: CompletedGw[]
+): MemberHistoryInput[] {
+  if (finishedGws.length === 0) return membersFromStandings(standingsRows, 1)
+  const maxGw = Math.max(...finishedGws.map((g) => g.gw))
+  return membersFromStandings(standingsRows, maxGw)
+}
+
+function membersHaveGwData(members: MemberHistoryInput[], gw: number): boolean {
+  return members.some((m) => m.current.some((c) => c.event === gw))
 }
 
 function tryGenerateStories(
@@ -322,9 +336,23 @@ export async function GET(request: Request) {
       })
     }
 
-    let members = await fetchMemberHistories(standingsRows)
-    if (liveGw && completedGws.some((g) => g.provisional && g.gw === liveGw.id)) {
-      members = mergeMembersWithStandings(members, standingsRows, liveGw.id)
+    const maxFinishedGw = finishedGws.length > 0 ? Math.max(...finishedGws.map((g) => g.gw)) : 0
+    const gw1OnlyComplete = maxFinishedGw <= 1 && finishedGws.length > 0 && !liveGw
+
+    let members: MemberHistoryInput[]
+    if (gw1OnlyComplete) {
+      // Opening gameweek: standings already have every manager's GW score.
+      // Skipping per-entry history avoids timeouts on large leagues.
+      members = standingsOnlyMembers(standingsRows, finishedGws)
+    } else {
+      members = await fetchMemberHistories(standingsRows)
+      if (liveGw && completedGws.some((g) => g.provisional && g.gw === liveGw.id)) {
+        members = mergeMembersWithStandings(members, standingsRows, liveGw.id)
+      }
+      const targetGw = maxFinishedGw || liveGw?.id || 1
+      if (!membersHaveGwData(members, targetGw)) {
+        members = standingsOnlyMembers(standingsRows, finishedGws)
+      }
     }
 
     let stories: ReturnType<typeof generateAllSeasonStories> = []
@@ -345,7 +373,12 @@ export async function GET(request: Request) {
     const finishedGwCount = finishedGws.length
     let status: "ready" | "waiting_for_gw" | "unavailable" = "ready"
     if (stories.length === 0) {
-      status = liveGw && finishedGwCount === 0 ? "waiting_for_gw" : "unavailable"
+      status =
+        liveGw && finishedGwCount === 0
+          ? "waiting_for_gw"
+          : finishedGwCount > 0
+            ? "unavailable"
+            : "waiting_for_gw"
     }
 
     return jsonResponse({

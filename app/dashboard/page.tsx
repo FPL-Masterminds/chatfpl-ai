@@ -10,6 +10,7 @@ import { Footer } from "@/components/footer"
 import { SeasonStoryFormattedText } from "@/components/season-story-text"
 import { SeasonStoryMessagePanel } from "@/components/season-story-message"
 import type { SeasonStoryEntities } from "@/lib/season-story"
+import { fplPlayerPhotoUrl } from "@/lib/fpl-player-photo"
 import {
   ResponsiveContainer, ComposedChart, AreaChart, Area, Bar, Line,
   XAxis, YAxis, Tooltip, CartesianGrid, LineChart,
@@ -601,7 +602,7 @@ function TransfersPanel({ data }: { data: DashboardData }) {
       <div className="space-y-3">
         {suggestions.map((s, i) => {
           const outPhotoUrl = s.out.photo_url
-          const inPhotoUrl = `https://resources.premierleague.com/premierleague25/photos/players/110x140/${s.in.code}.png`
+          const inPhotoUrl = fplPlayerPhotoUrl(s.in.code)
           return (
           <div key={i} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] overflow-hidden">
             {/* Banner */}

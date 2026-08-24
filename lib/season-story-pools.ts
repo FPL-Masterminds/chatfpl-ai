@@ -8,6 +8,7 @@ import {
   gwsRemaining,
   spellN,
   fplAvgComparisonPhrase,
+  sanitizeParagraph,
 } from "./season-story-copy"
 import { composeStory, type StoryLine } from "./season-story-seed"
 
