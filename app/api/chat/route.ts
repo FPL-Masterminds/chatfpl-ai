@@ -3,9 +3,13 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resetFreeMessagesIfExpired } from "@/lib/reset-free-messages";
 import {
+  findComparePlayers,
   findMentionedPlayers,
   findMentionedTeamCodes,
+  formatRequestedPlayersContext,
+  injectRequestedPlayers,
   injectSquadPlayers,
+  isPlayerCompareQuery,
   type ChatPlayerRow,
 } from "@/lib/chat-player-filter";
 import {
@@ -33,82 +37,10 @@ import {
   resolveFplGameweekContext,
   teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
+import { getRedditContext } from "@/lib/reddit-context";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-// ─── Reddit cache (30-minute module-level TTL) ────────────────────────────────
-
-const CACHE_TTL_MS = 30 * 60 * 1000;
-let redditCache: { context: string; fetchedAt: number } | null = null;
-const SUBREDDITS = ["FantasyPL", "fantasypremierleague"];
-
-async function fetchSubreddit(sub: string): Promise<string[]> {
-  let res: Response;
-  try {
-    res = await fetch(
-      `https://www.reddit.com/r/${sub}/hot.json?limit=8&raw_json=1`,
-      {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; ChatFPL/1.0; +https://chatfpl.ai)",
-          "Accept": "application/json",
-        },
-        next: { revalidate: 0 },
-      }
-    );
-  } catch (err) {
-    console.error(`[Reddit] Network error fetching r/${sub}:`, err);
-    return [];
-  }
-  if (!res.ok) {
-    console.error(`[Reddit] r/${sub} returned HTTP ${res.status} ${res.statusText}`);
-    return [];
-  }
-  let data: any;
-  try {
-    data = await res.json();
-  } catch (err) {
-    console.error(`[Reddit] Failed to parse JSON from r/${sub}:`, err);
-    return [];
-  }
-  const posts: any[] = data?.data?.children ?? [];
-  const lines: string[] = [];
-  for (const { data: post } of posts) {
-    if (post.stickied) continue;
-    const flair = post.link_flair_text ? `[${post.link_flair_text}] ` : "";
-    const body = post.selftext
-      ? ` - "${post.selftext.slice(0, 200).replace(/\n+/g, " ").trim()}..."`
-      : "";
-    lines.push(`• ${flair}${post.title} (upvotes: ${post.score})${body}`);
-  }
-  console.log(`[Reddit] r/${sub}: fetched ${lines.length} posts`);
-  return lines;
-}
-
-async function getRedditContext(): Promise<string> {
-  if (redditCache && Date.now() - redditCache.fetchedAt < CACHE_TTL_MS) {
-    return redditCache.context;
-  }
-  try {
-    const results = await Promise.all(SUBREDDITS.map(fetchSubreddit));
-    const sections = SUBREDDITS.map((sub, i) =>
-      results[i].length ? `r/${sub}:\n${results[i].join("\n")}` : null
-    ).filter(Boolean);
-    if (sections.length === 0) {
-      redditCache = { context: "", fetchedAt: Date.now() };
-      return "";
-    }
-    const context = `PRE-FETCHED REDDIT DATA — YOU DO NOT NEED TO BROWSE ANYTHING. THIS DATA HAS ALREADY BEEN RETRIEVED FOR YOU AND IS PASTED BELOW. TREAT IT AS GIVEN FACTS:
-
-${sections.join("\n\n")}
-
-CRITICAL INSTRUCTION: The Reddit posts above were fetched by the server and injected directly into this message. You already have this data — never say "I can't browse Reddit". If asked what is trending on Reddit, read the list above and report it directly, citing post titles and upvote scores.`;
-    redditCache = { context, fetchedAt: Date.now() };
-    return context;
-  } catch {
-    return "";
-  }
-}
 
 export async function POST(request: Request) {
   try {
@@ -372,6 +304,12 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
         const mentionedPlayers = isNewsletterMode
           ? []
           : findMentionedPlayers(message, allPlayers, squadElementIds);
+        const comparePlayers = isNewsletterMode
+          ? []
+          : findComparePlayers(message, allPlayers);
+        const requestedPlayers = [...comparePlayers, ...mentionedPlayers.filter(
+          (p) => !comparePlayers.some((c) => c.rawData.id === p.rawData.id),
+        )];
         const mentionedTeamCodes = findMentionedTeamCodes(message, fplData.teams ?? []);
 
         if (isNewsletterMode) {
@@ -387,12 +325,22 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
             .slice(0, 80);
           filterNote = `Newsletter/preview mode: top 80 players by relevance (points, form, ownership)`;
         }
-        else if (mentionedPlayers.length > 0 && mentionedPlayers.length <= 5) {
+        else if (isPlayerCompareQuery(message) && requestedPlayers.length > 0) {
+          filteredPlayers = [
+            ...requestedPlayers,
+            ...allPlayers
+              .filter((p) => !requestedPlayers.some((r) => r.rawData.id === p.rawData.id))
+              .sort((a, b) => b.rawData.total_points - a.rawData.total_points)
+              .slice(0, 80),
+          ];
+          filterNote = `Player comparison mode: ${requestedPlayers.map((p) => p.rawData.web_name).join(" vs ")}`;
+        }
+        else if (requestedPlayers.length > 0 && requestedPlayers.length <= 8) {
           // User asked about specific players - send those + top alternatives
           filteredPlayers = [
-            ...mentionedPlayers,
+            ...requestedPlayers,
             ...allPlayers
-              .filter(p => !mentionedPlayers.includes(p))
+              .filter((p) => !requestedPlayers.some((r) => r.rawData.id === p.rawData.id))
               .sort((a, b) => b.rawData.total_points - a.rawData.total_points)
               .slice(0, 100)
           ];
@@ -476,6 +424,12 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
         const squadInjection = injectSquadPlayers(filteredPlayers, squadElementIds, allPlayers);
         filteredPlayers = squadInjection.players;
         filterNote += squadInjection.noteSuffix;
+
+        const requestedInjection = injectRequestedPlayers(filteredPlayers, requestedPlayers);
+        filteredPlayers = requestedInjection.players;
+        filterNote += requestedInjection.noteSuffix;
+
+        const requestedPlayersContext = formatRequestedPlayersContext(requestedPlayers);
 
         const upcomingFixtures = filterUpcomingFixtures(fixturesData, adviceGwId, 4);
 
@@ -598,7 +552,7 @@ ${adviceGwNote}
 
 ${transferWindowContext}
 
-${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
+${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
@@ -640,10 +594,11 @@ FIXTURE DIFFICULTY: 1=Easy, 2=Favorable, 3=Medium, 4=Tough, 5=Very Difficult. H=
 You now have access to FPL expected points predictions, ownership trends (transfers in/out this GW and total season), actual performance stats (goals, assists, minutes, clean sheets), bonus/ICT data, injury updates, and disciplinary records. Use this live data to answer the user's question accurately. Check team fixtures and transfer trends before recommending players. All data is current as of today.
 
 DATA INTEGRITY (MANDATORY):
+- LIVE FPL DATA is injected server-side on every request. NEVER ask the user to paste player rows, PhotoURLs, or stats.
 - Use ONLY club names, prices, stats, and PhotoURL values from the pipe-delimited rows above. Do not substitute clubs or numbers from memory or older seasons.
-- PhotoURL is always the final field after the last pipe (|) on each player row. Copy that URL exactly into markdown images — never guess or reconstruct image links.
+- PhotoURL is always the final field after the last pipe (|) on each player row. Copy that URL exactly into markdown images. Never guess or reconstruct image links.
 - For markdown images use the player's real full name in the alt text (e.g. ![Jacob Ramsey](PhotoURL)) so the name matches the row you used for stats.
-- If a player does not appear in the filtered rows, say they are not in the current excerpt and ask to narrow the question — do not invent stats or photos.
+- If a player does not appear in the filtered rows, say they are not in the current excerpt and ask to narrow the question. Do not invent stats or photos.
 - DATA SOURCES AVAILABLE: FPL API data (players, fixtures, ownership, xG/xA, injuries from the news field) and Reddit hot posts from r/FantasyPL. Press conference transcripts, external news sites, and detailed midweek injury updates are NOT available — if asked for these, state clearly what data you do and do not have, then work with what you have.`;
       }
     } catch (fplError) {

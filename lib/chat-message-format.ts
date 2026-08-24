@@ -38,6 +38,7 @@ export const STRUCTURED_CHAT_FORMATTING_RULES = `FORMATTING RULES (plain text UI
   - Why - Bournemouth have a strong run and he offers attacking upside from full-back.
 - NEVER embed a photo in the middle of a sentence.
 - PhotoURL MUST be copied character-for-character from the end of that player's row in LIVE FPL DATA.
+- LIVE FPL DATA is injected server-side. NEVER ask the user to paste player rows or PhotoURLs.
 - Use hyphens ( - ) not em-dashes.`;
 
 export function getChatFormattingRules(profile: ChatModelProfile): string {

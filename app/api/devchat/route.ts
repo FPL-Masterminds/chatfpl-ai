@@ -8,9 +8,13 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { resetFreeMessagesIfExpired } from "@/lib/reset-free-messages";
 import {
+  findComparePlayers,
   findMentionedPlayers,
   findMentionedTeamCodes,
+  formatRequestedPlayersContext,
+  injectRequestedPlayers,
   injectSquadPlayers,
+  isPlayerCompareQuery,
   type ChatPlayerRow,
 } from "@/lib/chat-player-filter";
 import {
@@ -38,78 +42,12 @@ import {
   resolveFplGameweekContext,
   teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
+import { getRedditContext } from "@/lib/reddit-context";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com";
-
-// ─── Reddit cache (30-minute module-level TTL) ────────────────────────────────
-
-const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
-
-let redditCache: { context: string; fetchedAt: number } | null = null;
-
-const SUBREDDITS = [
-  "FantasyPL",
-  "fantasypremierleague",
-];
-
-async function fetchSubreddit(sub: string): Promise<string[]> {
-  const res = await fetch(
-    `https://www.reddit.com/r/${sub}/hot.json?limit=5&raw_json=1`,
-    { headers: { "User-Agent": "ChatFPL/1.0 (by /u/chatfpl)" } }
-  );
-  if (!res.ok) return [];
-
-  const data = await res.json();
-  const posts: any[] = data?.data?.children ?? [];
-  const lines: string[] = [];
-
-  for (const { data: post } of posts) {
-    if (post.stickied) continue;
-    const flair = post.link_flair_text ? `[${post.link_flair_text}] ` : "";
-    const body = post.selftext
-      ? ` — "${post.selftext.slice(0, 200).replace(/\n+/g, " ").trim()}…"`
-      : "";
-    lines.push(`• ${flair}${post.title} (↑${post.score})${body}`);
-  }
-
-  return lines;
-}
-
-async function getRedditContext(): Promise<string> {
-  // Return cached version if still fresh
-  if (redditCache && Date.now() - redditCache.fetchedAt < CACHE_TTL_MS) {
-    return redditCache.context;
-  }
-
-  try {
-    const results = await Promise.all(SUBREDDITS.map(fetchSubreddit));
-
-    const sections = SUBREDDITS.map((sub, i) =>
-      results[i].length
-        ? `r/${sub}:\n${results[i].join("\n")}`
-        : null
-    ).filter(Boolean);
-
-    if (sections.length === 0) {
-      redditCache = { context: "", fetchedAt: Date.now() };
-      return "";
-    }
-
-    const context = `PRE-FETCHED REDDIT DATA — YOU DO NOT NEED TO BROWSE ANYTHING. THIS DATA HAS ALREADY BEEN RETRIEVED FOR YOU AND IS PASTED BELOW. TREAT IT AS GIVEN FACTS:
-
-${sections.join("\n\n")}
-
-CRITICAL INSTRUCTION: The Reddit posts above were fetched by the server moments ago and injected directly into this message. You already have this data — you do not need to browse the internet, visit any URLs, or disclaim that you cannot access Reddit. If the user asks what is trending on Reddit or what the top posts are, read the list above and report it back directly, citing post titles and upvote scores. Never say "I can't browse Reddit" — you have been given the data already.`;
-
-    redditCache = { context, fetchedAt: Date.now() };
-    return context;
-  } catch {
-    return ""; // silent fail — chat continues without Reddit data
-  }
-}
 
 // ─── Route handler ────────────────────────────────────────────────────────────
 
@@ -365,13 +303,26 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
             let filterNote = "";
 
             const mentionedPlayers = findMentionedPlayers(message, allPlayers, squadElementIds);
+            const comparePlayers = findComparePlayers(message, allPlayers);
+            const requestedPlayers = [...comparePlayers, ...mentionedPlayers.filter(
+              (p) => !comparePlayers.some((c) => c.rawData.id === p.rawData.id),
+            )];
             const mentionedTeamCodes = findMentionedTeamCodes(message, fplData.teams ?? []);
 
-            if (mentionedPlayers.length > 0 && mentionedPlayers.length <= 5) {
+            if (isPlayerCompareQuery(message) && requestedPlayers.length > 0) {
               filteredPlayers = [
-                ...mentionedPlayers,
+                ...requestedPlayers,
                 ...allPlayers
-                  .filter((p: any) => !mentionedPlayers.includes(p))
+                  .filter((p: any) => !requestedPlayers.some((r) => r.rawData.id === p.rawData.id))
+                  .sort((a: any, b: any) => b.rawData.total_points - a.rawData.total_points)
+                  .slice(0, 80),
+              ];
+              filterNote = `Player comparison mode: ${requestedPlayers.map((p) => p.rawData.web_name).join(" vs ")}`;
+            } else if (requestedPlayers.length > 0 && requestedPlayers.length <= 8) {
+              filteredPlayers = [
+                ...requestedPlayers,
+                ...allPlayers
+                  .filter((p: any) => !requestedPlayers.some((r) => r.rawData.id === p.rawData.id))
                   .sort((a: any, b: any) => b.rawData.total_points - a.rawData.total_points)
                   .slice(0, 100),
               ];
@@ -467,6 +418,12 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
             filteredPlayers = squadInjection.players;
             filterNote += squadInjection.noteSuffix;
 
+            const requestedInjection = injectRequestedPlayers(filteredPlayers, requestedPlayers);
+            filteredPlayers = requestedInjection.players;
+            filterNote += requestedInjection.noteSuffix;
+
+            const requestedPlayersContext = formatRequestedPlayersContext(requestedPlayers);
+
             const upcomingFixtures = filterUpcomingFixtures(fixturesData, adviceGwId, 4);
 
             const upcomingGwCount = new Set(upcomingFixtures.map((f: any) => f.event)).size;
@@ -547,7 +504,7 @@ ${adviceGwNote}
 
 ${transferWindowContext}
 
-${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
+${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
