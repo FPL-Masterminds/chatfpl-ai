@@ -33,11 +33,16 @@ const PLAYER_PHOTO_GLOW_STYLE: React.CSSProperties = {
   boxShadow: "0 0 6px 1px rgba(255,255,255,0.28)",
 };
 
-// Chat player headshots: 10% larger than the original h-10 / h-14 (40px / 56px).
+// Chat player headshots: another 10% on prior sizes (44px / 61.6px).
 const CHAT_PLAYER_PHOTO_HEIGHT_PX = {
-  sm: 44,
-  md: 61.6,
+  sm: 48.4,
+  md: 67.76,
 } as const;
+
+const CHAT_PLAYER_NAME_PRICE_STYLE: React.CSSProperties = {
+  fontSize: "17.6px",
+  lineHeight: 1.375,
+};
 
 function PlayerPhoto({
   alt,
@@ -88,7 +93,7 @@ function StructuredChatMessageLine({ line }: { line: string }) {
           <span className="shrink-0 text-white/85">{bulletPrefix.trim()}</span>
         ) : null}
         <PlayerPhoto alt={alt} url={url} />
-        <div className="min-w-0 flex-1 text-base leading-snug text-white/85">
+        <div className="min-w-0 flex-1 text-white/85" style={CHAT_PLAYER_NAME_PRICE_STYLE}>
           {namePrice ? (
             <span className="font-semibold text-white">
               {namePrice[1]} - {namePrice[2]}
