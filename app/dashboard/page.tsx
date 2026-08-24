@@ -1132,8 +1132,16 @@ function SeasonStoryPanel({
     managers: [],
   }
 
-  const storyStatus = storyData?.status ?? (loadFailed ? "unavailable" : stories.length > 0 ? "ready" : "unavailable")
   const liveGw = storyData?.live_gw ?? data.current_gw ?? null
+  const storyStatus: SeasonStoryPanelStatus =
+    storyData?.status ??
+    (loadFailed
+      ? "unavailable"
+      : stories.length > 0
+        ? "ready"
+        : leagueId && liveGw
+          ? "waiting_for_gw"
+          : "unavailable")
 
   if (loading) {
     return (
@@ -1168,11 +1176,12 @@ function SeasonStoryPanel({
   if (storyStatus === "waiting_for_gw") {
     const gwLabel = liveGw ? `Gameweek ${liveGw}` : "This gameweek"
     const leagueBit = leagueName ? ` for ${leagueName}` : ""
+    const chapter = (storyData?.completed_gws?.length ?? 0) > 0 ? "next chapter" : "first write-up"
     return (
       <SeasonStoryMessagePanel
         titleWhite={`${gwLabel} is `}
         titleGradient="still live"
-        body={`Your first write-up${leagueBit} lands once the gameweek closes and final scores are in. Check back after the deadline.`}
+        body={`Your ${chapter}${leagueBit} lands once the gameweek closes and final scores are in. Check back after the deadline.`}
       />
     )
   }

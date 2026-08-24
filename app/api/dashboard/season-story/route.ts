@@ -11,6 +11,69 @@ const H = { "User-Agent": "ChatFPL/1.0" }
 const MAX_LEAGUE_PAGES = 4
 const HISTORY_BATCH = 15
 
+type StandingRow = {
+  entry: number
+  entry_name: string
+  player_name: string
+  total: number
+  event_total: number
+  points_on_bench?: number
+}
+
+type CompletedGw = { gw: number; avg: number; provisional?: boolean }
+
+function membersFromStandings(rows: StandingRow[], gw: number): MemberHistoryInput[] {
+  return rows.map((r) => ({
+    entryId: r.entry,
+    team: r.entry_name,
+    manager: r.player_name,
+    current: [
+      {
+        event: gw,
+        points: r.event_total,
+        total_points: r.total,
+        points_on_bench: r.points_on_bench ?? 0,
+      },
+    ],
+    chips: [],
+  }))
+}
+
+function mergeMembersWithStandings(
+  histories: MemberHistoryInput[],
+  standings: StandingRow[],
+  gw: number
+): MemberHistoryInput[] {
+  const byEntry = new Map(histories.map((m) => [m.entryId, m]))
+  for (const row of standings) {
+    const existing = byEntry.get(row.entry)
+    const gwRow = {
+      event: gw,
+      points: row.event_total,
+      total_points: row.total,
+      points_on_bench: row.points_on_bench ?? 0,
+    }
+    if (!existing) {
+      byEntry.set(row.entry, {
+        entryId: row.entry,
+        team: row.entry_name,
+        manager: row.player_name,
+        current: [gwRow],
+        chips: [],
+      })
+      continue
+    }
+    if (!existing.current.some((c) => c.event === gw)) {
+      existing.current.push(gwRow)
+    }
+  }
+  return Array.from(byEntry.values())
+}
+
+function jsonResponse(body: Record<string, unknown>) {
+  return NextResponse.json(body, { status: 200 })
+}
+
 async function fetchLeagueStandings(leagueId: number) {
   const firstRes = await fetch(
     `https://fantasy.premierleague.com/api/leagues-classic/${leagueId}/standings/?page_standings=1`,
@@ -152,11 +215,31 @@ export async function GET(request: Request) {
     const events: { id: number; finished: boolean; is_current?: boolean; average_entry_score?: number }[] =
       bootstrap.events ?? []
     const liveGw = events.find((e) => e.is_current && !e.finished) ?? null
-    const completedGws = events
+    const finishedGws: CompletedGw[] = events
       .filter((e) => e.finished)
       .map((e) => ({ gw: e.id, avg: e.average_entry_score ?? 0 }))
 
     const isAdmin = user.role === "admin"
+    const standingsRows = leagueData.standings.results as StandingRow[]
+    const leagueName = leagueData.league?.name ?? activeLeague.name
+
+    // Live GW, no finished weeks yet: skip heavy history fetches for regular users.
+    if (!isAdmin && liveGw && finishedGws.length === 0) {
+      return jsonResponse({
+        status: "waiting_for_gw",
+        league_id: activeLeague.id,
+        league_name: leagueName,
+        is_admin: false,
+        available_leagues: leagueList,
+        stories: [],
+        completed_gws: [],
+        preview_gws: [],
+        live_gw: liveGw.id,
+      })
+    }
+
+    const completedGws: CompletedGw[] = [...finishedGws]
+    const provisionalOnly = isAdmin && liveGw && finishedGws.length === 0
     if (isAdmin && liveGw && !completedGws.some((g) => g.gw === liveGw.id)) {
       completedGws.push({
         gw: liveGw.id,
@@ -165,8 +248,15 @@ export async function GET(request: Request) {
       })
     }
 
-    const members = await fetchMemberHistories(leagueData.standings.results)
-    const leagueName = leagueData.league?.name ?? activeLeague.name
+    let members: MemberHistoryInput[]
+    if (provisionalOnly) {
+      members = membersFromStandings(standingsRows, liveGw!.id)
+    } else {
+      members = await fetchMemberHistories(standingsRows)
+      if (liveGw && completedGws.some((g) => g.provisional && g.gw === liveGw.id)) {
+        members = mergeMembersWithStandings(members, standingsRows, liveGw.id)
+      }
+    }
 
     const fixtureContexts = new Map(
       completedGws.map((g) => [g.gw, getGWFixtureContext(fixtures, teams, g.gw)])
@@ -181,21 +271,21 @@ export async function GET(request: Request) {
       fixtureContexts
     )
 
-    const finishedGwCount = completedGws.filter((g) => !("provisional" in g && g.provisional)).length
+    const finishedGwCount = finishedGws.length
     let status: "ready" | "waiting_for_gw" | "unavailable" = "ready"
     if (stories.length === 0) {
       status = liveGw && finishedGwCount === 0 ? "waiting_for_gw" : "unavailable"
     }
 
-    return NextResponse.json({
+    return jsonResponse({
       status,
       league_id: activeLeague.id,
       league_name: leagueName,
       is_admin: isAdmin,
       available_leagues: leagueList,
       stories,
-      completed_gws: completedGws.filter((g) => !("provisional" in g && g.provisional)).map((g) => g.gw),
-      preview_gws: completedGws.filter((g) => "provisional" in g && g.provisional).map((g) => g.gw),
+      completed_gws: completedGws.filter((g) => !g.provisional).map((g) => g.gw),
+      preview_gws: completedGws.filter((g) => g.provisional).map((g) => g.gw),
       live_gw: liveGw?.id ?? null,
     })
   } catch (err) {
