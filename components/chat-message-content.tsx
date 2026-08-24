@@ -25,6 +25,14 @@ function parseBold(text: string, keyPrefix: string): React.ReactNode[] {
   return nodes;
 }
 
+const PLAYER_PHOTO_GLOW_STYLE: React.CSSProperties = {
+  height: 1,
+  width: "100%",
+  background:
+    "linear-gradient(to right, transparent, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.7) 70%, transparent)",
+  boxShadow: "0 0 6px 1px rgba(255,255,255,0.28)",
+};
+
 function PlayerPhoto({
   alt,
   url,
@@ -36,11 +44,14 @@ function PlayerPhoto({
 }) {
   const height = size === "sm" ? "h-10" : "h-14";
   return (
-    <img
-      src={url}
-      alt={alt}
-      className={`${height} w-auto shrink-0 rounded object-cover`}
-    />
+    <span className="inline-flex shrink-0 flex-col items-stretch leading-none">
+      <img
+        src={url}
+        alt={alt}
+        className={`${height} w-auto block object-contain object-bottom`}
+      />
+      <span style={PLAYER_PHOTO_GLOW_STYLE} aria-hidden />
+    </span>
   );
 }
 
@@ -144,12 +155,7 @@ function renderLegacyLine(line: string, lineKey: string): React.ReactNode {
       const url = parts[i + 1];
       if (url) {
         elements.push(
-          <img
-            key={`${lineKey}-img-${i}`}
-            src={url}
-            alt={alt}
-            className="mx-1 inline-block h-14 w-auto rounded"
-          />,
+          <PlayerPhoto key={`${lineKey}-img-${i}`} alt={alt} url={url} />,
         );
       }
       i++;
