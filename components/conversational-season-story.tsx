@@ -82,8 +82,18 @@ export function ConversationalSeasonStory({
   const visiblePills = showAll ? remaining : remaining.slice(0, 1)
 
   return (
-    <div className="flex flex-col h-full min-h-0 rounded-2xl border border-white/8 bg-black/40 overflow-hidden">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-4 min-h-0">
+    <div className="season-story-root flex flex-col h-full min-h-0 rounded-2xl border border-white/8 bg-black/40 overflow-hidden">
+      <style>{`
+        .season-story-root ::-webkit-scrollbar { width: 4px; height: 4px; }
+        .season-story-root ::-webkit-scrollbar-track { background: transparent; }
+        .season-story-root ::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
+        .season-story-root ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
+      `}</style>
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-4 min-h-0"
+        style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(0,255,200,0.2) transparent" }}
+      >
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
             <motion.div
