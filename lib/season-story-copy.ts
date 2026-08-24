@@ -54,17 +54,63 @@ export function mgr(row: { manager: string; team?: string }): string {
   return row.team?.trim() || "Unknown"
 }
 
+function teamName(row: { team?: string }): string {
+  return row.team?.trim() || ""
+}
+
+/** True when the FPL team name exists and differs from the manager name. */
+export function hasDistinctTeam(row: { manager: string; team?: string }): boolean {
+  const team = teamName(row)
+  if (!team) return false
+  return team !== mgr(row)
+}
+
 /** Manager name with FPL team in brackets when both exist. */
 export function mgrTeam(row: { manager: string; team: string }): string {
   const name = mgr(row)
-  const team = row.team?.trim()
+  const team = teamName(row)
   if (!team || team === name) return name
   return `${name} (${team})`
+}
+
+/** "Ashley Shorey-Mills, manager of Funny FC" */
+export function mgrOfTeam(row: { manager: string; team?: string }): string {
+  const name = mgr(row)
+  if (!hasDistinctTeam(row)) return name
+  return `${name}, manager of ${teamName(row)}`
+}
+
+/** "Max Le Blond, in charge of Cunha Believe It" */
+export function mgrInChargeOf(row: { manager: string; team?: string }): string {
+  const name = mgr(row)
+  if (!hasDistinctTeam(row)) return name
+  return `${name}, in charge of ${teamName(row)}`
+}
+
+/** "John McDermott of Sock Robbers" */
+export function mgrOf(row: { manager: string; team?: string }): string {
+  const name = mgr(row)
+  if (!hasDistinctTeam(row)) return name
+  return `${name} of ${teamName(row)}`
+}
+
+/** "Miles Vartan's Lough Erne United" */
+export function possessiveTeam(row: { manager: string; team?: string }): string {
+  const name = mgr(row)
+  if (!hasDistinctTeam(row)) return possessiveMgr(row)
+  return `${possessiveMgr(row)} ${teamName(row)}`
 }
 
 export function possessiveMgr(row: { manager: string; team?: string }): string {
   const name = mgr(row)
   return name.endsWith("s") ? `${name}'` : `${name}'s`
+}
+
+export function sameEntry(
+  a: { entryId: number },
+  b: { entryId: number }
+): boolean {
+  return a.entryId === b.entryId
 }
 
 export function podiumManagers(rows: { manager: string; team: string }[]): string {
@@ -73,6 +119,18 @@ export function podiumManagers(rows: { manager: string; team: string }[]): strin
 
 export function podiumManagersRanked(rows: { manager: string; team: string }[]): string {
   return rows.map((p, i) => `${ord(i + 1)} ${mgr(p)}`).join(", ")
+}
+
+/** Leader first on name only; 2nd and 3rd get a single team mention each. */
+export function podiumManagersRankedWithTeams(rows: { manager: string; team: string }[]): string {
+  return rows
+    .map((p, i) => {
+      const rank = ord(i + 1)
+      if (i === 0) return `${rank} ${mgr(p)}`
+      if (i === 1) return `${rank} ${mgrInChargeOf(p)}`
+      return `${rank} ${mgrOfTeam(p)}`
+    })
+    .join(", ")
 }
 
 type SpoonRaceRow = { manager: string; team: string; totalPts: number }
@@ -87,7 +145,7 @@ export function spoonBasementFollowUp(f: {
   if (!second) return "A long season remains to climb out."
 
   if (f.spoonRaceGap === 0) {
-    return `${mgr(second)} and ${mgr(f.woodenSpoon)} are tied on ${f.woodenSpoon.totalPts} points at the foot of the table.`
+    return `${mgrOf(second)} and ${mgr(f.woodenSpoon)} are tied on ${f.woodenSpoon.totalPts} points at the foot of the table.`
   }
   if (f.spoonRaceGap > 0 && f.spoonRaceGap <= 8) {
     return `${mgr(second)} sits just ${pts(f.spoonRaceGap)} above last place.`
@@ -104,12 +162,42 @@ export function spoonRacePrefix(f: {
 }): string {
   const second = f.secondBottom
   if (second && f.spoonRaceGap === 0) {
-    return `${mgr(second)} and ${mgr(f.woodenSpoon)} are level on points at the bottom. `
+    return `${mgrOf(second)} and ${mgr(f.woodenSpoon)} are level on points at the bottom. `
   }
   if (second && f.spoonRaceGap > 0 && f.spoonRaceGap <= 8) {
     return `The wooden spoon race is tight: ${mgr(second)} is only ${pts(f.spoonRaceGap)} ahead of last place. `
   }
   return `At the bottom, ${mgr(f.woodenSpoon)} is ${pts(f.gapFirstLast)} off the leader. `
+}
+
+type LeaderWinnerRow = { entryId: number; manager: string; team?: string }
+
+/** Closing line when summarising table leader and weekly winner. Avoids naming the same person twice. */
+export function leaderWinnerCodaPhrase(leader: LeaderWinnerRow, gwWinner: LeaderWinnerRow): string {
+  const leaderName = mgr(leader)
+  const winnerName = mgr(gwWinner)
+
+  if (sameEntry(leader, gwWinner)) {
+    const phrases = [
+      `${leaderName} leads the table and won the week.`,
+      `${leaderName} topped both the standings and the weekly chart.`,
+      `${leaderName} dominated the week, leading the table with the best score.`,
+      `Bragging rights and the summit both belong to ${leaderName}.`,
+      `${leaderName} heads the table after the week's top return.`,
+    ]
+    return phrases[leader.entryId % phrases.length]!
+  }
+
+  const phrases = [
+    `${leaderName} leads, ${winnerName} won the week.`,
+    `${winnerName} take the weekly honours; ${leaderName} top the table.`,
+    `${leaderName} sits first; ${winnerName} posted the best score.`,
+    `The early leader is ${leaderName}; the weekly high came from ${winnerName}.`,
+    `${leaderName} head the standings after a statement from ${winnerName}.`,
+    `Bragging rights for the week go to ${winnerName}; ${leaderName} lead overall.`,
+    `${leaderName} are top; ${winnerName} set the weekly pace.`,
+  ]
+  return phrases[(leader.entryId + gwWinner.entryId) % phrases.length]!
 }
 
 export function gwName(gw: number): string {

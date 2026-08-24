@@ -11,10 +11,15 @@ import {
   benchMentionMinPts,
   spoonRacePrefix,
   mgr,
-  mgrTeam,
+  mgrOf,
+  mgrOfTeam,
+  possessiveTeam,
   possessiveMgr,
   podiumManagers,
   podiumManagersRanked,
+  podiumManagersRankedWithTeams,
+  leaderWinnerCodaPhrase,
+  sameEntry,
 } from "./season-story-copy"
 import { pickFromPool, composeStory, type StoryLine } from "./season-story-seed"
 import {
@@ -83,7 +88,7 @@ const PODIUM_LATER: Tpl[] = [
       ],
       [
         (ff) => `The current top three reads ${ff.podium.map((p) => `${mgr(p)} (${p.totalPts})`).join(", ")}.`,
-        (ff) => `The new podium line is ${podiumManagersRanked(ff.podium)}.`,
+        (ff) => `The new podium line is ${podiumManagersRankedWithTeams(ff.podium)}.`,
         (ff) => `The summit trio is now ${podiumManagers(ff.podium)}.`,
       ],
     ]))
@@ -224,7 +229,7 @@ const SUBPLOTS_RAW: Tpl[] = [
       bits.push(`${mgr(f.hitTakers[0])} paid ${pts(f.hitTakers[0].transferCost)} for extra transfers`)
     }
     if (f.benchHero && f.benchHero.benchPts >= benchMentionMinPts(f.gw)) {
-      bits.push(`${mgr(f.benchHero)} left ${pts(f.benchHero.benchPts)} on the bench`)
+      bits.push(`${mgrOf(f.benchHero)} left ${pts(f.benchHero.benchPts)} on the bench`)
     }
 
     const intros: StoryLine[] = [
@@ -384,11 +389,11 @@ const SPOON_LATER: Tpl[] = [
     const race = spoonRacePrefix(f)
 
     return sanitizeParagraph(pickFromPool([
-      (ff) => `${race}${mgr(spoon)} props up the table on ${spoon.totalPts} points after ${pts(spoon.gwPts)} in ${gwName(ff.gw)}. ${ff.gw < 38 ? `There is still time to climb.` : `The final table is set.`}`,
+      (ff) => `${race}${possessiveTeam(spoon)} props up the table on ${spoon.totalPts} points after ${pts(spoon.gwPts)} in ${gwName(ff.gw)}. ${ff.gw < 38 ? `There is still time to climb.` : `The final table is set.`}`,
       (ff) => `${race}Last place belongs to ${mgr(spoon)} on ${spoon.totalPts} after ${gwName(ff.gw)}.`,
       (ff) => `${race}${mgr(spoon)} anchors the basement on ${spoon.totalPts}.`,
       (ff) => `${race}The foot of ${ff.leagueName} is occupied by ${mgr(spoon)}.`,
-      (ff) => `${race}${mgrTeam(spoon)} sit last on ${spoon.totalPts}.`,
+      (ff) => `${race}${mgrOfTeam(spoon)} sit last on ${spoon.totalPts}.`,
       (ff) => `${race}The basement: ${mgr(spoon)}, ${spoon.totalPts} points.`,
       (ff) => `${race}${mgr(spoon)} is propping up the table after ${pts(spoon.gwPts)} in ${gwName(ff.gw)}.`,
       (ff) => `${race}Wooden spoon watch: ${mgr(spoon)} on ${spoon.totalPts}.`,
@@ -400,14 +405,27 @@ const CODA_GW1: Tpl[] = [(f) => poolCodaGW1(f)]
 
 const CODA_LATER: Tpl[] = [
   (f) => sanitizeParagraph(pickFromPool([
-    (ff) => `${ff.leagueName} leaves ${gwName(ff.gw)} with ${mgr(ff.leader)} on top and ${mgr(ff.gwWinner)} as the weekly champion. ${gwsRemaining(ff.gw).charAt(0).toUpperCase() + gwsRemaining(ff.gw).slice(1)}.`,
-    (ff) => `Roll on the next gameweek. ${mgr(ff.leader)} sit first, ${mgr(ff.gwWinner)} take the weekly honours, and ${ff.leagueName} has ${gwsRemaining(ff.gw)} before the season is done.`,
-    (ff) => `${gwName(ff.gw)} is logged. ${mgr(ff.leader)} lead, ${mgr(ff.gwWinner)} won the week. ${gwsRemaining(ff.gw)}.`,
-    (ff) => `Until next time: ${mgr(ff.leader)} on top, ${mgr(ff.gwWinner)} with the weekly crown.`,
-    (ff) => `The chapter closes with ${mgr(ff.leader)} first and ${mgr(ff.gwWinner)} best of the week.`,
-    (ff) => `${ff.leagueName} moves on. Leader: ${mgr(ff.leader)}. Weekly winner: ${mgr(ff.gwWinner)}.`,
+    (ff) => sameEntry(ff.leader, ff.gwWinner)
+      ? `${ff.leagueName} leaves ${gwName(ff.gw)} with ${mgr(ff.leader)} on top and as weekly champion. ${gwsRemaining(ff.gw).charAt(0).toUpperCase() + gwsRemaining(ff.gw).slice(1)}.`
+      : `${ff.leagueName} leaves ${gwName(ff.gw)} with ${mgr(ff.leader)} on top and ${mgr(ff.gwWinner)} as the weekly champion. ${gwsRemaining(ff.gw).charAt(0).toUpperCase() + gwsRemaining(ff.gw).slice(1)}.`,
+    (ff) => sameEntry(ff.leader, ff.gwWinner)
+      ? `Roll on the next gameweek. ${mgr(ff.leader)} sit first and took the weekly honours, and ${ff.leagueName} has ${gwsRemaining(ff.gw)} before the season is done.`
+      : `Roll on the next gameweek. ${mgr(ff.leader)} sit first, ${mgr(ff.gwWinner)} take the weekly honours, and ${ff.leagueName} has ${gwsRemaining(ff.gw)} before the season is done.`,
+    (ff) => sameEntry(ff.leader, ff.gwWinner)
+      ? `${gwName(ff.gw)} is logged. ${mgr(ff.leader)} lead and won the week. ${gwsRemaining(ff.gw)}.`
+      : `${gwName(ff.gw)} is logged. ${mgr(ff.leader)} lead, ${mgr(ff.gwWinner)} won the week. ${gwsRemaining(ff.gw)}.`,
+    (ff) => sameEntry(ff.leader, ff.gwWinner)
+      ? `Until next time: ${mgr(ff.leader)} on top with the weekly crown.`
+      : `Until next time: ${mgr(ff.leader)} on top, ${mgr(ff.gwWinner)} with the weekly crown.`,
+    (ff) => sameEntry(ff.leader, ff.gwWinner)
+      ? `The chapter closes with ${mgr(ff.leader)} first and best of the week.`
+      : `The chapter closes with ${mgr(ff.leader)} first and ${mgr(ff.gwWinner)} best of the week.`,
+    (ff) => sameEntry(ff.leader, ff.gwWinner)
+      ? `${ff.leagueName} moves on. ${mgr(ff.leader)} lead overall and won the week.`
+      : `${ff.leagueName} moves on. Leader: ${mgr(ff.leader)}. Weekly winner: ${mgr(ff.gwWinner)}.`,
     (ff) => `Next deadline awaits. ${mgr(ff.leader)} lead the chase.`,
     (ff) => `${gwName(ff.gw)} done. ${gwsRemaining(ff.gw)} in ${ff.leagueName}.`,
+    (ff) => leaderWinnerCodaPhrase(ff.leader, ff.gwWinner),
   ], f, "coda", 0)(f)),
 ]
 
