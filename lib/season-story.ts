@@ -1,21 +1,11 @@
 import {
-  OPENING,
-  PHASE_FRAMING,
-  GW_WINNER,
-  LEADER_TIGHT,
-  LEADER_RUNAWAY,
-  NEW_LEADER,
-  MOVER_UP,
-  MOVER_DOWN,
-  USER_STORY,
-  CHIP_DRAMA,
-  NO_CHIPS,
-  TRANSFER_HITS,
-  BENCH_STORY,
-  BOTTOM_TABLE,
-  LEAGUE_CHARACTER,
-  CLOSING,
-} from "./season-story-templates"
+  LEDE,
+  STANDINGS,
+  MOVEMENT,
+  SUBPLOTS,
+  PERSONAL,
+  CODA,
+} from "./season-story-paragraphs"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -70,7 +60,6 @@ export interface SeasonStory {
   gw: number
   headline: string
   paragraphs: string[]
-  bullets: string[]
   provisional?: boolean
 }
 
@@ -234,82 +223,23 @@ export function buildSeasonStoryFacts(
 export function generateSeasonStory(facts: SeasonStoryFacts): SeasonStory {
   const paragraphs: string[] = []
 
-  const opener = render(OPENING, facts, "opening")
-  const phase = render(PHASE_FRAMING, facts, "phase")
-  paragraphs.push(`${opener} ${phase}`)
+  const slots: { templates: ((f: SeasonStoryFacts) => string)[]; slot: string }[] = [
+    { templates: LEDE, slot: "lede" },
+    { templates: STANDINGS, slot: "standings" },
+    { templates: MOVEMENT, slot: "movement" },
+    { templates: SUBPLOTS, slot: "subplots" },
+    { templates: PERSONAL, slot: "personal" },
+    { templates: CODA, slot: "coda" },
+  ]
 
-  paragraphs.push(render(GW_WINNER, facts, "gw_winner"))
-
-  if (facts.newLeader) {
-    const leadChange = render(NEW_LEADER, facts, "new_leader")
-    if (leadChange) paragraphs.push(leadChange)
+  for (const { templates, slot } of slots) {
+    const text = render(templates, facts, slot).trim()
+    if (text) paragraphs.push(text)
   }
-
-  paragraphs.push(
-    render(facts.runawayLeader ? LEADER_RUNAWAY : LEADER_TIGHT, facts, "leader")
-  )
-
-  const moverUp = render(MOVER_UP, facts, "mover_up")
-  if (moverUp && facts.biggestClimber && facts.biggestClimber.rankChange >= 2) {
-    paragraphs.push(moverUp)
-  }
-
-  const moverDown = render(MOVER_DOWN, facts, "mover_down")
-  if (moverDown && facts.biggestFaller && facts.biggestFaller.rankChange >= 2) {
-    paragraphs.push(moverDown)
-  }
-
-  if (facts.chipPlayers.length > 0) {
-    const chip = render(CHIP_DRAMA, facts, "chips")
-    if (chip) paragraphs.push(chip)
-  } else if (facts.gw >= 3) {
-    paragraphs.push(render(NO_CHIPS, facts, "no_chips"))
-  }
-
-  if (facts.hitTakers.length > 0) {
-    const hits = render(TRANSFER_HITS, facts, "hits")
-    if (hits) paragraphs.push(hits)
-  }
-
-  if (facts.benchHero) {
-    const bench = render(BENCH_STORY, facts, "bench")
-    if (bench) paragraphs.push(bench)
-  }
-
-  if (facts.user) {
-    paragraphs.push(render(USER_STORY, facts, "user"))
-  }
-
-  paragraphs.push(render(LEAGUE_CHARACTER, facts, "character"))
-  paragraphs.push(render(BOTTOM_TABLE, facts, "bottom"))
-  paragraphs.push(render(CLOSING, facts, "closing"))
 
   const headline = `${facts.leagueName} · Gameweek ${facts.gw}`
 
-  const bullets: string[] = [
-    `GW top scorer: ${facts.gwWinner.team} (${facts.gwWinner.gwPts} pts)`,
-    `League leader: ${facts.leader.team} (${facts.leader.totalPts} pts)`,
-  ]
-  if (facts.biggestClimber && facts.biggestClimber.rankChange >= 2) {
-    bullets.push(`Biggest climber: ${facts.biggestClimber.team} (+${facts.biggestClimber.rankChange})`)
-  }
-  if (facts.biggestFaller && facts.biggestFaller.rankChange >= 2) {
-    bullets.push(`Biggest faller: ${facts.biggestFaller.team} (-${facts.biggestFaller.rankChange})`)
-  }
-  if (facts.user) {
-    bullets.push(`You: ${facts.user.gwPts} pts, ${facts.user.rank}${ordinalSuffix(facts.user.rank)} place`)
-  }
-  if (facts.chipPlayers.length > 0) {
-    bullets.push(`Chips played: ${facts.chipPlayers.map((p) => p.team).join(", ")}`)
-  }
-
-  return { gw: facts.gw, headline, paragraphs, bullets }
-}
-
-function ordinalSuffix(n: number): string {
-  const s = ["th", "st", "nd", "rd"]
-  const v = n % 100
-  return s[(v - 20) % 10] || s[v] || s[0]
+  return { gw: facts.gw, headline, paragraphs }
 }
 
 export function generateAllSeasonStories(

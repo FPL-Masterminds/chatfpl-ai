@@ -1036,7 +1036,6 @@ interface SeasonStory {
   gw: number
   headline: string
   paragraphs: string[]
-  bullets: string[]
   provisional?: boolean
 }
 
@@ -1220,23 +1219,9 @@ function SeasonStoryPanel({
             </h2>
           </div>
 
-          {activeStory.bullets.length > 0 && (
-            <div className="rounded-xl border border-white/10 bg-black/40 p-4">
-              <p className="text-xs uppercase tracking-[0.16em] text-white font-semibold mb-3">Key takeaways</p>
-              <ul className="space-y-2">
-                {activeStory.bullets.map((b) => (
-                  <li key={b} className="text-sm text-white/90 flex gap-2">
-                    <span className="text-emerald-400 shrink-0">•</span>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="space-y-4">
+          <div className="space-y-5 max-w-3xl">
             {activeStory.paragraphs.map((para, i) => (
-              <p key={i} className="text-sm text-white/90 leading-relaxed">
+              <p key={i} className="text-base text-white/90 leading-[1.75]">
                 {para}
               </p>
             ))}
