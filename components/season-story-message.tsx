@@ -15,7 +15,7 @@ export function SeasonStoryMessagePanel({
 }: SeasonStoryMessagePanelProps) {
   return (
     <div
-      className="relative rounded-2xl overflow-hidden"
+      className="relative w-full rounded-2xl overflow-hidden"
       style={{
         padding: "1px",
         background:
@@ -24,7 +24,7 @@ export function SeasonStoryMessagePanel({
         animation: "glow_scroll 4s linear infinite",
       }}
     >
-      <div className="relative rounded-2xl bg-black px-6 py-10 text-center overflow-hidden">
+      <div className="relative flex min-h-[220px] flex-col items-center justify-center rounded-2xl bg-black px-8 py-8 text-center overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{

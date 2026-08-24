@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -1070,6 +1070,39 @@ interface SeasonStoryData {
   live_gw?: number | null
 }
 
+/** Centres Season Story empty/loading states in the tab content area. */
+function SeasonStoryCenteredLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex min-h-[420px] w-full flex-1 flex-col items-center justify-center lg:min-h-[460px]">
+      <div className="w-full max-w-xl space-y-6">{children}</div>
+    </div>
+  )
+}
+
+function SeasonStoryPanelHeader({
+  leagueName,
+  subtitle,
+  picker,
+}: {
+  leagueName?: string | null
+  subtitle?: string
+  picker?: ReactNode
+}) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+      <div>
+        <p className="text-sm font-semibold text-white">Season Story</p>
+        {subtitle ? (
+          <p className="text-xs text-white/70 mt-0.5">{subtitle}</p>
+        ) : leagueName ? (
+          <p className="text-xs text-white/70 mt-0.5">{leagueName}</p>
+        ) : null}
+      </div>
+      {picker}
+    </div>
+  )
+}
+
 function SeasonStoryLeaguePicker({
   leagues,
   leagueId,
@@ -1202,10 +1235,12 @@ function SeasonStoryPanel({
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[320px] gap-3">
-        <div className="h-8 w-8 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
-        <p className="text-sm text-white/70">Writing your league story...</p>
-      </div>
+      <SeasonStoryCenteredLayout>
+        <div className="flex flex-col items-center justify-center gap-3 py-8">
+          <div className="h-8 w-8 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
+          <p className="text-sm text-white/70">Writing your league story...</p>
+        </div>
+      </SeasonStoryCenteredLayout>
     )
   }
 
@@ -1214,11 +1249,13 @@ function SeasonStoryPanel({
     const leagueBit = leagueName ? ` for ${leagueName}` : ""
     const chapter = archivedGwCount > 0 ? "next chapter" : "first write-up"
     return (
-      <SeasonStoryMessagePanel
-        titleWhite={`${gwLabel} is `}
-        titleGradient="still live"
-        body={`Your ${chapter}${leagueBit} lands once the gameweek closes and final scores are in. Check back after the deadline.`}
-      />
+      <SeasonStoryCenteredLayout>
+        <SeasonStoryMessagePanel
+          titleWhite={`${gwLabel} is `}
+          titleGradient="still live"
+          body={`Your ${chapter}${leagueBit} lands once the gameweek closes and final scores are in. Check back after the deadline.`}
+        />
+      </SeasonStoryCenteredLayout>
     )
   }
 
@@ -1228,86 +1265,90 @@ function SeasonStoryPanel({
       ? " Pick a smaller mini-league from the dropdown if you have one with your mates."
       : ""
     return (
-      <div className="space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-white">Season Story</p>
-            {leagueName ? (
-              <p className="text-xs text-white/70 mt-0.5">{leagueName}</p>
-            ) : null}
-          </div>
-          <SeasonStoryLeaguePicker
-            leagues={leagues}
-            leagueId={leagueId}
-            hasMultiple={hasMultiple}
-            switchingLeague={switchingLeague}
-            onLeagueSwitch={handleLeagueSwitch}
-          />
-        </div>
+      <SeasonStoryCenteredLayout>
+        <SeasonStoryPanelHeader
+          leagueName={leagueName}
+          picker={
+            <SeasonStoryLeaguePicker
+              leagues={leagues}
+              leagueId={leagueId}
+              hasMultiple={hasMultiple}
+              switchingLeague={switchingLeague}
+              onLeagueSwitch={handleLeagueSwitch}
+            />
+          }
+        />
         <SeasonStoryMessagePanel
           titleWhite="This league is "
           titleGradient="a bit too big"
           body={`Sorry about that. Season Story is built for mini-leagues of up to 200 managers, and ${leagueBit} more than we can cover in one fair write-up.${switchBit} Your League tab still shows standings for the managers we can load.`}
         />
-      </div>
+      </SeasonStoryCenteredLayout>
     )
   }
 
   if (storyStatus === "unavailable" || loadFailed) {
     return (
-      <SeasonStoryMessagePanel
-        titleWhite="Having trouble loading "
-        titleGradient="your story"
-        body="Give it another go in a moment. Your league write-ups will appear here once we can pull them through."
-        action={{ label: "Try again", onClick: () => loadStories(leagueId ?? undefined) }}
-      />
+      <SeasonStoryCenteredLayout>
+        <SeasonStoryMessagePanel
+          titleWhite="Having trouble loading "
+          titleGradient="your story"
+          body="Give it another go in a moment. Your league write-ups will appear here once we can pull them through."
+          action={{ label: "Try again", onClick: () => loadStories(leagueId ?? undefined) }}
+        />
+      </SeasonStoryCenteredLayout>
     )
   }
 
   if (storyStatus === "no_league" || !leagueId) {
     return (
-      <SeasonStoryMessagePanel
-        titleWhite="Join a "
-        titleGradient="mini-league"
-        body="Season Story is built for private mini-leagues. Join one on FPL, then come back here once your team is linked."
-      />
+      <SeasonStoryCenteredLayout>
+        <SeasonStoryMessagePanel
+          titleWhite="Join a "
+          titleGradient="mini-league"
+          body="Season Story is built for private mini-leagues. Join one on FPL, then come back here once your team is linked."
+        />
+      </SeasonStoryCenteredLayout>
     )
   }
 
   if (storyStatus === "league_unavailable" || stories.length === 0) {
     return (
-      <SeasonStoryMessagePanel
-        titleWhite="Your league story is "
-        titleGradient="on the way"
-        body={
-          leagueName
-            ? `${leagueName} is linked, but there is nothing to show yet. Check back once a gameweek has finished.`
-            : "Your mini-league is linked, but there is nothing to show yet. Check back once a gameweek has finished."
-        }
-        action={{ label: "Refresh", onClick: () => loadStories(leagueId ?? undefined) }}
-      />
+      <SeasonStoryCenteredLayout>
+        <SeasonStoryMessagePanel
+          titleWhite="Your league story is "
+          titleGradient="on the way"
+          body={
+            leagueName
+              ? `${leagueName} is linked, but there is nothing to show yet. Check back once a gameweek has finished.`
+              : "Your mini-league is linked, but there is nothing to show yet. Check back once a gameweek has finished."
+          }
+          action={{ label: "Refresh", onClick: () => loadStories(leagueId ?? undefined) }}
+        />
+      </SeasonStoryCenteredLayout>
     )
   }
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-white">Season Story</p>
-          <p className="text-xs text-white/70 mt-0.5">
-            {leagueName} · {stories.length} gameweek{stories.length === 1 ? "" : "s"} archived
-          </p>
-        </div>
-        {hasMultiple && (
-          <SeasonStoryLeaguePicker
-            leagues={leagues}
-            leagueId={leagueId}
-            hasMultiple={hasMultiple}
-            switchingLeague={switchingLeague}
-            onLeagueSwitch={handleLeagueSwitch}
-          />
-        )}
-      </div>
+      <SeasonStoryPanelHeader
+        subtitle={
+          leagueName
+            ? `${leagueName} · ${stories.length} gameweek${stories.length === 1 ? "" : "s"} archived`
+            : undefined
+        }
+        picker={
+          hasMultiple ? (
+            <SeasonStoryLeaguePicker
+              leagues={leagues}
+              leagueId={leagueId}
+              hasMultiple={hasMultiple}
+              switchingLeague={switchingLeague}
+              onLeagueSwitch={handleLeagueSwitch}
+            />
+          ) : undefined
+        }
+      />
 
       {/* GW tabs */}
       <div className="flex flex-wrap gap-1.5">
@@ -1492,7 +1533,7 @@ export default function DashboardPage() {
         {/* Vertical tab command center */}
         <div className="rounded-3xl" style={{ ...fade(200), padding: "1px", background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.08),#00FFFF,rgba(255,255,255,0.08),#00FF87)", backgroundSize: "220% 220%", animation: "glow_scroll 7s linear infinite" }}>
         <div className="rounded-3xl bg-[#080808] overflow-hidden">
-          <div className="flex flex-col lg:flex-row">
+          <div className="flex flex-col lg:flex-row lg:items-stretch">
 
             {/* ── Left sidebar ── */}
             <div className="relative lg:w-64 shrink-0 border-b lg:border-b-0 lg:border-r border-emerald-400/10 p-3 lg:p-4">
@@ -1533,7 +1574,7 @@ export default function DashboardPage() {
             </div>
 
             {/* ── Right content area ── */}
-            <div className="flex-1 p-5 lg:p-7 min-h-[500px]">
+            <div className="flex flex-1 p-5 lg:p-7 min-h-[500px] flex flex-col">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
@@ -1541,6 +1582,7 @@ export default function DashboardPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex flex-1 flex-col min-h-0"
                 >
                   {activeTab === "squad"       && <SquadPanel       data={data} />}
                   {activeTab === "performance" && <PerformancePanel  data={data} />}
