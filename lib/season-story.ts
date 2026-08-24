@@ -35,7 +35,7 @@ import {
   computeRivalStreak,
 } from "./season-story-analytics"
 import type { GWFixtureContext } from "./season-story-fixtures"
-import { sanitizeParagraph } from "./season-story-copy"
+import { pickFromPool } from "./season-story-seed"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -118,12 +118,29 @@ export interface SeasonStoryFacts {
   userVsMedian: number
   leagueRecordGwScore: number
   isLeagueRecordGw: boolean
+  allTeamNames: string[]
+  allManagerNames: string[]
+}
+
+export interface SeasonStoryEntities {
+  league: string
+  teams: string[]
+  managers: string[]
+}
+
+export type SeasonStoryBlockStyle = "lede" | "section" | "personal" | "closing" | "fixture"
+
+export interface SeasonStoryBlock {
+  label?: string
+  text: string
+  style: SeasonStoryBlockStyle
 }
 
 export interface SeasonStory {
   gw: number
   headline: string
-  paragraphs: string[]
+  paragraphs: SeasonStoryBlock[]
+  entities: SeasonStoryEntities
   provisional?: boolean
 }
 
@@ -144,24 +161,29 @@ export interface MemberHistoryInput {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function hashSeed(leagueId: number, gw: number, slot: string): number {
-  const str = `${leagueId}-${gw}-${slot}`
-  let h = 2166136261
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return h >>> 0
-}
-
-function pickVariant<T>(variants: T[], leagueId: number, gw: number, slot: string): T {
-  if (variants.length === 0) throw new Error(`No variants for slot ${slot}`)
-  return variants[hashSeed(leagueId, gw, slot) % variants.length]
-}
-
 function render(templates: ((f: SeasonStoryFacts) => string)[], facts: SeasonStoryFacts, slot: string): string {
-  const tpl = pickVariant(templates, facts.leagueId, facts.gw, slot)
-  return sanitizeParagraph(tpl(facts).trim())
+  const tpl = pickFromPool(templates, facts, slot)
+  return tpl(facts).trim()
+}
+
+const SLOT_META: Record<string, { label?: string; style: SeasonStoryBlockStyle }> = {
+  lede: { style: "lede" },
+  fixture: { label: "Fixtures", style: "fixture" },
+  personality: { label: "The Mood", style: "section" },
+  standings: { label: "The Table", style: "section" },
+  podium: { label: "Podium", style: "section" },
+  movement: { label: "Movers", style: "section" },
+  gap: { label: "Chasing the Lead", style: "personal" },
+  captaincy: { label: "Template Check", style: "section" },
+  subplots: { label: "Off the Pitch", style: "section" },
+  chip_verdict: { label: "Chip Watch", style: "section" },
+  hit_regret: { label: "Transfer Hits", style: "section" },
+  milestones: { label: "Milestones", style: "section" },
+  consistency: { label: "Mr Reliable", style: "section" },
+  rivalry: { label: "Head to Head", style: "personal" },
+  personal: { label: "Your Week", style: "personal" },
+  spoon: { label: "The Basement", style: "section" },
+  coda: { style: "closing" },
 }
 
 export function getSeasonPhase(gw: number): SeasonPhase {
@@ -328,7 +350,7 @@ export function buildSeasonStoryFacts(
     newLeader,
     leaderChangedFrom,
     user,
-    userBeatAvg: user ? user.gwPts >= fplAvg : false,
+    userBeatAvg: user ? user.gwPts > fplAvg : false,
     chipPlayers,
     hitTakers,
     benchHero: benchHero && benchHero.benchPts >= 12 ? benchHero : null,
@@ -361,6 +383,8 @@ export function buildSeasonStoryFacts(
     userVsMedian,
     leagueRecordGwScore,
     isLeagueRecordGw,
+    allTeamNames: [...new Set(rows.map((r) => r.team).filter(Boolean))],
+    allManagerNames: [...new Set(rows.map((r) => r.manager).filter(Boolean))],
   }
 }
 
@@ -391,18 +415,25 @@ export function generateSeasonStory(facts: SeasonStoryFacts): SeasonStory {
     { getTemplates: codaFor, slot: "coda" },
   ]
 
-  const paragraphs: string[] = []
+  const paragraphs: SeasonStoryBlock[] = []
   for (const { getTemplates, slot, skip } of slots) {
     if (skip?.(facts)) continue
     const templates = getTemplates(facts)
     const text = render(templates, facts, slot)
-    if (text) paragraphs.push(text)
+    if (!text) continue
+    const meta = SLOT_META[slot] ?? { style: "section" as const }
+    paragraphs.push({ label: meta.label, text, style: meta.style })
   }
 
   return {
     gw: facts.gw,
     headline: `${facts.leagueName} · Gameweek ${facts.gw}`,
     paragraphs,
+    entities: {
+      league: facts.leagueName,
+      teams: facts.allTeamNames,
+      managers: facts.allManagerNames,
+    },
   }
 }
 

@@ -7,6 +7,8 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { DevHeader } from "@/components/dev-header"
 import { Footer } from "@/components/footer"
+import { SeasonStoryFormattedText } from "@/components/season-story-text"
+import type { SeasonStoryEntities } from "@/lib/season-story"
 import {
   ResponsiveContainer, ComposedChart, AreaChart, Area, Bar, Line,
   XAxis, YAxis, Tooltip, CartesianGrid, LineChart,
@@ -1032,10 +1034,17 @@ function LeaguePanel({
 
 // ─── Season Story ────────────────────────────────────────────────────────────
 
+interface SeasonStoryBlock {
+  label?: string
+  text: string
+  style: "lede" | "section" | "personal" | "closing" | "fixture"
+}
+
 interface SeasonStory {
   gw: number
   headline: string
-  paragraphs: string[]
+  paragraphs: SeasonStoryBlock[]
+  entities: SeasonStoryEntities
   provisional?: boolean
 }
 
@@ -1102,8 +1111,11 @@ function SeasonStoryPanel({
   const leagueId = storyData?.league_id ?? data.league_id
   const stories = storyData?.stories ?? []
   const activeStory = stories.find((s) => s.gw === activeGw) ?? stories[stories.length - 1] ?? null
-
-  const gradStyle = { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }
+  const storyEntities: SeasonStoryEntities = activeStory?.entities ?? {
+    league: leagueName ?? "",
+    teams: [],
+    managers: [],
+  }
 
   if (loading) {
     return (
@@ -1214,17 +1226,54 @@ function SeasonStoryPanel({
           )}
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-white/70 mb-1">Gameweek {activeStory.gw}</p>
-            <h2 className="text-xl font-bold text-transparent bg-clip-text" style={gradStyle}>
-              {activeStory.headline}
+            <h2 className="text-xl font-bold text-white/90 leading-tight">
+              <SeasonStoryFormattedText text={activeStory.headline} entities={storyEntities} />
             </h2>
           </div>
 
-          <div className="space-y-6 max-w-2xl">
-            {activeStory.paragraphs.map((para, i) => (
-              <p key={i} className="text-[17px] text-white/90 leading-[1.8]">
-                {para}
-              </p>
-            ))}
+          <div className="space-y-8 max-w-2xl">
+            {activeStory.paragraphs.map((block, i) => {
+              const isLede = block.style === "lede"
+              const isPersonal = block.style === "personal"
+              const isClosing = block.style === "closing"
+              const isFixture = block.style === "fixture"
+
+              return (
+                <div
+                  key={i}
+                  className={
+                    isPersonal
+                      ? "rounded-xl border border-cyan-400/20 bg-cyan-400/[0.06] px-5 py-4"
+                      : isClosing
+                        ? "pt-2 border-t border-white/10"
+                        : isFixture
+                          ? "rounded-xl border border-amber-400/15 bg-amber-400/[0.04] px-5 py-4"
+                          : ""
+                  }
+                >
+                  {block.label && (
+                    <p className={`text-[11px] uppercase tracking-[0.2em] font-semibold mb-2 ${
+                      isPersonal ? "text-cyan-300/80" : isFixture ? "text-amber-300/80" : "text-emerald-300/70"
+                    }`}>
+                      {block.label}
+                    </p>
+                  )}
+                  <p
+                    className={
+                      isLede
+                        ? "text-[19px] text-white/90 leading-[1.85] font-medium"
+                        : isClosing
+                          ? "text-[15px] text-white/60 leading-[1.75] italic"
+                          : isPersonal
+                            ? "text-[17px] text-white/95 leading-[1.8]"
+                            : "text-[17px] text-white/90 leading-[1.8]"
+                    }
+                  >
+                    <SeasonStoryFormattedText text={block.text} entities={storyEntities} />
+                  </p>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}

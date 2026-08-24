@@ -28,6 +28,19 @@ export function pts(n: number): string {
   return `${n} point${n === 1 ? "" : "s"}`
 }
 
+/** How the user's score compares to the global FPL average (strict beat, not tie). */
+export function fplAvgComparisonPhrase(userPts: number, fplAvg: number): string {
+  if (userPts > fplAvg) return `That beat the FPL average of ${pts(fplAvg)}.`
+  if (userPts === fplAvg) return `That was exactly the FPL average.`
+  return `That fell short of the FPL average of ${pts(fplAvg)}.`
+}
+
+export function fplAvgComparisonShort(userPts: number, fplAvg: number): string {
+  if (userPts > fplAvg) return `That beat the FPL average.`
+  if (userPts === fplAvg) return `That was exactly the FPL average.`
+  return `That fell short of the FPL average.`
+}
+
 export function ord(n: number): string {
   const s = ["th", "st", "nd", "rd"]
   const v = n % 100
