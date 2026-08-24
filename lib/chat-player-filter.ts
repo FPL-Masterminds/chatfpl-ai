@@ -113,6 +113,67 @@ The rows below are the exact live FPL data for the player(s) the user asked abou
 ${rows}`;
 }
 
+function playerDisplayName(row: ChatPlayerRow): string {
+  const full = `${row.rawData.first_name} ${row.rawData.second_name}`.trim();
+  return full || row.rawData.web_name;
+}
+
+function playerEpNext(row: ChatPlayerRow): number {
+  const value = parseFloat(String(row.rawData.ep_next ?? "0"));
+  return Number.isFinite(value) ? value : 0;
+}
+
+export function isCaptaincyQuery(message: string): boolean {
+  return /\bcaptain(s|cy)?\b/i.test(message);
+}
+
+/** Players to rank when the user is comparing options or picking a captain. */
+export function buildComparisonPool(
+  message: string,
+  requestedPlayers: ChatPlayerRow[],
+  filteredPlayers: ChatPlayerRow[],
+): ChatPlayerRow[] {
+  if (requestedPlayers.length >= 2) return requestedPlayers;
+  if (isPlayerCompareQuery(message) && requestedPlayers.length > 0) {
+    return requestedPlayers;
+  }
+  if (isCaptaincyQuery(message)) {
+    return [...filteredPlayers]
+      .filter((p) => playerEpNext(p) > 0)
+      .sort((a, b) => playerEpNext(b) - playerEpNext(a))
+      .slice(0, 12);
+  }
+  return requestedPlayers.length === 1 ? requestedPlayers : [];
+}
+
+export function formatComparisonFactsContext(
+  players: ChatPlayerRow[],
+  teamFixtures: Record<string, string[]>,
+  adviceGwId: number,
+): string {
+  if (players.length < 2) return "";
+
+  const ranked = [...players].sort((a, b) => playerEpNext(b) - playerEpNext(a));
+  const leader = ranked[0];
+  const leaderName = playerDisplayName(leader);
+  const leaderEp = playerEpNext(leader);
+
+  const lines = ranked.map((p, i) => {
+    const team = p.team ?? "?";
+    const fixture = teamFixtures[team]?.[0] ?? "TBC";
+    const ownership = parseFloat(String(p.rawData.selected_by_percent ?? "0"));
+    const form = parseFloat(String(p.rawData.form ?? "0"));
+    return `${i + 1}. ${playerDisplayName(p)} (${team}): xPNext=${playerEpNext(p)}, form=${form}, ownership=${ownership}%, next fixture=${fixture}`;
+  });
+
+  return `COMPARISON FACTS (Gameweek ${adviceGwId}) - PRE-COMPUTED. TRUST THIS BLOCK FOR RANKINGS:
+- xPNext leader here: ${leaderName} at ${leaderEp}. Never call another player the xPNext leader unless their value below is higher.
+- Ranked by xPNext (highest first):
+${lines.join("\n")}
+- You may recommend a lower-xPNext player as the safer template pick because of ownership or form. Say that explicitly. Do NOT claim they lead on xPNext.
+- Next-fixture labels above come from TEAM FIXTURE RUNS. Do not substitute opponents from memory.`;
+}
+
 export function findMentionedTeamCodes(
   message: string,
   teams: Array<{ name: string; short_name: string }>,

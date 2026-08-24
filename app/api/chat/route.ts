@@ -7,6 +7,8 @@ import {
   findMentionedPlayers,
   findMentionedTeamCodes,
   formatRequestedPlayersContext,
+  buildComparisonPool,
+  formatComparisonFactsContext,
   injectRequestedPlayers,
   injectSquadPlayers,
   isPlayerCompareQuery,
@@ -429,8 +431,6 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
         filteredPlayers = requestedInjection.players;
         filterNote += requestedInjection.noteSuffix;
 
-        const requestedPlayersContext = formatRequestedPlayersContext(requestedPlayers);
-
         const upcomingFixtures = filterUpcomingFixtures(fixturesData, adviceGwId, 4);
 
         // Distinct upcoming GWs (caps at season end so we don't claim 5 weeks
@@ -468,6 +468,14 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
         const fixtureRunsText = Object.entries(teamFixtures)
           .map(([team, fixtures]) => `${team}: ${fixtures.join(', ')}`)
           .join('\n');
+
+        const comparisonPool = buildComparisonPool(message, requestedPlayers, filteredPlayers);
+        const requestedPlayersContext = formatRequestedPlayersContext(requestedPlayers);
+        const comparisonFactsContext = formatComparisonFactsContext(
+          comparisonPool,
+          teamFixtures,
+          adviceGwId,
+        );
 
         const adviceGwIdForStructure = adviceGwId;
         const dgwTeams = (fplData.teams ?? []).filter((team: any) =>
@@ -552,7 +560,7 @@ ${adviceGwNote}
 
 ${transferWindowContext}
 
-${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
+${comparisonFactsContext ? `${comparisonFactsContext}\n\n` : ""}${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
@@ -595,6 +603,7 @@ You now have access to FPL expected points predictions, ownership trends (transf
 
 DATA INTEGRITY (MANDATORY):
 - LIVE FPL DATA is injected server-side on every request. NEVER ask the user to paste player rows, PhotoURLs, or stats.
+- If COMPARISON FACTS is present above, use its xPNext ranking as the source of truth. Never claim Player A has the highest xPNext if Player B is ranked above them there.
 - Use ONLY club names, prices, stats, and PhotoURL values from the pipe-delimited rows above. Do not substitute clubs or numbers from memory or older seasons.
 - PhotoURL is always the final field after the last pipe (|) on each player row. Copy that URL exactly into markdown images. Never guess or reconstruct image links.
 - For markdown images use the player's real full name in the alt text (e.g. ![Jacob Ramsey](PhotoURL)) so the name matches the row you used for stats.

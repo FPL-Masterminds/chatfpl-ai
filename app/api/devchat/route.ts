@@ -12,6 +12,8 @@ import {
   findMentionedPlayers,
   findMentionedTeamCodes,
   formatRequestedPlayersContext,
+  buildComparisonPool,
+  formatComparisonFactsContext,
   injectRequestedPlayers,
   injectSquadPlayers,
   isPlayerCompareQuery,
@@ -422,8 +424,6 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
             filteredPlayers = requestedInjection.players;
             filterNote += requestedInjection.noteSuffix;
 
-            const requestedPlayersContext = formatRequestedPlayersContext(requestedPlayers);
-
             const upcomingFixtures = filterUpcomingFixtures(fixturesData, adviceGwId, 4);
 
             const upcomingGwCount = new Set(upcomingFixtures.map((f: any) => f.event)).size;
@@ -455,6 +455,14 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
             const fixtureRunsText = Object.entries(teamFixtures)
               .map(([team, fixtures]) => `${team}: ${fixtures.join(", ")}`)
               .join("\n");
+
+            const comparisonPool = buildComparisonPool(message, requestedPlayers, filteredPlayers);
+            const requestedPlayersContext = formatRequestedPlayersContext(requestedPlayers);
+            const comparisonFactsContext = formatComparisonFactsContext(
+              comparisonPool,
+              teamFixtures,
+              adviceGwId,
+            );
 
             const formatDeadline = (isoString: string) => {
               const date = new Date(isoString);
@@ -504,7 +512,7 @@ ${adviceGwNote}
 
 ${transferWindowContext}
 
-${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
+${comparisonFactsContext ? `${comparisonFactsContext}\n\n` : ""}${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
