@@ -82,6 +82,7 @@ const TABS = [
   { id: "performance", label: "Performance",   desc: "GW chart, rank journey & season heatmap",     dot: "#00FFFF" },
   { id: "transfers",   label: "Transfer Planner", desc: "Suggested swaps based on expected points",    dot: "#00FF87" },
   { id: "league",      label: "Mini-League",   desc: "Live standings & chip status",                dot: "#00FFFF" },
+  { id: "story",       label: "Season Story",  desc: "Gameweek write-ups for your mini-league",     dot: "#00FF87" },
 ]
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -1029,6 +1030,223 @@ function LeaguePanel({
   )
 }
 
+// ─── Season Story ────────────────────────────────────────────────────────────
+
+interface SeasonStory {
+  gw: number
+  headline: string
+  paragraphs: string[]
+  bullets: string[]
+  provisional?: boolean
+}
+
+interface SeasonStoryData {
+  league_id: number | null
+  league_name: string | null
+  is_admin?: boolean
+  available_leagues: { id: number; name: string; rank: number }[]
+  stories: SeasonStory[]
+  completed_gws: number[]
+  preview_gws?: number[]
+}
+
+function SeasonStoryPanel({
+  data,
+  onLeagueChange,
+}: {
+  data: DashboardData
+  onLeagueChange: (id: number) => void
+}) {
+  const [storyData, setStoryData] = useState<SeasonStoryData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [activeGw, setActiveGw] = useState<number | null>(null)
+  const [switchingLeague, setSwitchingLeague] = useState(false)
+
+  const loadStories = async (leagueId?: number) => {
+    setLoading(true)
+    setError(false)
+    try {
+      const q = leagueId ? `?league=${leagueId}` : data.league_id ? `?league=${data.league_id}` : ""
+      const res = await fetch(`/api/dashboard/season-story${q}`)
+      if (!res.ok) { setError(true); return }
+      const json: SeasonStoryData = await res.json()
+      setStoryData(json)
+      const latest = json.stories[json.stories.length - 1]?.gw ?? null
+      setActiveGw((prev) => {
+        if (prev && json.stories.some((s) => s.gw === prev)) return prev
+        return latest
+      })
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+      setSwitchingLeague(false)
+    }
+  }
+
+  useEffect(() => {
+    loadStories()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleLeagueSwitch = async (id: number) => {
+    if (id === storyData?.league_id) return
+    setSwitchingLeague(true)
+    onLeagueChange(id)
+    await loadStories(id)
+  }
+
+  const leagues = storyData?.available_leagues ?? data.available_leagues ?? []
+  const hasMultiple = leagues.length > 1
+  const leagueName = storyData?.league_name ?? data.league_name
+  const leagueId = storyData?.league_id ?? data.league_id
+  const stories = storyData?.stories ?? []
+  const activeStory = stories.find((s) => s.gw === activeGw) ?? stories[stories.length - 1] ?? null
+
+  const gradStyle = { backgroundImage: "linear-gradient(to right,#00FF87,#00FFFF)", WebkitBackgroundClip: "text" }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[320px] gap-3">
+        <div className="h-8 w-8 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
+        <p className="text-sm text-white/70">Building your season stories...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-red-400/20 bg-red-400/[0.04] p-8 text-center">
+        <p className="text-white font-medium">Could not load Season Story data.</p>
+        <p className="text-sm text-white/70 mt-2">The FPL API may be temporarily unavailable.</p>
+        <button onClick={() => loadStories(leagueId ?? undefined)} className="mt-4 text-sm text-emerald-400 hover:text-emerald-300">
+          Try again
+        </button>
+      </div>
+    )
+  }
+
+  if (!leagueId || stories.length === 0) {
+    return (
+      <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-8 text-center">
+        <p className="text-white font-medium">No stories yet.</p>
+        <p className="text-sm text-white/70 mt-2">
+          Season Story write-ups appear after each gameweek finishes. Join a private mini-league to see league narratives here.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-white">Season Story</p>
+          <p className="text-xs text-white/70 mt-0.5">
+            {leagueName} · {stories.length} gameweek{stories.length === 1 ? "" : "s"} archived
+          </p>
+        </div>
+        {hasMultiple && (
+          <div
+            className="relative rounded-full shrink-0"
+            style={{
+              padding: "1.5px",
+              background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
+              backgroundSize: "220% 220%",
+              animation: "glow_scroll 4s linear infinite",
+            }}
+          >
+            <select
+              value={leagueId ?? ""}
+              onChange={(e) => handleLeagueSwitch(Number(e.target.value))}
+              disabled={switchingLeague}
+              className="appearance-none bg-black rounded-full pl-4 pr-9 py-1.5 text-xs uppercase tracking-[0.16em] font-semibold text-white cursor-pointer focus:outline-none disabled:opacity-60"
+              title="Switch mini-league"
+            >
+              {leagues.map((l) => (
+                <option key={l.id} value={l.id} className="bg-[#0a0a0a] text-white normal-case tracking-normal">
+                  {l.name}
+                </option>
+              ))}
+            </select>
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-emerald-400">
+              {switchingLeague ? "" : "▼"}
+            </span>
+            {switchingLeague && (
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3 w-3 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* GW tabs */}
+      <div className="flex flex-wrap gap-1.5">
+        {stories.map((s) => (
+          <button
+            key={s.gw}
+            onClick={() => setActiveGw(s.gw)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              activeStory?.gw === s.gw
+                ? "text-black"
+                : "text-white/60 hover:text-white border border-white/10 hover:border-emerald-400/30"
+            } ${s.provisional ? "border-amber-400/40" : ""}`}
+            style={
+              activeStory?.gw === s.gw
+                ? { background: s.provisional ? "linear-gradient(to right,#fbbf24,#f97316)" : "linear-gradient(to right,#00FF87,#00FFFF)" }
+                : undefined
+            }
+            title={s.provisional ? "Live preview - gameweek still in progress" : undefined}
+          >
+            GW{s.gw}{s.provisional ? "*" : ""}
+          </button>
+        ))}
+      </div>
+
+      {activeStory && (
+        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-6 lg:p-8 space-y-6">
+          {activeStory.provisional && (
+            <div className="rounded-xl border border-amber-400/30 bg-amber-400/[0.08] px-4 py-3">
+              <p className="text-sm font-semibold text-amber-200">Live preview (admin only)</p>
+              <p className="text-xs text-amber-200/80 mt-1">
+                Gameweek {activeStory.gw} is still in progress. Scores and ranks will update as fixtures finish. This tab becomes permanent for all managers once FPL marks the gameweek complete.
+              </p>
+            </div>
+          )}
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-white/70 mb-1">Gameweek {activeStory.gw}</p>
+            <h2 className="text-xl font-bold text-transparent bg-clip-text" style={gradStyle}>
+              {activeStory.headline}
+            </h2>
+          </div>
+
+          {activeStory.bullets.length > 0 && (
+            <div className="rounded-xl border border-white/10 bg-black/40 p-4">
+              <p className="text-xs uppercase tracking-[0.16em] text-white font-semibold mb-3">Key takeaways</p>
+              <ul className="space-y-2">
+                {activeStory.bullets.map((b) => (
+                  <li key={b} className="text-sm text-white/90 flex gap-2">
+                    <span className="text-emerald-400 shrink-0">•</span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            {activeStory.paragraphs.map((para, i) => (
+              <p key={i} className="text-sm text-white/90 leading-relaxed">
+                {para}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -1176,6 +1394,7 @@ export default function DashboardPage() {
                   {activeTab === "performance" && <PerformancePanel  data={data} />}
                   {activeTab === "transfers"   && <TransfersPanel    data={data} />}
                   {activeTab === "league"      && <LeaguePanel       data={data} onLeagueChange={handleLeagueChange} switchingLeague={switchingLeague} />}
+                  {activeTab === "story"       && <SeasonStoryPanel  data={data} onLeagueChange={handleLeagueChange} />}
                 </motion.div>
               </AnimatePresence>
             </div>
