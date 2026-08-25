@@ -570,13 +570,27 @@ export function ChatShowcase() {
               )}
             </div>
 
-            {/* Prompt pills + input — exact devchat */}
+            {/* Prompt pills + input — matches /chat */}
             <div className="shrink-0 border-t border-white/[0.06] bg-black/20 px-4 pt-2.5 pb-3">
-              <div className="flex flex-wrap gap-1.5 mb-2.5">
+              <div className="grid grid-cols-2 gap-2 mb-2.5">
                 {PROMPTS.map((p) => (
-                  <span key={p} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] text-white/55 cursor-default">
-                    {p}
-                  </span>
+                  <div
+                    key={p}
+                    style={{
+                      padding: "1.5px",
+                      borderRadius: "9999px",
+                      background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+                      backgroundSize: "200% 200%",
+                      animation: "glow_scroll 4s linear infinite",
+                    }}
+                  >
+                    <span
+                      className="block w-full rounded-full px-3 py-1.5 text-xs font-medium text-center truncate cursor-default"
+                      style={{ background: "#000", color: "#00FF87" }}
+                    >
+                      {p}
+                    </span>
+                  </div>
                 ))}
               </div>
               <div className="rounded-[18px] border border-white/10 bg-white/[0.03] px-3 py-2.5 flex items-center gap-2">
