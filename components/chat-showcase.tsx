@@ -542,7 +542,8 @@ export function ChatShowcase() {
                       <div className="text-[11px] text-white/40">live</div>
                     </div>
                   </div>
-                  <div className="text-xs md:text-sm leading-5 md:leading-6 text-white/85 space-y-2.5 md:space-y-3">
+                  {/* Mobile response text +10% vs desktop (restore: git checkout mockup-mobile-type-before -- components/chat-showcase.tsx) */}
+                  <div className="text-[0.825rem] md:text-sm leading-[1.375rem] md:leading-6 text-white/85 space-y-2.5 md:space-y-3">
                     {/* Intro — types, then shows formatted */}
                     <p className="whitespace-pre-wrap">
                       {introDone ? renderText(tabDef.intro) : introText}
@@ -559,14 +560,14 @@ export function ChatShowcase() {
                             className="flex items-center gap-2 md:gap-2.5"
                             style={{ animation: "scFadeUp 0.35s cubic-bezier(0.16,1,0.3,1) both" }}
                           >
-                            <span className="text-[10px] md:text-[11px] text-white/30 w-4 shrink-0">{pi + 1}.</span>
+                            <span className="text-[11px] md:text-[11px] text-white/30 w-4 shrink-0">{pi + 1}.</span>
                             {p.photoUrl && (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={p.photoUrl} alt={p.name} className="inline-block h-8 md:h-10 w-auto rounded shrink-0" />
+                              <img src={p.photoUrl} alt={p.name} className="inline-block h-[2.2rem] md:h-10 w-auto rounded shrink-0" />
                             )}
                             <div className="flex-1 min-w-0">
-                              <span className="text-xs md:text-sm font-semibold text-white">{p.name} </span>
-                              <span className="block text-[10px] md:text-[11px] text-white leading-snug">
+                              <span className="text-[0.825rem] md:text-sm font-semibold text-white">{p.name} </span>
+                              <span className="block text-[11px] md:text-[11px] text-white leading-snug">
                                 {playerDetail(tabDef.id, p)}
                               </span>
                             </div>
