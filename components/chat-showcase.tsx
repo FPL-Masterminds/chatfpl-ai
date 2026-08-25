@@ -566,7 +566,7 @@ export function ChatShowcase() {
                             )}
                             <div className="flex-1 min-w-0">
                               <span className="text-xs md:text-sm font-semibold text-white">{p.name} </span>
-                              <span className="block text-[10px] md:text-[11px] text-white/45 leading-snug">
+                              <span className="block text-[10px] md:text-[11px] text-white leading-snug">
                                 {playerDetail(tabDef.id, p)}
                               </span>
                             </div>
