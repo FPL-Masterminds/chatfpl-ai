@@ -88,6 +88,9 @@ const TABS = [
   { id: "story",       label: "Season Story",  desc: "Gameweek write-ups for your mini-league",     dot: "#00FF87" },
 ]
 
+const SEASON_GWS = 38
+const GW_AXIS_TICKS = Array.from({ length: SEASON_GWS }, (_, i) => i + 1)
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function fmt(n: number) { return n.toLocaleString("en-GB") }
@@ -459,7 +462,7 @@ function PerformancePanel({ data }: { data: DashboardData }) {
           </div>
         </div>
         <ResponsiveContainer width="100%" height={200}>
-          <ComposedChart data={data.gw_history} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+          <ComposedChart data={data.gw_history} margin={{ top: 4, right: 4, left: -20, bottom: 8 }}>
             <defs>
               <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#00FF87" stopOpacity={0.85} />
@@ -467,7 +470,16 @@ function PerformancePanel({ data }: { data: DashboardData }) {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-            <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} tickLine={false} axisLine={false} />
+            <XAxis
+              dataKey="gw"
+              type="number"
+              domain={[1, SEASON_GWS]}
+              ticks={GW_AXIS_TICKS}
+              allowDecimals={false}
+              tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 8 }}
+              tickLine={false}
+              axisLine={false}
+            />
             <YAxis tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} tickLine={false} axisLine={false} />
             <Tooltip content={<ChartTooltip />} />
             <Bar dataKey="pts" name="Your pts" fill="url(#barGrad)" radius={[4, 4, 0, 0]} maxBarSize={18} animationBegin={200} animationDuration={1000} />
@@ -483,7 +495,7 @@ function PerformancePanel({ data }: { data: DashboardData }) {
           <p className="text-xs text-white/70">Week-by-week rank — lower is better</p>
         </div>
         <ResponsiveContainer width="100%" height={160}>
-          <AreaChart data={rankData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+          <AreaChart data={rankData} margin={{ top: 4, right: 4, left: -20, bottom: 8 }}>
             <defs>
               <linearGradient id="rankGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#00FF87" stopOpacity={0.2} />
@@ -491,7 +503,16 @@ function PerformancePanel({ data }: { data: DashboardData }) {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-            <XAxis dataKey="gw" tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} tickLine={false} axisLine={false} />
+            <XAxis
+              dataKey="gw"
+              type="number"
+              domain={[1, SEASON_GWS]}
+              ticks={GW_AXIS_TICKS}
+              allowDecimals={false}
+              tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 8 }}
+              tickLine={false}
+              axisLine={false}
+            />
             <YAxis reversed tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} tickLine={false} axisLine={false}
               tickFormatter={(v) => v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} />
             <Tooltip content={<RankTooltip />} />
