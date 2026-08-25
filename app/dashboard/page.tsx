@@ -95,6 +95,16 @@ const GW_AXIS_TICKS = Array.from({ length: SEASON_GWS }, (_, i) => i + 1)
 
 function fmt(n: number) { return n.toLocaleString("en-GB") }
 
+function PageLoadingDots() {
+  return (
+    <div className="flex gap-1">
+      <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
+      <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
+      <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-400" />
+    </div>
+  )
+}
+
 function useCountUp(target: number, trigger: boolean, duration = 1400) {
   const [val, setVal] = useState(0)
   useEffect(() => {
@@ -1258,7 +1268,7 @@ function SeasonStoryPanel({
     return (
       <SeasonStoryCenteredLayout>
         <div className="flex flex-col items-center justify-center gap-3 py-8">
-          <div className="h-8 w-8 rounded-full border-2 border-white/20 border-t-emerald-400 animate-spin" />
+          <PageLoadingDots />
           <p className="text-sm text-white/70">Writing your league story...</p>
         </div>
       </SeasonStoryCenteredLayout>
@@ -1470,11 +1480,7 @@ export default function DashboardPage() {
 
   if (status === "loading") return (
     <div className="fixed inset-0 flex items-center justify-center bg-black">
-      <div className="flex gap-1">
-        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-cyan-400 [animation-delay:-0.3s]" />
-        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-400 [animation-delay:-0.15s]" />
-        <div className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-400" />
-      </div>
+      <PageLoadingDots />
     </div>
   )
 
