@@ -212,13 +212,22 @@ function buildShowcaseData(json: any): ShowcasePlayers {
     ]
   )
 
+  const sortByForm = (a: any, b: any) => {
+    const formDiff = parseFloat(b.form) - parseFloat(a.form)
+    if (formDiff !== 0) return formDiff
+    const ptsDiff = (b.total_points ?? 0) - (a.total_points ?? 0)
+    if (ptsDiff !== 0) return ptsDiff
+    return parseFloat(b.ep_next || "0") - parseFloat(a.ep_next || "0")
+  }
+
   const topForm = takeTopN(
     active,
     5,
-    (a, b) => (anyMidseason ? parseFloat(b.form) - parseFloat(a.form) : rank(b) - rank(a)),
+    sortByForm,
     [
-      (p) => (anyMidseason ? parseFloat(p.form) >= 5.0 : true),
-      (p) => (anyMidseason ? parseFloat(p.form) >= 3.0 : true),
+      (p) => parseFloat(p.form) >= 4.0 && p.minutes >= 45,
+      (p) => parseFloat(p.form) >= 2.0 && p.minutes >= 1,
+      (p) => parseFloat(p.form) > 0,
       () => true,
     ]
   )

@@ -84,7 +84,7 @@ function playerDetail(tabId: string, p: ShowcasePlayer) {
         ? `${p.position} · ${p.price} · +£${(p.priceRise / 10).toFixed(1)}m this GW · Form ${p.form}`
         : `${p.position} · ${p.price} · ${p.club} · Form ${p.form}`
     default:
-      return `${p.position} · ${p.price} · ${p.club} · ${p.totalPts} pts · Form ${p.form}`
+      return `${p.position} · ${p.price} · Form ${p.form} · ${p.totalPts} pts · ${p.club}`
   }
 }
 
