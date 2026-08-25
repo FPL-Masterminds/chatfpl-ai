@@ -628,8 +628,8 @@ export function ChatShowcase() {
                   </div>
                 ))}
               </div>
-              <div className="rounded-[16px] md:rounded-[18px] border border-white/10 bg-white/[0.03] px-3 py-2 md:py-2.5 flex items-center gap-2">
-                <span className="flex-1 text-xs md:text-sm text-white/30 select-none">Ask your FPL question...</span>
+              <div className="rounded-[16px] md:rounded-[18px] border border-white/25 bg-white/[0.04] px-3 py-2 md:py-2.5 flex items-center gap-2">
+                <span className="flex-1 text-xs md:text-sm text-white/55 select-none">Ask your FPL question...</span>
                 <button
                   className="h-8 md:h-9 px-3 md:px-4 rounded-xl text-black font-semibold text-xs md:text-sm flex items-center gap-1.5 shrink-0"
                   style={{ background: "linear-gradient(to right,#22d3ee,#34d399)", boxShadow: "0 0 20px rgba(0,255,200,0.2)" }}

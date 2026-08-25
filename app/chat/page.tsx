@@ -761,13 +761,13 @@ export default function ChatPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-3 flex items-end gap-3">
+                <div className="rounded-[20px] border border-white/25 bg-white/[0.04] p-3 flex items-end gap-3">
                   <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                     placeholder="Ask your FPL question..."
-                    className="flex-1 bg-transparent text-white placeholder:text-white/35 resize-none outline-none text-sm leading-6 max-h-[140px] min-h-[36px] pt-1"
+                    className="flex-1 bg-transparent text-white placeholder:text-white/55 resize-none outline-none text-sm leading-6 max-h-[140px] min-h-[36px] pt-1"
                     rows={1}
                     disabled={isLoading}
                   />
