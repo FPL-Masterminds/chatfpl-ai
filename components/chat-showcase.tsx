@@ -111,6 +111,7 @@ export function ChatShowcase() {
   const [scTickerFading, setScTickerFading]   = useState(false)
   const [scTickerPhoto, setScTickerPhoto]     = useState<string | null>(null)
   const sectionRef                  = useRef<HTMLElement>(null)
+  const messagesScrollRef           = useRef<HTMLDivElement>(null)
 
   // ── Typewriter animation states ───────────────────────────────────────────
   const [qText, setQText]                     = useState("")   // user question typed so far
@@ -296,6 +297,12 @@ export function ChatShowcase() {
     }
   }, [introDone, players, activeTab])
 
+  useEffect(() => {
+    const el = messagesScrollRef.current
+    if (!el) return
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
+  }, [qText, showAiBubble, introText, introDone, revealedPlayers, outroText, outroDone, activeTab])
+
   // Showcase desktop ticker — typewriter through 3 picked facts
   const SC_FACTS_INDICES = [0, 4, 9] // most expensive, most owned, most transferred-out
   useEffect(() => {
@@ -354,6 +361,10 @@ export function ChatShowcase() {
           from { opacity:0; transform:translateY(24px); }
           to   { opacity:1; transform:translateY(0); }
         }
+        .showcase-chat-scroll::-webkit-scrollbar { width: 4px; }
+        .showcase-chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .showcase-chat-scroll::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
+        .showcase-chat-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
       `}</style>
       <div className="container mx-auto max-w-6xl">
 
@@ -388,8 +399,7 @@ export function ChatShowcase() {
             }}
           >
         <div
-          className="rounded-[24px] bg-[#080808] overflow-hidden flex w-full"
-          style={{ height: 680 }}
+          className="rounded-[24px] bg-[#080808] overflow-hidden flex w-full min-h-[560px] h-[72vh] max-h-[760px] md:h-[680px] md:max-h-none"
         >
 
           {/* Left sidebar */}
@@ -498,9 +508,10 @@ export function ChatShowcase() {
               </div>
             </div>
 
-            {/* Messages */}
+            {/* Messages — scrollable so outro never sits under the footer */}
             <div
-              className="flex-1 overflow-hidden px-4 py-4 space-y-3"
+              ref={messagesScrollRef}
+              className="showcase-chat-scroll flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-3 py-3 md:px-4 md:py-4 space-y-3"
               style={{
                 opacity: visible ? 1 : 0,
                 transform: visible ? "translateY(0)" : "translateY(8px)",
@@ -522,8 +533,8 @@ export function ChatShowcase() {
 
               {/* AI message — appears after thinking pause, content streams in */}
               {showAiBubble && (
-                <div className="w-full rounded-[24px] border border-white/[0.08] bg-black/30 px-4 py-4 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
-                  <div className="flex items-center gap-2.5 mb-3">
+                <div className="w-full rounded-[20px] md:rounded-[24px] border border-white/[0.08] bg-black/30 px-3 py-3 md:px-4 md:py-4 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
+                  <div className="flex items-center gap-2.5 mb-2 md:mb-3">
                     <div className="h-8 w-8 rounded-full flex items-center justify-center text-black font-black text-[10px] shrink-0"
                       style={{ background: "linear-gradient(135deg,#00FFFF,#00FF87)" }}>AI</div>
                     <div>
@@ -531,7 +542,7 @@ export function ChatShowcase() {
                       <div className="text-[11px] text-white/40">live</div>
                     </div>
                   </div>
-                  <div className="text-sm leading-6 text-white/85 space-y-3">
+                  <div className="text-xs md:text-sm leading-5 md:leading-6 text-white/85 space-y-2.5 md:space-y-3">
                     {/* Intro — types, then shows formatted */}
                     <p className="whitespace-pre-wrap">
                       {introDone ? renderText(tabDef.intro) : introText}
@@ -541,21 +552,21 @@ export function ChatShowcase() {
                     </p>
 
                     {introDone && tabPlayers.length > 0 && (
-                      <ul className="space-y-2 pl-1">
+                      <ul className="space-y-1.5 md:space-y-2 pl-1">
                         {tabPlayers.slice(0, revealedPlayers).map((p, pi) => (
                           <li
                             key={`${p.name}-${pi}`}
-                            className="flex items-center gap-2.5"
+                            className="flex items-center gap-2 md:gap-2.5"
                             style={{ animation: "scFadeUp 0.35s cubic-bezier(0.16,1,0.3,1) both" }}
                           >
-                            <span className="text-[11px] text-white/30 w-4 shrink-0">{pi + 1}.</span>
+                            <span className="text-[10px] md:text-[11px] text-white/30 w-4 shrink-0">{pi + 1}.</span>
                             {p.photoUrl && (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={p.photoUrl} alt={p.name} className="inline-block h-10 w-auto rounded shrink-0" />
+                              <img src={p.photoUrl} alt={p.name} className="inline-block h-8 md:h-10 w-auto rounded shrink-0" />
                             )}
                             <div className="flex-1 min-w-0">
-                              <span className="text-sm font-semibold text-white">{p.name} </span>
-                              <span className="text-[11px] text-white/45">
+                              <span className="text-xs md:text-sm font-semibold text-white">{p.name} </span>
+                              <span className="block text-[10px] md:text-[11px] text-white/45 leading-snug">
                                 {playerDetail(tabDef.id, p)}
                               </span>
                             </div>
@@ -595,8 +606,8 @@ export function ChatShowcase() {
             </div>
 
             {/* Prompt pills + input — matches /chat */}
-            <div className="shrink-0 border-t border-white/[0.06] bg-black/20 px-4 pt-2.5 pb-3">
-              <div className="grid grid-cols-2 gap-2 mb-2.5">
+            <div className="shrink-0 border-t border-white/[0.06] bg-[#080808]/95 backdrop-blur-md px-3 pt-2 pb-2.5 md:px-4 md:pt-2.5 md:pb-3">
+              <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-2 md:mb-2.5">
                 {PROMPTS.map((p) => (
                   <div
                     key={p}
@@ -609,7 +620,7 @@ export function ChatShowcase() {
                     }}
                   >
                     <span
-                      className="block w-full rounded-full px-3 py-1.5 text-xs font-medium text-center truncate cursor-default"
+                      className="block w-full rounded-full px-3 py-1.5 text-[11px] md:text-xs font-medium text-center truncate cursor-default"
                       style={{ background: "#000", color: "#00FF87" }}
                     >
                       {p}
@@ -617,10 +628,10 @@ export function ChatShowcase() {
                   </div>
                 ))}
               </div>
-              <div className="rounded-[18px] border border-white/10 bg-white/[0.03] px-3 py-2.5 flex items-center gap-2">
-                <span className="flex-1 text-sm text-white/30 select-none">Ask your FPL question...</span>
+              <div className="rounded-[16px] md:rounded-[18px] border border-white/10 bg-white/[0.03] px-3 py-2 md:py-2.5 flex items-center gap-2">
+                <span className="flex-1 text-xs md:text-sm text-white/30 select-none">Ask your FPL question...</span>
                 <button
-                  className="h-9 px-4 rounded-xl text-black font-semibold text-sm flex items-center gap-1.5 shrink-0"
+                  className="h-8 md:h-9 px-3 md:px-4 rounded-xl text-black font-semibold text-xs md:text-sm flex items-center gap-1.5 shrink-0"
                   style={{ background: "linear-gradient(to right,#22d3ee,#34d399)", boxShadow: "0 0 20px rgba(0,255,200,0.2)" }}
                 >
                   <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
