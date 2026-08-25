@@ -11,54 +11,47 @@ import type { ShowcasePlayer, ShowcasePlayers, EdgePlayer, InjuryItem } from "@/
 const fplBadge = (teamCode: number) =>
   `https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`
 
-type PlayerLine = { name: string; info: string; photoUrl: string | null }
-
-type Tab = {
-  id: string
-  label: string
-  description: string
-  question: string
-  // AI response — array of paragraphs / player lists
-  response: Array<{ type: "text"; text: string } | { type: "players"; players: PlayerLine[] }>
-}
-
 // Tab structure — questions + static text only. Players come from live API.
 const TAB_DEFS = [
   {
     id: "captain",
     label: "Captain Picks",
     description: "Instant captaincy advice using live form, fixtures and ownership data.",
-    question: "Who are the best captain options this current gameweek?",
-    intro: "Based on current form and upcoming fixtures, here are this week's **top captain options** from the live FPL data:",
-    outro: "Pick the highest-form player with the best fixture. ChatFPL AI can break down each option in depth.",
-    dataKey: "topPts" as keyof ShowcasePlayers,
+    question: "Who are the best captain options this gameweek?",
+    intro: "Based on expected points and current form, here are **five captain options** from live FPL data:",
+    outro: "Pick the highest xP option with a kind fixture. ChatFPL AI can break down each choice in depth.",
+    dataKey: "captainPicks" as keyof ShowcasePlayers,
+    playerCount: 5,
   },
   {
     id: "transfers",
     label: "Transfer Advice",
     description: "Make smarter transfer decisions with fixture-aware, data-driven recommendations.",
     question: "Who are the best players to transfer in right now using form as a guide?",
-    intro: "Here are the **highest form players** in the current FPL gameweek based on live API data:",
-    outro: "Form is key this late in the season. Want me to cross-reference these against your current squad?",
+    intro: "Here are **five in-form players** worth considering for your transfers, ranked by live form:",
+    outro: "Form is a strong transfer signal early in the season. Want me to cross-reference these against your squad?",
     dataKey: "topForm" as keyof ShowcasePlayers,
+    playerCount: 5,
   },
   {
     id: "fixtures",
     label: "Fixture Analysis",
     description: "Know exactly who to target and who to avoid with fixture difficulty rankings.",
     question: "Give me three differential picks under 10% ownership with good fixtures",
-    intro: "Here are **live differentials** — players with strong current form and under 10% ownership:",
-    outro: "Low ownership + favourable fixtures = mini-league edge. These are the players your rivals probably don't have.",
+    intro: "Here are **three live differentials** under 10% ownership with strong form:",
+    outro: "Low ownership plus favourable fixtures is mini-league edge. These are players your rivals may not have.",
     dataKey: "differentials" as keyof ShowcasePlayers,
+    playerCount: 3,
   },
   {
     id: "price",
     label: "Price Watch",
     description: "Spot price risers early and maximise your budget before rivals catch on.",
     question: "Which players are rising in price this gameweek - who should I buy before they climb?",
-    intro: "These players have seen **price increases this gameweek** based on transfer activity - act before they rise further:",
+    intro: "These **five players** have risen in price this gameweek based on transfer activity:",
     outro: "Price rises compound quickly. Getting these in early maximises your budget for the rest of the season.",
     dataKey: "risers" as keyof ShowcasePlayers,
+    playerCount: 5,
   },
 ]
 
@@ -78,6 +71,29 @@ function renderText(text: string) {
       ? <strong key={i} className="text-white font-semibold">{part.slice(2, -2)}</strong>
       : <span key={i}>{part}</span>
   )
+}
+
+function playerDetail(tabId: string, p: ShowcasePlayer) {
+  switch (tabId) {
+    case "captain":
+      return `${p.position} · ${p.price} · xP ${p.epNext.toFixed(1)} · Form ${p.form}`
+    case "fixtures":
+      return `${p.position} · ${p.price} · ${p.selectedBy.toFixed(1)}% owned · Form ${p.form}`
+    case "price":
+      return p.priceRise > 0
+        ? `${p.position} · ${p.price} · +£${(p.priceRise / 10).toFixed(1)}m this GW · Form ${p.form}`
+        : `${p.position} · ${p.price} · ${p.club} · Form ${p.form}`
+    default:
+      return `${p.position} · ${p.price} · ${p.club} · ${p.totalPts} pts · Form ${p.form}`
+  }
+}
+
+function tabPlayersFor(data: ShowcasePlayers | null, tabIdx: number): ShowcasePlayer[] {
+  if (!data) return []
+  const tab = TAB_DEFS[tabIdx]
+  const pool = data[tab.dataKey]
+  if (!Array.isArray(pool)) return []
+  return (pool as ShowcasePlayer[]).slice(0, tab.playerCount)
 }
 
 export function ChatShowcase() {
@@ -104,7 +120,6 @@ export function ChatShowcase() {
   const [revealedPlayers, setRevealedPlayers] = useState(0)
   const [outroText, setOutroText]             = useState("")
   const [outroDone, setOutroDone]             = useState(false)
-  const playersRef  = useRef<ShowcasePlayers | null>(null)   // latest players without dep issues
   const animCleanup = useRef<(() => void) | null>(null)
 
   // Fetch live player data once
@@ -176,28 +191,25 @@ export function ChatShowcase() {
     return () => clearInterval(id)
   }, [players?.injuryNews])
 
-  // Keep playersRef in sync so animation closures always see latest data
-  useEffect(() => { playersRef.current = players }, [players])
-
-  // ── Chat typewriter animation — drives on every tab change ───────────────
+  // ── Chat typewriter animation — question + intro on tab change ───────────
   useEffect(() => {
     if (animCleanup.current) animCleanup.current()
 
-    const tab      = TAB_DEFS[activeTab]
+    const tab = TAB_DEFS[activeTab]
     const plainIntro = stripBold(tab.intro)
-    const plainOutro = stripBold(tab.outro)
 
-    // Reset all animation state
-    setQText(""); setShowAiBubble(false)
-    setIntroText(""); setIntroDone(false)
+    setQText("")
+    setShowAiBubble(false)
+    setIntroText("")
+    setIntroDone(false)
     setRevealedPlayers(0)
-    setOutroText(""); setOutroDone(false)
+    setOutroText("")
+    setOutroDone(false)
 
-    const timers: ReturnType<typeof setTimeout>[]   = []
+    const timers: ReturnType<typeof setTimeout>[] = []
     const intervals: ReturnType<typeof setInterval>[] = []
     let cancelled = false
 
-    // Phase 1 — type the user question
     let qi = 0
     const qInterval = setInterval(() => {
       if (cancelled) return
@@ -206,12 +218,10 @@ export function ChatShowcase() {
       if (qi >= tab.question.length) {
         clearInterval(qInterval)
 
-        // Phase 2 — "thinking" pause, then reveal AI bubble
         const t1 = setTimeout(() => {
           if (cancelled) return
           setShowAiBubble(true)
 
-          // Phase 3 — type intro
           let ii = 0
           const introInterval = setInterval(() => {
             if (cancelled) return
@@ -220,32 +230,6 @@ export function ChatShowcase() {
             if (ii >= plainIntro.length) {
               clearInterval(introInterval)
               setIntroDone(true)
-
-              // Phase 4 — reveal player rows one-by-one
-              const liveP = playersRef.current ? playersRef.current[tab.dataKey] as ShowcasePlayer[] : []
-              let pi = 0
-              const revealNext = () => {
-                if (cancelled) return
-                if (pi < liveP.length) {
-                  pi++
-                  setRevealedPlayers(pi)
-                  timers.push(setTimeout(revealNext, 380))
-                } else {
-                  // Phase 5 — type outro
-                  let oi = 0
-                  const outroInterval = setInterval(() => {
-                    if (cancelled) return
-                    oi++
-                    setOutroText(plainOutro.slice(0, oi))
-                    if (oi >= plainOutro.length) {
-                      clearInterval(outroInterval)
-                      setOutroDone(true)
-                    }
-                  }, 22)
-                  intervals.push(outroInterval)
-                }
-              }
-              timers.push(setTimeout(revealNext, 250))
             }
           }, 22)
           intervals.push(introInterval)
@@ -261,8 +245,56 @@ export function ChatShowcase() {
       timers.forEach(clearTimeout)
     }
     return () => { if (animCleanup.current) animCleanup.current() }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab])
+
+  // Reveal live player answers once intro finishes and API data is ready
+  useEffect(() => {
+    if (!introDone || !players) return
+
+    const tab = TAB_DEFS[activeTab]
+    const liveP = tabPlayersFor(players, activeTab)
+    if (liveP.length === 0) return
+
+    const plainOutro = stripBold(tab.outro)
+    setRevealedPlayers(0)
+    setOutroText("")
+    setOutroDone(false)
+
+    const timers: ReturnType<typeof setTimeout>[] = []
+    const intervals: ReturnType<typeof setInterval>[] = []
+    let cancelled = false
+    let pi = 0
+
+    const revealNext = () => {
+      if (cancelled) return
+      pi++
+      setRevealedPlayers(pi)
+      if (pi < liveP.length) {
+        timers.push(setTimeout(revealNext, 380))
+        return
+      }
+
+      let oi = 0
+      const outroInterval = setInterval(() => {
+        if (cancelled) return
+        oi++
+        setOutroText(plainOutro.slice(0, oi))
+        if (oi >= plainOutro.length) {
+          clearInterval(outroInterval)
+          setOutroDone(true)
+        }
+      }, 22)
+      intervals.push(outroInterval)
+    }
+
+    timers.push(setTimeout(revealNext, 250))
+
+    return () => {
+      cancelled = true
+      timers.forEach(clearTimeout)
+      intervals.forEach(clearInterval)
+    }
+  }, [introDone, players, activeTab])
 
   // Showcase desktop ticker — typewriter through 3 picked facts
   const SC_FACTS_INDICES = [0, 4, 9] // most expensive, most owned, most transferred-out
@@ -298,21 +330,7 @@ export function ChatShowcase() {
       : { opacity: 0 as const }
 
   const tabDef = TAB_DEFS[activeTab]
-  const livePlayers: ShowcasePlayer[] = players ? players[tabDef.dataKey] : []
-
-  // Build response blocks from live data
-  const responseBlocks: Array<{ type: "text"; text: string } | { type: "players"; players: PlayerLine[] }> = [
-    { type: "text", text: tabDef.intro },
-    ...(livePlayers.length > 0 ? [{
-      type: "players" as const,
-      players: livePlayers.map(p => ({
-        name: p.name,
-        info: `${p.position} · ${p.price} · ${p.club} · ${p.totalPts} pts · Form ${p.form}`,
-        photoUrl: p.photoUrl,
-      })),
-    }] : []),
-    { type: "text", text: tabDef.outro },
-  ]
+  const tabPlayers = tabPlayersFor(players, activeTab)
 
   return (
     <section ref={sectionRef} className="relative px-4 py-24 bg-black overflow-hidden">
@@ -522,12 +540,11 @@ export function ChatShowcase() {
                       )}
                     </p>
 
-                    {/* Player rows — fade in one-by-one */}
-                    {introDone && (
+                    {introDone && tabPlayers.length > 0 && (
                       <ul className="space-y-2 pl-1">
-                        {livePlayers.slice(0, revealedPlayers).map((p, pi) => (
+                        {tabPlayers.slice(0, revealedPlayers).map((p, pi) => (
                           <li
-                            key={pi}
+                            key={`${p.name}-${pi}`}
                             className="flex items-center gap-2.5"
                             style={{ animation: "scFadeUp 0.35s cubic-bezier(0.16,1,0.3,1) both" }}
                           >
@@ -539,7 +556,7 @@ export function ChatShowcase() {
                             <div className="flex-1 min-w-0">
                               <span className="text-sm font-semibold text-white">{p.name} </span>
                               <span className="text-[11px] text-white/45">
-                                {p.position} · {p.price} · {p.club} · {p.totalPts} pts · Form {p.form}
+                                {playerDetail(tabDef.id, p)}
                               </span>
                             </div>
                           </li>
@@ -547,8 +564,15 @@ export function ChatShowcase() {
                       </ul>
                     )}
 
-                    {/* Outro — types once players revealed, then shows formatted */}
-                    {revealedPlayers >= livePlayers.length && livePlayers.length > 0 && (
+                    {introDone && !players && (
+                      <div className="space-y-2">
+                        {Array.from({ length: tabDef.playerCount }, (_, i) => (
+                          <div key={i} className="h-8 rounded-xl bg-white/[0.04] animate-pulse" />
+                        ))}
+                      </div>
+                    )}
+
+                    {revealedPlayers >= tabPlayers.length && tabPlayers.length > 0 && (
                       <p className="whitespace-pre-wrap">
                         {outroDone ? renderText(tabDef.outro) : outroText}
                         {!outroDone && outroText.length > 0 && (
@@ -557,8 +581,8 @@ export function ChatShowcase() {
                       </p>
                     )}
 
-                    {/* Skeleton while API fetches */}
-                    {!players && (
+                    {/* Skeleton while API fetches before intro completes */}
+                    {!introDone && !players && (
                       <div className="space-y-2">
                         {[1,2,3].map(i => (
                           <div key={i} className="h-8 rounded-xl bg-white/[0.04] animate-pulse" />

@@ -20,7 +20,7 @@ const CACHE_MS = 3 * 60 * 1000
 // Better to return zero-length arrays than 500 the whole route - the client
 // component handles empty arrays gracefully.
 const EMPTY_DATA: ShowcasePlayers = {
-  topPts: [], topForm: [], risers: [], differentials: [],
+  captainPicks: [], topPts: [], topForm: [], risers: [], differentials: [],
   topGkp: [], topDef: [], topMid: [], topFwd: [],
   mostSelected: [], mostBonus: [],
   injuryNews: [], tickerFacts: [],
@@ -34,6 +34,9 @@ export type ShowcasePlayer = {
   price: string
   totalPts: number
   form: string
+  epNext: number
+  selectedBy: number
+  priceRise: number
   photoUrl: string  // full CDN URL built by the shared helper, always correct season
   teamCode: number  // for badge URL: https://resources.premierleague.com/premierleague/badges/70/t{code}.png
 }
@@ -59,6 +62,7 @@ export type TickerFact = {
 }
 
 export type ShowcasePlayers = {
+  captainPicks: ShowcasePlayer[]
   topPts: ShowcasePlayer[]
   topForm: ShowcasePlayer[]
   risers: ShowcasePlayer[]
@@ -145,17 +149,6 @@ function buildShowcaseData(json: any): ShowcasePlayers {
   // event_points=7 AND total_points=7). Earlier confusion was really the
   // Vercel fetch cache holding a pre-match snapshot - fixed with cache:
   // 'no-store' below. So this helper just returns total_points.
-  const toPlayer = (p: any): ShowcasePlayer => ({
-    name: p.web_name,
-    club: teamFullNames[p.team] ?? "???",
-    position: posMap[p.element_type] ?? "MID",
-    price: `£${(p.now_cost / 10).toFixed(1)}m`,
-    totalPts: p.total_points ?? 0,
-    form: parseFloat(p.form).toFixed(1),
-    photoUrl: fplPhotoUrlFromElement(p.photo, p.code),
-    teamCode: teamCodes[p.team] ?? 0,
-  })
-
   // Rank helper: prefer real season points + form once we have data, otherwise
   // fall back to ep_next (FPL's own preseason projection) and ownership.
   const rank = (p: any) =>
@@ -163,32 +156,100 @@ function buildShowcaseData(json: any): ShowcasePlayers {
       ? (p.total_points ?? 0) * 2 + parseFloat(p.form) * 10
       : parseFloat(p.ep_next || "0") * 20 + parseFloat(p.selected_by_percent || "0")
 
-  const topPts = [...active]
-    .filter((p: any) => (anyMidseason ? parseFloat(p.form) >= 4.0 : true))
-    .sort((a: any, b: any) => (anyMidseason ? (b.total_points ?? 0) - (a.total_points ?? 0) : rank(b) - rank(a)))
-    .slice(0, 5)
-    .map(toPlayer)
+  const toPlayer = (p: any): ShowcasePlayer => ({
+    name: p.web_name,
+    club: teamFullNames[p.team] ?? "???",
+    position: posMap[p.element_type] ?? "MID",
+    price: `£${(p.now_cost / 10).toFixed(1)}m`,
+    totalPts: p.total_points ?? 0,
+    form: parseFloat(p.form).toFixed(1),
+    epNext: parseFloat(p.ep_next || "0"),
+    selectedBy: parseFloat(p.selected_by_percent || "0"),
+    priceRise: p.cost_change_event ?? 0,
+    photoUrl: fplPhotoUrlFromElement(p.photo, p.code),
+    teamCode: teamCodes[p.team] ?? 0,
+  })
 
-  const topForm = [...active]
-    .filter((p: any) => (anyMidseason ? parseFloat(p.form) >= 5.0 : true))
-    .sort((a: any, b: any) => (anyMidseason ? parseFloat(b.form) - parseFloat(a.form) : rank(b) - rank(a)))
-    .slice(0, 5)
-    .map(toPlayer)
+  /** Pick top N from pool, relaxing filters until enough players are found. */
+  const takeTopN = (
+    pool: any[],
+    n: number,
+    sort: (a: any, b: any) => number,
+    filterStages: ((p: any) => boolean)[]
+  ): ShowcasePlayer[] => {
+    for (const filter of filterStages) {
+      const filtered = pool.filter(filter).sort(sort)
+      if (filtered.length >= n) return filtered.slice(0, n).map(toPlayer)
+    }
+    return [...pool].sort(sort).slice(0, n).map(toPlayer)
+  }
 
-  const risers = [...active]
-    .filter((p: any) => p.cost_change_event > 0 && (anyMidseason ? parseFloat(p.form) >= 3.0 : true))
-    .sort((a: any, b: any) => b.cost_change_event - a.cost_change_event)
-    .slice(0, 5)
-    .map(toPlayer)
+  const captainScore = (p: any) =>
+    parseFloat(p.ep_next || "0") * 4 +
+    parseFloat(p.form) * 3 +
+    (p.total_points ?? 0) * 0.05
 
-  const differentials = [...active]
-    .filter((p: any) =>
-      parseFloat(p.selected_by_percent) < 12 &&
-      (anyMidseason ? parseFloat(p.form) >= 4.5 : parseFloat(p.ep_next || "0") >= 3.0)
-    )
-    .sort((a: any, b: any) => (anyMidseason ? parseFloat(b.form) - parseFloat(a.form) : rank(b) - rank(a)))
-    .slice(0, 5)
-    .map(toPlayer)
+  const captainPicks = takeTopN(
+    active,
+    5,
+    (a, b) => captainScore(b) - captainScore(a),
+    [
+      (p) => p.element_type >= 3 && parseFloat(p.ep_next || "0") >= 3,
+      (p) => p.element_type >= 3,
+      (p) => parseFloat(p.ep_next || "0") >= 2,
+      () => true,
+    ]
+  )
+
+  const topPts = takeTopN(
+    active,
+    5,
+    (a, b) => (anyMidseason ? (b.total_points ?? 0) - (a.total_points ?? 0) : rank(b) - rank(a)),
+    [
+      (p) => (anyMidseason ? parseFloat(p.form) >= 4.0 : true),
+      (p) => (anyMidseason ? parseFloat(p.form) >= 2.0 : true),
+      () => true,
+    ]
+  )
+
+  const topForm = takeTopN(
+    active,
+    5,
+    (a, b) => (anyMidseason ? parseFloat(b.form) - parseFloat(a.form) : rank(b) - rank(a)),
+    [
+      (p) => (anyMidseason ? parseFloat(p.form) >= 5.0 : true),
+      (p) => (anyMidseason ? parseFloat(p.form) >= 3.0 : true),
+      () => true,
+    ]
+  )
+
+  const risers = takeTopN(
+    active,
+    5,
+    (a, b) => b.cost_change_event - a.cost_change_event || rank(b) - rank(a),
+    [
+      (p) => p.cost_change_event > 0 && (anyMidseason ? parseFloat(p.form) >= 3.0 : true),
+      (p) => p.cost_change_event > 0,
+      (p) => p.cost_change_event >= 0,
+      () => true,
+    ]
+  )
+
+  const differentials = takeTopN(
+    active,
+    5,
+    (a, b) => (anyMidseason ? parseFloat(b.form) - parseFloat(a.form) : rank(b) - rank(a)),
+    [
+      (p) =>
+        parseFloat(p.selected_by_percent) < 10 &&
+        (anyMidseason ? parseFloat(p.form) >= 4.5 : parseFloat(p.ep_next || "0") >= 3.0),
+      (p) =>
+        parseFloat(p.selected_by_percent) < 12 &&
+        (anyMidseason ? parseFloat(p.form) >= 3.5 : parseFloat(p.ep_next || "0") >= 2.5),
+      (p) => parseFloat(p.selected_by_percent) < 15,
+      () => true,
+    ]
+  )
 
   // Top 3 by position. Preseason: ranked by ep_next; mid-season: last GW points.
   const topByPos = (type: number) =>
@@ -347,7 +408,7 @@ function buildShowcaseData(json: any): ShowcasePlayers {
   const nextDeadline: string | null = nextEvent ? nextEvent.deadline_time : null
   const nextGwName: string = nextEvent ? `Gameweek ${nextEvent.id}` : "Gameweek"
 
-  const data: ShowcasePlayers = { topPts, topForm, risers, differentials, topGkp, topDef, topMid, topFwd, mostSelected, mostBonus, injuryNews, tickerFacts, nextDeadline, nextGwName }
+  const data: ShowcasePlayers = { captainPicks, topPts, topForm, risers, differentials, topGkp, topDef, topMid, topFwd, mostSelected, mostBonus, injuryNews, tickerFacts, nextDeadline, nextGwName }
   cache = { data, ts: Date.now() }
   return data
 }

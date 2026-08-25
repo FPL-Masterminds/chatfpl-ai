@@ -23,13 +23,13 @@ const PILL_COLOR = "#00FF85"
 // per season during preseason prep (never during an active campaign).
 const CDN = "https://resources.premierleague.com/premierleague25/photos/players/110x140"
 const FALLBACK: ShowcasePlayer[] = [
-  { name: "Haaland",     club: "Man City",    position: "FWD", price: "£14.0m", totalPts: 0, form: "0.0", photoUrl: `${CDN}/223094.png`, teamCode: 43 },
-  { name: "João Pedro",  club: "Chelsea",     position: "FWD", price: "£8.0m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/475168.png`, teamCode: 8  },
-  { name: "B.Fernandes", club: "Man Utd",     position: "MID", price: "£9.0m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/141746.png`, teamCode: 1  },
-  { name: "Szoboszlai",  club: "Liverpool",   position: "MID", price: "£7.0m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/424876.png`, teamCode: 14 },
-  { name: "Calafiori",   club: "Arsenal",     position: "DEF", price: "£5.5m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/466075.png`, teamCode: 3  },
-  { name: "Mbeumo",      club: "Man Utd",     position: "MID", price: "£8.0m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/446008.png`, teamCode: 1  },
-  { name: "Raya",        club: "Arsenal",     position: "GKP", price: "£5.5m",  totalPts: 0, form: "0.0", photoUrl: `${CDN}/154561.png`, teamCode: 3  },
+  { name: "Haaland",     club: "Man City",    position: "FWD", price: "£14.0m", totalPts: 0, form: "0.0", epNext: 0, selectedBy: 0, priceRise: 0, photoUrl: `${CDN}/223094.png`, teamCode: 43 },
+  { name: "João Pedro",  club: "Chelsea",     position: "FWD", price: "£8.0m",  totalPts: 0, form: "0.0", epNext: 0, selectedBy: 0, priceRise: 0, photoUrl: `${CDN}/475168.png`, teamCode: 8  },
+  { name: "B.Fernandes", club: "Man Utd",     position: "MID", price: "£9.0m",  totalPts: 0, form: "0.0", epNext: 0, selectedBy: 0, priceRise: 0, photoUrl: `${CDN}/141746.png`, teamCode: 1  },
+  { name: "Szoboszlai",  club: "Liverpool",   position: "MID", price: "£7.0m",  totalPts: 0, form: "0.0", epNext: 0, selectedBy: 0, priceRise: 0, photoUrl: `${CDN}/424876.png`, teamCode: 14 },
+  { name: "Calafiori",   club: "Arsenal",     position: "DEF", price: "£5.5m",  totalPts: 0, form: "0.0", epNext: 0, selectedBy: 0, priceRise: 0, photoUrl: `${CDN}/466075.png`, teamCode: 3  },
+  { name: "Mbeumo",      club: "Man Utd",     position: "MID", price: "£8.0m",  totalPts: 0, form: "0.0", epNext: 0, selectedBy: 0, priceRise: 0, photoUrl: `${CDN}/446008.png`, teamCode: 1  },
+  { name: "Raya",        club: "Arsenal",     position: "GKP", price: "£5.5m",  totalPts: 0, form: "0.0", epNext: 0, selectedBy: 0, priceRise: 0, photoUrl: `${CDN}/154561.png`, teamCode: 3  },
 ]
 
 const badgeUrl = (code: number) =>
