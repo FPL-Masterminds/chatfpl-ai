@@ -13,7 +13,7 @@ const ABOUT_DATA = [
   {
     id: "myteam",
     question: "Can it actually look at my team?",
-    answer: "Yes - and this is one of the best things it does. Drop your FPL Manager ID into the chat and ChatFPL AI pulls in your squad, your budget, your chip status, and your captain history. Every answer from that point is built around your team specifically. Ask 'Who should I transfer out?' and it knows exactly who you have, what you can afford, and where your weak spots are.",
+    answer: "Yes - and this is one of the best things it does. Add your FPL Manager ID in your account dashboard and ChatFPL AI pulls in your squad, your budget, your chip status, and your captain history. Every answer from that point is built around your team specifically. Ask 'Who should I transfer out?' and it knows exactly who you have, what you can afford, and where your weak spots are.",
   },
   {
     id: "seasonstory",
