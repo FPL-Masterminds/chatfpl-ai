@@ -35,6 +35,11 @@ const PRIVACY_DATA = [
     answer: "You can access, update, or delete your personal data any time from your account settings. You can also request an export of your data or ask us to remove your account entirely. If you have a GDPR question or want to exercise any of your rights, reach out through the contact page.",
   },
   {
+    id: "seasonstory",
+    question: "What about Season Story and manager names?",
+    answer: "If you use Season Story, we fetch standings for your private mini-leagues from the official FPL API. That includes other managers' display names and team names, plus scores and ranks - the same information already visible to league members on FPL. We use it only to generate gameweek recaps for leagues you belong to, shown only to logged-in ChatFPL users in those leagues. The text is generated automatically from templates. It is not sent to a third-party AI model. We do not sell this data, and we do not publish Season Story outside your league.",
+  },
+  {
     id: "cookies",
     question: "Do you use cookies?",
     answer: "Yes - standard stuff. Cookies keep you logged in and help us understand how the site is being used. You can block them through your browser settings, though some parts of the service may not work properly if you do.",
@@ -47,7 +52,7 @@ const PRIVACY_DATA = [
   {
     id: "changes",
     question: "What if the policy changes?",
-    answer: "We'll update this page and change the 'last updated' date. If it's a significant change, we'll let you know by email too. Last updated: August 2026.",
+    answer: "We'll update this page and change the 'last updated' date. If it's a significant change, we'll let you know by email too. Last updated: 25 August 2026.",
   },
   {
     id: "questions",

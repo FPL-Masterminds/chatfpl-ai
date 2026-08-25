@@ -8,12 +8,17 @@ const ABOUT_DATA = [
   {
     id: "what",
     question: "What is ChatFPL AI?",
-    answer: "ChatFPL AI is your personal Fantasy Premier League analyst. Ask it anything - captain picks, transfer targets, fixture analysis, chip timing, differentials - and it gives you an instant, data-driven answer. No spreadsheets, no trawling through Reddit. Just ask, and it answers.",
+    answer: "ChatFPL AI is your personal Fantasy Premier League analyst. Ask it anything - captain picks, transfer targets, fixture analysis, chip timing, differentials - and it gives you an instant, data-driven answer. No spreadsheets, no trawling through Reddit. Just ask, and it answers. We also offer Season Story: gameweek write-ups for your private mini-league, generated from live results after each gameweek closes.",
   },
   {
     id: "myteam",
     question: "Can it actually look at my team?",
     answer: "Yes - and this is one of the best things it does. Drop your FPL Manager ID into the chat and ChatFPL AI pulls in your squad, your budget, your chip status, and your captain history. Every answer from that point is built around your team specifically. Ask 'Who should I transfer out?' and it knows exactly who you have, what you can afford, and where your weak spots are.",
+  },
+  {
+    id: "seasonstory",
+    question: "What is Season Story?",
+    answer: "Season Story is a gameweek recap for your private FPL mini-league on the dashboard. After each gameweek closes, ChatFPL AI builds a write-up from live league results: the table, podium, movers, your week, and more. You tap through it like a Q&A chat. It is built for leagues of up to 200 managers and updates every gameweek through the season.",
   },
   {
     id: "data",
