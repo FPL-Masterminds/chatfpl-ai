@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-export type DevTeamRow = {
+export type TeamRow = {
   teamSlug: string
   teamName: string
   teamShort: string
@@ -11,8 +11,8 @@ export type DevTeamRow = {
 const GREEN = "#00FF87"
 const CYAN = "#00FFFF"
 
-function groupByLetter(teams: DevTeamRow[]) {
-  const groups = new Map<string, DevTeamRow[]>()
+function groupByLetter(teams: TeamRow[]) {
+  const groups = new Map<string, TeamRow[]>()
   for (const team of teams) {
     const letter = team.teamName.charAt(0).toUpperCase()
     const bucket = groups.get(letter) ?? []
@@ -22,7 +22,7 @@ function groupByLetter(teams: DevTeamRow[]) {
   return [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))
 }
 
-export function DevTeamsList({ teams }: { teams: DevTeamRow[] }) {
+export function TeamsList({ teams }: { teams: TeamRow[] }) {
   const grouped = groupByLetter(teams)
 
   return (

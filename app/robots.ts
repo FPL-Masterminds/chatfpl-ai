@@ -12,7 +12,6 @@ export default function robots(): MetadataRoute.Robots {
           '/dashboard',
           '/devlandingpage',
           '/devchat',
-          '/devteams',
           '/verify-email',
           '/reset-password',
           '/forgot-password',
