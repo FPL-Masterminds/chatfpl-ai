@@ -13,5 +13,10 @@ export default function LoginLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <>
+      <h1 className="sr-only">Log in to ChatFPL AI</h1>
+      {children}
+    </>
+  )
 }

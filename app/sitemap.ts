@@ -167,6 +167,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/fpl/injuries",
     "/fpl/fixtures",
     "/fpl/gameweeks",
+    "/fpl/teams",
     ...bestValueRoutes,
     ...teamOverviewRoutes,
     ...teamPositionRoutes,

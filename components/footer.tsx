@@ -77,6 +77,7 @@ export function Footer() {
                 { href: "/fpl/transfer-trends", label: "Transfer Market Trends" },
                 { href: "/fpl/fixtures",        label: "Fixture Difficulty"     },
                 { href: "/fpl/gameweeks",       label: "DGW/BGW Planner"        },
+                { href: "/fpl/teams",           label: "Browse by Club"         },
                 { href: "/fpl/defcon",          label: "DEFCON Hub"             },
               ].map(({ href, label }) => (
                 <li key={href}>

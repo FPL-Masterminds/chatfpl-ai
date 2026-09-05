@@ -13,5 +13,10 @@ export default function SignupLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <>
+      <h1 className="sr-only">Sign up for ChatFPL AI</h1>
+      {children}
+    </>
+  )
 }
