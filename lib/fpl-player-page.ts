@@ -1976,12 +1976,16 @@ export interface TeamHubData {
   players: CaptainHubPlayer[]
 }
 
-export async function getTeamSlugs(): Promise<{ teamSlug: string; teamName: string }[]> {
+export async function getTeamSlugs(): Promise<
+  { teamSlug: string; teamName: string; teamShort: string; teamCode: number }[]
+> {
   try {
     const bootstrap = await getBootstrap()
     return (bootstrap.teams ?? []).map((t: any) => ({
       teamSlug: toSlug(t.name),
       teamName: t.name,
+      teamShort: t.short_name,
+      teamCode: t.code,
     }))
   } catch {
     return []
