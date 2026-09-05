@@ -3,6 +3,14 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generateAllSeasonStories, type MemberHistoryInput } from "@/lib/season-story"
 import { getGWFixtureContext, isGameweekStoryReady } from "@/lib/season-story-fixtures"
+import {
+  buildProvisionalPreviewMembers,
+  entriesMissingGwData,
+  mergeLiveGwFromStandings,
+  mergeRefetchedHistories,
+  type EntryHistorySnapshot,
+  type StandingRow,
+} from "@/lib/season-story-members"
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -13,64 +21,7 @@ const MAX_LEAGUE_PAGES = 4
 const SEASON_STORY_MAX_MANAGERS = 200
 const HISTORY_BATCH = 15
 
-type StandingRow = {
-  entry: number
-  entry_name: string
-  player_name: string
-  total: number
-  event_total: number
-  points_on_bench?: number
-}
-
 type CompletedGw = { gw: number; avg: number; provisional?: boolean }
-
-function membersFromStandings(rows: StandingRow[], gw: number): MemberHistoryInput[] {
-  return rows.map((r) => ({
-    entryId: r.entry,
-    team: r.entry_name,
-    manager: r.player_name,
-    current: [
-      {
-        event: gw,
-        points: r.event_total,
-        total_points: r.total,
-        points_on_bench: r.points_on_bench ?? 0,
-      },
-    ],
-    chips: [],
-  }))
-}
-
-function mergeMembersWithStandings(
-  histories: MemberHistoryInput[],
-  standings: StandingRow[],
-  gw: number
-): MemberHistoryInput[] {
-  const byEntry = new Map(histories.map((m) => [m.entryId, m]))
-  for (const row of standings) {
-    const existing = byEntry.get(row.entry)
-    const gwRow = {
-      event: gw,
-      points: row.event_total,
-      total_points: row.total,
-      points_on_bench: row.points_on_bench ?? 0,
-    }
-    if (!existing) {
-      byEntry.set(row.entry, {
-        entryId: row.entry,
-        team: row.entry_name,
-        manager: row.player_name,
-        current: [gwRow],
-        chips: [],
-      })
-      continue
-    }
-    if (!existing.current.some((c) => c.event === gw)) {
-      existing.current.push(gwRow)
-    }
-  }
-  return Array.from(byEntry.values())
-}
 
 function jsonResponse(body: Record<string, unknown>) {
   return NextResponse.json(body, { status: 200 })
@@ -96,52 +47,16 @@ function waitingResponse(
   })
 }
 
-type TacticalSnapshot = {
-  chips: { name: string; event: number }[]
-  gwRow: {
-    points_on_bench?: number
-    event_transfers?: number
-    event_transfers_cost?: number
-  } | null
-}
-
-function buildMembersWithTactical(
-  rows: StandingRow[],
-  gw: number,
-  tactical: Map<number, TacticalSnapshot>
-): MemberHistoryInput[] {
-  return rows.map((r) => {
-    const snap = tactical.get(r.entry)
-    const gwHistory = snap?.gwRow
-    return {
-      entryId: r.entry,
-      team: r.entry_name,
-      manager: r.player_name,
-      current: [
-        {
-          event: gw,
-          points: r.event_total,
-          total_points: r.total,
-          points_on_bench: gwHistory?.points_on_bench ?? 0,
-          event_transfers: gwHistory?.event_transfers ?? 0,
-          event_transfers_cost: gwHistory?.event_transfers_cost ?? 0,
-        },
-      ],
-      chips: snap?.chips ?? [],
-    }
-  })
-}
-
-async function fetchMemberTacticalData(
+async function fetchEntryHistorySnapshots(
   entries: { entry: number }[],
   gw: number
-): Promise<Map<number, TacticalSnapshot>> {
-  const map = new Map<number, TacticalSnapshot>()
+): Promise<Map<number, EntryHistorySnapshot>> {
+  const map = new Map<number, EntryHistorySnapshot>()
   for (let i = 0; i < entries.length; i += HISTORY_BATCH) {
     const batch = entries.slice(i, i + HISTORY_BATCH)
     await Promise.all(
       batch.map(async (e) => {
-        const empty: TacticalSnapshot = { chips: [], gwRow: null }
+        const empty: EntryHistorySnapshot = { chips: [], gwRow: null }
         try {
           const r = await fetch(
             `https://fantasy.premierleague.com/api/entry/${e.entry}/history/`,
@@ -168,31 +83,25 @@ async function fetchMemberTacticalData(
 
 async function resolveStoryMembers(
   standingsRows: StandingRow[],
-  maxFinishedGw: number,
+  finishedGwIds: number[],
   liveGwId: number | null,
-  needsFullHistory: boolean,
   mergeLiveProvisional: boolean
 ): Promise<MemberHistoryInput[]> {
-  if (needsFullHistory) {
-    let members = await fetchMemberHistories(standingsRows)
-    if (mergeLiveProvisional && liveGwId) {
-      members = mergeMembersWithStandings(members, standingsRows, liveGwId)
+  let members = await fetchMemberHistories(standingsRows)
+
+  if (finishedGwIds.length > 0) {
+    const incomplete = entriesMissingGwData(standingsRows, members, finishedGwIds)
+    if (incomplete.length > 0) {
+      const refetched = await fetchMemberHistories(incomplete)
+      members = mergeRefetchedHistories(members, refetched)
     }
-    const targetGw = maxFinishedGw || liveGwId || 1
-    if (!membersHaveGwData(members, targetGw)) {
-      const tactical = await fetchMemberTacticalData(standingsRows, targetGw)
-      return buildMembersWithTactical(standingsRows, targetGw, tactical)
-    }
-    return members
   }
 
-  const gw = maxFinishedGw || liveGwId || 1
-  const tactical = await fetchMemberTacticalData(standingsRows, gw)
-  return buildMembersWithTactical(standingsRows, gw, tactical)
-}
+  if (mergeLiveProvisional && liveGwId) {
+    members = mergeLiveGwFromStandings(members, standingsRows, liveGwId)
+  }
 
-function membersHaveGwData(members: MemberHistoryInput[], gw: number): boolean {
-  return members.some((m) => m.current.some((c) => c.event === gw))
+  return members
 }
 
 function tryGenerateStories(
@@ -407,8 +316,8 @@ export async function GET(request: Request) {
           const previewGws: CompletedGw[] = [
             { gw: liveGw.id, avg: liveGw.average_entry_score ?? 0, provisional: true },
           ]
-          const tactical = await fetchMemberTacticalData(standingsRows, liveGw.id)
-          const members = buildMembersWithTactical(standingsRows, liveGw.id, tactical)
+          const snapshots = await fetchEntryHistorySnapshots(standingsRows, liveGw.id)
+          const members = buildProvisionalPreviewMembers(standingsRows, liveGw.id, snapshots)
           const stories = tryGenerateStories(
             activeLeague.id,
             leagueName,
@@ -447,17 +356,15 @@ export async function GET(request: Request) {
       })
     }
 
-    const maxFinishedGw = finishedGws.length > 0 ? Math.max(...finishedGws.map((g) => g.gw)) : 0
-    const needsFullHistory = maxFinishedGw > 1
+    const finishedGwIds = finishedGws.map((g) => g.gw)
     const mergeLiveProvisional = Boolean(
       isAdmin && liveGw && completedGws.some((g) => g.provisional && g.gw === liveGw.id)
     )
 
     const members = await resolveStoryMembers(
       standingsRows,
-      maxFinishedGw,
+      finishedGwIds,
       liveGw?.id ?? null,
-      needsFullHistory,
       mergeLiveProvisional
     )
 
