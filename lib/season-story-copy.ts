@@ -219,6 +219,11 @@ export function isFirstGameweek(gw: number): boolean {
   return gw === 1
 }
 
+/** Season-total landmarks like 1000+ points are not meaningful until mid/late season. */
+export function canDiscussThousandPointClub(gw: number, leaderTotalPts = 0): boolean {
+  return gw >= 20 || leaderTotalPts >= 950
+}
+
 /** Rank movement narratives need a prior week to compare against. */
 export function canDiscussRankMovement(gw: number): boolean {
   return gw >= 4

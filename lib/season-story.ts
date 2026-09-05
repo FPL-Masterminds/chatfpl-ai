@@ -429,7 +429,7 @@ export function generateSeasonStory(facts: SeasonStoryFacts): SeasonStory {
     paragraphs.push({
       slot,
       label: meta.label,
-      question: pickStoryQuestion(slot, facts.gw, facts.leagueId),
+      question: pickStoryQuestion(slot, facts.gw, facts.leagueId, facts.leader.totalPts),
       text,
       style: meta.style,
     })

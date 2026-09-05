@@ -1,3 +1,5 @@
+import { canDiscussThousandPointClub } from "./season-story-copy"
+
 function fnv1a(str: string): number {
   let h = 2166136261
   for (let i = 0; i < str.length; i++) {
@@ -269,7 +271,6 @@ export const SEASON_STORY_QUESTION_POOLS: Record<string, readonly string[]> = {
     "Any historic GW scores?",
     "Who hit a scoring milestone?",
     "What numbers stood out this week?",
-    "Any managers hit 1000+ total?",
     "Who reached a rank milestone?",
     "Any streak milestones broken?",
     "Who celebrated a landmark GW?",
@@ -388,9 +389,24 @@ export const SEASON_STORY_QUESTION_POOLS: Record<string, readonly string[]> = {
   ]
 }
 
-export function pickStoryQuestion(slot: string, gw: number, leagueId: number): string {
-  const pool = SEASON_STORY_QUESTION_POOLS[slot]
+/** Milestone questions that only make sense once managers are approaching four-figure totals. */
+const LATE_MILESTONE_QUESTIONS: readonly string[] = [
+  "Any managers hit 1000+ total?",
+  "Who is closing in on 1000 points?",
+  "Any four-figure totals in the league yet?",
+]
+
+export function pickStoryQuestion(
+  slot: string,
+  gw: number,
+  leagueId: number,
+  leaderTotalPts = 0
+): string {
+  let pool = SEASON_STORY_QUESTION_POOLS[slot]
   if (!pool?.length) return "Tell me about this gameweek."
+  if (slot === "milestones" && canDiscussThousandPointClub(gw, leaderTotalPts)) {
+    pool = [...pool, ...LATE_MILESTONE_QUESTIONS]
+  }
   let idx = questionIndex(leagueId, gw, slot) % pool.length
   if (gw > 1) {
     const prevIdx = questionIndex(leagueId, gw - 1, slot) % pool.length
