@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+export const dynamic = "force-dynamic"
+
 const STAT_DEFS = [
   {
     id: "transfers-in",
@@ -50,16 +52,19 @@ export async function GET() {
   try {
     const fplRes = await fetch(
       "https://fantasy.premierleague.com/api/bootstrap-static/",
-      { next: { revalidate: 300 } }
+      { cache: "no-store" },
     )
     if (!fplRes.ok) throw new Error("FPL API error")
     const data = await fplRes.json()
 
     if (!data?.elements || !data?.teams) throw new Error("FPL API returned incomplete data")
 
-    const nextGW =
-      data.events?.find((e: any) => e.is_next) ||
-      data.events?.find((e: any) => e.is_current)
+    // Use the next future deadline, not is_current (which stays set after the deadline passes).
+    const now = Date.now()
+    const nextGW = data.events?.find(
+      (e: { deadline_time?: string }) =>
+        e.deadline_time && new Date(e.deadline_time).getTime() > now,
+    )
 
     // Pick 2 random stat panels
     const shuffled = [...STAT_DEFS].sort(() => Math.random() - 0.5).slice(0, 2)
