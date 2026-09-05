@@ -268,6 +268,7 @@ function PositionSection({
   players,
   gw,
   randomBase,
+  formSampleGws,
 }: {
   teamSlug: string
   teamName: string
@@ -275,6 +276,7 @@ function PositionSection({
   players: CaptainHubPlayer[]
   gw: number | string
   randomBase: number
+  formSampleGws: number
 }) {
   const pm = POSITION_META[posSlug]
   const posCodeMap: Record<string, string> = {
@@ -304,7 +306,7 @@ function PositionSection({
               player={player}
               even={i % 2 === 0}
               gw={gw}
-              text={buildTeamText(player, gw, teamName, i, randomBase, data.formSampleGws)}
+              text={buildTeamText(player, gw, teamName, i, randomBase, formSampleGws)}
             />
           </Reveal>
         ))}
@@ -326,7 +328,7 @@ export default async function TeamOverviewPage({
   const data = await getTeamHub(team, null)
   if (!data) notFound()
 
-  const { gw, players, teamName, teamCode } = data
+  const { gw, players, teamName, teamCode, formSampleGws } = data
   const randomBase = Math.floor(Math.random() * 3)
 
   const posCodeMap: Record<string, string> = {
@@ -366,6 +368,7 @@ export default async function TeamOverviewPage({
               players={players}
               gw={gw}
               randomBase={randomBase}
+              formSampleGws={formSampleGws}
             />
           ))}
 
