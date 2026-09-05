@@ -641,7 +641,7 @@ export default function ChatPage() {
             <div className="flex-1 min-h-0 rounded-none md:rounded-[28px] border-0 md:border md:border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl md:shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
 
               {/* Messages */}
-              <div className="chat-messages flex-1 overflow-y-auto p-4 pb-24 md:pb-6 md:p-6 space-y-5">
+              <div className="chat-messages flex-1 overflow-y-auto p-4 pb-4 md:p-6 space-y-5">
 
                 {/* Squad Alert */}
                 {squadAlert && !alertDismissed && (
@@ -713,19 +713,18 @@ export default function ChatPage() {
               </div>
 
               {/* Suggested prompts + input */}
-              <div className="shrink-0 md:relative fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
-                {/* 2-column grid: 2 rows on desktop, 1 row (2 pills) on mobile */}
+              <div className="shrink-0 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
                 <div className="mb-3">
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {suggestedPrompts.map((prompt, i) => (
                       <div
                         key={prompt}
-                        className={i >= 2 ? "hidden md:block" : ""}
-                        style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}
+                        className={`rounded-2xl md:rounded-full${i >= 2 ? " hidden md:block" : ""}`}
+                        style={{ padding: "1.5px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}
                       >
                         <button
                           onClick={() => setInput(prompt)}
-                          className="w-full rounded-full px-3 py-1.5 text-xs font-medium transition-all hover:opacity-80 text-center truncate"
+                          className="w-full rounded-2xl md:rounded-full px-3 py-2.5 md:py-1.5 text-xs font-medium transition-all hover:opacity-80 text-left md:text-center whitespace-normal md:truncate"
                           style={{ background: "#000", color: "#00FF87" }}
                         >
                           {prompt}
