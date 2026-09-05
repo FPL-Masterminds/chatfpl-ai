@@ -12,6 +12,7 @@ import {
   getBestValueHubLink,
   isSeasonOver,
 } from "@/lib/fpl-player-page"
+import { formStatLabel } from "@/lib/fpl-form-copy"
 import { SeasonEnded } from "@/components/season-ended"
 
 // ISR — revalidate every hour
@@ -131,7 +132,7 @@ export default async function FplTransferPage({
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Form (last 6 GWs)",      value: player.form },
+              { label: formStatLabel(data.formSampleGws),      value: player.form },
               { label: `Expected pts, GW${gw}`,  value: String(player.ep_next) },
               { label: "Pts per million",         value: String(ptsPerMillion) },
               { label: "Season total",            value: `${player.totalPts} pts` },

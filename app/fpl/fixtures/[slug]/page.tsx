@@ -15,6 +15,7 @@ import {
   FDR_LABELS,
   type FixtureHubPlayer,
 } from "@/lib/fpl-fixtures"
+import { formStatLabel } from "@/lib/fpl-form-copy"
 
 export const revalidate = 43200
 export const dynamicParams = true
@@ -293,7 +294,7 @@ export default async function FixturePlayerPage({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: `Expected pts, GW${gw}`, value: blankGW ? "0.0 (Blank GW)" : String(player.ep_next.toFixed(1)) },
-              { label: "Form (last 6 GWs)",     value: player.form },
+              { label: formStatLabel(data.formSampleGws),     value: player.form },
               { label: "Fixture Run",            value: player.verdictLabel },
               { label: "Ownership",              value: `${player.ownership}%` },
             ].map((s) => (

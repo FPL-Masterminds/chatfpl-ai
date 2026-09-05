@@ -13,6 +13,7 @@ import {
   type FixtureGW,
   type DifferentialAlternative,
 } from "@/lib/fpl-player-page"
+import { formStatLabel } from "@/lib/fpl-form-copy"
 import { SeasonEnded } from "@/components/season-ended"
 
 export const revalidate = 43200
@@ -285,7 +286,7 @@ export default async function FplDifferentialPage({
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: "Ownership",              value: `${player.ownership}%` },
-              { label: "Form (last 6 GWs)",       value: player.form },
+              { label: formStatLabel(data.formSampleGws),       value: player.form },
               { label: `Expected pts, GW${gw}`,   value: String(player.ep_next) },
               { label: "Transfers in this GW",    value: transfersInGW.toLocaleString("en-GB") },
             ].map((s) => (

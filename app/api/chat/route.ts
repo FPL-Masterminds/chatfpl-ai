@@ -39,6 +39,7 @@ import {
   resolveFplGameweekContext,
   teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
+import { countFormSampleGameweeks, formFieldChatExplanation } from "@/lib/fpl-form-copy";
 import { getRedditContext } from "@/lib/reddit-context";
 
 export const dynamic = "force-dynamic";
@@ -547,6 +548,8 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
           adviceGwId,
         );
 
+        const formSampleGws = countFormSampleGameweeks(events);
+
         // Build context string with filtered players
         fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
@@ -572,6 +575,7 @@ ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
 - GWpts = Points scored THIS gameweek only (live). 0 often means the player's fixture has not started yet - check CURRENT GW FIXTURE STATUS before criticising.
+${formFieldChatExplanation(formSampleGws)}
 - xPNext = Expected points for the ADVICE/PLANNING gameweek (Gameweek ${adviceGwId}, FPL's official prediction) — always use this for forward-looking captaincy and transfer recommendations. CRITICAL: if xPNext is 0.0 for a player, it means their club has a BLANK GAMEWEEK and they will score 0 points that week — do NOT recommend them for captaincy or transfer in regardless of their form or ownership.
 - xPThis = Expected points for the CURRENT gameweek (FPL's official prediction). IMPORTANT: once a gameweek has concluded, the FPL API resets this field to 0.0 — that value simply means the gameweek is over or the player had no remaining fixture that round. A value of 0.0 does NOT mean the player performed poorly, had a blank, or was injured. Never interpret xPThis=0.0 as negative; always rely on xPNext for upcoming gameweek predictions.
 - TI_GW = Transfers IN this gameweek (shows trending players)

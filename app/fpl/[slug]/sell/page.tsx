@@ -12,6 +12,7 @@ import {
   isSeasonOver,
   type FixtureGW,
 } from "@/lib/fpl-player-page"
+import { formStatLabel } from "@/lib/fpl-form-copy"
 import { SeasonEnded } from "@/components/season-ended"
 
 export const revalidate = 43200
@@ -197,7 +198,7 @@ export default async function FplSellPage({
         <div className="relative z-10 w-full max-w-4xl mx-auto mb-10">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Form (last 6 GWs)",        value: player.form },
+              { label: formStatLabel(data.formSampleGws),        value: player.form },
               { label: `Expected pts, GW${gw}`,    value: String(player.ep_next) },
               { label: "Ownership",                value: `${player.ownership}%` },
               { label: "Selling this GW",          value: transfersOutGW > 1000 ? `${Math.round(transfersOutGW / 1000)}k` : String(transfersOutGW) },

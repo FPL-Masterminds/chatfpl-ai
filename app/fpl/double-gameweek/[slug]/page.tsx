@@ -13,6 +13,7 @@ import {
   getDGWPlayerData,
   getDGWPlayerSlugs,
 } from "@/lib/fpl-gameweeks"
+import { formStatLabel } from "@/lib/fpl-form-copy"
 
 export const revalidate = 43200
 export const dynamicParams = true
@@ -166,7 +167,7 @@ export default async function DGWPlayerPage({
             {[
               { label: `Projected pts, GW${gw}`,  value: `${player.projectedPts.toFixed(1)} (x2)` },
               { label: "Single game xPts",         value: player.ep_next.toFixed(1) },
-              { label: "Form (last 6 GWs)",        value: player.form },
+              { label: formStatLabel(data.formSampleGws),        value: player.form },
               { label: "Ownership",                value: `${player.ownership}%` },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 text-center">

@@ -86,6 +86,23 @@ export function formStatLabel(sampleGws: number): string {
   return "Form"
 }
 
+/** Injected into chat context so the model describes Form honestly for the current GW. */
+export function formFieldChatExplanation(sampleGws: number): string {
+  const window =
+    sampleGws <= 1
+      ? "every completed gameweek so far this season (often just one round in the opening weeks)"
+      : sampleGws < 6
+        ? `the last ${sampleGws} completed gameweeks of this season`
+        : "the last six completed gameweeks of this season"
+  const wording =
+    sampleGws <= 1
+      ? '"so far this season" or "in the opening gameweeks"'
+      : sampleGws < 6
+        ? `"over the last ${sampleGws} gameweeks"`
+        : '"over the last six gameweeks"'
+  return `- Form = FPL rolling points-per-game from ${window} ONLY. It resets each season and does NOT include last season. The Form value in each player row is this figure. When explaining form to the user, use ${wording}. Never say "last six gameweeks" unless six gameweeks have actually been completed this season (currently ${sampleGws}).`
+}
+
 export function shouldLeadWithForm(sampleGws: number): boolean {
   return sampleGws >= 3
 }

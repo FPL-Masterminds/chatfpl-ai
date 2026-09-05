@@ -44,6 +44,7 @@ import {
   resolveFplGameweekContext,
   teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
+import { countFormSampleGameweeks, formFieldChatExplanation } from "@/lib/fpl-form-copy";
 import { getRedditContext } from "@/lib/reddit-context";
 
 export const dynamic = "force-dynamic";
@@ -500,6 +501,8 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
               adviceGwId,
             );
 
+            const formSampleGws = countFormSampleGameweeks(events);
+
             fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
 CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGW})
@@ -524,6 +527,7 @@ ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 
 FIELD EXPLANATIONS:
 - GWpts = Points scored THIS gameweek only (live). 0 often means the player's fixture has not started yet - check CURRENT GW FIXTURE STATUS before criticising.
+${formFieldChatExplanation(formSampleGws)}
 - xPNext = Expected points for the ADVICE/PLANNING gameweek (Gameweek ${adviceGwId}, FPL official prediction)
 - xPThis = Expected points for CURRENT gameweek
 - xG = Expected goals this season (FPL/Opta data)
