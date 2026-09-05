@@ -19,6 +19,7 @@ import {
   leaderWinnerCodaPhrase,
   sameEntry,
   spoonBasementFollowUp,
+  isFirstGameweek,
 } from "./season-story-copy"
 import { composeStory, type StoryLine } from "./season-story-seed"
 
