@@ -1,3 +1,4 @@
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { permanentRedirect } from "next/navigation"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
@@ -34,18 +35,12 @@ export async function generateMetadata({
 }) {
   const { slug } = await params
   const data = await getPlayerTransferData(slug)
-  if (!data) return { title: "FPL Transfer Analysis | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL Transfer Analysis | ChatFPL AI", "/fpl/x/transfer")
 
   const { player: p, gw } = data
-  return {
-    title: `Should I transfer ${p.displayName} into my FPL team? Gameweek ${gw} | ChatFPL AI`,
-    description: `Transfer analysis for ${p.displayName} in FPL Gameweek ${gw}. Fixture run, form, value, and expected points - everything you need to decide whether to buy ${p.webName} this week.`,
-    openGraph: {
-      title: `Should I transfer ${p.displayName} in? FPL GW${gw} | ChatFPL AI`,
-      description: `Is ${p.displayName} worth transferring in for Gameweek ${gw}? Live FPL data, fixture run, and full transfer analysis.`,
-      url: `https://www.chatfpl.ai/fpl/${slug}/transfer`,
-    },
-  }
+  const title = `Should I transfer ${p.displayName} into my FPL team? Gameweek ${gw} | ChatFPL AI`
+  const description = `Transfer analysis for ${p.displayName} in FPL Gameweek ${gw}. Fixture run, form, value, and expected points - everything you need to decide whether to buy ${p.webName} this week.`
+  return buildPageMetadata({ title, description, path: `/fpl/${slug}/transfer` })
 }
 
 // ─── FDR dot helper ───────────────────────────────────────────────────────────

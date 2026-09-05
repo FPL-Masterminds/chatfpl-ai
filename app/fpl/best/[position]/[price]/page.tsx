@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { HubHero } from "@/components/hub-hero"
 import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
@@ -38,11 +39,11 @@ export async function generateMetadata({
 }: {
   params: Promise<{ position: string; price: string }>
 }): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "Best FPL Players | ChatFPL AI" }
+  if (await isSeasonOver()) return fallbackPageMetadata("Best FPL Players | ChatFPL AI", "/fpl/best/x/x")
   const { position, price } = await params
   const posMeta   = POSITION_META[position]
   const priceMeta = PRICE_META[price]
-  if (!posMeta || !priceMeta) return { title: "Best FPL Players | ChatFPL AI" }
+  if (!posMeta || !priceMeta) return fallbackPageMetadata("Best FPL Players | ChatFPL AI", "/fpl/best/x/x")
 
   const data = await getBestValueHub(position, price)
   const gw   = data?.gw ?? "?"
@@ -50,15 +51,7 @@ export async function generateMetadata({
   const title = `Best FPL ${posMeta.label} Under ${priceMeta.label} Gameweek ${gw} | ChatFPL AI`
   const description = `The best FPL ${posMeta.label.toLowerCase()} under ${priceMeta.label} for Gameweek ${gw}, ranked by expected points. Form, fixture difficulty and ownership data for every pick.`
 
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: `https://www.chatfpl.ai/fpl/best/${position}/${price}`,
-    },
-  }
+  return buildPageMetadata({ title, description, path: `/fpl/best/${position}/${price}` })
 }
 
 // ─── Analysis text - 3 rotating templates ─────────────────────────────────────

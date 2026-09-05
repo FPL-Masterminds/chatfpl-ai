@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { SeasonEnded } from "@/components/season-ended"
 import { DevHeader } from "@/components/dev-header"
 import { DefconPositionRender } from "@/components/defcon-position-render"
@@ -21,20 +22,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { price } = await params
   const priceMeta = DEFCON_PRICE_META[price]
-  if (!priceMeta) return { title: "Best FPL DEFCON Defenders | ChatFPL AI" }
+  if (!priceMeta) return fallbackPageMetadata("Best FPL DEFCON Defenders | ChatFPL AI", "/fpl/defcon/defenders/x")
   const data = await getDefconPriceHub("defenders", price)
   const gw = data?.gw ?? "?"
   const title = `Best FPL DEFCON Defenders Under ${priceMeta.label} for Gameweek ${gw} | ChatFPL AI`
   const description = `Fantasy Premier League defenders priced at or below ${priceMeta.label} ranked by DEFCON returns per 90 minutes for Gameweek ${gw}. Full data, fixture context and analysis.`
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: `https://www.chatfpl.ai/fpl/defcon/defenders/${price}`,
-    },
-  }
+  return buildPageMetadata({ title, description, path: `/fpl/defcon/defenders/${price}` })
 }
 
 export default async function DefconDefenderPricePage({

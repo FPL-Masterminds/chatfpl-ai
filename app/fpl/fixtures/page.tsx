@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
@@ -24,18 +25,12 @@ export const dynamic = "force-dynamic"
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "FPL Fixture Difficulty | ChatFPL AI" }
+  if (await isSeasonOver()) return fallbackPageMetadata("FPL Fixture Difficulty | ChatFPL AI", "/fpl/fixtures")
   const data = await getFixtureHub()
   const gw = data?.gw ?? "?"
-  return {
-    title: `FPL Fixture Difficulty Gameweek ${gw} | Best Schedules | ChatFPL AI`,
-    description: `Which FPL players have the best fixture run for Gameweek ${gw} and beyond? Live fixture difficulty ratings, five-game schedules, and AI projections for every eligible player.`,
-    openGraph: {
-      title: `FPL Fixture Difficulty Gameweek ${gw} | ChatFPL AI`,
-      description: `Best FPL fixture schedules for GW${gw}. Sorted by upcoming difficulty rating with five-game previews.`,
-      url: "https://www.chatfpl.ai/fpl/fixtures",
-    },
-  }
+  const title = `FPL Fixture Difficulty Gameweek ${gw} | Best Schedules | ChatFPL AI`
+  const description = `Which FPL players have the best fixture run for Gameweek ${gw} and beyond? Live fixture difficulty ratings, five-game schedules, and AI projections for every eligible player.`
+  return buildPageMetadata({ title, description, path: "/fpl/fixtures" })
 }
 
 // ─── Colours ──────────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { HubHero } from "@/components/hub-hero"
 import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
@@ -36,19 +37,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { playerA, playerB } = await params
   const data = await getDefconCompare(playerA, playerB)
-  if (!data) return { title: "FPL DEFCON Comparison | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL DEFCON Comparison | ChatFPL AI", "/fpl/defcon/compare/x/x")
   const { playerA: a, playerB: b, gw } = data
   const title = `${a.displayName} vs ${b.displayName} DEFCON: Who has the better Fantasy Premier League defensive contribution rate for Gameweek ${gw}? | ChatFPL AI`
   const description = `${a.displayName} vs ${b.displayName} - Gameweek ${gw} Fantasy Premier League DEFCON comparison. Per-90 rate, raw counts, fixture context and a full verdict on who to pick.`
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: `https://www.chatfpl.ai/fpl/defcon/compare/${playerA}/${playerB}`,
-    },
-  }
+  return buildPageMetadata({ title, description, path: `/fpl/defcon/compare/${playerA}/${playerB}` })
 }
 
 // Compact player summary card in the hero region

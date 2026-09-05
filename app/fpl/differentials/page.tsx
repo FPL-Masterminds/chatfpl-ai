@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { getDifferentialHub, isSeasonOver, type DifferentialHubPlayer } from "@/lib/fpl-player-page"
 import { formOfPhrase, formPpgPhrase } from "@/lib/fpl-form-copy"
@@ -20,18 +21,12 @@ const FDR_LABELS = ["", "Very Easy", "Easy", "Medium", "Hard", "Very Hard"]
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "FPL Differential Picks | ChatFPL AI" }
+  if (await isSeasonOver()) return fallbackPageMetadata("FPL Differential Picks | ChatFPL AI", "/fpl/differentials")
   const data = await getDifferentialHub()
   const gw = data?.gw ?? "?"
-  return {
-    title: `Best FPL Differential Picks Gameweek ${gw} | ChatFPL AI`,
-    description: `The top FPL differential picks for Gameweek ${gw} — low-ownership players with high expected points who could rocket your rank. Updated hourly.`,
-    openGraph: {
-      title: `Best FPL Differential Picks Gameweek ${gw} | ChatFPL AI`,
-      description: `Top FPL differentials for GW${gw} ranked by expected points per ownership percentage.`,
-      url: "https://www.chatfpl.ai/fpl/differentials",
-    },
-  }
+  const title = `Best FPL Differential Picks Gameweek ${gw} | ChatFPL AI`
+  const description = `The top FPL differential picks for Gameweek ${gw}: low-ownership players with high expected points who could rocket your rank. Updated hourly.`
+  return buildPageMetadata({ title, description, path: "/fpl/differentials" })
 }
 
 // ─── Text generation — 3 rotating templates ───────────────────────────────────

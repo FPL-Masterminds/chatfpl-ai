@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { HubHero } from "@/components/hub-hero"
 import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
@@ -30,19 +31,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const data = await getDefconPlayerPage(slug)
-  if (!data) return { title: "FPL DEFCON Analysis | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL DEFCON Analysis | ChatFPL AI", "/fpl/defcon/x")
   const { player, gw } = data
   const title = `${player.displayName} DEFCON Analysis: Is he a reliable Fantasy Premier League pick for Gameweek ${gw}? | ChatFPL AI`
   const description = `${player.displayName} has ${player.dc} DEFCON returns from ${player.minutes.toLocaleString("en-GB")} minutes at ${player.dc90.toFixed(2)} per 90 this season. Full DEFCON breakdown, fixture context and Gameweek ${gw} recommendation.`
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: `https://www.chatfpl.ai/fpl/defcon/${slug}`,
-    },
-  }
+  return buildPageMetadata({ title, description, path: `/fpl/defcon/${slug}` })
 }
 
 export default async function DefconPlayerPage({

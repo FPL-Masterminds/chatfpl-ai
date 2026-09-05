@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
@@ -23,18 +24,12 @@ export const dynamic = "force-dynamic"
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "FPL Transfer Trends | ChatFPL AI" }
+  if (await isSeasonOver()) return fallbackPageMetadata("FPL Transfer Trends | ChatFPL AI", "/fpl/transfer-trends")
   const data = await getTransferTrendsHub()
   const gw = data?.gw ?? "?"
-  return {
-    title: `FPL Transfer Trends Gameweek ${gw} - Who to Sell and Buy | ChatFPL AI`,
-    description: `Live FPL transfer market analysis for Gameweek ${gw}. The most active sell-and-buy moves this week, ranked by combined transfer volume with ownership and fixture context.`,
-    openGraph: {
-      title: `FPL Transfer Trends Gameweek ${gw} | ChatFPL AI`,
-      description: `The biggest FPL transfer moves in GW${gw} - ranked by market activity, with ownership risk and fixture analysis.`,
-      url: "https://www.chatfpl.ai/fpl/transfer-trends",
-    },
-  }
+  const title = `FPL Transfer Trends Gameweek ${gw} - Who to Sell and Buy | ChatFPL AI`
+  const description = `Live FPL transfer market analysis for Gameweek ${gw}. The most active sell-and-buy moves this week, ranked by combined transfer volume with ownership and fixture context.`
+  return buildPageMetadata({ title, description, path: "/fpl/transfer-trends" })
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────

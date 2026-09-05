@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 export const SITE_URL = "https://www.chatfpl.ai"
 export const SITE_NAME = "ChatFPL AI"
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/ChatFPL_AI_Logo.png`
+export const DEFAULT_FPL_DESCRIPTION =
+  "Live Fantasy Premier League analysis, expected points, and fixture context from ChatFPL AI."
 
 type PageMetadataInput = {
   title: string
@@ -42,4 +44,12 @@ export function buildPageMetadata({
     },
     robots: noIndex ? { index: false, follow: false } : undefined,
   }
+}
+
+export function fallbackPageMetadata(title: string, path: string): Metadata {
+  return buildPageMetadata({
+    title,
+    description: DEFAULT_FPL_DESCRIPTION,
+    path,
+  })
 }

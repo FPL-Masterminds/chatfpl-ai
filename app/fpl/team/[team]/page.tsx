@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { HubHero } from "@/components/hub-hero"
 import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
@@ -39,24 +40,16 @@ export async function generateMetadata({
 }: {
   params: Promise<{ team: string }>
 }): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "Best FPL Team Players | ChatFPL AI" }
+  if (await isSeasonOver()) return fallbackPageMetadata("Best FPL Team Players | ChatFPL AI", "/fpl/team/x")
   const { team } = await params
   const data = await getTeamHub(team, null)
-  if (!data) return { title: "Best FPL Team Players | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("Best FPL Team Players | ChatFPL AI", "/fpl/team/x")
 
   const { gw, teamName } = data
   const title = `Best FPL ${teamName} Players Gameweek ${gw} | ChatFPL AI`
   const description = `All FPL ${teamName} players ranked by expected points for Gameweek ${gw}. Form, fixture difficulty, ownership and transfer data updated hourly.`
 
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      url: `https://www.chatfpl.ai/fpl/team/${team}`,
-    },
-  }
+  return buildPageMetadata({ title, description, path: `/fpl/team/${team}` })
 }
 
 // ─── Analysis text ─────────────────────────────────────────────────────────────

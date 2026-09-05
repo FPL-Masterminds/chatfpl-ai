@@ -1,11 +1,13 @@
 import Link from "next/link"
+import { buildPageMetadata } from "@/lib/seo/metadata"
 import Image from "next/image"
 
-export const metadata = {
-  title: "Unsubscribed — ChatFPL.ai",
-  description: "You've been unsubscribed from ChatFPL AI product emails.",
-  robots: { index: false, follow: false },
-}
+export const metadata = buildPageMetadata({
+  title: "Unsubscribed",
+  description: "You have been unsubscribed from ChatFPL AI product emails.",
+  path: "/unsubscribe",
+  noIndex: true,
+})
 
 export default function UnsubscribePage() {
   return (

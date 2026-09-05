@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { HubHero } from "@/components/hub-hero"
 import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
@@ -20,19 +21,13 @@ export const revalidate = 3600
 export const dynamic = "force-dynamic"
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "FPL Gameweek Planner | ChatFPL AI" }
+  if (await isSeasonOver()) return fallbackPageMetadata("FPL Gameweek Planner | ChatFPL AI", "/fpl/gameweeks")
   const data = await getGameweekHub()
   const gw = data?.currentGW ?? "?"
   const nextDGW = data?.nextDGW
-  return {
-    title: `FPL Double Gameweek ${nextDGW ?? gw} Planner - Players to Target | ChatFPL AI`,
-    description: `Which teams have a Double or Blank Gameweek in Fantasy Premier League? Full landscape for Gameweek ${gw} and beyond, with top players to target and avoid.`,
-    openGraph: {
-      title: `FPL Double Gameweek Planner - Gameweek ${gw} | ChatFPL AI`,
-      description: `Full DGW and BGW landscape for Gameweek ${gw}. Top players to target from doubling teams ranked by expected points.`,
-      url: "https://www.chatfpl.ai/fpl/gameweeks",
-    },
-  }
+  const title = `FPL Double Gameweek ${nextDGW ?? gw} Planner - Players to Target | ChatFPL AI`
+  const description = `Which teams have a Double or Blank Gameweek in Fantasy Premier League? Full landscape for Gameweek ${gw} and beyond, with top players to target and avoid.`
+  return buildPageMetadata({ title, description, path: "/fpl/gameweeks" })
 }
 
 const GREEN = "#00FF87"

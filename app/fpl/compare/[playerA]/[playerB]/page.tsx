@@ -1,3 +1,4 @@
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { permanentRedirect } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -27,18 +28,12 @@ export async function generateMetadata({
 }) {
   const { playerA, playerB } = await params
   const data = await getComparisonData(playerA, playerB)
-  if (!data) return { title: "FPL Player Comparison | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL Player Comparison | ChatFPL AI", "/fpl/compare/x/x")
 
   const { playerA: a, playerB: b, gw } = data
-  return {
-    title: `${a.displayName} vs ${b.displayName}: Who to pick in Fantasy Premier League? | ChatFPL AI`,
-    description: `${a.displayName} vs ${b.displayName} - Gameweek ${gw} comparison. Form, expected points, fixture difficulty and a full verdict on who to start in your FPL squad.`,
-    openGraph: {
-      title: `${a.displayName} vs ${b.displayName}: FPL Gameweek ${gw} | ChatFPL AI`,
-      description: `Head-to-head FPL analysis: ${a.displayName} vs ${b.displayName} for Gameweek ${gw}. Who has the better fixture, form, and value?`,
-      url: `https://www.chatfpl.ai/fpl/compare/${playerA}/${playerB}`,
-    },
-  }
+  const title = `${a.displayName} vs ${b.displayName}: Who to pick in Fantasy Premier League? | ChatFPL AI`
+  const description = `${a.displayName} vs ${b.displayName} - Gameweek ${gw} comparison. Form, expected points, fixture difficulty and a full verdict on who to start in your FPL squad.`
+  return buildPageMetadata({ title, description, path: `/fpl/compare/${playerA}/${playerB}` })
 }
 
 // ─── FDR dots ─────────────────────────────────────────────────────────────────

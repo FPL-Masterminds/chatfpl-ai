@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { getComparisonHub, type ComparisonHubPair } from "@/lib/fpl-comparison"
 import { formComparisonPairLine } from "@/lib/fpl-form-copy"
@@ -24,18 +25,12 @@ const BORDER  = "rgba(255,255,255,0.07)"
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "FPL Head-to-Head Comparisons | ChatFPL AI" }
+  if (await isSeasonOver()) return fallbackPageMetadata("FPL Head-to-Head Comparisons | ChatFPL AI", "/fpl/comparisons")
   const data = await getComparisonHub()
   const gw = data?.gw ?? "?"
-  return {
-    title: `FPL Head-to-Head Comparisons Gameweek ${gw} | ChatFPL AI`,
-    description: `The most-owned FPL players head-to-head for Gameweek ${gw}. Haaland vs Fernandes, Palmer vs Saka and more - expected points, form and a full verdict on who to pick.`,
-    openGraph: {
-      title: `FPL Head-to-Head Comparisons Gameweek ${gw} | ChatFPL AI`,
-      description: `The most-owned FPL players head-to-head for GW${gw} — who to pick, who to bench.`,
-      url: "https://www.chatfpl.ai/fpl/comparisons",
-    },
-  }
+  const title = `FPL Head-to-Head Comparisons Gameweek ${gw} | ChatFPL AI`
+  const description = `The most-owned FPL players head-to-head for Gameweek ${gw}. Haaland vs Fernandes, Palmer vs Saka and more - expected points, form and a full verdict on who to pick.`
+  return buildPageMetadata({ title, description, path: "/fpl/comparisons" })
 }
 
 // ─── Text generation ──────────────────────────────────────────────────────────

@@ -1,3 +1,4 @@
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { permanentRedirect } from "next/navigation"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
@@ -36,18 +37,12 @@ export async function generateMetadata({
 }) {
   const { slug } = await params
   const data = await getPlayerPageData(slug)
-  if (!data) return { title: "FPL Player Captain Analysis | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL Player Captain Analysis | ChatFPL AI", "/fpl/x")
 
   const { player: p, gw } = data
-  return {
-    title: `Should I captain ${p.displayName} in Fantasy Premier League? | ChatFPL AI`,
-    description: `Live form, expected points, and fixture analysis for ${p.displayName} in FPL Gameweek ${gw}. Get the full captain verdict, transfer advice, and fixture breakdown.`,
-    openGraph: {
-      title: `Should I captain ${p.displayName}? - FPL Gameweek ${gw} | ChatFPL AI`,
-      description: `Is ${p.displayName} worth the armband in Gameweek ${gw}? Live FPL data, form, fixture difficulty, and full captaincy analysis.`,
-      url: `https://www.chatfpl.ai/fpl/${slug}`,
-    },
-  }
+  const title = `Should I captain ${p.displayName} in Fantasy Premier League? | ChatFPL AI`
+  const description = `Live form, expected points, and fixture analysis for ${p.displayName} in FPL Gameweek ${gw}. Get the full captain verdict, transfer advice, and fixture breakdown.`
+  return buildPageMetadata({ title, description, path: `/fpl/${slug}` })
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────

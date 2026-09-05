@@ -2,6 +2,7 @@ import { permanentRedirect } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
@@ -32,18 +33,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const data = await getDGWPlayerData(slug)
-  if (!data) return { title: "FPL Double Gameweek Analysis | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL Double Gameweek Analysis | ChatFPL AI", "/fpl/double-gameweek/x")
 
   const { player: p, gw } = data
-  return {
-    title: `Should I play ${p.displayName} in Double Gameweek ${gw}? | ChatFPL AI`,
-    description: `${p.displayName} has a Double Gameweek ${gw} with fixtures against ${p.dgwFixtures.map((f) => `${f.opponentName} (${f.isHome ? "H" : "A"})`).join(" and ")}. Projected ${p.projectedPts.toFixed(1)} combined expected points. Full analysis inside.`,
-    openGraph: {
-      title: `${p.displayName} Double Gameweek ${gw} - Should You Play Him? | ChatFPL AI`,
-      description: `${p.displayName} doubles in GW${gw}. Projected ${p.projectedPts.toFixed(1)} combined points. Form: ${p.form}. Ownership: ${p.ownership}%.`,
-      url: `https://www.chatfpl.ai/fpl/double-gameweek/${slug}`,
-    },
-  }
+  const title = `Should I play ${p.displayName} in Double Gameweek ${gw}? | ChatFPL AI`
+  const description = `${p.displayName} has a Double Gameweek ${gw} with fixtures against ${p.dgwFixtures.map((f) => `${f.opponentName} (${f.isHome ? "H" : "A"})`).join(" and ")}. Projected ${p.projectedPts.toFixed(1)} combined expected points. Full analysis inside.`
+  return buildPageMetadata({ title, description, path: `/fpl/double-gameweek/${slug}` })
 }
 
 function FdrDots({ fdr }: { fdr: number }) {

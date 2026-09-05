@@ -1,3 +1,4 @@
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { permanentRedirect } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -31,24 +32,16 @@ export async function generateMetadata({
 }) {
   const { slug } = await params
   const data = await getInjuryPlayerData(slug)
-  if (!data) return { title: "FPL Injury Update | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL Injury Update | ChatFPL AI", "/fpl/injury/x")
 
   const { player, gw } = data
   const isAvailable = player.status === "a" && player.chance >= 100
 
-  return {
-    title: `Is ${player.displayName} fit for Gameweek ${gw}? | ChatFPL AI`,
-    description: isAvailable
+  const title = `Is ${player.displayName} fit for Gameweek ${gw}? | ChatFPL AI`
+  const description = isAvailable
       ? `${player.displayName} is fit and available for Gameweek ${gw} in Fantasy Premier League. No injury concerns.`
-      : `${player.displayName} injury update for FPL Gameweek ${gw}. ${player.news || `${player.chance}% chance of playing.`}`,
-    openGraph: {
-      title: `Is ${player.displayName} fit for GW${gw}? | ChatFPL AI`,
-      description: isAvailable
-        ? `${player.displayName}: no injury concerns for Gameweek ${gw}.`
-        : `${player.displayName}: ${statusLabel(player.status, player.chance)} for GW${gw}.`,
-      url: `https://www.chatfpl.ai/fpl/injury/${slug}`,
-    },
-  }
+      : `${player.displayName} injury update for FPL Gameweek ${gw}. ${player.news || `${player.chance}% chance of playing.`}`
+  return buildPageMetadata({ title, description, path: `/fpl/injury/${slug}` })
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

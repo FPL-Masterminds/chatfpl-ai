@@ -1,10 +1,12 @@
 import { ConversationalTerms } from "@/components/conversational-terms"
+import { buildPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 
-export const metadata = {
-  title: "Terms of Service — ChatFPL.ai",
+export const metadata = buildPageMetadata({
+  title: "Terms of Service",
   description: "The rules and guidelines for using ChatFPL AI.",
-}
+  path: "/terms",
+})
 
 export default function TermsPage() {
   return (

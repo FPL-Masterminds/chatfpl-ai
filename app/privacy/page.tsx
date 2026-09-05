@@ -1,10 +1,12 @@
 import { ConversationalPrivacy } from "@/components/conversational-privacy"
+import { buildPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 
-export const metadata = {
-  title: "Privacy Policy — ChatFPL.ai",
+export const metadata = buildPageMetadata({
+  title: "Privacy Policy",
   description: "How ChatFPL AI collects, stores, and protects your data.",
-}
+  path: "/privacy",
+})
 
 export default function PrivacyPage() {
   return (

@@ -2,6 +2,7 @@ import { permanentRedirect } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
@@ -35,18 +36,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params
   const data = await getFixturePageData(slug)
-  if (!data) return { title: "FPL Fixture Difficulty | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL Fixture Difficulty | ChatFPL AI", "/fpl/fixtures/x")
 
   const { player: p, gw } = data
-  return {
-    title: `Is ${p.displayName} worth owning for FPL Gameweek ${gw}? Fixture Difficulty | ChatFPL AI`,
-    description: `${p.displayName}'s upcoming fixture run for Gameweek ${gw} and beyond. Five-game schedule, difficulty ratings, form analysis, and AI projections for Fantasy Premier League.`,
-    openGraph: {
-      title: `${p.displayName} FPL Fixture Difficulty - Gameweek ${gw} | ChatFPL AI`,
-      description: `${p.displayName} fixture run rated ${p.verdictLabel.toLowerCase()} for GW${gw}. Live FPL data, form, and full schedule analysis.`,
-      url: `https://www.chatfpl.ai/fpl/fixtures/${slug}`,
-    },
-  }
+  const title = `Is ${p.displayName} worth owning for FPL Gameweek ${gw}? Fixture Difficulty | ChatFPL AI`
+  const description = `${p.displayName}'s upcoming fixture run for Gameweek ${gw} and beyond. Five-game schedule, difficulty ratings, form analysis, and AI projections for Fantasy Premier League.`
+  return buildPageMetadata({ title, description, path: `/fpl/fixtures/${slug}` })
 }
 
 // ─── Colours ──────────────────────────────────────────────────────────────────

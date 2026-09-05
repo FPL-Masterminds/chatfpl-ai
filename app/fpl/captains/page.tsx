@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { getCaptainHub, isSeasonOver, type CaptainHubPlayer } from "@/lib/fpl-player-page"
 import { formPpgPhrase, formRecentLine } from "@/lib/fpl-form-copy"
@@ -17,18 +18,12 @@ export const dynamic = "force-dynamic"
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "FPL Captain Picks | ChatFPL AI" }
+  if (await isSeasonOver()) return fallbackPageMetadata("FPL Captain Picks | ChatFPL AI", "/fpl/captains")
   const data = await getCaptainHub()
   const gw = data?.gw ?? "?"
-  return {
-    title: `Best FPL Captain Picks Gameweek ${gw} | ChatFPL AI`,
-    description: `The top FPL captain options for Gameweek ${gw}, ranked by expected points. Live form, fixture difficulty and ownership data for every pick.`,
-    openGraph: {
-      title: `Best FPL Captain Picks Gameweek ${gw} | ChatFPL AI`,
-      description: `Top FPL captain options for GW${gw} ranked by expected points, form and fixture.`,
-      url: "https://www.chatfpl.ai/fpl/captains",
-    },
-  }
+  const title = `Best FPL Captain Picks Gameweek ${gw} | ChatFPL AI`
+  const description = `The top FPL captain options for Gameweek ${gw}, ranked by expected points. Live form, fixture difficulty and ownership data for every pick.`
+  return buildPageMetadata({ title, description, path: "/fpl/captains" })
 }
 
 const GREEN = "#00FF87"

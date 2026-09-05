@@ -1,6 +1,7 @@
 import { permanentRedirect } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
@@ -31,18 +32,14 @@ export async function generateMetadata({
 }: {
   params: Promise<{ player_out: string; player_in: string }>
 }): Promise<Metadata> {
-  if (await isSeasonOver()) return { title: "FPL Transfer Analysis | ChatFPL AI" }
+  if (await isSeasonOver()) return fallbackPageMetadata("FPL Transfer Analysis | ChatFPL AI", "/fpl/transfer-trends/x/x")
   const { player_out, player_in } = await params
   const data = await getTransferTrendPageData(player_out, player_in)
-  if (!data) return { title: "FPL Transfer Analysis | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL Transfer Analysis | ChatFPL AI", "/fpl/transfer-trends/x/x")
   const { gw, playerOut: pOut, playerIn: pIn } = data
   const title = `Should I sell ${pOut.displayName} for ${pIn.displayName}? FPL Transfer Analysis Gameweek ${gw} | ChatFPL AI`
   const description = `Transfer analysis for Gameweek ${gw}: ${fmtTransfers(pOut.transfersOut)} managers have sold ${pOut.webName} while ${fmtTransfers(pIn.transfersIn)} have bought ${pIn.webName}. Ownership impact, budget and fixture breakdown inside.`
-  return {
-    title,
-    description,
-    openGraph: { title, description, url: `https://www.chatfpl.ai/fpl/transfer-trends/${player_out}/${player_in}` },
-  }
+  return buildPageMetadata({ title, description, path: `/fpl/transfer-trends/${player_out}/${player_in}` })
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────

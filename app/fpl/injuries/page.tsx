@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { HubHero } from "@/components/hub-hero"
 import { InjuryHubFilters } from "@/components/injury-hub-filters"
@@ -18,15 +19,9 @@ const GREEN = "#00FF87"
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getInjuryHub()
   const gw = data?.gw ?? "?"
-  return {
-    title: `FPL Injury News Gameweek ${gw} — Who Is Injured? | ChatFPL AI`,
-    description: `Full FPL injury and availability update for Gameweek ${gw}. Every injured, doubtful, and suspended player with their chance of playing and latest news.`,
-    openGraph: {
-      title: `FPL Injury News GW${gw} | ChatFPL AI`,
-      description: `Every injured and doubtful FPL player for Gameweek ${gw} with their chance of playing.`,
-      url: "https://www.chatfpl.ai/fpl/injuries",
-    },
-  }
+  const title = `FPL Injury News Gameweek ${gw}: Who Is Injured? | ChatFPL AI`
+  const description = `Full FPL injury and availability update for Gameweek ${gw}. Every injured, doubtful, and suspended player with their chance of playing and latest news.`
+  return buildPageMetadata({ title, description, path: "/fpl/injuries" })
 }
 
 // ─── Status pill ──────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import type { Metadata } from "next"
+import { buildPageMetadata, fallbackPageMetadata } from "@/lib/seo/metadata"
 import { DevHeader } from "@/components/dev-header"
 import { FplPlayerHero } from "@/components/fpl-player-hero"
 import { HubHero } from "@/components/hub-hero"
@@ -37,7 +38,7 @@ export async function generateMetadata({
   const { gw } = await params
   const gwNum = parseInt(gw.replace("gw", ""), 10)
   const data  = await getGameweekDetail(gwNum)
-  if (!data) return { title: "FPL Gameweek Planner | ChatFPL AI" }
+  if (!data) return fallbackPageMetadata("FPL Gameweek Planner | ChatFPL AI", "/fpl/gameweeks/x")
 
   const dgwTeamNames = data.dgwTeams.map((t) => t.teamName).join(", ")
   const bgwTeamNames = data.bgwTeams.map((t) => t.teamName).join(", ")
@@ -53,15 +54,8 @@ export async function generateMetadata({
   if (isDGW) desc = `Double Gameweek ${gwNum}: ${dgwTeamNames} play twice. Top players ranked by projected points. Full analysis on ChatFPL AI.`
   else if (isBGW) desc = `Blank Gameweek ${gwNum}: ${bgwTeamNames} have no fixture. Find out who to bench, sell, or play around in GW${gwNum}.`
 
-  return {
-    title,
-    description: desc,
-    openGraph: {
-      title,
-      description: desc,
-      url: `https://www.chatfpl.ai/fpl/gameweeks/gw${gwNum}`,
-    },
-  }
+  const description = desc
+  return buildPageMetadata({ title, description, path: `/fpl/gameweeks/gw${gwNum}` })
 }
 
 function FdrDots({ fdr }: { fdr: number }) {
