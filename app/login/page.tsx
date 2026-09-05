@@ -158,6 +158,7 @@ function LoginPageContent() {
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      <h1 className="sr-only">Log in to ChatFPL AI</h1>
       {/* Grid pattern */}
       <div
         className="pointer-events-none absolute inset-0 z-0"

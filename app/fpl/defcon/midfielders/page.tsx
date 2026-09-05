@@ -5,6 +5,7 @@ import { DefconPositionRender } from "@/components/defcon-position-render"
 import { DefconComingSoon } from "@/components/defcon-coming-soon"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { getDefconPositionHub } from "@/lib/fpl-defcon"
+import { buildPageMetadata } from "@/lib/seo/metadata"
 
 export const revalidate = 43200
 export const dynamic = "force-dynamic"
@@ -14,15 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const gw = data?.gw ?? "?"
   const title = `Best FPL DEFCON Midfielders for Gameweek ${gw} | ChatFPL AI`
   const description = `Every eligible Fantasy Premier League midfielder ranked by DEFCON returns per 90 minutes for Gameweek ${gw}. The +2pt bonus triggers at 12+ clearances, blocks, interceptions, tackles and ball recoveries per match.`
-  return {
+  return buildPageMetadata({
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      url: "https://www.chatfpl.ai/fpl/defcon/midfielders",
-    },
-  }
+    path: "/fpl/defcon/midfielders",
+  })
 }
 
 export default async function DefconMidfieldersPage() {

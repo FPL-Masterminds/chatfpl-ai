@@ -1,9 +1,12 @@
 import { ConversationalFAQ } from "@/components/conversational-faq"
 import { DevHeader } from "@/components/dev-header"
-export const metadata = {
-  title: "FAQ — ChatFPL.ai",
+import { buildPageMetadata } from "@/lib/seo/metadata"
+
+export const metadata = buildPageMetadata({
+  title: "FAQ",
   description: "Got questions about ChatFPL AI? Ask them right here.",
-}
+  path: "/faq",
+})
 
 export default function FAQPage() {
   return (

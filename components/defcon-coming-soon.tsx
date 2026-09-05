@@ -49,7 +49,27 @@ export function DefconComingSoon({
     ? `Head-to-head DEFCON comparison launches once the season has enough sample size to publish reliable per-90 rates.`
     : playerName
     ? `${playerName}'s DEFCON deep dive launches once the season has enough sample size to publish reliable per-90 rates.`
+    : positionLabel === "Defenders"
+    ? `Defender DEFCON rankings launch once the season has enough sample size to publish reliable per-90 rates. Defenders need 10+ clearances, blocks, interceptions and tackles in a match to trigger the +2 bonus.`
+    : positionLabel === "Midfielders"
+    ? `Midfielder DEFCON rankings launch once the season has enough sample size to publish reliable per-90 rates. Midfielders need 12+ defensive actions including ball recoveries to trigger the +2 bonus.`
     : `The full DEFCON rankings for Fantasy Premier League launch once the season has enough sample size to publish reliable per-90 rates. Currently no player in the league has passed ${DEFCON_READY_MINUTES} minutes - the minimum needed for the per-90 metric to be meaningful.`
+
+  const routeIntro = (() => {
+    if (compareOf) {
+      return `This comparison page will break down ${compareOf.a} and ${compareOf.b} on defensive contributions per 90, match-by-match reliability, and how each profile fits different FPL strategies once the data is stable.`
+    }
+    if (playerName) {
+      return `This player page will show ${playerName}'s DEFCON hit rate, minutes profile, and whether the underlying defensive volume justifies a transfer or bench spot once the sample size is large enough.`
+    }
+    if (positionLabel === "Defenders") {
+      return `The defender hub will rank every eligible centre-back and full-back by DEFCON returns per 90, with price-band filters and fixture context. Centre-backs who rack up clearances under pressure and full-backs who defend aggressively tend to lead early-season tables.`
+    }
+    if (positionLabel === "Midfielders") {
+      return `The midfielder hub will rank every eligible defensive midfielder and box-to-box option by DEFCON returns per 90. Ball recoveries count for midfielders but not defenders, so the profiles that top this list often look different from the defender rankings.`
+    }
+    return `The main DEFCON hub will combine defender and midfielder leaderboards, price-band shortcuts, and links into player-level analysis once the season has enough minutes in the bank.`
+  })()
 
   return (
     <div className="flex min-h-screen flex-col bg-black overflow-x-hidden">
@@ -83,8 +103,35 @@ export function DefconComingSoon({
               <p className="text-sm text-white/85 leading-relaxed mt-3">
                 We would rather show you nothing than show you rankings that fall apart the moment the next Gameweek finishes. Once the top-minutes player in the league passes {DEFCON_READY_MINUTES} minutes (roughly four full matches), every DEFCON page on ChatFPL will populate automatically. Based on current data that is expected around Gameweek {readyFromGw}.
               </p>
+              <p className="text-sm text-white/75 leading-relaxed mt-3">
+                {routeIntro}
+              </p>
             </div>
           </Reveal>
+
+          {!positionLabel && !playerName && !compareOf && (
+            <Reveal>
+              <div className="flex flex-wrap justify-center gap-2">
+                {[
+                  { href: "/fpl/defcon/defenders", label: "DEFCON Defenders Hub" },
+                  { href: "/fpl/defcon/midfielders", label: "DEFCON Midfielders Hub" },
+                ].map(({ href, label }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="rounded-full px-4 py-1.5 text-xs font-semibold transition-all hover:scale-105"
+                    style={{
+                      border: "1px solid rgba(0,255,135,0.25)",
+                      background: "rgba(0,255,135,0.06)",
+                      color: GREEN,
+                    }}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </Reveal>
+          )}
 
           {/* What DEFCON is */}
           <Reveal>

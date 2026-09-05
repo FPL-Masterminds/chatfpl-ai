@@ -9,6 +9,7 @@ import { DefconPlayerCard } from "@/components/defcon-player-card"
 import { DefconComingSoon } from "@/components/defcon-coming-soon"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { getDefconHub, DEFCON_PRICE_META } from "@/lib/fpl-defcon"
+import { buildPageMetadata } from "@/lib/seo/metadata"
 
 export const revalidate = 43200
 export const dynamic = "force-dynamic"
@@ -23,15 +24,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = ready
     ? `The most reliable DEFCON defenders and midfielders in Fantasy Premier League for Gameweek ${gw}, ranked by defensive contributions per 90 minutes. Full data, fixture context and price-banded breakdowns.`
     : `DEFCON is the 2025/26 Fantasy Premier League bonus for defenders and midfielders hitting the CBIT threshold. Full rankings launch once the season has enough data to publish reliable per-90 rates.`
-  return {
+  return buildPageMetadata({
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      url: "https://www.chatfpl.ai/fpl/defcon",
-    },
-  }
+    path: "/fpl/defcon",
+  })
 }
 
 const GREEN = "#00FF87"

@@ -13,6 +13,7 @@ import { WhyChatFPL } from "@/components/why-chatfpl"
 import { PricingSlider } from "@/components/pricing-slider"
 import { DeadlineCTA } from "@/components/deadline-cta"
 import { Reveal } from "@/components/scroll-reveal"
+import { buildPageMetadata, SITE_URL } from "@/lib/seo/metadata"
 import { 
   TrendingUp, 
   Zap,
@@ -21,16 +22,36 @@ import {
   Star
 } from "lucide-react"
 
-export const metadata = {
+export const metadata = buildPageMetadata({
   title: "ChatFPL.ai - Your Fantasy Premier League AI Assistant",
-  description: "Ask live FPL questions and get instant AI answers powered by real stats. Dominate your mini-league with data-driven insights.",
-}
+  description:
+    "Ask live FPL questions and get instant AI answers powered by real stats. Dominate your mini-league with data-driven insights.",
+  path: "/",
+})
 
 export default async function HomePage() {
   const session = await auth()
   const ctaHref = session?.user ? "/chat" : "/signup"
   return (
     <div className="flex min-h-screen flex-col bg-black">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "ChatFPL AI",
+            url: SITE_URL,
+            description:
+              "AI-powered Fantasy Premier League assistant with live stats, transfer advice, and captaincy help.",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${SITE_URL}/chat`,
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        }}
+      />
       <DevHeader />
 
       {/* Hero Section */}

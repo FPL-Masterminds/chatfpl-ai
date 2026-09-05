@@ -1,10 +1,12 @@
 import { ConversationalAbout } from "@/components/conversational-about"
 import { DevHeader } from "@/components/dev-header"
+import { buildPageMetadata } from "@/lib/seo/metadata"
 
-export const metadata = {
-  title: "About — ChatFPL.ai",
+export const metadata = buildPageMetadata({
+  title: "About",
   description: "Find out what ChatFPL AI is, how it works, and why FPL managers use it.",
-}
+  path: "/about",
+})
 
 export default function AboutPage() {
   return (

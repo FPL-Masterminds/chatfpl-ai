@@ -5,6 +5,7 @@ import { DefconPositionRender } from "@/components/defcon-position-render"
 import { DefconComingSoon } from "@/components/defcon-coming-soon"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { getDefconPositionHub } from "@/lib/fpl-defcon"
+import { buildPageMetadata } from "@/lib/seo/metadata"
 
 export const revalidate = 43200
 export const dynamic = "force-dynamic"
@@ -14,15 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const gw = data?.gw ?? "?"
   const title = `Best FPL DEFCON Defenders for Gameweek ${gw} | ChatFPL AI`
   const description = `Every eligible Fantasy Premier League defender ranked by DEFCON returns per 90 minutes for Gameweek ${gw}. The +2pt bonus triggers at 10+ clearances, blocks, interceptions and tackles per match.`
-  return {
+  return buildPageMetadata({
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      url: "https://www.chatfpl.ai/fpl/defcon/defenders",
-    },
-  }
+    path: "/fpl/defcon/defenders",
+  })
 }
 
 export default async function DefconDefendersPage() {
