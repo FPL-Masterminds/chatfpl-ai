@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
@@ -74,6 +74,34 @@ function pickPrompts(
   const picks = [...gwPick, ...staticPick]
   if (comparisonPrompt) picks.push(comparisonPrompt)
   return picks.sort(() => Math.random() - 0.5)
+}
+
+function SuggestionRefreshIcon({ spinning }: { spinning: boolean }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0"
+      style={{ transform: spinning ? "rotate(360deg)" : "rotate(0deg)", transition: "transform 0.5s ease" }}
+    >
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M8 16H3v5" />
+    </svg>
+  )
+}
+
+const SUGGESTION_GLOW_STYLE: React.CSSProperties = {
+  padding: "1.5px",
+  background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
+  backgroundSize: "200% 200%",
+  animation: "glow_scroll 4s linear infinite",
 }
 
 type Message = {
@@ -836,16 +864,40 @@ export default function ChatPage() {
               {/* Suggested prompts + input */}
               <div className="shrink-0 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
                 <div className="mb-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {suggestedPrompts[0] ? (
+                    <div className="md:hidden rounded-2xl" style={SUGGESTION_GLOW_STYLE}>
+                      <div className="flex items-stretch overflow-hidden rounded-2xl bg-black">
+                        <button
+                          type="button"
+                          onClick={() => setInput(suggestedPrompts[0])}
+                          className="min-w-0 flex-1 px-3 py-2.5 text-left text-xs font-medium text-[#00FF87] transition-opacity hover:opacity-80"
+                        >
+                          {suggestedPrompts[0]}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={refreshPrompts}
+                          title="Refresh suggestion"
+                          aria-label="Refresh suggestion"
+                          className="flex shrink-0 items-center border-l border-white/10 px-3 text-white/75 transition-colors hover:text-white"
+                        >
+                          <SuggestionRefreshIcon spinning={promptsSpinning} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="hidden md:grid md:grid-cols-2 md:gap-2">
                     {suggestedPrompts.map((prompt, i) => (
                       <div
                         key={prompt}
-                        className={`rounded-2xl md:rounded-full${i >= 2 ? " hidden md:block" : ""}`}
-                        style={{ padding: "1.5px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 4s linear infinite" }}
+                        className={`rounded-full${i >= 2 ? " hidden md:block" : ""}`}
+                        style={SUGGESTION_GLOW_STYLE}
                       >
                         <button
+                          type="button"
                           onClick={() => setInput(prompt)}
-                          className="w-full rounded-2xl md:rounded-full px-3 py-2.5 md:py-1.5 text-xs font-medium transition-all hover:opacity-80 text-left md:text-center whitespace-normal md:truncate"
+                          className="w-full truncate rounded-full px-3 py-1.5 text-center text-xs font-medium transition-all hover:opacity-80"
                           style={{ background: "#000", color: "#00FF87" }}
                         >
                           {prompt}
@@ -853,29 +905,15 @@ export default function ChatPage() {
                       </div>
                     ))}
                   </div>
-                  {/* Refresh row — below pills, full-width tap target on mobile */}
-                  <div className="flex justify-center mt-2">
+
+                  <div className="mt-2 hidden justify-center md:flex">
                     <button
+                      type="button"
                       onClick={refreshPrompts}
                       title="Refresh suggestions"
-                      className="flex items-center gap-1.5 px-3 py-1 rounded-full text-emerald-400/70 hover:text-emerald-400 hover:bg-emerald-400/10 transition-all text-[11px] font-medium"
+                      className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium text-emerald-400/70 transition-all hover:bg-emerald-400/10 hover:text-emerald-400"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-3 w-3 shrink-0"
-                        style={{ transform: promptsSpinning ? "rotate(360deg)" : "rotate(0deg)", transition: "transform 0.5s ease" }}
-                      >
-                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-                        <path d="M21 3v5h-5"/>
-                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-                        <path d="M8 16H3v5"/>
-                      </svg>
+                      <SuggestionRefreshIcon spinning={promptsSpinning} />
                       More suggestions
                     </button>
                   </div>
