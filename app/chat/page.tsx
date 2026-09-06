@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { ChatMessageContent } from "@/components/chat-message-content"
+import { ChatMessageActions } from "@/components/chat-message-actions"
 import { ChatInputBar, type ChatInputBarHandle } from "@/components/chat-input-bar"
 import { ChatVoiceControls } from "@/components/chat-voice-controls"
 import type { ChatModelProfile } from "@/lib/chat-model-profile"
@@ -220,6 +221,7 @@ export default function ChatPage() {
   const [chatModelProfile, setChatModelProfile] = useState<ChatModelProfile>("legacy")
   const inputBarRef = useRef<ChatInputBarHandle>(null)
   const [micListening, setMicListening] = useState(false)
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null)
   const suppressListenEndRef = useRef(false)
   const { prefs: voicePrefs, hydrated: voicePrefsHydrated, setReadReplies, setVoiceMode, setUseVoicebox } = useChatVoicePrefs()
   const speechOutput = useSpeechOutput()
@@ -483,7 +485,28 @@ export default function ChatPage() {
   const stopSpeaking = useCallback(() => {
     speechOutput.cancel()
     voicebox.cancel()
+    setSpeakingMessageId(null)
   }, [speechOutput, voicebox])
+
+  const speakMessageAloud = useCallback(
+    async (messageId: string, text: string) => {
+      unlockAudioPlayback()
+      stopSpeaking()
+      setSpeakingMessageId(messageId)
+
+      const prefs = voicePrefsRef.current
+      let spoke = false
+      if (!isMobile && prefs.useVoicebox && voicebox.available) {
+        const voiceboxText = text.length > 500 ? `${text.slice(0, 500).trim()}...` : text
+        spoke = await voicebox.speak(voiceboxText)
+      }
+      if (!spoke) {
+        await speechOutput.speak(text)
+      }
+      setSpeakingMessageId(null)
+    },
+    [isMobile, speechOutput, voicebox, stopSpeaking],
+  )
 
   const handleVoiceModeChange = useCallback(
     (enabled: boolean) => {
@@ -569,6 +592,11 @@ export default function ChatPage() {
               setConversationId(evt.conversation_id)
               setMessagesUsed(evt.messages_used)
               setMessagesLimit(evt.messages_limit)
+              if (evt.assistant_message_id) {
+                setMessages(prev => prev.map(m =>
+                  m.id === aiMsgId ? { ...m, id: evt.assistant_message_id as string } : m
+                ))
+              }
               if (evt.content) {
                 finalContent = evt.content
                 setMessages(prev => prev.map(m =>
@@ -855,7 +883,7 @@ export default function ChatPage() {
                   </div>
                 )}
 
-                {messages.map((message) => (
+                {messages.map((message, messageIndex) => (
                   message.role === "user" ? (
                     <div key={message.id} className="flex justify-end">
                       <div
@@ -882,7 +910,21 @@ export default function ChatPage() {
                             <div className="h-2 w-2 animate-bounce rounded-full bg-blue-400" />
                           </div>
                         ) : (
-                          <ChatMessageContent content={message.content} profile={chatModelProfile} />
+                          <>
+                            <ChatMessageContent content={message.content} profile={chatModelProfile} />
+                            <ChatMessageActions
+                              messageId={message.id}
+                              conversationId={conversationId}
+                              content={message.content}
+                              userPrompt={
+                                [...messages.slice(0, messageIndex)]
+                                  .reverse()
+                                  .find((m) => m.role === "user")?.content ?? null
+                              }
+                              onReadAloud={(text) => void speakMessageAloud(message.id, text)}
+                              speaking={speakingMessageId === message.id}
+                            />
+                          </>
                         )}
                       </div>
                     </div>

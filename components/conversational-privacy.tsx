@@ -17,7 +17,12 @@ const PRIVACY_DATA = [
   {
     id: "conversations",
     question: "Why do you store my conversations?",
-    answer: "Two reasons. First, it lets ChatFPL AI maintain context - so you can ask a follow-up and it knows what you're referring to. Second, we track message counts against your plan limit. We may also look at conversations if you report a technical issue, purely to diagnose the problem. Your messages are never used for anything else.",
+    answer: "Two reasons. First, it lets ChatFPL AI maintain context - so you can ask a follow-up and it knows what you're referring to. Second, we track message counts against your plan limit. We do not routinely read private chats. If you report a technical issue or submit thumbs-up or thumbs-down feedback on a reply, we may review that specific exchange to diagnose problems or improve the product.",
+  },
+  {
+    id: "feedback",
+    question: "What happens if I rate a chat response?",
+    answer: "When you rate a reply, we save that rating with the question and answer involved. Positive and negative ratings help us see what is working and what needs fixing. We do not use ratings to build a profile of you for advertising, and we do not sell this data. Feedback is used to improve ChatFPL AI.",
   },
   {
     id: "security",
@@ -52,7 +57,7 @@ const PRIVACY_DATA = [
   {
     id: "changes",
     question: "What if the policy changes?",
-    answer: "We'll update this page and change the 'last updated' date. If it's a significant change, we'll let you know by email too. Last updated: 25 August 2026.",
+    answer: "We'll update this page and change the 'last updated' date. If it's a significant change, we'll let you know by email too. Last updated: 6 September 2026.",
   },
   {
     id: "questions",

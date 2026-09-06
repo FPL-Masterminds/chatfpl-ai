@@ -30,6 +30,11 @@ const TERMS_DATA = [
     answer: "Any time, from your account dashboard. You keep access until the end of the billing period you've already paid for. Fees aren't refundable after that, unless the law says otherwise.",
   },
   {
+    id: "feedback",
+    question: "What happens when I rate a chat response?",
+    answer: "You can give thumbs up or thumbs down on individual assistant replies. If you submit feedback, we store that rating together with the question and answer you were looking at. We do not read through your full chat history for fun. We use submitted feedback, positive and negative, to improve ChatFPL AI. By using the service you agree we may review feedback you submit for quality and product improvement.",
+  },
+  {
     id: "acceptable",
     question: "What's not allowed on the platform?",
     answer: "Using the service for anything unlawful, trying to scrape or attack the platform, sharing your account credentials with others, or abusing the rewards program. Basically - don't be a pain about it. Accounts found breaking these rules may be suspended.",

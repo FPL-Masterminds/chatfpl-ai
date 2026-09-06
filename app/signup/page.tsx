@@ -132,7 +132,7 @@ function SignupForm() {
       setMessages(p => [...p, { id: `u-confirm`, role: "user", text: val, masked: true }])
       setStep("terms")
       botSay(
-        "Last step. To create your account you'll need to agree to our Terms of Service and Privacy Policy. We'll also send occasional emails about product updates and offers - you can unsubscribe any time.",
+        "Last step. To create your account you'll need to agree to our Terms of Service and Privacy Policy. That includes letting us use any chat feedback you submit (thumbs up or down) to improve the product. We don't routinely read your private chats. We'll also send occasional emails about product updates and offers - you can unsubscribe any time.",
         "ask-terms",
       )
     }

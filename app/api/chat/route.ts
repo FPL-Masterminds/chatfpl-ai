@@ -894,7 +894,7 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
           await prisma.message.create({
             data: { conversation_id: conversation.id, role: "user", content: message },
           });
-          await prisma.message.create({
+          const assistantMessage = await prisma.message.create({
             data: {
               conversation_id: conversation.id,
               role: "assistant",
@@ -906,6 +906,7 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
           send({
             type: "done",
             conversation_id: conversation.id,
+            assistant_message_id: assistantMessage.id,
             messages_used: usage.messages_used + 1,
             messages_limit: usage.messages_limit,
             ...(chatModelProfile === "structured" ? { content: fixedAnswer } : {}),

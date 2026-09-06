@@ -183,3 +183,23 @@ model ProfanityFlag {
   @@index([message_at])
   @@map("profanity_flags")
 }
+
+// User-submitted thumbs up/down on assistant replies. One row per user per message (upsert).
+model MessageFeedback {
+  id                String   @id @default(cuid())
+  message_id        String   @db.VarChar(255)
+  conversation_id   String?  @db.VarChar(255)
+  user_id           String   @db.VarChar(255)
+  user_email        String?  @db.VarChar(255)
+  user_name         String?  @db.VarChar(255)
+  rating            String   @db.VarChar(20) // positive | negative
+  user_prompt       String?  @db.Text
+  assistant_content String   @db.Text
+  submitted_at      DateTime @default(now()) @db.Timestamp(6)
+  updated_at        DateTime @default(now()) @db.Timestamp(6)
+
+  @@unique([user_id, message_id])
+  @@index([rating])
+  @@index([submitted_at])
+  @@map("message_feedback")
+}
