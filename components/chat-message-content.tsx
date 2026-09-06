@@ -6,6 +6,7 @@ import { isFplPlayerPhotoUrl } from "@/lib/fpl-player-photo";
 
 const IMG_RE = /!\[([^\]]*)\]\(([^)]+)\)/;
 const BULLET_RE = /^(\s*(?:•|-)\s*)/;
+const BLOCK_GAP_CLASS = "gap-3.5";
 
 function parseBold(text: string, keyPrefix: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
@@ -45,9 +46,16 @@ const CHAT_PLAYER_NAME_PRICE_STYLE: React.CSSProperties = {
   lineHeight: 1.375,
 };
 
+function splitContentLines(content: string): string[] {
+  return content
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .filter((line) => line.trim().length > 0);
+}
+
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-4 mb-1 text-sm font-bold uppercase tracking-wide text-[#00FF87] first:mt-0">
+    <div className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#00FF87]">
       {children}
     </div>
   );
@@ -125,7 +133,7 @@ function StructuredChatMessageLine({ line }: { line: string }) {
     rest = rest.slice(leadingImg[0].length).trim();
     const namePrice = rest.match(/^(.+?)\s+-\s+(£[\d.]+m)\s*$/i);
     return (
-      <div className="my-2 flex items-center gap-3">
+      <div className="flex items-center gap-3">
         {bulletPrefix ? (
           <span className="shrink-0 text-white/85">{bulletPrefix.trim()}</span>
         ) : null}
@@ -153,7 +161,7 @@ function StructuredChatMessageLine({ line }: { line: string }) {
       const after = rest.slice(inlineImg.index + inlineImg[0].length);
       const combined = `${before}${after}`.replace(/\s+/g, " ").trim();
       return (
-        <div className="my-2 flex items-start gap-3">
+        <div className="flex items-start gap-3">
           <PlayerPhoto alt={alt} url={url} size="sm" />
           <div className="min-w-0 flex-1 leading-7 text-white/85">
             {bulletPrefix}
@@ -180,18 +188,18 @@ function StructuredChatMessageLine({ line }: { line: string }) {
       }
     }
     return (
-      <span className="leading-7 text-white/85">
+      <div className="leading-7 text-white/85">
         {bulletPrefix}
         {nodes}
-      </span>
+      </div>
     );
   }
 
   return (
-    <span className="leading-7 text-white/85">
+    <div className="leading-7 text-white/85">
       {bulletPrefix}
       {parseBold(rest, "plain")}
-    </span>
+    </div>
   );
 }
 
@@ -211,40 +219,30 @@ function renderLegacyLine(line: string, lineKey: string): React.ReactNode {
       i++;
     }
   }
-  return elements;
+  return <div className="leading-7 text-white/85 whitespace-pre-wrap">{elements}</div>;
 }
 
 function LegacyChatMessageContent({ content }: { content: string }) {
+  const lines = splitContentLines(content);
   return (
-    <>
-      {content.split("\n\n").map((para, i) => (
-        <p key={i} className="whitespace-pre-wrap">
-          {para.split("\n").map((line, j, lines) => (
-            <React.Fragment key={j}>
-              {renderLegacyLine(line, `${i}-${j}`)}
-              {j < lines.length - 1 && <br />}
-            </React.Fragment>
-          ))}
-        </p>
+    <div className={`flex flex-col ${BLOCK_GAP_CLASS}`}>
+      {lines.map((line, i) => (
+        <div key={i}>{renderLegacyLine(line, `${i}`)}</div>
       ))}
-    </>
+    </div>
   );
 }
 
 function StructuredChatMessageContent({ content }: { content: string }) {
+  const lines = splitContentLines(content);
   return (
-    <>
-      {content.split("\n\n").map((para, i) => (
-        <p key={i} className="whitespace-pre-wrap">
-          {para.split("\n").map((line, j, lines) => (
-            <React.Fragment key={j}>
-              <StructuredChatMessageLine line={line} />
-              {j < lines.length - 1 && <br />}
-            </React.Fragment>
-          ))}
-        </p>
+    <div className={`flex flex-col ${BLOCK_GAP_CLASS}`}>
+      {lines.map((line, i) => (
+        <div key={i}>
+          <StructuredChatMessageLine line={line} />
+        </div>
       ))}
-    </>
+    </div>
   );
 }
 
