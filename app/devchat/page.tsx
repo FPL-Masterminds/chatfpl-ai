@@ -8,38 +8,9 @@ import Link from "next/link"
 import { ChatMessageContent } from "@/components/chat-message-content"
 import { ChatInputBar } from "@/components/chat-input-bar"
 import type { ChatModelProfile } from "@/lib/chat-model-profile"
+import { pickChatSuggestionPrompts } from "@/lib/chat-suggestion-prompts"
 
 const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
-
-const ALL_PROMPTS = [
-  "Best captain this gameweek?",
-  "Give me 3 low-owned midfielders",
-  "Who has the best fixtures in the next 4?",
-  "Who should I sell this gameweek?",
-  "Best budget defender under £4.5m?",
-  "Which premium forward is worth it right now?",
-  "Who are the best differential picks this GW?",
-  "Should I use my wildcard now?",
-  "Best players to triple-up on this gameweek?",
-  "Which midfielder has the most xG this season?",
-  "Who has the easiest run of fixtures?",
-  "Best bench boost candidates?",
-  "Which players have the most clean sheet potential?",
-  "Give me a differential captain option under 10% owned",
-  "Any big controversies or talking points in the FPL community right now?",
-  "What's everyone talking about in FPL this week?",
-  "Who are FPL managers rushing to buy this week?",
-  "Who is the community backing as captain this week and do you agree?",
-  "Is there a clear captain consensus this gameweek or is it split?",
-  "What's the debate around the captain pick right now?",
-]
-
-function pickPrompts(comparisonPrompt: string | null = null) {
-  const shuffled = [...ALL_PROMPTS].sort(() => Math.random() - 0.5)
-  const picks = shuffled.slice(0, comparisonPrompt ? 3 : 4)
-  if (comparisonPrompt) picks.push(comparisonPrompt)
-  return picks.sort(() => Math.random() - 0.5)
-}
 
 type Message = {
   id: string
@@ -90,7 +61,7 @@ function TeamBadge({ code, name }: { code: number; name: string }) {
 export default function DevChatPage() {
   const router = useRouter()
   const [authorized, setAuthorized] = useState(false)
-  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => pickPrompts())
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => pickChatSuggestionPrompts())
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -131,8 +102,10 @@ export default function DevChatPage() {
     fetch("/api/gw-info")
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data?.comparisonPrompt) {
-          setSuggestedPrompts(pickPrompts(data.comparisonPrompt))
+        if (data) {
+          setSuggestedPrompts(
+            pickChatSuggestionPrompts(data.gw ?? null, Boolean(data.hasDGW), data.comparisonPrompt ?? null),
+          )
         }
       })
       .catch(() => {})

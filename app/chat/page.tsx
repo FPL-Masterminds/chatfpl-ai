@@ -16,66 +16,7 @@ import { useVoicebox } from "@/hooks/use-voicebox"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { textForSpeech, textForVoiceboxSpeech } from "@/lib/chat-speech-text"
 import { unlockAudioPlayback } from "@/lib/audio-unlock"
-
-const STATIC_PROMPTS = [
-  "Analyse my team",
-  "Best captain this gameweek?",
-  "Give me 3 low-owned midfielders",
-  "Who has the best fixtures in the next 4?",
-  "Who should I sell this gameweek?",
-  "Best budget defender under £4.5m?",
-  "Which premium forward is worth it right now?",
-  "Should I use my wildcard now?",
-  "Best players to triple-up on this gameweek?",
-  "Which midfielder has the most xG this season?",
-  "Who has the easiest run of fixtures?",
-  "Best bench boost candidates?",
-  "Which players have the most clean sheet potential?",
-  "Give me a differential captain option under 10% owned",
-  "Any big controversies or talking points in the FPL community right now?",
-  "What's everyone talking about in FPL this week?",
-  "Who are FPL managers rushing to buy this week?",
-  "Who is the community backing as captain this week and do you agree?",
-  "Is there a clear captain consensus this gameweek or is it split?",
-  "What's the debate around the captain pick right now?",
-  "Which players are being sold en masse this week and why?",
-  "Who has the best underlying xG stats but is still under the radar?",
-  "Which team has the best defensive record over the last 5 gameweeks?",
-  "Give me your top 3 transfer recommendations for this gameweek",
-  "Which FPL assets offer the best value per million right now?",
-  "Should I play my Free Hit this gameweek?",
-  "Who are the standout players from teams with a Double Gameweek?",
-  "What does the Reddit community think about this week's transfer moves?",
-]
-
-// GW-tagged prompts built dynamically once GW info is known
-function buildGWPrompts(gw: number | null, hasDGW: boolean): string[] {
-  const label = gw ? `GW${gw}` : "this gameweek"
-  const gwPrompts: string[] = [
-    `Who are the best differential picks for ${label}?`,
-    `Give me differentials under 10% ownership with strong underlying xG/xA for ${label}`,
-    `Captaincy options for ${label} - give me Reddit consensus vs statistical pick`,
-  ]
-  if (hasDGW) {
-    gwPrompts.push(`DGW landscape - who are the must-haves and traps for ${label}?`)
-  }
-  return gwPrompts
-}
-
-function pickPrompts(
-  gw: number | null = null,
-  hasDGW = false,
-  comparisonPrompt: string | null = null,
-): string[] {
-  const gwPrompts = buildGWPrompts(gw, hasDGW)
-  const shuffledGW = [...gwPrompts].sort(() => Math.random() - 0.5)
-  const shuffledStatic = [...STATIC_PROMPTS].sort(() => Math.random() - 0.5)
-  const gwPick = shuffledGW.slice(0, 2)
-  const staticPick = shuffledStatic.slice(0, comparisonPrompt ? 1 : 2)
-  const picks = [...gwPick, ...staticPick]
-  if (comparisonPrompt) picks.push(comparisonPrompt)
-  return picks.sort(() => Math.random() - 0.5)
-}
+import { pickChatSuggestionPrompts } from "@/lib/chat-suggestion-prompts"
 
 function SuggestionRefreshIcon({ spinning }: { spinning: boolean }) {
   return (
@@ -197,7 +138,7 @@ function TeamBadge({ code, name }: { code: number; name: string }) {
 export default function ChatPage() {
   const router = useRouter()
   const [authorized, setAuthorized] = useState(false)
-  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => pickPrompts())
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => pickChatSuggestionPrompts())
   const [gwInfo, setGwInfo] = useState<{ gw: number | null; hasDGW: boolean }>({ gw: null, hasDGW: false })
   const [comparisonPrompt, setComparisonPrompt] = useState<string | null>(null)
   const [promptsSpinning, setPromptsSpinning] = useState(false)
@@ -275,7 +216,7 @@ export default function ChatPage() {
         if (data) {
           setGwInfo({ gw: data.gw, hasDGW: data.hasDGW })
           setComparisonPrompt(data.comparisonPrompt ?? null)
-          setSuggestedPrompts(pickPrompts(data.gw, data.hasDGW, data.comparisonPrompt))
+          setSuggestedPrompts(pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt))
         }
       })
       .catch(() => {})
@@ -289,13 +230,13 @@ export default function ChatPage() {
         if (data) {
           setGwInfo({ gw: data.gw, hasDGW: data.hasDGW })
           setComparisonPrompt(data.comparisonPrompt ?? null)
-          setSuggestedPrompts(pickPrompts(data.gw, data.hasDGW, data.comparisonPrompt))
+          setSuggestedPrompts(pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt))
         } else {
-          setSuggestedPrompts(pickPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt))
+          setSuggestedPrompts(pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt))
         }
       })
       .catch(() => {
-        setSuggestedPrompts(pickPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt))
+        setSuggestedPrompts(pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt))
       })
       .finally(() => setTimeout(() => setPromptsSpinning(false), 500))
   }

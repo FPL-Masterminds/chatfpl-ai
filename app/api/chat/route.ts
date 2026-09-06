@@ -693,7 +693,12 @@ DATA INTEGRITY (MANDATORY):
 - If a player does not appear in the filtered rows, say they are not in the current excerpt and ask to narrow the question. Do not invent stats or photos.
 - TEAM STACK / TRIPLE-UP: If TEAM STACK FACTS is present, use only those club groupings. Every player plays for the club shown in their pipe row (field 3: ClubFullName (ShortCode)). Never put a player under a club they do not play for in the data (e.g. if the row says Everton (EVE), never list them under Chelsea).
 - Only recommend triple-ups from Premier League clubs in the TEAMS list. Every player in a stack must share the same ShortCode in their data row.
-- DATA SOURCES AVAILABLE: FPL API data (players, fixtures, ownership, xG/xA, injuries from the news field) and Reddit hot posts from r/FantasyPL. Press conference transcripts, external news sites, and detailed midweek injury updates are NOT available — if asked for these, state clearly what data you do and do not have, then work with what you have.`;
+- DATA SOURCES AVAILABLE: FPL API data (players, fixtures, ownership, xG/xA, injuries from the news field) and Reddit hot posts from r/FantasyPL. Press conference transcripts, external news sites, and detailed midweek injury updates are NOT available — if asked for these, state clearly what data you do and do not have, then work with what you have.
+
+TOP MANAGER / TEMPLATE QUESTIONS:
+- When users ask about "top managers", "trending among top managers", "template squads", "hidden gems", "transfer momentum", or similar wording, you do NOT have a verified top-50 or top-100 elite manager database.
+- Answer using LIVE FPL API proxies: ownership%, transfers in/out this gameweek (TI_GW / TO_GW), net transfer direction, form, xPNext, bonus/BPS, and Reddit community sentiment where relevant.
+- Never claim you are analysing literal top 50 squads or proprietary elite data. Say you are using ownership and transfer trends as proxies for where strong managers are moving.`;
       }
     } catch (fplError) {
       console.error("FPL API fetch error:", fplError);
