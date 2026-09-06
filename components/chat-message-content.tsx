@@ -55,10 +55,20 @@ function splitContentLines(content: string): string[] {
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <div className="font-semibold leading-7 text-white">
+    <strong className="block font-bold leading-7 text-white">
       {children}
-    </div>
+    </strong>
   );
+}
+
+function isStrippedSectionTitle(text: string): boolean {
+  const t = text.trim();
+  if (!t || t.length > 100 || t.length < 4) return false;
+  if (/£[\d.]+m/i.test(t)) return false;
+  if (BULLET_RE.test(t)) return false;
+  if (/[.!?]\s/.test(t)) return false;
+  if (/^I['']?m\s|^You\s|^The community/i.test(t)) return false;
+  return true;
 }
 
 function stripLeadingInvalidImage(rest: string): { text: string; strippedInvalid: boolean } {
@@ -108,6 +118,9 @@ function StructuredChatMessageLine({ line }: { line: string }) {
   const { text: afterImageStrip, strippedInvalid } = stripLeadingInvalidImage(rest);
   if (strippedInvalid) {
     rest = afterImageStrip;
+    if (isStrippedSectionTitle(rest)) {
+      return <SectionHeader>{rest}</SectionHeader>;
+    }
   }
 
   const leadingImg = rest.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*/);
