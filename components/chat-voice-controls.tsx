@@ -46,7 +46,7 @@ function TogglePill({
       className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
         active
           ? "border-[#00FF87]/50 bg-[#00FF87]/10 text-[#00FF87]"
-          : "border-white/12 bg-white/[0.03] text-white/55 hover:border-white/20 hover:text-white/75"
+          : "border-white/60 bg-transparent text-white hover:border-white hover:bg-white/[0.04]"
       }`}
     >
       {icon}
