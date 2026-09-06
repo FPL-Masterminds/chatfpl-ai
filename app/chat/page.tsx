@@ -104,6 +104,49 @@ const SUGGESTION_GLOW_STYLE: CSSProperties = {
   animation: "glow_scroll 4s linear infinite",
 }
 
+function SuggestionPill({
+  prompt,
+  onSelect,
+  showRefresh,
+  onRefresh,
+  spinning,
+  roundedClassName,
+  textAlignClassName,
+}: {
+  prompt: string
+  onSelect: () => void
+  showRefresh: boolean
+  onRefresh: () => void
+  spinning: boolean
+  roundedClassName: string
+  textAlignClassName: string
+}) {
+  return (
+    <div className={roundedClassName} style={SUGGESTION_GLOW_STYLE}>
+      <div className={`flex items-stretch overflow-hidden bg-black ${roundedClassName}`}>
+        <button
+          type="button"
+          onClick={onSelect}
+          className={`min-w-0 flex-1 truncate px-3 py-2.5 text-xs font-medium text-[#00FF87] transition-opacity hover:opacity-80 md:py-1.5 ${textAlignClassName}`}
+        >
+          {prompt}
+        </button>
+        {showRefresh ? (
+          <button
+            type="button"
+            onClick={onRefresh}
+            title="Refresh suggestions"
+            aria-label="Refresh suggestions"
+            className="flex shrink-0 items-center border-l border-white/10 px-3 text-white transition-opacity hover:opacity-80"
+          >
+            <SuggestionRefreshIcon spinning={spinning} />
+          </button>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
 type Message = {
   id: string
   role: "user" | "assistant"
@@ -864,59 +907,41 @@ export default function ChatPage() {
               {/* Suggested prompts + input */}
               <div className="shrink-0 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
                 <div className="mb-3">
-                  {suggestedPrompts[0] ? (
-                    <div className="md:hidden rounded-2xl" style={SUGGESTION_GLOW_STYLE}>
-                      <div className="flex items-stretch overflow-hidden rounded-2xl bg-black">
-                        <button
-                          type="button"
-                          onClick={() => setInput(suggestedPrompts[0])}
-                          className="min-w-0 flex-1 px-3 py-2.5 text-left text-xs font-medium text-[#00FF87] transition-opacity hover:opacity-80"
-                        >
-                          {suggestedPrompts[0]}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={refreshPrompts}
-                          title="Refresh suggestion"
-                          aria-label="Refresh suggestion"
-                          className="flex shrink-0 items-center border-l border-white/10 px-3 text-white/75 transition-colors hover:text-white"
-                        >
-                          <SuggestionRefreshIcon spinning={promptsSpinning} />
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
+                  {(() => {
+                    const visiblePrompts = suggestedPrompts.slice(0, 2)
+                    if (!visiblePrompts.length) return null
 
-                  <div className="hidden md:grid md:grid-cols-2 md:gap-2">
-                    {suggestedPrompts.map((prompt, i) => (
-                      <div
-                        key={prompt}
-                        className={`rounded-full${i >= 2 ? " hidden md:block" : ""}`}
-                        style={SUGGESTION_GLOW_STYLE}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => setInput(prompt)}
-                          className="w-full truncate rounded-full px-3 py-1.5 text-center text-xs font-medium transition-all hover:opacity-80"
-                          style={{ background: "#000", color: "#00FF87" }}
-                        >
-                          {prompt}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                    return (
+                      <>
+                        <div className="md:hidden">
+                          <SuggestionPill
+                            prompt={visiblePrompts[0]}
+                            onSelect={() => setInput(visiblePrompts[0])}
+                            showRefresh
+                            onRefresh={refreshPrompts}
+                            spinning={promptsSpinning}
+                            roundedClassName="rounded-2xl"
+                            textAlignClassName="text-left"
+                          />
+                        </div>
 
-                  <div className="mt-2 hidden justify-center md:flex">
-                    <button
-                      type="button"
-                      onClick={refreshPrompts}
-                      title="Refresh suggestions"
-                      className="flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium text-emerald-400/70 transition-all hover:bg-emerald-400/10 hover:text-emerald-400"
-                    >
-                      <SuggestionRefreshIcon spinning={promptsSpinning} />
-                      More suggestions
-                    </button>
-                  </div>
+                        <div className="hidden md:grid md:grid-cols-2 md:gap-2">
+                          {visiblePrompts.map((prompt, i) => (
+                            <SuggestionPill
+                              key={`${i}-${prompt}`}
+                              prompt={prompt}
+                              onSelect={() => setInput(prompt)}
+                              showRefresh={i === visiblePrompts.length - 1}
+                              onRefresh={refreshPrompts}
+                              spinning={promptsSpinning}
+                              roundedClassName="rounded-full"
+                              textAlignClassName="text-center"
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )
+                  })()}
                 </div>
 
                 {voicePrefsHydrated ? (
