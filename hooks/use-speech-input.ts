@@ -84,23 +84,20 @@ export function useSpeechInput(options: UseSpeechInputOptions = {}) {
       latestTextRef.current = sessionBaseRef.current
 
       recognition.onresult = (event) => {
-        let spoken = ""
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          spoken += event.results[i][0].transcript
+        let sessionTranscript = ""
+        for (let i = 0; i < event.results.length; i++) {
+          sessionTranscript += event.results[i][0].transcript
         }
-        spoken = spoken.trim()
-        if (!spoken) return
+        sessionTranscript = sessionTranscript.replace(/\s+/g, " ").trim()
 
         const base = sessionBaseRef.current
-        const merged = base ? `${base} ${spoken}` : spoken
+        const merged =
+          base && sessionTranscript
+            ? `${base} ${sessionTranscript}`
+            : sessionTranscript || base
+
         latestTextRef.current = merged
         setValue(merged)
-
-        const last = event.results[event.results.length - 1]
-        if (last?.isFinal) {
-          sessionBaseRef.current = merged
-          latestTextRef.current = merged
-        }
       }
 
       recognition.onerror = () => {
