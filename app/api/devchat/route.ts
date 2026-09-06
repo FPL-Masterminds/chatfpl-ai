@@ -31,6 +31,7 @@ import {
 import {
   getChatFormattingRules,
   normalizeAssistantChatFormatting,
+  stripInvalidMarkdownImages,
 } from "@/lib/chat-message-format";
 import { getChatModelProfile } from "@/lib/chat-model-profile";
 import {
@@ -551,11 +552,13 @@ FIXTURE DIFFICULTY: 1=Easy, 2=Favorable, 3=Medium, 4=Tough, 5=Very Difficult. H=
     ]);
 
     // ── Build enhanced message with Reddit + FPL context ─────────────────────
-    const formattingInstructions = `REDDIT USAGE (CRITICAL — READ THIS BEFORE ANSWERING):
+    const formattingInstructions = `REDDIT USAGE (CRITICAL - READ THIS BEFORE ANSWERING):
 - Reddit post data has been pre-fetched by the server and provided to you in this message. You already have it.
-- NEVER say "I can't browse Reddit", "I don't have access to Reddit", or anything similar. That is factually wrong — the data is already in your context.
+- NEVER say "I can't browse Reddit", "I don't have access to Reddit", or anything similar. That is factually wrong. The data is already in your context.
 - When asked about Reddit posts, top threads, or community sentiment: read the PRE-FETCHED REDDIT DATA section above and report those specific posts back to the user, naming titles and upvote counts.
 - Do not generalise or speak hypothetically. Use the actual posts you were given.
+- NEVER use ![...](...) images for Reddit post titles or section headers. Images are only for FPL players from LIVE FPL DATA.
+- Format each thread as a plain title line, blank line, then bullet summaries.
 
 FORMATTING RULES:
 ${getChatFormattingRules(chatModelProfile)}
@@ -696,7 +699,9 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
     });
 
     const fixedAnswer = normalizeAssistantChatFormatting(
-      fixAssistantMarkdownPlayerPhotos(difyData.answer, photoRowsForFix),
+      stripInvalidMarkdownImages(
+        fixAssistantMarkdownPlayerPhotos(difyData.answer, photoRowsForFix),
+      ),
       chatModelProfile,
     );
 

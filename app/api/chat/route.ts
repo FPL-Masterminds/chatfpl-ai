@@ -26,6 +26,7 @@ import {
 import {
   getChatFormattingRules,
   normalizeAssistantChatFormatting,
+  stripInvalidMarkdownImages,
 } from "@/lib/chat-message-format";
 import { getChatModelProfile } from "@/lib/chat-model-profile";
 import {
@@ -710,6 +711,8 @@ PERSONALITY RULES:
 - NEVER say "I don't have Reddit data", "I can't browse Reddit", or "Reddit isn't in the data you gave me". That is factually wrong - it IS in this message.
 - When asked about Reddit, scan the PRE-FETCHED REDDIT DATA section above and report the post titles, upvote counts, and topics directly.
 - You do not need to browse anything. The data is already here.
+- NEVER use ![...](...) images for Reddit post titles or section headers. Images are only for FPL players from LIVE FPL DATA.
+- Format each thread as a plain title line, blank line, then bullet summaries.
 
 ` : `REDDIT NOTE: No Reddit data was fetched for this request (fetch failed or returned empty). Do not claim you have Reddit data you don't have - tell the user Reddit posts could not be retrieved this time.
 
@@ -855,9 +858,11 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
           // Fix hallucinated player photo URLs in the accumulated response
           // Also strip any em-dashes that slipped through (belt-and-braces)
           const fixedAnswer = normalizeAssistantChatFormatting(
-            fixAssistantMarkdownPlayerPhotos(fullAnswer, photoRowsForFix)
-              .replace(/\u2014/g, " - ")
-              .replace(/\u2013/g, " - "),
+            stripInvalidMarkdownImages(
+              fixAssistantMarkdownPlayerPhotos(fullAnswer, photoRowsForFix)
+                .replace(/\u2014/g, " - ")
+                .replace(/\u2013/g, " - "),
+            ),
             chatModelProfile,
           );
 

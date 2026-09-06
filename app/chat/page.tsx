@@ -12,7 +12,6 @@ import type { ChatModelProfile } from "@/lib/chat-model-profile"
 const STATIC_PROMPTS = [
   "Analyse my team",
   "Best captain this gameweek?",
-  "Compare Isak vs Watkins",
   "Give me 3 low-owned midfielders",
   "Who has the best fixtures in the next 4?",
   "Who should I sell this gameweek?",
@@ -55,15 +54,19 @@ function buildGWPrompts(gw: number | null, hasDGW: boolean): string[] {
   return gwPrompts
 }
 
-function pickPrompts(gw: number | null = null, hasDGW = false): string[] {
+function pickPrompts(
+  gw: number | null = null,
+  hasDGW = false,
+  comparisonPrompt: string | null = null,
+): string[] {
   const gwPrompts = buildGWPrompts(gw, hasDGW)
-  // Always include at least 1-2 GW-specific prompts in the rotation
   const shuffledGW = [...gwPrompts].sort(() => Math.random() - 0.5)
   const shuffledStatic = [...STATIC_PROMPTS].sort(() => Math.random() - 0.5)
-  // Pick 2 GW prompts + 2 static for a set of 4
-  const gwPick = shuffledGW.slice(0, hasDGW ? 2 : 2)
-  const staticPick = shuffledStatic.filter(p => !gwPick.includes(p)).slice(0, 2)
-  return [...gwPick, ...staticPick].sort(() => Math.random() - 0.5)
+  const gwPick = shuffledGW.slice(0, 2)
+  const staticPick = shuffledStatic.slice(0, comparisonPrompt ? 1 : 2)
+  const picks = [...gwPick, ...staticPick]
+  if (comparisonPrompt) picks.push(comparisonPrompt)
+  return picks.sort(() => Math.random() - 0.5)
 }
 
 type Message = {
@@ -117,6 +120,7 @@ export default function ChatPage() {
   const [authorized, setAuthorized] = useState(false)
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => pickPrompts())
   const [gwInfo, setGwInfo] = useState<{ gw: number | null; hasDGW: boolean }>({ gw: null, hasDGW: false })
+  const [comparisonPrompt, setComparisonPrompt] = useState<string | null>(null)
   const [promptsSpinning, setPromptsSpinning] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
@@ -179,7 +183,8 @@ export default function ChatPage() {
       .then(data => {
         if (data) {
           setGwInfo({ gw: data.gw, hasDGW: data.hasDGW })
-          setSuggestedPrompts(pickPrompts(data.gw, data.hasDGW))
+          setComparisonPrompt(data.comparisonPrompt ?? null)
+          setSuggestedPrompts(pickPrompts(data.gw, data.hasDGW, data.comparisonPrompt))
         }
       })
       .catch(() => {})
@@ -187,8 +192,21 @@ export default function ChatPage() {
 
   const refreshPrompts = () => {
     setPromptsSpinning(true)
-    setSuggestedPrompts(pickPrompts(gwInfo.gw, gwInfo.hasDGW))
-    setTimeout(() => setPromptsSpinning(false), 500)
+    fetch("/api/gw-info")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          setGwInfo({ gw: data.gw, hasDGW: data.hasDGW })
+          setComparisonPrompt(data.comparisonPrompt ?? null)
+          setSuggestedPrompts(pickPrompts(data.gw, data.hasDGW, data.comparisonPrompt))
+        } else {
+          setSuggestedPrompts(pickPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt))
+        }
+      })
+      .catch(() => {
+        setSuggestedPrompts(pickPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt))
+      })
+      .finally(() => setTimeout(() => setPromptsSpinning(false), 500))
   }
 
   // Load all data once authorised

@@ -13,7 +13,6 @@ const ALLOWED_EMAIL = "johnmcdermott1979@gmail.com"
 
 const ALL_PROMPTS = [
   "Best captain this gameweek?",
-  "Compare Isak vs Watkins",
   "Give me 3 low-owned midfielders",
   "Who has the best fixtures in the next 4?",
   "Who should I sell this gameweek?",
@@ -35,8 +34,11 @@ const ALL_PROMPTS = [
   "What's the debate around the captain pick right now?",
 ]
 
-function pickPrompts() {
-  return [...ALL_PROMPTS].sort(() => Math.random() - 0.5).slice(0, 4)
+function pickPrompts(comparisonPrompt: string | null = null) {
+  const shuffled = [...ALL_PROMPTS].sort(() => Math.random() - 0.5)
+  const picks = shuffled.slice(0, comparisonPrompt ? 3 : 4)
+  if (comparisonPrompt) picks.push(comparisonPrompt)
+  return picks.sort(() => Math.random() - 0.5)
 }
 
 type Message = {
@@ -88,7 +90,7 @@ function TeamBadge({ code, name }: { code: number; name: string }) {
 export default function DevChatPage() {
   const router = useRouter()
   const [authorized, setAuthorized] = useState(false)
-  const [suggestedPrompts] = useState<string[]>(pickPrompts)
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => pickPrompts())
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -125,7 +127,18 @@ export default function DevChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Email gate — silent redirect for anyone else
+  useEffect(() => {
+    fetch("/api/gw-info")
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.comparisonPrompt) {
+          setSuggestedPrompts(pickPrompts(data.comparisonPrompt))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  // Email gate - silent redirect for anyone else
   useEffect(() => {
     const checkAccess = async () => {
       try {

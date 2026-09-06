@@ -41,6 +41,19 @@ export function fplPlayerPhotoUrl(code: number): string {
   return `${base}/${code}.png?${getFplPlayerPhotoCacheBust()}`;
 }
 
+/** True when URL points at the official FPL player headshot CDN (not badges, icons, or invented links). */
+export function isFplPlayerPhotoUrl(url: string): boolean {
+  const trimmed = url.trim();
+  if (!trimmed) return false;
+  try {
+    const u = new URL(trimmed);
+    if (!u.hostname.includes("premierleague.com")) return false;
+    return /\/photos\/players\//i.test(u.pathname);
+  } catch {
+    return false;
+  }
+}
+
 export const FPL_PLAYER_PHOTO_SILHOUETTE = `${getFplPlayerPhotoBase()}/Photo-Missing.png`;
 
 export type FplPhotoRow = {

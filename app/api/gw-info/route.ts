@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
+import { pickComparisonPrompt } from "@/lib/chat-suggestions"
 
 export const revalidate = 1800 // refresh every 30 minutes
 
 export async function GET() {
   try {
-    const [bootstrapRes, fixturesRes] = await Promise.all([
+    const [bootstrapRes, fixturesRes, comparisonPrompt] = await Promise.all([
       fetch("https://fantasy.premierleague.com/api/bootstrap-static/", {
         next: { revalidate: 1800 },
       }),
@@ -14,7 +15,7 @@ export async function GET() {
     ])
 
     if (!bootstrapRes.ok || !fixturesRes.ok) {
-      return NextResponse.json({ gw: null, hasDGW: false, dgwTeamCount: 0 })
+      return NextResponse.json({ gw: null, hasDGW: false, dgwTeamCount: 0, comparisonPrompt: null })
     }
 
     const bootstrap = await bootstrapRes.json()
@@ -50,8 +51,9 @@ export async function GET() {
       gw: nextGW,
       hasDGW: dgwTeams.length > 0,
       dgwTeamCount: dgwTeams.length,
+      comparisonPrompt,
     })
   } catch {
-    return NextResponse.json({ gw: null, hasDGW: false, dgwTeamCount: 0 })
+    return NextResponse.json({ gw: null, hasDGW: false, dgwTeamCount: 0, comparisonPrompt: null })
   }
 }

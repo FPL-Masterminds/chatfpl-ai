@@ -2,8 +2,10 @@
 
 import React from "react";
 import type { ChatModelProfile } from "@/lib/chat-model-profile";
+import { isFplPlayerPhotoUrl } from "@/lib/fpl-player-photo";
 
 const IMG_RE = /!\[([^\]]*)\]\(([^)]+)\)/;
+const BULLET_RE = /^(\s*(?:•|-)\s*)/;
 
 function parseBold(text: string, keyPrefix: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
@@ -33,7 +35,6 @@ const PLAYER_PHOTO_GLOW_STYLE: React.CSSProperties = {
   boxShadow: "0 0 6px 1px rgba(255,255,255,0.28)",
 };
 
-// Chat player headshots: another 10% on prior sizes (44px / 61.6px).
 const CHAT_PLAYER_PHOTO_HEIGHT_PX = {
   sm: 48.4,
   md: 67.76,
@@ -43,6 +44,34 @@ const CHAT_PLAYER_NAME_PRICE_STYLE: React.CSSProperties = {
   fontSize: "17.6px",
   lineHeight: 1.375,
 };
+
+function SectionHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-4 mb-1 text-sm font-bold uppercase tracking-wide text-[#00FF87] first:mt-0">
+      {children}
+    </div>
+  );
+}
+
+function isLikelySectionTitle(text: string): boolean {
+  const t = text.trim();
+  if (!t || t.length > 100 || t.length < 6) return false;
+  if (/£[\d.]+m/i.test(t)) return false;
+  if (BULLET_RE.test(t)) return false;
+  if (/[.!?]\s/.test(t)) return false;
+  if (/^I\s|^You\s|^The community/i.test(t)) return false;
+  return /^[A-Z0-9]/.test(t);
+}
+
+function stripLeadingInvalidImage(rest: string): { text: string; strippedInvalid: boolean } {
+  const leadingImg = rest.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*/);
+  if (!leadingImg) return { text: rest, strippedInvalid: false };
+  if (isFplPlayerPhotoUrl(leadingImg[2])) return { text: rest, strippedInvalid: false };
+  return {
+    text: rest.slice(leadingImg[0].length).trim(),
+    strippedInvalid: true,
+  };
+}
 
 function PlayerPhoto({
   alt,
@@ -71,19 +100,27 @@ function StructuredChatMessageLine({ line }: { line: string }) {
 
   const header = line.match(/^#{1,3}\s+(.+)$/);
   if (header) {
-    return (
-      <div className="mt-4 mb-1 text-sm font-bold uppercase tracking-wide text-[#00FF87] first:mt-0">
-        {header[1]}
-      </div>
-    );
+    return <SectionHeader>{header[1]}</SectionHeader>;
   }
 
-  const bullet = line.match(/^(\s*•\s*)/);
+  const bullet = line.match(BULLET_RE);
   const bulletPrefix = bullet?.[1] ?? "";
   let rest = bullet ? line.slice(bulletPrefix.length) : line;
 
+  if (!bullet && isLikelySectionTitle(rest)) {
+    return <SectionHeader>{rest.trim()}</SectionHeader>;
+  }
+
+  const { text: afterImageStrip, strippedInvalid } = stripLeadingInvalidImage(rest);
+  if (strippedInvalid) {
+    rest = afterImageStrip;
+    if (isLikelySectionTitle(rest)) {
+      return <SectionHeader>{rest}</SectionHeader>;
+    }
+  }
+
   const leadingImg = rest.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*/);
-  if (leadingImg) {
+  if (leadingImg && isFplPlayerPhotoUrl(leadingImg[2])) {
     const [, alt, url] = leadingImg;
     rest = rest.slice(leadingImg[0].length).trim();
     const namePrice = rest.match(/^(.+?)\s+-\s+(£[\d.]+m)\s*$/i);
@@ -110,19 +147,21 @@ function StructuredChatMessageLine({ line }: { line: string }) {
 
   const inlineImg = rest.match(IMG_RE);
   if (inlineImg && inlineImg.index !== undefined && inlineImg.index > 0) {
-    const before = rest.slice(0, inlineImg.index);
-    const after = rest.slice(inlineImg.index + inlineImg[0].length);
     const [, alt, url] = inlineImg;
-    const combined = `${before}${after}`.replace(/\s+/g, " ").trim();
-    return (
-      <div className="my-2 flex items-start gap-3">
-        <PlayerPhoto alt={alt} url={url} size="sm" />
-        <div className="min-w-0 flex-1 leading-7 text-white/85">
-          {bulletPrefix}
-          {parseBold(combined, "inline")}
+    if (isFplPlayerPhotoUrl(url)) {
+      const before = rest.slice(0, inlineImg.index);
+      const after = rest.slice(inlineImg.index + inlineImg[0].length);
+      const combined = `${before}${after}`.replace(/\s+/g, " ").trim();
+      return (
+        <div className="my-2 flex items-start gap-3">
+          <PlayerPhoto alt={alt} url={url} size="sm" />
+          <div className="min-w-0 flex-1 leading-7 text-white/85">
+            {bulletPrefix}
+            {parseBold(combined, "inline")}
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   if (IMG_RE.test(rest)) {
@@ -132,7 +171,7 @@ function StructuredChatMessageLine({ line }: { line: string }) {
       if (i % 3 === 0 && parts[i]) nodes.push(...parseBold(parts[i], `p-${i}`));
       else if (i % 3 === 1) {
         const url = parts[i + 1];
-        if (url) {
+        if (url && isFplPlayerPhotoUrl(url)) {
           nodes.push(
             <PlayerPhoto key={`img-${i}`} alt={parts[i]} url={url} size="sm" />,
           );
@@ -164,7 +203,7 @@ function renderLegacyLine(line: string, lineKey: string): React.ReactNode {
     else if (i % 3 === 1) {
       const alt = parts[i];
       const url = parts[i + 1];
-      if (url) {
+      if (url && isFplPlayerPhotoUrl(url)) {
         elements.push(
           <PlayerPhoto key={`${lineKey}-img-${i}`} alt={alt} url={url} />,
         );
