@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { wrapEmailContent } from "@/lib/email-templates";
+import { buildAdminTestEmailContent } from "@/lib/email-content";
 
 export const runtime = "nodejs";
 
@@ -38,18 +39,11 @@ export async function GET() {
 
     const resend = new Resend(resendApiKey);
 
-    const content = `
-      <h2 style="color: #2E0032;">✅ ChatFPL AI Admin Test Email</h2>
-      <p>This is a manual test from the <strong>/api/admin/test-email</strong> endpoint.</p>
-      <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <p style="margin: 8px 0;"><strong>Triggered by:</strong> ${user.name || "Admin User"}</p>
-        <p style="margin: 8px 0;"><strong>Admin email target:</strong> ${adminEmail}</p>
-        <p style="margin: 8px 0;"><strong>Triggered at:</strong> ${new Date().toISOString()}</p>
-      </div>
-      <p style="color: #999; font-size: 12px; margin-top: 30px;">
-        If you received this, Resend + env configuration is working for admin notifications.
-      </p>
-    `;
+    const content = buildAdminTestEmailContent({
+      adminName: user.name,
+      adminEmail,
+      triggeredAt: new Date().toISOString(),
+    });
 
     const result = await resend.emails.send({
       from: process.env.EMAIL_FROM || "ChatFPL AI <noreply@chatfpl.ai>",

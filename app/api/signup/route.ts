@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { Resend } from "resend";
 import { normalizeEmail, isDisposableEmail } from "@/lib/email-utils";
 import { wrapEmailContent } from "@/lib/email-templates";
+import { buildSignupVerificationContent } from "@/lib/email-content";
 
 export async function POST(request: Request) {
   try {
@@ -126,26 +127,7 @@ export async function POST(request: Request) {
       const resend = new Resend(process.env.RESEND_API_KEY);
       const verificationUrl = `${process.env.NEXTAUTH_URL || 'https://chatfpl.ai'}/api/verify-email?token=${verificationToken}`;
 
-      const emailContent = `
-        <h2 style="color: #2E0032;">Welcome to ChatFPL AI, ${name}! 🎉</h2>
-        <p>Thanks for signing up. Please verify your email address to start using your <strong>20 free messages</strong>.</p>
-        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 0; font-size: 14px; color: #666;">✅ <strong>Your Free Trial Includes:</strong></p>
-          <ul style="margin: 10px 0; padding-left: 20px; color: #666;">
-            <li>20 AI-powered FPL messages</li>
-            <li>Live data access</li>
-            <li>Earn more messages by sharing</li>
-          </ul>
-        </div>
-        <p>Click the button below to verify your email and start chatting:</p>
-        <div style="text-align: center;">
-          <a href="${verificationUrl}" class="button">Verify Email & Start Chatting</a>
-        </div>
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="color: #666; font-size: 14px; word-break: break-all;">${verificationUrl}</p>
-        <p style="color: #999; font-size: 12px; margin-top: 30px;">⏰ This link will expire in 24 hours.</p>
-        <p style="color: #999; font-size: 12px;">If you didn't create an account, you can safely ignore this email.</p>
-      `;
+      const emailContent = buildSignupVerificationContent({ name, verificationUrl });
 
       await resend.emails.send({
         from: process.env.EMAIL_FROM || "ChatFPL AI <noreply@chatfpl.ai>",
