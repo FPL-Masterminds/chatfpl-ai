@@ -48,6 +48,11 @@ import {
 } from "@/lib/chat-team-stacks";
 import { getRedditContext } from "@/lib/reddit-context";
 import { isSiteOwner } from "@/lib/god-mode";
+import {
+  CONVERSATIONAL_PROMPT_RULES,
+  getConversationalReply,
+  isConversationalMessage,
+} from "@/lib/chat-conversational";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
@@ -144,6 +149,67 @@ export async function POST(request: Request) {
         { error: "Message limit reached. Please upgrade your plan." },
         { status: 403 }
       );
+    }
+
+    if (isConversationalMessage(message)) {
+      const reply = getConversationalReply(message, userFirstName);
+      const enc = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(ctrl) {
+          const send = (obj: object) =>
+            ctrl.enqueue(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
+          try {
+            send({ type: "chunk", text: reply });
+            await prisma.usageTracking.update({
+              where: { id: usage.id },
+              data: { messages_used: usage.messages_used + 1 },
+            });
+
+            let conversation = conversationId
+              ? await prisma.conversation.findUnique({ where: { id: conversationId } })
+              : null;
+            if (!conversation) {
+              conversation = await prisma.conversation.create({
+                data: { user_id: user.id, title: message.slice(0, 80) },
+              });
+            }
+
+            await prisma.message.create({
+              data: { conversation_id: conversation.id, role: "user", content: message },
+            });
+            const assistantMessage = await prisma.message.create({
+              data: {
+                conversation_id: conversation.id,
+                role: "assistant",
+                content: reply,
+              },
+            });
+
+            send({
+              type: "done",
+              conversation_id: conversation.id,
+              assistant_message_id: assistantMessage.id,
+              messages_used: usage.messages_used + 1,
+              messages_limit: usage.messages_limit,
+              ...(chatModelProfile === "structured" ? { content: reply } : {}),
+            });
+          } catch (err) {
+            console.error("Conversational reply error:", err);
+            send({ type: "error", message: "Something went wrong. Please try again." });
+          } finally {
+            ctrl.close();
+          }
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+          "X-Accel-Buffering": "no",
+        },
+      });
     }
 
     // Fetch Reddit context + FPL data in parallel
@@ -706,6 +772,8 @@ TRANSFERS:
 - Free Hit: unlimited transfers for one GW only, squad reverts next GW
 - Bench Boost: all bench players score points this GW
 - Triple Captain: captain scores triple instead of double this GW
+
+${CONVERSATIONAL_PROMPT_RULES}
 
 PERSONALITY RULES:
 - You are ChatFPL AI, a friendly FPL assistant
