@@ -265,7 +265,7 @@ export function buildProductUpdateContent(firstName: string | null) {
 
 export type EmailPreviewGroup = "user" | "admin" | "marketing"
 
-export type EmailPreviewDefinition = {
+export type EmailPreviewItem = {
   id: string
   group: EmailPreviewGroup
   label: string
@@ -274,6 +274,10 @@ export type EmailPreviewDefinition = {
   audience: string
   respectsOptOut: boolean
   includeUnsubscribe: boolean
+  html: string
+}
+
+export type EmailPreviewDefinition = EmailPreviewItem & {
   buildBody: () => string
 }
 

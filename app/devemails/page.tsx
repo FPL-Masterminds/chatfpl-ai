@@ -21,7 +21,14 @@ export default async function DevEmailsPage() {
   }
 
   const previews = EMAIL_PREVIEW_DEFINITIONS.map((definition) => ({
-    ...definition,
+    id: definition.id,
+    group: definition.group,
+    label: definition.label,
+    description: definition.description,
+    subject: definition.subject,
+    audience: definition.audience,
+    respectsOptOut: definition.respectsOptOut,
+    includeUnsubscribe: definition.includeUnsubscribe,
     html: wrapEmailContent(definition.buildBody(), {
       unsubscribeToken: definition.includeUnsubscribe ? SAMPLE_PREVIEW.unsubscribeToken : null,
     }),

@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import type { EmailPreviewDefinition, EmailPreviewGroup } from "@/lib/email-content"
+import type { EmailPreviewGroup, EmailPreviewItem } from "@/lib/email-content"
 
 const GROUP_LABELS: Record<EmailPreviewGroup, string> = {
   user: "User transactional",
@@ -10,11 +10,7 @@ const GROUP_LABELS: Record<EmailPreviewGroup, string> = {
 }
 
 type EmailPreviewGalleryProps = {
-  previews: Array<
-    EmailPreviewDefinition & {
-      html: string
-    }
-  >
+  previews: EmailPreviewItem[]
 }
 
 export function EmailPreviewGallery({ previews }: EmailPreviewGalleryProps) {
