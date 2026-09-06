@@ -32,7 +32,7 @@ const TERMS_DATA = [
   {
     id: "feedback",
     question: "What happens when I rate a chat response?",
-    answer: "You can give thumbs up or thumbs down on individual assistant replies. If you submit feedback, we store that rating together with the question and answer you were looking at. We do not read through your full chat history for fun. We use submitted feedback, positive and negative, to improve ChatFPL AI. By using the service you agree we may review feedback you submit for quality and product improvement.",
+    answer: "You can give thumbs up or thumbs down on individual assistant replies. When you do, we store that rating with the specific question and answer involved. We only review the exchange you flagged, not your wider chat history. Positive and negative feedback helps us improve ChatFPL AI. By using the service you agree we may use feedback you submit for quality and product improvement.",
   },
   {
     id: "acceptable",
