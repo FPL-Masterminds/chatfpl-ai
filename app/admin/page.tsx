@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { signOut } from "next-auth/react"
 import { DevHeader } from "@/components/dev-header"
+import { ChatGreetingNameCard } from "@/components/chat-greeting-name-card"
 import { Footer } from "@/components/footer"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -579,8 +580,7 @@ export default function AdminPage() {
             <DarkCard>
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
-                  <p className="text-xl font-bold text-white">{data.user.name}</p>
-                  <p className="text-sm text-white mt-0.5">{data.user.email}</p>
+                  <p className="text-sm text-white">{data.user.email}</p>
                   <p className="text-xs text-white/50 mt-1">Member since {formatDate(data.user.created_at)}</p>
                 </div>
                 <span
@@ -591,6 +591,13 @@ export default function AdminPage() {
                 </span>
               </div>
             </DarkCard>
+
+            <ChatGreetingNameCard
+              name={data.user.name ?? ""}
+              onSaved={(name) =>
+                setData({ ...data, user: { ...data.user, name } })
+              }
+            />
 
             {/* Quick actions */}
             <DarkCard>

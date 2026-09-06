@@ -6,7 +6,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { DevHeader } from "@/components/dev-header"
-import { ChatGreetingNameCard } from "@/components/chat-greeting-name-card"
 import { Footer } from "@/components/footer"
 import { ConversationalSeasonStory } from "@/components/conversational-season-story"
 import { SeasonStoryMessagePanel } from "@/components/season-story-message"
@@ -1449,15 +1448,12 @@ export default function DashboardPage() {
   const [loaded, setLoaded] = useState(false)
   const [activeTab, setActiveTab] = useState("squad")
   const [switchingLeague, setSwitchingLeague] = useState(false)
-  const [chatGreetingName, setChatGreetingName] = useState("")
 
   useEffect(() => {
     const load = async () => {
       try {
         const accountRes = await fetch("/api/account")
         if (!accountRes.ok) { router.replace("/login"); return }
-        const accountData = await accountRes.json()
-        setChatGreetingName(accountData.user?.name ?? "")
         const res = await fetch("/api/dashboard")
         if (res.status === 400) { setStatus("no_team"); return }
         if (!res.ok) { setStatus("error"); return }
@@ -1520,12 +1516,6 @@ export default function DashboardPage() {
             {data.team_name} · {data.manager_name} · {data.current_gw_name}
           </p>
         </div>
-
-        <ChatGreetingNameCard
-          name={chatGreetingName}
-          onSaved={setChatGreetingName}
-          style={fade(40)}
-        />
 
         {/* 4 Stat tiles — always visible */}
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4" style={fade(80)}>
