@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Send } from "lucide-react"
 import Link from "next/link"
 import { ChatMessageContent } from "@/components/chat-message-content"
+import { ChatInputBar } from "@/components/chat-input-bar"
 import type { ChatModelProfile } from "@/lib/chat-model-profile"
 
 const STATIC_PROMPTS = [
@@ -778,25 +778,12 @@ export default function ChatPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[20px] border border-white/25 bg-white/[0.04] p-3 flex items-end gap-3">
-                  <textarea
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() } }}
-                    placeholder="Ask your FPL question..."
-                    className="flex-1 bg-transparent text-white placeholder:text-white/55 resize-none outline-none text-sm leading-6 max-h-[140px] min-h-[36px] pt-1"
-                    rows={1}
-                    disabled={isLoading}
-                  />
-                  <button
-                    onClick={handleSend}
-                    disabled={!input.trim() || isLoading}
-                    className="h-10 px-5 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-semibold text-sm shadow-[0_0_24px_rgba(0,255,200,0.2)] hover:brightness-110 transition-all disabled:opacity-35 disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
-                  >
-                    <Send className="h-3.5 w-3.5" />
-                    <span>Send</span>
-                  </button>
-                </div>
+                <ChatInputBar
+                  value={input}
+                  onChange={setInput}
+                  onSend={handleSend}
+                  disabled={isLoading}
+                />
                 <p className="text-center text-[10px] text-white/60 mt-2">ChatFPL AI can make mistakes. Verify important information.</p>
               </div>
             </div>
