@@ -7,11 +7,13 @@ const STORAGE_KEY = "chatfpl-voice-prefs"
 export type ChatVoicePrefs = {
   readReplies: boolean
   voiceMode: boolean
+  useVoicebox: boolean
 }
 
 const DEFAULT_PREFS: ChatVoicePrefs = {
   readReplies: false,
   voiceMode: false,
+  useVoicebox: false,
 }
 
 function loadPrefs(): ChatVoicePrefs {
@@ -23,6 +25,7 @@ function loadPrefs(): ChatVoicePrefs {
     return {
       readReplies: !!parsed.readReplies,
       voiceMode: !!parsed.voiceMode,
+      useVoicebox: !!parsed.useVoicebox,
     }
   } catch {
     return DEFAULT_PREFS
@@ -60,5 +63,10 @@ export function useChatVoicePrefs() {
     [setPrefs, prefs.readReplies],
   )
 
-  return { prefs, hydrated, setPrefs, setReadReplies, setVoiceMode }
+  const setUseVoicebox = useCallback(
+    (enabled: boolean) => setPrefs({ useVoicebox: enabled }),
+    [setPrefs],
+  )
+
+  return { prefs, hydrated, setPrefs, setReadReplies, setVoiceMode, setUseVoicebox }
 }

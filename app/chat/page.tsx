@@ -11,6 +11,8 @@ import { ChatVoiceControls } from "@/components/chat-voice-controls"
 import type { ChatModelProfile } from "@/lib/chat-model-profile"
 import { useChatVoicePrefs } from "@/hooks/use-chat-voice-prefs"
 import { useSpeechOutput } from "@/hooks/use-speech-output"
+import { useVoicebox } from "@/hooks/use-voicebox"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { textForSpeech } from "@/lib/chat-speech-text"
 
 const STATIC_PROMPTS = [
@@ -147,8 +149,10 @@ export default function ChatPage() {
   const inputBarRef = useRef<ChatInputBarHandle>(null)
   const [micListening, setMicListening] = useState(false)
   const suppressListenEndRef = useRef(false)
-  const { prefs: voicePrefs, hydrated: voicePrefsHydrated, setReadReplies, setVoiceMode } = useChatVoicePrefs()
+  const { prefs: voicePrefs, hydrated: voicePrefsHydrated, setReadReplies, setVoiceMode, setUseVoicebox } = useChatVoicePrefs()
   const speechOutput = useSpeechOutput()
+  const isMobile = useIsMobile()
+  const voicebox = useVoicebox(!isMobile && voicePrefs.useVoicebox)
   const voicePrefsRef = useRef(voicePrefs)
   const isLoadingRef = useRef(isLoading)
   voicePrefsRef.current = voicePrefs
@@ -387,41 +391,54 @@ export default function ChatPage() {
       if (!prefs.readReplies && !prefs.voiceMode) return
       const spoken = textForSpeech(content)
       if (!spoken) return
-      await speechOutput.speak(spoken)
+
+      let spoke = false
+      if (!isMobile && prefs.useVoicebox && voicebox.available) {
+        spoke = await voicebox.speak(spoken)
+      }
+      if (!spoke) {
+        await speechOutput.speak(spoken)
+      }
+
       if (prefs.voiceMode && !isLoadingRef.current) {
         window.setTimeout(() => inputBarRef.current?.startListening(), 350)
       }
     },
-    [speechOutput],
+    [speechOutput, voicebox, isMobile],
   )
+
+  const stopSpeaking = useCallback(() => {
+    speechOutput.cancel()
+    voicebox.cancel()
+  }, [speechOutput, voicebox])
 
   const handleVoiceModeChange = useCallback(
     (enabled: boolean) => {
       setVoiceMode(enabled)
       if (enabled) {
-        speechOutput.cancel()
+        stopSpeaking()
         window.setTimeout(() => inputBarRef.current?.startListening(), 350)
       } else {
         inputBarRef.current?.stopListening()
-        speechOutput.cancel()
+        stopSpeaking()
       }
     },
-    [setVoiceMode, speechOutput],
+    [setVoiceMode, stopSpeaking],
   )
 
   const handleReadRepliesChange = useCallback(
     (enabled: boolean) => {
       setReadReplies(enabled)
-      if (!enabled) speechOutput.cancel()
+      if (!enabled) stopSpeaking()
     },
-    [setReadReplies, speechOutput],
+    [setReadReplies, stopSpeaking],
   )
 
   const handleSend = async (overrideMessage?: string) => {
     const message = (overrideMessage ?? input).trim()
     if (!message || isLoading) return
     suppressListenEndRef.current = true
-    speechOutput.cancel()
+    stopSpeaking()
     inputBarRef.current?.stopListening()
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: message, timestamp: new Date() }
     setMessages(prev => [...prev, userMsg])
@@ -855,12 +872,16 @@ export default function ChatPage() {
                   <ChatVoiceControls
                     readReplies={voicePrefs.readReplies}
                     voiceMode={voicePrefs.voiceMode}
+                    useVoicebox={voicePrefs.useVoicebox}
+                    showVoicebox={!isMobile}
+                    voiceboxStatus={voicebox.status}
                     speechOutSupported={speechOutput.supported}
-                    speaking={speechOutput.speaking}
+                    speaking={speechOutput.speaking || voicebox.speaking}
                     listening={micListening}
                     onReadRepliesChange={handleReadRepliesChange}
                     onVoiceModeChange={handleVoiceModeChange}
-                    onStopSpeaking={speechOutput.cancel}
+                    onUseVoiceboxChange={setUseVoicebox}
+                    onStopSpeaking={stopSpeaking}
                   />
                 ) : null}
 
