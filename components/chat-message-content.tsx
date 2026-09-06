@@ -55,20 +55,10 @@ function splitContentLines(content: string): string[] {
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[13px] font-bold uppercase tracking-[0.12em] text-[#00FF87]">
+    <div className="font-semibold leading-7 text-white">
       {children}
     </div>
   );
-}
-
-function isLikelySectionTitle(text: string): boolean {
-  const t = text.trim();
-  if (!t || t.length > 100 || t.length < 6) return false;
-  if (/£[\d.]+m/i.test(t)) return false;
-  if (BULLET_RE.test(t)) return false;
-  if (/[.!?]\s/.test(t)) return false;
-  if (/^I\s|^You\s|^The community/i.test(t)) return false;
-  return /^[A-Z0-9]/.test(t);
 }
 
 function stripLeadingInvalidImage(rest: string): { text: string; strippedInvalid: boolean } {
@@ -115,16 +105,9 @@ function StructuredChatMessageLine({ line }: { line: string }) {
   const bulletPrefix = bullet?.[1] ?? "";
   let rest = bullet ? line.slice(bulletPrefix.length) : line;
 
-  if (!bullet && isLikelySectionTitle(rest)) {
-    return <SectionHeader>{rest.trim()}</SectionHeader>;
-  }
-
   const { text: afterImageStrip, strippedInvalid } = stripLeadingInvalidImage(rest);
   if (strippedInvalid) {
     rest = afterImageStrip;
-    if (isLikelySectionTitle(rest)) {
-      return <SectionHeader>{rest}</SectionHeader>;
-    }
   }
 
   const leadingImg = rest.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*/);
