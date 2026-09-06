@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { normalizeEmail } from "@/lib/email-utils";
+import { isSiteOwner } from "@/lib/god-mode";
 
 export async function POST(request: Request) {
   try {
@@ -15,15 +16,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if user is admin
-    const adminUser = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { role: true }
-    });
-
-    if (adminUser?.role !== "admin") {
+    if (!isSiteOwner(session.user.email)) {
       return NextResponse.json(
-        { error: "Unauthorized - Admin access required" },
+        { error: "Forbidden" },
         { status: 403 }
       );
     }

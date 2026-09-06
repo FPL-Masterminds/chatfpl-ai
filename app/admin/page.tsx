@@ -8,7 +8,7 @@ import { signOut } from "next-auth/react"
 import { DevHeader } from "@/components/dev-header"
 import { ChatGreetingNameCard } from "@/components/chat-greeting-name-card"
 import { Footer } from "@/components/footer"
-import { GOD_MODE_EMAIL } from "@/lib/god-mode"
+import { GOD_MODE_EMAIL, isSiteOwner } from "@/lib/god-mode"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -207,23 +207,23 @@ export default function AdminPage() {
   useEffect(() => { fetchAccountData() }, [])
 
   useEffect(() => {
-    if (data?.user.role === "admin") {
+    if (data?.user.email === GOD_MODE_EMAIL) {
       fetchPendingClaims()
       fetchAnalytics()
       fetchCustomerEvents(eventsRange, eventsType)
       fetchSiteStats()
     }
-  }, [data?.user.role])
+  }, [data?.user.email])
 
   useEffect(() => {
-    if (data?.user.role === "admin") fetchCustomerEvents(eventsRange, eventsType)
-  }, [eventsRange, eventsType])
+    if (data?.user.email === GOD_MODE_EMAIL) fetchCustomerEvents(eventsRange, eventsType)
+  }, [eventsRange, eventsType, data?.user.email])
 
   useEffect(() => {
-    if (activeTab === "analytics" && data?.user.role === "admin" && !topPages && !topPagesLoading) {
+    if (activeTab === "analytics" && data?.user.email === GOD_MODE_EMAIL && !topPages && !topPagesLoading) {
       fetchTopPages(topPagesDays)
     }
-  }, [activeTab, data?.user.role])
+  }, [activeTab, data?.user.email])
 
   const fetchAccountData = async () => {
     try {
@@ -479,13 +479,12 @@ export default function AdminPage() {
   const messagesRemaining = data.usage.messages_limit - data.usage.messages_used
   const usagePct = data.usage.messages_limit > 0 ? Math.min((data.usage.messages_used / data.usage.messages_limit) * 100, 100) : 0
   const isFree = data.subscription.plan.toLowerCase() === "free"
-  const isAdmin = data.user.role === "admin"
   const isOwner = data.user.email === GOD_MODE_EMAIL
 
   const TABS = [
     { id: "account", label: "My Account" },
     { id: "archive", label: "Archive" },
-    ...(isAdmin ? [
+    ...(isOwner ? [
       { id: "rewards", label: `Reward Management${pendingClaims.length > 0 ? ` (${pendingClaims.length})` : ""}` },
       { id: "admin", label: "Administration" },
       { id: "analytics", label: "Analytics" },
@@ -520,10 +519,20 @@ export default function AdminPage() {
         {/* Page heading */}
         <div>
           <h1 className="text-[36px] lg:text-6xl font-bold leading-[1.1] tracking-tighter text-center">
-            <span className="text-white">Account </span>
-            <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>Admin</span>
+            {isOwner ? (
+              <>
+                <span className="text-white">Account </span>
+                <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(to right,#00ff85,#02efff)", WebkitBackgroundClip: "text" }}>Admin</span>
+              </>
+            ) : (
+              <span className="text-white">My Account</span>
+            )}
           </h1>
-          <p className="text-base text-white/50 mt-3 text-center">Manage your ChatFPL AI subscription, usage, and settings</p>
+          <p className="text-base text-white/50 mt-3 text-center">
+            {isOwner
+              ? "Manage your ChatFPL AI subscription, usage, and site operations"
+              : "Manage your ChatFPL AI subscription, usage, and settings"}
+          </p>
         </div>
 
         {/* Tab bar */}
@@ -964,7 +973,7 @@ export default function AdminPage() {
         )}
 
         {/* ── Rewards Tab (admin) ── */}
-        {activeTab === "rewards" && isAdmin && (
+        {activeTab === "rewards" && isOwner && (
           <DarkCard>
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <div>
@@ -1053,7 +1062,7 @@ export default function AdminPage() {
         )}
 
         {/* ── Administration Tab (admin) ── */}
-        {activeTab === "admin" && isAdmin && (
+        {activeTab === "admin" && isOwner && (
           <div className="space-y-5">
 
             {/* Grant VIP */}
@@ -1214,7 +1223,7 @@ export default function AdminPage() {
         )}
 
         {/* ── Analytics Tab (admin) ── */}
-        {activeTab === "analytics" && isAdmin && (
+        {activeTab === "analytics" && isOwner && (
           <div className="space-y-5">
 
             {/* Site Stats - operational at-a-glance panel */}

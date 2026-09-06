@@ -46,6 +46,7 @@ import {
   teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
 import { countFormSampleGameweeks, formFieldChatExplanation } from "@/lib/fpl-form-copy";
+import { isSiteOwner } from "@/lib/god-mode";
 import { getRedditContext } from "@/lib/reddit-context";
 
 export const dynamic = "force-dynamic";
@@ -119,7 +120,8 @@ export async function POST(request: Request) {
 
     const userFirstName = user.name?.split(" ")[0] || "there";
 
-    const isAdmin = user.subscriptions[0]?.plan.toLowerCase() === "admin" || user.role === "admin";
+    const isOwner = isSiteOwner(session.user.email);
+    const isAdmin = isOwner || user.subscriptions[0]?.plan.toLowerCase() === "admin" || user.role === "admin";
     if (!isAdmin && usage.messages_used >= usage.messages_limit) {
       return NextResponse.json(
         { error: "Message limit reached. Please upgrade your plan." },

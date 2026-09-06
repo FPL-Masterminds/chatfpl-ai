@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generateAllSeasonStories, type MemberHistoryInput } from "@/lib/season-story"
 import { getGWFixtureContext, isGameweekStoryReady } from "@/lib/season-story-fixtures"
+import { isSiteOwner } from "@/lib/god-mode"
 import {
   buildProvisionalPreviewMembers,
   entriesMissingGwData,
@@ -210,7 +211,7 @@ export async function GET(request: Request) {
   let resolvedLeague: { id: number; name: string } | null = null
   let resolvedLiveGw: number | null = null
   let resolvedLeagueList: { id: number; name: string; rank: number }[] = []
-  const isAdmin = user.role === "admin"
+  const isAdmin = isSiteOwner(session.user.email)
 
   try {
     const [bootstrapRes, entryRes, fixturesRes] = await Promise.all([

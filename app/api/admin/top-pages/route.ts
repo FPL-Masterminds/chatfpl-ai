@@ -22,6 +22,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isSiteOwner } from "@/lib/god-mode";
 import { GoogleAuth } from "google-auth-library";
 
 export const runtime = "nodejs";
@@ -188,11 +189,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const adminUser = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    select: { role: true },
-  });
-  if (adminUser?.role !== "admin") {
+  if (!isSiteOwner(session.user.email)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

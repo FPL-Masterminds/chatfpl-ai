@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isSiteOwner } from "@/lib/god-mode";
 
 type CustomerEvent = {
   id: string;
@@ -32,13 +33,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const adminUser = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { role: true },
-    });
-
-    if (adminUser?.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized - Admin access required" }, { status: 403 });
+    if (!isSiteOwner(session.user.email)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

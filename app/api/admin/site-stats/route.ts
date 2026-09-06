@@ -13,12 +13,12 @@
 //     in the last 15 minutes. Best cheap proxy for "actually using the site".
 //   - activity.unique_users_24h: distinct users active in the last 24 hours.
 //
-// Auth: session must be role === "admin". Returns 403 otherwise.
+// Auth: site owner email only (johnmcdermott1979@gmail.com).
 
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { isGodModeEmail } from "@/lib/god-mode";
+import { isSiteOwner } from "@/lib/god-mode";
 import { categorizeSitemapUrls, extractSitemapUrls } from "@/lib/sitemap-breakdown";
 
 export const runtime = "nodejs";
@@ -48,15 +48,9 @@ export async function GET() {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const adminUser = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    select: { role: true },
-  });
-  if (adminUser?.role !== "admin") {
+  if (!isSiteOwner(session.user.email)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-
-  const isOwner = isGodModeEmail(session.user.email);
 
   const now = new Date();
   const startOfToday = new Date(now);
@@ -125,7 +119,7 @@ export async function GET() {
     sitemap: {
       total_urls: sitemapData.total,
       source_url: `${SITE_URL}/sitemap.xml`,
-      ...(isOwner && sitemapData.urls.length > 0
+      ...(sitemapData.urls.length > 0
         ? { breakdown: categorizeSitemapUrls(sitemapData.urls) }
         : {}),
     },

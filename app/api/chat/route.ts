@@ -46,8 +46,8 @@ import {
   formatTeamStackFactsContext,
   isTeamStackQuery,
 } from "@/lib/chat-team-stacks";
-
-export const dynamic = "force-dynamic";
+import { getRedditContext } from "@/lib/reddit-context";
+import { isSiteOwner } from "@/lib/god-mode";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
@@ -135,7 +135,8 @@ export async function POST(request: Request) {
 
     // Admins bypass the meter entirely regardless of what the row says. This
     // is belt-and-braces against any legacy row still carrying an old limit.
-    const isAdmin = plan === 'admin' || user.role === 'admin';
+    const isOwner = isSiteOwner(session.user.email);
+    const isAdmin = isOwner || plan === 'admin' || user.role === 'admin';
 
     // Check message limit
     if (!isAdmin && usage.messages_used >= usage.messages_limit) {

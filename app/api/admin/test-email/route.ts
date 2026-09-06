@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { wrapEmailContent } from "@/lib/email-templates";
 import { buildAdminTestEmailContent } from "@/lib/email-content";
+import { isSiteOwner } from "@/lib/god-mode";
 
 export const runtime = "nodejs";
 
@@ -15,13 +16,17 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (!isSiteOwner(session.user.email)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       select: { role: true, email: true, name: true },
     });
 
-    if (!user || user.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const adminEmail =
