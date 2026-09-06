@@ -1,10 +1,20 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { useSession } from "next-auth/react"
 import { AnimatedGlow } from "@/components/animated-glow"
 import Image from "next/image"
 import Link from "next/link"
+import { Mic } from "lucide-react"
+import {
+  formatRecentChatDate,
+  RECENT_CHAT_DAY_OFFSETS,
+  RECENT_CHAT_TITLES,
+  SHOWCASE_PROMPTS,
+  ShowcaseMessageActions,
+  ShowcaseSuggestionPill,
+  ShowcaseVoicePills,
+} from "@/components/chat-showcase-ui"
 import type { ShowcasePlayer, ShowcasePlayers, EdgePlayer, InjuryItem } from "@/app/api/showcase-players/route"
 
 // Team badge helper (badges don't change between seasons)
@@ -55,10 +65,7 @@ const TAB_DEFS = [
   },
 ]
 
-const PROMPTS = [
-  "Give me a differential captain option under 10% owned",
-  "Should I use my wildcard now?",
-]
+const PROMPTS = SHOWCASE_PROMPTS
 
 const INTERVAL_MS = 26000
 
@@ -96,10 +103,15 @@ function tabPlayersFor(data: ShowcasePlayers | null, tabIdx: number): ShowcasePl
   return (pool as ShowcasePlayer[]).slice(0, tab.playerCount)
 }
 
-export function ChatShowcase() {
+export function ChatShowcase({ embedded = false }: { embedded?: boolean }) {
   const { data: session } = useSession()
   const ctaHref = session?.user ? "/chat" : "/signup"
   const [activeTab, setActiveTab]   = useState(0)
+  const [promptsSpinning, setPromptsSpinning] = useState(false)
+  const recentChatDates = useMemo(
+    () => RECENT_CHAT_DAY_OFFSETS.map(formatRecentChatDate),
+    [],
+  )
   const [visible, setVisible]       = useState(true)
   const [inView, setInView]         = useState(false)
   const [players, setPlayers]       = useState<ShowcasePlayers | null>(null)
@@ -339,9 +351,22 @@ export function ChatShowcase() {
   const tabDef = TAB_DEFS[activeTab]
   const tabPlayers = tabPlayersFor(players, activeTab)
 
+  const refreshPrompts = () => {
+    setPromptsSpinning(true)
+    window.setTimeout(() => setPromptsSpinning(false), 500)
+  }
+
+  const mockWindowClassName = embedded
+    ? "rounded-[24px] bg-[#080808] overflow-hidden flex w-full h-full min-h-0"
+    : "rounded-[24px] bg-[#080808] overflow-hidden flex w-full min-h-[560px] h-[72vh] max-h-[760px] md:h-[680px] md:max-h-none"
+
   return (
-    <section ref={sectionRef} className="relative px-4 py-24 bg-black overflow-hidden">
+    <section
+      ref={sectionRef}
+      className={embedded ? "relative h-full bg-black overflow-hidden" : "relative px-4 py-24 bg-black overflow-hidden"}
+    >
       {/* Grid + animated green glow */}
+      {!embedded ? (
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <AnimatedGlow
           color="rgba(0,255,135,0.13)"
@@ -356,6 +381,7 @@ export function ChatShowcase() {
         />
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "linear-gradient(to right,white 1px,transparent 1px),linear-gradient(to bottom,white 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
       </div>
+      ) : null}
       <style>{`
         @keyframes scFadeUp {
           from { opacity:0; transform:translateY(24px); }
@@ -366,9 +392,9 @@ export function ChatShowcase() {
         .showcase-chat-scroll::-webkit-scrollbar-thumb { background: rgba(0,255,200,0.2); border-radius: 99px; }
         .showcase-chat-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,255,200,0.4); }
       `}</style>
-      <div className="container mx-auto max-w-6xl">
+      <div className={embedded ? "h-full" : "container mx-auto max-w-6xl"}>
 
-        {/* Header */}
+        {!embedded ? (
         <div className="mb-12 text-center">
           <h2
             className="mb-4 text-[36px] font-bold leading-[1.1] tracking-tighter lg:text-6xl"
@@ -381,26 +407,30 @@ export function ChatShowcase() {
             Get instant, data-driven answers to any FPL question. Here are some examples of what our power users are asking right now.
           </p>
         </div>
+        ) : null}
 
         {/* ── Mock app window — gradient border + ambient glow ── */}
-        <div className="relative mb-5" style={fi("0.38s")}>
-          {/* Ambient glow — blurred gradient behind the card */}
+        <div className={embedded ? "relative h-full" : "relative mb-5"} style={embedded ? undefined : fi("0.38s")}>
+          {!embedded ? (
+            <div
+              className="absolute inset-0 rounded-[32px] opacity-30 blur-2xl pointer-events-none"
+              style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
+            />
+          ) : null}
           <div
-            className="absolute inset-0 rounded-[32px] opacity-30 blur-2xl pointer-events-none"
-            style={{ background: "linear-gradient(135deg, #00FFFF 0%, #00FF87 100%)" }}
-          />
-          {/* 2px animated glow border wrapper */}
-          <div
-            className="relative rounded-[26px] p-[2px]"
-            style={{
-              background: "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
-              backgroundSize: "220% 220%",
-              animation: "glow_scroll 6s linear infinite",
-            }}
+            className={embedded ? "h-full" : "relative rounded-[26px] p-[2px]"}
+            style={
+              embedded
+                ? undefined
+                : {
+                    background:
+                      "linear-gradient(90deg,#00FF87,rgba(255,255,255,0.15),#00FFFF,rgba(255,255,255,0.15),#00FF87)",
+                    backgroundSize: "220% 220%",
+                    animation: "glow_scroll 6s linear infinite",
+                  }
+            }
           >
-        <div
-          className="rounded-[24px] bg-[#080808] overflow-hidden flex w-full min-h-[560px] h-[72vh] max-h-[760px] md:h-[680px] md:max-h-none"
-        >
+        <div className={mockWindowClassName}>
 
           {/* Left sidebar */}
           <div className="hidden md:flex w-[180px] shrink-0 flex-col border-r border-white/[0.06] bg-[#060606] p-3 gap-1 overflow-hidden">
@@ -414,28 +444,17 @@ export function ChatShowcase() {
               + New Chat
             </button>
             <p className="text-[9px] uppercase tracking-[0.22em] text-white/30 mb-1.5 px-1">Recent chats</p>
-            {[
-              ["Who are the top three scori...",    "23 Aug"],
-              ["Give me three midfield differ...",  "20 Aug"],
-              ["Analyse my team",                    "20 Aug"],
-              ["Best captain this gameweek?",        "18 Aug"],
-              ["Which defenders have the bes...",   "17 Aug"],
-              ["Compare Haaland vs Fernandes",      "15 Aug"],
-              ["Show me the top price risers",      "14 Aug"],
-              ["Compare Mbeumo vs Watkins",         "12 Aug"],
-              ["Who has the best fixtures?",         "11 Aug"],
-              ["Wildcard options under £6m",        "10 Aug"],
-            ].map(([t, d], i) => (
+            {RECENT_CHAT_TITLES.map((title, i) => (
               <div
-                key={i}
+                key={title}
                 className={`rounded-xl px-3 py-2 border cursor-default transition-colors duration-300 ${
                   i === activeTab % 3
                     ? "border-emerald-400/30 bg-emerald-400/10"
                     : "border-white/[0.04] bg-white/[0.015]"
                 }`}
               >
-                <div className="text-[11px] text-white/75 leading-tight truncate">{t}</div>
-                <div className="text-[10px] text-white/30 mt-0.5">{d}</div>
+                <div className="text-[11px] text-white/75 leading-tight truncate">{title}</div>
+                <div className="text-[10px] text-white/30 mt-0.5">{recentChatDates[i]}</div>
               </div>
             ))}
           </div>
@@ -601,6 +620,8 @@ export function ChatShowcase() {
                         ))}
                       </div>
                     )}
+
+                    {introDone && revealedPlayers > 0 ? <ShowcaseMessageActions /> : null}
                   </div>
                 </div>
               )}
@@ -609,29 +630,29 @@ export function ChatShowcase() {
             {/* Prompt pills + input — matches /chat */}
             <div className="shrink-0 border-t border-white/[0.06] bg-[#080808]/95 backdrop-blur-md px-3 pt-2 pb-2.5 md:px-4 md:pt-2.5 md:pb-3">
               <div className="grid grid-cols-2 gap-1.5 md:gap-2 mb-2 md:mb-2.5">
-                {PROMPTS.map((p) => (
-                  <div
+                {PROMPTS.map((p, i) => (
+                  <ShowcaseSuggestionPill
                     key={p}
-                    style={{
-                      padding: "1.5px",
-                      borderRadius: "9999px",
-                      background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
-                      backgroundSize: "200% 200%",
-                      animation: "glow_scroll 4s linear infinite",
-                    }}
-                  >
-                    <span
-                      className="block w-full rounded-full px-3 py-1.5 text-[11px] md:text-xs font-medium text-center truncate cursor-default"
-                      style={{ background: "#000", color: "#00FF87" }}
-                    >
-                      {p}
-                    </span>
-                  </div>
+                    prompt={p}
+                    showRefresh={i === PROMPTS.length - 1}
+                    onRefresh={refreshPrompts}
+                    spinning={promptsSpinning}
+                  />
                 ))}
               </div>
+              <ShowcaseVoicePills />
               <div className="rounded-[16px] md:rounded-[18px] border border-white/25 bg-white/[0.04] px-3 py-2 md:py-2.5 flex items-center gap-2">
                 <span className="flex-1 text-xs md:text-sm text-white/55 select-none">Ask your FPL question...</span>
                 <button
+                  type="button"
+                  title="Speak your question"
+                  aria-label="Microphone"
+                  className="flex h-8 w-8 md:h-9 md:w-9 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-white/[0.03] text-white/70"
+                >
+                  <Mic className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
                   className="h-8 md:h-9 px-3 md:px-4 rounded-xl text-black font-semibold text-xs md:text-sm flex items-center gap-1.5 shrink-0"
                   style={{ background: "linear-gradient(to right,#22d3ee,#34d399)", boxShadow: "0 0 20px rgba(0,255,200,0.2)" }}
                 >
@@ -645,7 +666,7 @@ export function ChatShowcase() {
           </div>
 
           {/* ── Right: static Gameweek Edge panel ── */}
-          <div className="hidden xl:flex w-[230px] shrink-0 flex-col border-l border-white/[0.06] bg-[#060606] p-3 gap-2.5 overflow-hidden">
+          <div className={`${embedded ? "hidden lg:flex" : "hidden xl:flex"} w-[230px] shrink-0 flex-col border-l border-white/[0.06] bg-[#060606] p-3 gap-2.5 overflow-hidden`}>
             {/* Header */}
             <div className="flex items-center justify-between px-0.5 shrink-0">
               <div>
@@ -733,9 +754,11 @@ export function ChatShowcase() {
             </div>
           </div>
         </div>{/* end inner window */}
-          </div>{/* end gradient border wrapper */}
-        </div>{/* end glow + relative container */}
+          </div>{/* end border wrapper */}
+        </div>{/* end mock container */}
 
+        {!embedded ? (
+        <>
         {/* Pill tab bar */}
         <div className="flex justify-center mb-4" style={fi("0.52s")}>
           <div
@@ -813,6 +836,8 @@ export function ChatShowcase() {
           </div>
           <p className="mt-3 text-xs text-white/60">Free trial · No credit card required</p>
         </div>
+        </>
+        ) : null}
       </div>
     </section>
   )

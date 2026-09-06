@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ChatShowcase } from "@/components/chat-showcase"
+import { ChatShowcaseIpadPreview } from "@/components/chat-showcase-ipad-preview"
 import PlayerCarousel from "@/components/player-carousel"
 import { QueryCarousel } from "@/components/query-carousel"
 import { WhyChatFPL } from "@/components/why-chatfpl"
@@ -156,6 +157,7 @@ export default async function DevLandingPage() {
       </section>
 
       {/* Questions Section — replaced with interactive showcase */}
+      <ChatShowcaseIpadPreview />
       <ChatShowcase />
 
       {/* 3D Player Carousel */}
