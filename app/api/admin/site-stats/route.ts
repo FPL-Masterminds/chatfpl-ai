@@ -18,28 +18,27 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isGodModeEmail } from "@/lib/god-mode";
+import { categorizeSitemapUrls, extractSitemapUrls } from "@/lib/sitemap-breakdown";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const SITE_URL = process.env.NEXTAUTH_URL ?? "https://chatfpl.ai";
 
-async function fetchSitemapUrlCount(): Promise<number | null> {
+async function fetchSitemapData(): Promise<{ total: number | null; urls: string[] }> {
   try {
     const res = await fetch(`${SITE_URL}/sitemap.xml`, {
-      // Cache-buster - we always want live numbers on the admin panel
       cache: "no-store",
       headers: { "User-Agent": "ChatFPL-Admin-Stats/1.0" },
     });
-    if (!res.ok) return null;
+    if (!res.ok) return { total: null, urls: [] };
     const xml = await res.text();
-    // Naive but correct - <url> is only used inside a <urlset> per the
-    // sitemap protocol, so a simple regex match is enough.
-    const matches = xml.match(/<url>/g);
-    return matches?.length ?? 0;
+    const urls = extractSitemapUrls(xml);
+    return { total: urls.length, urls };
   } catch (err) {
     console.warn("site-stats: sitemap fetch failed", err);
-    return null;
+    return { total: null, urls: [] };
   }
 }
 
@@ -57,6 +56,8 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const isOwner = isGodModeEmail(session.user.email);
+
   const now = new Date();
   const startOfToday = new Date(now);
   startOfToday.setUTCHours(0, 0, 0, 0);
@@ -66,7 +67,7 @@ export async function GET() {
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
   const [
-    sitemapCount,
+    sitemapData,
     submittedToday,
     submittedTotal,
     submitted7dRaw,
@@ -74,7 +75,7 @@ export async function GET() {
     chatters15mRaw,
     chatters24hRaw,
   ] = await Promise.all([
-    fetchSitemapUrlCount(),
+    fetchSitemapData(),
     prisma.indexingLog.count({
       where: { submitted_at: { gte: startOfToday }, status: "submitted" },
     }),
@@ -122,8 +123,11 @@ export async function GET() {
 
   return NextResponse.json({
     sitemap: {
-      total_urls: sitemapCount,
+      total_urls: sitemapData.total,
       source_url: `${SITE_URL}/sitemap.xml`,
+      ...(isOwner && sitemapData.urls.length > 0
+        ? { breakdown: categorizeSitemapUrls(sitemapData.urls) }
+        : {}),
     },
     indexing: {
       submitted_today: submittedToday,

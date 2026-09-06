@@ -8,6 +8,7 @@ import { signOut } from "next-auth/react"
 import { DevHeader } from "@/components/dev-header"
 import { ChatGreetingNameCard } from "@/components/chat-greeting-name-card"
 import { Footer } from "@/components/footer"
+import { GOD_MODE_EMAIL } from "@/lib/god-mode"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -82,6 +83,7 @@ interface SiteStats {
   sitemap: {
     total_urls: number | null
     source_url: string
+    breakdown?: { id: string; label: string; count: number }[]
   }
   indexing: {
     submitted_today: number
@@ -478,6 +480,7 @@ export default function AdminPage() {
   const usagePct = data.usage.messages_limit > 0 ? Math.min((data.usage.messages_used / data.usage.messages_limit) * 100, 100) : 0
   const isFree = data.subscription.plan.toLowerCase() === "free"
   const isAdmin = data.user.role === "admin"
+  const isOwner = data.user.email === GOD_MODE_EMAIL
 
   const TABS = [
     { id: "account", label: "My Account" },
@@ -1260,6 +1263,38 @@ export default function AdminPage() {
                       </p>
                     </div>
                   </div>
+
+                  {isOwner && siteStats.sitemap.breakdown && siteStats.sitemap.breakdown.length > 0 ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-white/60 mb-3">Sitemap Breakdown</p>
+                      <div className="space-y-2">
+                        {siteStats.sitemap.breakdown.map((row) => {
+                          const total = siteStats.sitemap.total_urls ?? 1
+                          const widthPct = Math.max((row.count / total) * 100, 2)
+                          return (
+                            <div key={row.id} className="rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5">
+                              <div className="flex items-center justify-between gap-3 mb-2">
+                                <p className="text-sm text-white/85">{row.label}</p>
+                                <p className="text-sm font-semibold text-[#00FF87] tabular-nums">
+                                  {row.count.toLocaleString()}
+                                </p>
+                              </div>
+                              <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{
+                                    width: `${widthPct}%`,
+                                    background: "linear-gradient(90deg,#00FF87,#00FFFF)",
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <p className="text-[10px] text-white/30 mt-2">Owner view only. Shows which URL buckets make up the live sitemap total.</p>
+                    </div>
+                  ) : null}
 
                   <div>
                     <p className="text-xs uppercase tracking-widest text-white/60 mb-2">Google Indexing - Last 7 Days</p>
