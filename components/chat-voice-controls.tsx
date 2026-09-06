@@ -66,7 +66,7 @@ function voiceboxStatusLabel(status: VoiceboxConnectionStatus, enabled: boolean)
 }
 
 function voiceboxStatusColor(status: VoiceboxConnectionStatus, enabled: boolean): string {
-  if (!enabled) return "bg-white/25"
+  if (!enabled) return "bg-white/70"
   if (status === "connected") return "bg-[#00FF87]"
   if (status === "checking" || status === "unknown") return "bg-amber-400 animate-pulse"
   return "bg-red-400"

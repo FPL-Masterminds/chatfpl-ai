@@ -97,7 +97,7 @@ function SuggestionRefreshIcon({ spinning }: { spinning: boolean }) {
   )
 }
 
-const SUGGESTION_GLOW_STYLE: React.CSSProperties = {
+const SUGGESTION_GLOW_STYLE: CSSProperties = {
   padding: "1.5px",
   background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)",
   backgroundSize: "200% 200%",
