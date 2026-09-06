@@ -13,7 +13,8 @@ import { useChatVoicePrefs } from "@/hooks/use-chat-voice-prefs"
 import { useSpeechOutput } from "@/hooks/use-speech-output"
 import { useVoicebox } from "@/hooks/use-voicebox"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { textForSpeech } from "@/lib/chat-speech-text"
+import { textForSpeech, textForVoiceboxSpeech } from "@/lib/chat-speech-text"
+import { unlockAudioPlayback } from "@/lib/audio-unlock"
 
 const STATIC_PROMPTS = [
   "Analyse my team",
@@ -394,7 +395,8 @@ export default function ChatPage() {
 
       let spoke = false
       if (!isMobile && prefs.useVoicebox && voicebox.available) {
-        spoke = await voicebox.speak(spoken)
+        const voiceboxText = textForVoiceboxSpeech(content)
+        spoke = await voicebox.speak(voiceboxText)
       }
       if (!spoke) {
         await speechOutput.speak(spoken)
@@ -416,6 +418,7 @@ export default function ChatPage() {
     (enabled: boolean) => {
       setVoiceMode(enabled)
       if (enabled) {
+        unlockAudioPlayback()
         stopSpeaking()
         window.setTimeout(() => inputBarRef.current?.startListening(), 350)
       } else {
@@ -426,8 +429,15 @@ export default function ChatPage() {
     [setVoiceMode, stopSpeaking],
   )
 
-  const handleReadRepliesChange = useCallback(
+  const handleUseVoiceboxChange = useCallback(
     (enabled: boolean) => {
+      if (enabled) unlockAudioPlayback()
+      setUseVoicebox(enabled)
+    },
+    [setUseVoicebox],
+  )
+    (enabled: boolean) => {
+      if (enabled) unlockAudioPlayback()
       setReadReplies(enabled)
       if (!enabled) stopSpeaking()
     },
@@ -437,6 +447,7 @@ export default function ChatPage() {
   const handleSend = async (overrideMessage?: string) => {
     const message = (overrideMessage ?? input).trim()
     if (!message || isLoading) return
+    unlockAudioPlayback()
     suppressListenEndRef.current = true
     stopSpeaking()
     inputBarRef.current?.stopListening()
@@ -877,6 +888,7 @@ export default function ChatPage() {
                     voiceboxStatus={voicebox.status}
                     speechOutSupported={speechOutput.supported}
                     speaking={speechOutput.speaking || voicebox.speaking}
+                    voiceboxPhase={voicebox.phase}
                     listening={micListening}
                     onReadRepliesChange={handleReadRepliesChange}
                     onVoiceModeChange={handleVoiceModeChange}

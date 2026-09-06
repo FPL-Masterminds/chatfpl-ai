@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { ExternalLink, Mic, Volume2, VolumeX } from "lucide-react"
 import type { VoiceboxConnectionStatus } from "@/lib/voicebox-client"
+import type { VoiceboxSpeechPhase } from "@/hooks/use-voicebox"
 
 type ChatVoiceControlsProps = {
   readReplies: boolean
@@ -10,6 +11,7 @@ type ChatVoiceControlsProps = {
   useVoicebox: boolean
   showVoicebox: boolean
   voiceboxStatus: VoiceboxConnectionStatus
+  voiceboxPhase: VoiceboxSpeechPhase
   speechOutSupported: boolean
   speaking: boolean
   listening: boolean
@@ -76,6 +78,7 @@ export function ChatVoiceControls({
   useVoicebox,
   showVoicebox,
   voiceboxStatus,
+  voiceboxPhase,
   speechOutSupported,
   speaking,
   listening,
@@ -148,6 +151,14 @@ export function ChatVoiceControls({
 
         {voiceMode && listening ? (
           <span className="text-[11px] text-[#00FF87]/80">Listening...</span>
+        ) : null}
+
+        {useVoicebox && voiceboxPhase === "generating" ? (
+          <span className="text-[11px] text-amber-300/90">Generating speech in Voicebox...</span>
+        ) : null}
+
+        {useVoicebox && voiceboxPhase === "playing" ? (
+          <span className="text-[11px] text-[#00FF87]/80">Playing reply...</span>
         ) : null}
       </div>
 

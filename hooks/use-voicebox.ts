@@ -8,10 +8,14 @@ import {
   type VoiceboxConnectionStatus,
 } from "@/lib/voicebox-client"
 
+export type VoiceboxSpeechPhase = "idle" | "generating" | "playing"
+
 export function useVoicebox(enabled: boolean) {
   const [status, setStatus] = useState<VoiceboxConnectionStatus>("unknown")
-  const [speaking, setSpeaking] = useState(false)
+  const [phase, setPhase] = useState<VoiceboxSpeechPhase>("idle")
   const abortRef = useRef<AbortController | null>(null)
+
+  const speaking = phase !== "idle"
 
   useEffect(() => {
     if (!enabled) {
@@ -41,7 +45,7 @@ export function useVoicebox(enabled: boolean) {
   const cancel = useCallback(() => {
     abortRef.current?.abort()
     abortRef.current = null
-    setSpeaking(false)
+    setPhase("idle")
   }, [])
 
   const speak = useCallback(
@@ -51,19 +55,20 @@ export function useVoicebox(enabled: boolean) {
       cancel()
       const controller = new AbortController()
       abortRef.current = controller
-      setSpeaking(true)
+      setPhase("generating")
 
       try {
         const blob = await synthesizeVoiceboxSpeech(text, controller.signal, profile)
+        setPhase("playing")
         await playVoiceboxBlob(blob, controller.signal)
-        setSpeaking(false)
+        setPhase("idle")
         abortRef.current = null
         return true
       } catch (err) {
         if (!(err instanceof DOMException && err.name === "AbortError")) {
           console.warn("[voicebox] speak failed:", err)
         }
-        setSpeaking(false)
+        setPhase("idle")
         abortRef.current = null
         return false
       }
@@ -73,6 +78,7 @@ export function useVoicebox(enabled: boolean) {
 
   return {
     status,
+    phase,
     speaking,
     available: enabled && status === "connected",
     speak,

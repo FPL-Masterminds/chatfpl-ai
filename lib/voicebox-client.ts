@@ -89,7 +89,10 @@ export async function queueVoiceboxSpeech(
   signal: AbortSignal,
   profile?: string,
 ): Promise<string> {
-  const payload: { text: string; profile?: string } = { text }
+  const payload: { text: string; profile?: string; personality: boolean } = {
+    text,
+    personality: false,
+  }
   if (profile) payload.profile = profile
 
   const res = await fetch(`${VOICEBOX_BASE_URL}/speak`, {
@@ -135,6 +138,7 @@ export function playVoiceboxBlob(
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(blob)
     const audio = new Audio(url)
+    audio.volume = 1
 
     const cleanup = () => {
       audio.removeEventListener("ended", onEnded)

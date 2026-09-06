@@ -20,3 +20,17 @@ export function textForSpeech(content: string): string {
 
   return text
 }
+
+/** Shorter plain text for local Voicebox TTS (faster generation). */
+export function textForVoiceboxSpeech(content: string): string {
+  const full = textForSpeech(content)
+  if (!full) return ""
+
+  const maxChars = 500
+  if (full.length <= maxChars) return full
+
+  const cut = full.slice(0, maxChars)
+  const lastStop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "))
+  const trimmed = (lastStop > 120 ? cut.slice(0, lastStop + 1) : cut).trim()
+  return `${trimmed} The rest of the answer is on screen.`
+}
