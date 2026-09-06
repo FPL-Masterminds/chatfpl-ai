@@ -100,6 +100,90 @@ export interface PageTextResult {
   welcome: string
 }
 
+function parsePriceMillions(price: string): number {
+  return parseFloat(price.replace(/[£m]/g, "")) || 0
+}
+
+function isBudgetFplPrice(priceM: number, position: string): boolean {
+  switch (position) {
+    case "GKP":
+      return priceM <= 4.9
+    case "DEF":
+      return priceM <= 5.0
+    case "MID":
+      return priceM <= 6.0
+    case "FWD":
+      return priceM <= 6.5
+    default:
+      return priceM <= 5.5
+  }
+}
+
+function isPremiumFplPrice(priceM: number, position: string): boolean {
+  switch (position) {
+    case "GKP":
+      return priceM >= 5.5
+    case "DEF":
+      return priceM >= 6.0
+    case "MID":
+      return priceM >= 8.5
+    case "FWD":
+      return priceM >= 9.0
+    default:
+      return priceM >= 8.0
+  }
+}
+
+function transferInPriceCaveat(p: PlayerData): string {
+  const priceM = parsePriceMillions(p.price)
+  if (isBudgetFplPrice(priceM, p.position)) {
+    return `At ${p.price}, ${p.webName} is a low-cost pick, so price is rarely the blocker. The real question is whether he is worth a squad slot over your current option, and whether the fixture run supports bringing him in now.`
+  }
+  if (isPremiumFplPrice(priceM, p.position)) {
+    return `At ${p.price}, fitting ${p.webName} in usually means reshaping your squad elsewhere. Whether that trade-off is worth it depends on who you sell and what you give up.`
+  }
+  return `At ${p.price}, the decision is less about freeing budget and more about whether ${p.webName} is a meaningful upgrade on your current option in that position.`
+}
+
+function transferInValueClosing(p: PlayerData): string {
+  const priceM = parsePriceMillions(p.price)
+  if (isBudgetFplPrice(priceM, p.position)) {
+    return `At ${p.price}, the value question is whether ${p.webName} earns enough minutes and returns to justify the slot, not whether you can afford him. ChatFPL AI can assess your squad balance and tell you whether the allocation makes sense.`
+  }
+  if (isPremiumFplPrice(priceM, p.position)) {
+    return `The real question at ${p.price} is whether you can afford him without weakening two or three other positions. ChatFPL AI can assess your squad balance and tell you whether the allocation makes sense.`
+  }
+  return `At ${p.price}, the key is whether ${p.webName} is a better use of a squad slot than your current pick in that position. ChatFPL AI can assess your squad balance and tell you whether the allocation makes sense.`
+}
+
+function transferInFallbackCaseAgainst(p: PlayerData): string {
+  const priceM = parsePriceMillions(p.price)
+  if (isBudgetFplPrice(priceM, p.position)) {
+    return `At ${p.price}, ${p.webName} is unlikely to block your budget. The risk is more about minutes, rotation, and whether a blank or tough fixture run makes the slot better used elsewhere.`
+  }
+  if (isPremiumFplPrice(priceM, p.position)) {
+    return `At ${p.price}, you are sacrificing depth elsewhere in your squad. Any blank or injury sets you back significantly.`
+  }
+  return `At ${p.price}, the move only makes sense if ${p.webName} is a clear upgrade on your current option in that position.`
+}
+
+function transferInQaPriceParagraph(p: PlayerData): string {
+  const priceM = parsePriceMillions(p.price)
+  if (isBudgetFplPrice(priceM, p.position)) {
+    return `At ${p.price}, ${p.webName} is a budget-friendly option. The decision is about squad structure and fixtures, not finding cash elsewhere in your team.`
+  }
+  if (isPremiumFplPrice(priceM, p.position)) {
+    return `At ${p.price} he is a significant budget commitment. The real question is who you would sell to fit him in and whether that trade weakens your squad elsewhere.`
+  }
+  return `At ${p.price}, the move is less about cost and more about whether ${p.webName} is the right upgrade in that position.`
+}
+
+function transferInFormWeakLine(p: PlayerData, formSampleGws: number): string {
+  const priceM = parsePriceMillions(p.price)
+  const premium = isPremiumFplPrice(priceM, p.position)
+  return `${p.webName} has averaged ${formPtsGamePhrase(p.form, formSampleGws)} - form that needs to improve to justify ${premium ? "a premium transfer" : "bringing him in"}.`
+}
+
 // ─── Slug utilities ───────────────────────────────────────────────────────────
 
 export function toSlug(webName: string, teamShort?: string): string {
@@ -446,6 +530,7 @@ export async function getPlayerPageData(
 
 export function buildPageText(d: PlayerPageData): PageTextResult {
   const { gw, player: p, opponent, isHome, fdr } = d
+  const priceM = parsePriceMillions(p.price)
   const hasImmediateBlank = opponent === "TBD"
   const fixture = hasImmediateBlank ? "no fixture" : `${opponent} (${isHome ? "H" : "A"})`
   const formVal = parseFloat(p.form)
@@ -613,7 +698,9 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
           ].join("\n")
         : [
             p.ep_next >= 6
-              ? `If you have the budget, yes - the timing makes sense.`
+              ? isBudgetFplPrice(priceM, p.position)
+                ? `Yes - at ${p.price} this looks like a sensible punt if you want the upside.`
+                : `If you have the budget, yes - the timing makes sense.`
               : `It is worth considering, but the case is not as clear-cut as it might appear.`,
             "",
             isKeeper
@@ -622,7 +709,7 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
             "",
             fixtureText,
             "",
-            `The main argument against bringing him in is the price point. At ${p.price}, you need to make cuts elsewhere in your squad. Whether that trade-off is worth it depends on who you would be selling and what your budget looks like.`,
+            transferInPriceCaveat(p),
             "",
             `ChatFPL AI can look at your specific squad and tell you whether the transfer makes sense for your team right now.`,
           ].join("\n"),
@@ -654,7 +741,7 @@ export function buildPageText(d: PlayerPageData): PageTextResult {
           ? `At ${p.ownership}% ownership, avoiding ${p.webName} is increasingly a deliberate differential call rather than a neutral decision.`
           : `At ${p.ownership}% ownership, there is room to take a different view without it costing rank.`,
         "",
-        `The real question at ${p.price} is whether you can afford him without weakening two or three other positions. ChatFPL AI can assess your squad balance and tell you whether the allocation makes sense.`,
+        transferInValueClosing(p),
       ].join("\n"),
     },
   ]
@@ -1024,7 +1111,7 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   if (easyCount >= 3) caseFor.push(`Fixture run: ${easyCount} of the next ${allMatches.length} fixtures are favourable (FDR 3 or below). An excellent window to own ${p.webName}.`)
   else if (easyCount >= 2) caseFor.push(`Fixture run: ${easyCount} manageable fixtures over ${fwPhrase} - a reasonable time to bring him in.`)
   else if (hardCount >= 3) caseAgainst.push(`Fixture run: ${hardCount} difficult fixtures over ${fwPhrase}. There may be a better time to transfer ${p.webName} in.`)
-  else caseAgainst.push(`Fixture run: a mixed schedule over ${fwPhrase} - not the ideal window for a premium transfer.`)
+  else caseAgainst.push(`Fixture run: a mixed schedule over ${fwPhrase} - not the ideal window for ${isPremiumFplPrice(nowCost, p.position) ? "a premium transfer" : "this transfer"}.`)
 
   // Blank
   if (hasImmediateBlank) caseAgainst.push(`Blank Gameweek: ${p.webName} has no fixture in GW${gw}. Transferring him in this week means taking a hit for a week with no return.`)
@@ -1039,7 +1126,13 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
 
   // Value
   if (ptsPerMillion >= 16) caseFor.push(`Value: ${ptsPerMillion} points per million spent this season - strong return on investment for the price.`)
-  else if (ptsPerMillion >= 13) caseFor.push(`Value: ${ptsPerMillion} points per million - respectable return for a premium asset.`)
+  else if (ptsPerMillion >= 13) {
+    caseFor.push(
+      isPremiumFplPrice(nowCost, p.position)
+        ? `Value: ${ptsPerMillion} points per million - respectable return for a premium asset.`
+        : `Value: ${ptsPerMillion} points per million - a solid return at ${p.price}.`,
+    )
+  }
   else caseAgainst.push(`Value: ${ptsPerMillion} points per million this season - not the strongest return at ${p.price}.`)
 
   // Price momentum
@@ -1054,7 +1147,7 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
   else if (transfersInGW < 20000 && p.ownership >= 20) caseAgainst.push(`Transfer momentum: ${p.webName} is being transferred out more than in this gameweek - managers are moving away.`)
 
   if (caseFor.length === 0) caseFor.push(`${p.webName} is an established FPL asset who has delivered at various points this season. The case for buying is there at the right moment.`)
-  if (caseAgainst.length === 0) caseAgainst.push(`At ${p.price}, you are sacrificing depth elsewhere in your squad. Any blank or injury sets you back significantly.`)
+  if (caseAgainst.length === 0) caseAgainst.push(transferInFallbackCaseAgainst(p))
 
   const caseHeading =
     isStrongBuy || isProbablyYes
@@ -1079,9 +1172,9 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
         "",
         formVal >= 5
           ? `${p.webName} is in decent form, averaging ${formPtsGamePhrase(p.form, d.formSampleGws)}.`
-          : `${p.webName} has averaged ${formPtsGamePhrase(p.form, d.formSampleGws)} - form that needs to improve to justify a premium transfer.`,
+          : transferInFormWeakLine(p, d.formSampleGws),
         "",
-        `At ${p.price} he is a significant budget commitment. The real question is who you would sell to fit him in and whether that trade weakens your squad elsewhere.`,
+        transferInQaPriceParagraph(p),
         "",
         `ChatFPL AI can look at your specific squad and tell you whether the move makes sense for your team right now.`,
       ].join("\n"),
@@ -1112,16 +1205,20 @@ export function buildTransferPageText(d: PlayerTransferPageData): TransferPageTe
       question: `Is ${p.webName} worth ${p.price} in FPL?`,
       answer: [
         ptsPerMillion >= 16
-          ? `On the season numbers, yes - ${p.webName} has returned ${ptsPerMillion} points per million spent, which is solid for a premium asset.`
+          ? isBudgetFplPrice(nowCost, p.position)
+            ? `On the season numbers, yes - ${p.webName} has returned ${ptsPerMillion} points per million at ${p.price}, which is strong for a budget pick.`
+            : isPremiumFplPrice(nowCost, p.position)
+            ? `On the season numbers, yes - ${p.webName} has returned ${ptsPerMillion} points per million spent, which is solid for a premium asset.`
+            : `On the season numbers, yes - ${p.webName} has returned ${ptsPerMillion} points per million at ${p.price}.`
           : ptsPerMillion >= 13
           ? `The value case is reasonable. ${p.webName} has returned ${ptsPerMillion} points per million this season at ${p.price}.`
           : `The value case is harder to make right now. ${p.webName} has returned ${ptsPerMillion} points per million this season - below what you would want at ${p.price}.`,
         "",
         isKeeper
-          ? `${p.webName} has scored ${p.totalPts} total points this season as a goalkeeper. The question is not just whether those numbers are good, but whether they are good enough relative to what you give up to fit him in.`
-          : `${p.webName} has ${p.goals} ${goalsWord} and ${p.assists} ${assistsWord} this season for ${p.totalPts} total points. The question is not just whether those numbers are good, but whether they are good enough relative to what you give up to fit him in.`,
+          ? `${p.webName} has scored ${p.totalPts} total points this season as a goalkeeper.`
+          : `${p.webName} has ${p.goals} ${goalsWord} and ${p.assists} ${assistsWord} this season for ${p.totalPts} total points.`,
         "",
-        `ChatFPL AI can compare ${p.webName}'s value against the other options in his position and tell you whether the budget allocation makes sense for your squad.`,
+        transferInValueClosing(p),
       ].join("\n"),
     },
     {
