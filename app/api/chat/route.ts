@@ -41,7 +41,11 @@ import {
   teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
 import { countFormSampleGameweeks, formFieldChatExplanation } from "@/lib/fpl-form-copy";
-import { getRedditContext } from "@/lib/reddit-context";
+import {
+  buildTeamStackPlayerPool,
+  formatTeamStackFactsContext,
+  isTeamStackQuery,
+} from "@/lib/chat-team-stacks";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -376,6 +380,10 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
           filteredPlayers = allPlayers.filter(p => p.rawData.now_cost < 60).slice(0, 150);
           filterNote = `Showing budget players (<£6.0m)`;
         }
+        else if (isTeamStackQuery(message)) {
+          filteredPlayers = buildTeamStackPlayerPool(allPlayers, 4);
+          filterNote = `Team stack mode: top outfield picks per club by xPNext (${filteredPlayers.length} players)`;
+        }
         else if (messageLower.includes('captain')) {
           // Captain picks: High points, good form, playing regularly
           filteredPlayers = allPlayers
@@ -478,6 +486,9 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
           teamFixtures,
           adviceGwId,
         );
+        const teamStackFactsContext = isTeamStackQuery(message)
+          ? formatTeamStackFactsContext(allPlayers, teamFixtures, adviceGwId)
+          : "";
 
         const adviceGwIdForStructure = adviceGwId;
         const dgwTeams = (fplData.teams ?? []).filter((team: any) =>
@@ -564,7 +575,7 @@ ${adviceGwNote}
 
 ${transferWindowContext}
 
-${comparisonFactsContext ? `${comparisonFactsContext}\n\n` : ""}${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
+${comparisonFactsContext ? `${comparisonFactsContext}\n\n` : ""}${teamStackFactsContext ? `${teamStackFactsContext}\n\n` : ""}${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
@@ -613,6 +624,8 @@ DATA INTEGRITY (MANDATORY):
 - PhotoURL is always the final field after the last pipe (|) on each player row. Copy that URL exactly into markdown images. Never guess or reconstruct image links.
 - For markdown images use the player's real full name in the alt text (e.g. ![Jacob Ramsey](PhotoURL)) so the name matches the row you used for stats.
 - If a player does not appear in the filtered rows, say they are not in the current excerpt and ask to narrow the question. Do not invent stats or photos.
+- TEAM STACK / TRIPLE-UP: If TEAM STACK FACTS is present, use only those club groupings. Every player plays for the club shown in their pipe row (field 3: ClubFullName (ShortCode)). Never put a player under a club they do not play for in the data (e.g. if the row says Everton (EVE), never list them under Chelsea).
+- Only recommend triple-ups from Premier League clubs in the TEAMS list. Every player in a stack must share the same ShortCode in their data row.
 - DATA SOURCES AVAILABLE: FPL API data (players, fixtures, ownership, xG/xA, injuries from the news field) and Reddit hot posts from r/FantasyPL. Press conference transcripts, external news sites, and detailed midweek injury updates are NOT available — if asked for these, state clearly what data you do and do not have, then work with what you have.`;
       }
     } catch (fplError) {
