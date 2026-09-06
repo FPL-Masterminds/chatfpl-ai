@@ -16,6 +16,10 @@ type SpeechRecognitionInstance = {
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionInstance
 
+type UseSpeechInputOptions = {
+  onListenEnd?: (finalText: string) => void
+}
+
 function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
   if (typeof window === "undefined") return null
   const w = window as Window & {
@@ -25,11 +29,16 @@ function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null
 }
 
-export function useSpeechInput() {
+export function useSpeechInput(options: UseSpeechInputOptions = {}) {
+  const { onListenEnd } = options
+  const onListenEndRef = useRef(onListenEnd)
+  onListenEndRef.current = onListenEnd
+
   const [supported, setSupported] = useState(false)
   const [listening, setListening] = useState(false)
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
   const sessionBaseRef = useRef("")
+  const latestTextRef = useRef("")
 
   useEffect(() => {
     const Ctor = getSpeechRecognitionCtor()
@@ -66,17 +75,13 @@ export function useSpeechInput() {
     setListening(false)
   }, [])
 
-  const toggle = useCallback(
+  const start = useCallback(
     (currentValue: string, setValue: (value: string) => void) => {
       const recognition = recognitionRef.current
-      if (!recognition) return
-
-      if (listening) {
-        stop()
-        return
-      }
+      if (!recognition || listening) return
 
       sessionBaseRef.current = currentValue.trimEnd()
+      latestTextRef.current = sessionBaseRef.current
 
       recognition.onresult = (event) => {
         let spoken = ""
@@ -88,11 +93,13 @@ export function useSpeechInput() {
 
         const base = sessionBaseRef.current
         const merged = base ? `${base} ${spoken}` : spoken
+        latestTextRef.current = merged
         setValue(merged)
 
         const last = event.results[event.results.length - 1]
         if (last?.isFinal) {
           sessionBaseRef.current = merged
+          latestTextRef.current = merged
         }
       }
 
@@ -102,6 +109,7 @@ export function useSpeechInput() {
 
       recognition.onend = () => {
         setListening(false)
+        onListenEndRef.current?.(latestTextRef.current)
       }
 
       try {
@@ -111,8 +119,19 @@ export function useSpeechInput() {
         setListening(false)
       }
     },
-    [listening, stop],
+    [listening],
   )
 
-  return { supported, listening, toggle, stop }
+  const toggle = useCallback(
+    (currentValue: string, setValue: (value: string) => void) => {
+      if (listening) {
+        stop()
+        return
+      }
+      start(currentValue, setValue)
+    },
+    [listening, start, stop],
+  )
+
+  return { supported, listening, toggle, start, stop }
 }

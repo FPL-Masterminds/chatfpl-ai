@@ -1,13 +1,17 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import { ChatMessageContent } from "@/components/chat-message-content"
-import { ChatInputBar } from "@/components/chat-input-bar"
+import { ChatInputBar, type ChatInputBarHandle } from "@/components/chat-input-bar"
+import { ChatVoiceControls } from "@/components/chat-voice-controls"
 import type { ChatModelProfile } from "@/lib/chat-model-profile"
+import { useChatVoicePrefs } from "@/hooks/use-chat-voice-prefs"
+import { useSpeechOutput } from "@/hooks/use-speech-output"
+import { textForSpeech } from "@/lib/chat-speech-text"
 
 const STATIC_PROMPTS = [
   "Analyse my team",
@@ -140,6 +144,15 @@ export default function ChatPage() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [mobileEdgeOpen, setMobileEdgeOpen] = useState(false)
   const [chatModelProfile, setChatModelProfile] = useState<ChatModelProfile>("legacy")
+  const inputBarRef = useRef<ChatInputBarHandle>(null)
+  const [micListening, setMicListening] = useState(false)
+  const suppressListenEndRef = useRef(false)
+  const { prefs: voicePrefs, hydrated: voicePrefsHydrated, setReadReplies, setVoiceMode } = useChatVoicePrefs()
+  const speechOutput = useSpeechOutput()
+  const voicePrefsRef = useRef(voicePrefs)
+  const isLoadingRef = useRef(isLoading)
+  voicePrefsRef.current = voicePrefs
+  isLoadingRef.current = isLoading
 
   const [insights, setInsights] = useState<Insights | null>(null)
   const [countdown, setCountdown] = useState<Countdown>({ days: "--", hours: "--", minutes: "--", seconds: "--" })
@@ -368,23 +381,64 @@ export default function ChatPage() {
     }
   }
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return
-    const userMsg: Message = { id: Date.now().toString(), role: "user", content: input, timestamp: new Date() }
+  const speakReply = useCallback(
+    async (content: string) => {
+      const prefs = voicePrefsRef.current
+      if (!prefs.readReplies && !prefs.voiceMode) return
+      const spoken = textForSpeech(content)
+      if (!spoken) return
+      await speechOutput.speak(spoken)
+      if (prefs.voiceMode && !isLoadingRef.current) {
+        window.setTimeout(() => inputBarRef.current?.startListening(), 350)
+      }
+    },
+    [speechOutput],
+  )
+
+  const handleVoiceModeChange = useCallback(
+    (enabled: boolean) => {
+      setVoiceMode(enabled)
+      if (enabled) {
+        speechOutput.cancel()
+        window.setTimeout(() => inputBarRef.current?.startListening(), 350)
+      } else {
+        inputBarRef.current?.stopListening()
+        speechOutput.cancel()
+      }
+    },
+    [setVoiceMode, speechOutput],
+  )
+
+  const handleReadRepliesChange = useCallback(
+    (enabled: boolean) => {
+      setReadReplies(enabled)
+      if (!enabled) speechOutput.cancel()
+    },
+    [setReadReplies, speechOutput],
+  )
+
+  const handleSend = async (overrideMessage?: string) => {
+    const message = (overrideMessage ?? input).trim()
+    if (!message || isLoading) return
+    suppressListenEndRef.current = true
+    speechOutput.cancel()
+    inputBarRef.current?.stopListening()
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: message, timestamp: new Date() }
     setMessages(prev => [...prev, userMsg])
-    const sentInput = input
     setInput("")
     setIsLoading(true)
 
-    // Add an empty AI message placeholder so the user sees it start streaming immediately
     const aiMsgId = (Date.now() + 1).toString()
     setMessages(prev => [...prev, { id: aiMsgId, role: "assistant", content: "", timestamp: new Date() }])
+
+    let finalContent = ""
+    let accumulated = ""
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: sentInput, conversationId }),
+        body: JSON.stringify({ message, conversationId }),
       })
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => ({ error: "Failed" }))
@@ -394,7 +448,6 @@ export default function ChatPage() {
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let buf = ""
-      let accumulated = ""
 
       while (true) {
         const { done, value } = await reader.read()
@@ -416,6 +469,7 @@ export default function ChatPage() {
               setMessagesUsed(evt.messages_used)
               setMessagesLimit(evt.messages_limit)
               if (evt.content) {
+                finalContent = evt.content
                 setMessages(prev => prev.map(m =>
                   m.id === aiMsgId ? { ...m, content: evt.content } : m
                 ))
@@ -426,14 +480,33 @@ export default function ChatPage() {
           } catch { /* skip malformed events */ }
         }
       }
+      if (!finalContent) finalContent = accumulated
     } catch (e: any) {
+      finalContent = e.message || "Something went wrong."
       setMessages(prev => prev.map(m =>
-        m.id === aiMsgId ? { ...m, content: e.message || "Something went wrong." } : m
+        m.id === aiMsgId ? { ...m, content: finalContent } : m
       ))
     } finally {
       setIsLoading(false)
+      window.setTimeout(() => {
+        suppressListenEndRef.current = false
+      }, 400)
+    }
+
+    if (finalContent.trim() && (voicePrefsRef.current.readReplies || voicePrefsRef.current.voiceMode)) {
+      void speakReply(finalContent)
     }
   }
+
+  const handleSendRef = useRef(handleSend)
+  handleSendRef.current = handleSend
+
+  const handleListenEnd = useCallback((finalText: string) => {
+    if (suppressListenEndRef.current) return
+    if (!voicePrefsRef.current.voiceMode || isLoadingRef.current) return
+    if (!finalText.trim()) return
+    handleSendRef.current(finalText)
+  }, [])
 
   const handleArchive = async (convId: string) => {
     setContextMenu({ visible: false })
@@ -778,11 +851,28 @@ export default function ChatPage() {
                   </div>
                 </div>
 
+                {voicePrefsHydrated ? (
+                  <ChatVoiceControls
+                    readReplies={voicePrefs.readReplies}
+                    voiceMode={voicePrefs.voiceMode}
+                    speechOutSupported={speechOutput.supported}
+                    speaking={speechOutput.speaking}
+                    listening={micListening}
+                    onReadRepliesChange={handleReadRepliesChange}
+                    onVoiceModeChange={handleVoiceModeChange}
+                    onStopSpeaking={speechOutput.cancel}
+                  />
+                ) : null}
+
                 <ChatInputBar
+                  ref={inputBarRef}
                   value={input}
                   onChange={setInput}
-                  onSend={handleSend}
+                  onSend={() => handleSend()}
                   disabled={isLoading}
+                  voiceMode={voicePrefs.voiceMode}
+                  onListenEnd={handleListenEnd}
+                  onListeningChange={setMicListening}
                 />
                 <p className="text-center text-[10px] text-white/60 mt-2">ChatFPL AI can make mistakes. Verify important information.</p>
               </div>
