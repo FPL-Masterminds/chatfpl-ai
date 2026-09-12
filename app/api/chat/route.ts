@@ -14,31 +14,21 @@ import {
   isPlayerCompareQuery,
   type ChatPlayerRow,
 } from "@/lib/chat-player-filter";
-import {
-  fixAssistantMarkdownPlayerPhotos,
-  fplPhotoUrlFromElement,
-  type FplPhotoRow,
-} from "@/lib/fpl-player-photo";
+import { fplPhotoUrlFromElement, type FplPhotoRow } from "@/lib/fpl-player-photo";
 import {
   formatTransferWindowContext,
   getTransferWindowStatus,
 } from "@/lib/fpl-transfer-window";
-import {
-  getChatFormattingRules,
-  normalizeAssistantChatFormatting,
-  stripInvalidMarkdownImages,
-} from "@/lib/chat-message-format";
+import { getChatFormattingRules } from "@/lib/chat-message-format";
 import { getChatModelProfile } from "@/lib/chat-model-profile";
 import {
   filterUpcomingFixtures,
   formatAdviceGameweekNote,
   formatCurrentGwFixtureStatus,
   formatPlanningGwFixtureStatus,
-  formatTeamFixtureStateLabel,
   fplLiveFetchOptions,
   parseAdviceGameweekFromMessage,
   resolveFplGameweekContext,
-  teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
 import { countFormSampleGameweeks, formFieldChatExplanation } from "@/lib/fpl-form-copy";
 import {
@@ -53,6 +43,21 @@ import {
   getConversationalReply,
   isConversationalMessage,
 } from "@/lib/chat-conversational";
+import {
+  appendDifyStreamAnswer,
+  postProcessAssistantAnswer,
+} from "@/lib/chat-assistant-output";
+import { CHAT_FPL_TRANSFER_REPLACEMENT_RULES } from "@/lib/chat-fpl-rules";
+import {
+  buildFplTeamContext,
+  persistFplTeamIdForUser,
+  resolveFplTeamIdForChat,
+} from "@/lib/chat-fpl-team-context";
+import {
+  buildNoTeamIdPromptNotice,
+  buildPastedSquadPromptNotice,
+  looksLikePastedFplSquad,
+} from "@/lib/chat-team-id-guidance";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
@@ -138,6 +143,11 @@ export async function POST(request: Request) {
     }
     
     const userFirstName = user.name?.split(' ')[0] || "there";
+    const resolvedFplTeam = await resolveFplTeamIdForChat({
+      userFplTeamId: user.fpl_team_id,
+      message,
+      conversationId,
+    });
 
     // Admins bypass the meter entirely regardless of what the row says. This
     // is belt-and-braces against any legacy row still carrying an old limit.
@@ -268,99 +278,18 @@ export async function POST(request: Request) {
         // are always included in the player rows sent to the model.
         let userTeamContext = "";
         let squadElementIds: number[] = [];
-        if (user.fpl_team_id) {
-          try {
-            const [entryRes, picksRes, historyRes] = await Promise.all([
-              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/`, {
-                headers: { "User-Agent": "ChatFPL/1.0" },
-              }),
-              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/event/${currentGW}/picks/`, {
-                headers: { "User-Agent": "ChatFPL/1.0" },
-              }),
-              fetch(`https://fantasy.premierleague.com/api/entry/${user.fpl_team_id}/history/`, {
-                headers: { "User-Agent": "ChatFPL/1.0" },
-              }),
-            ]);
-
-            const entryData = entryRes.ok ? await entryRes.json() : null;
-            const picksData = picksRes.ok ? await picksRes.json() : null;
-            const historyData = historyRes.ok ? await historyRes.json() : null;
-            squadElementIds = (picksData?.picks ?? []).map((p: any) => p.element);
-
-            if (entryData) {
-              const teamName = entryData.name || "Unknown";
-              const managerName = `${entryData.player_first_name || ""} ${entryData.player_last_name || ""}`.trim();
-              const overallPoints = entryData.summary_overall_points ?? "?";
-              const overallRank = (entryData.summary_overall_rank ?? "?").toLocaleString?.() ?? entryData.summary_overall_rank ?? "?";
-              const teamValue = entryData.last_deadline_value != null ? `£${(entryData.last_deadline_value / 10).toFixed(1)}m` : "?";
-              const bank = entryData.last_deadline_bank != null ? `£${(entryData.last_deadline_bank / 10).toFixed(1)}m` : "?";
-              const totalTransfers = entryData.last_deadline_total_transfers ?? "?";
-
-              const playedChips: any[] = historyData?.chips || entryData?.chips || [];
-              const chipsUsed: string[] = playedChips.map((c: any) => `${c.name} (GW${c.event})`);
-              const usedNames: string[] = playedChips.map((c: any) => c.name);
-
-              const wildcardsUsed = usedNames.filter((n) => n === "wildcard").length;
-              const chipsAvailable: string[] = [];
-              if (wildcardsUsed < 2) chipsAvailable.push(`wildcard (${wildcardsUsed === 0 ? "both still available" : "1 used, 1 remaining"})`);
-              if (!usedNames.includes("freehit")) chipsAvailable.push("freehit");
-              if (!usedNames.includes("bboost")) chipsAvailable.push("bboost (bench boost)");
-              if (!usedNames.includes("3xc")) chipsAvailable.push("3xc (triple captain)");
-
-              let squadSection = "";
-              if (picksData?.picks) {
-                const elementMap: { [key: number]: any } = {};
-                (fplData.elements || []).forEach((p: any) => { elementMap[p.id] = p; });
-
-                const formatPick = (pick: any): string | null => {
-                  const p = elementMap[pick.element];
-                  if (!p) return null;
-                  const t = fplData.teams?.find((t: any) => t.id === p.team);
-                  const pos = fplData.element_types?.find((pt: any) => pt.id === p.element_type);
-                  const flags = [
-                    pick.is_captain ? "(C)" : "",
-                    pick.is_vice_captain ? "(VC)" : "",
-                    pick.multiplier === 3 ? "(3xC)" : "",
-                  ].filter(Boolean).join("");
-                  const injNote = p.news ? `|${p.news}` : "";
-                  const fixtureState = formatTeamFixtureStateLabel(
-                    teamFixtureStateInGw(p.team, currentGW, fixturesData),
-                  );
-                  return `${p.web_name}${flags ? " " + flags : ""}|${t?.short_name}|${pos?.singular_name_short}|£${(p.now_cost / 10).toFixed(1)}m|GWpts:${p.event_points ?? 0}|${p.form}form|${p.total_points}pts|${fixtureState}|${p.chance_of_playing_next_round ?? 100}%fit${injNote}`;
-                };
-
-                const startingXI = picksData.picks.filter((p: any) => p.position <= 11).map(formatPick).filter(Boolean).join("\n");
-                const bench = picksData.picks.filter((p: any) => p.position > 11).map(formatPick).filter(Boolean).join("\n");
-
-                const h = picksData.entry_history;
-                const gwStats = h
-                  ? `GW${currentGW} points: ${h.points} | Transfers: ${h.event_transfers} (cost: ${h.event_transfers_cost}pts) | Points on bench: ${h.points_on_bench}`
-                  : "";
-                const activeChip = picksData.active_chip ? `Active chip this GW: ${picksData.active_chip}` : "";
-
-                squadSection = `
-Starting XI:
-${startingXI}
-
-Bench:
-${bench}
-
-${gwStats}${activeChip ? "\n" + activeChip : ""}`;
-              }
-
-              userTeamContext = `USER'S FPL TEAM (Team ID: ${user.fpl_team_id}):
-Team: ${teamName} | Manager: ${managerName}
-Overall Points: ${overallPoints} | Overall Rank: ${overallRank}
-Team Value: ${teamValue} | Bank: ${bank} | Total Transfers Used: ${totalTransfers}
-Chips Used: ${chipsUsed.length > 0 ? chipsUsed.join(", ") : "None yet"}
-Chips Still Available: ${chipsAvailable.length > 0 ? chipsAvailable.join(", ") : "All used"}
-${squadSection}
-
-IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my transfers", or anything personal, refer to the squad data above. Use their actual picks and stats to give personalised advice.
-`;
-            }
-          } catch (teamErr) {
-            console.error("FPL team data fetch error:", teamErr);
+        if (resolvedFplTeam.teamId) {
+          const teamCtx = await buildFplTeamContext(
+            resolvedFplTeam.teamId,
+            fplData,
+            fixturesData,
+            currentGW,
+            resolvedFplTeam.source,
+          );
+          userTeamContext = teamCtx.context;
+          squadElementIds = teamCtx.squadElementIds;
+          if (resolvedFplTeam.persistTeamId && teamCtx.context) {
+            await persistFplTeamIdForUser(user.id, resolvedFplTeam.persistTeamId);
           }
         }
 
@@ -779,6 +708,8 @@ TRANSFERS:
 - Bench Boost: all bench players score points this GW
 - Triple Captain: captain scores triple instead of double this GW
 
+${CHAT_FPL_TRANSFER_REPLACEMENT_RULES}
+
 ${CONVERSATIONAL_PROMPT_RULES}
 
 PERSONALITY RULES:
@@ -819,22 +750,26 @@ PERSONALITY RULES:
                   /\bshould\s+i\s+(use|play|activate|trigger|burn)\s+my\b/.test(messageLowerForGate);
 
                 const noTeamIdNotice =
-                  isPersonalTeamQuery && !user.fpl_team_id
-                    ? `
-
-USER_TEAM_LINK_STATUS: NOT_LINKED
-The user is asking a personal-team question ("${message.slice(0, 120)}") but has NOT saved their public FPL Team ID, so you do not have access to their squad, rank, transfers, chip status, or per-player picks. You MUST handle this gracefully:
-1. Briefly acknowledge the question in one short sentence.
-2. Tell ${userFirstName} clearly that you cannot review their actual squad because their FPL Team ID is not linked yet.
-3. Direct them to https://www.chatfpl.ai/admin (the Settings page) where they can paste their public FPL Team ID. It takes about 10 seconds and only requires the public ID from their FPL team URL - no password.
-4. Offer an immediate fallback: if they paste their 15-player squad (web names + captain + bank balance + free transfers + chips remaining) in the next message, you can analyse from that text right away.
-Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would..." dressed up as personal advice. Do NOT recommend specific transfers or captains as if you know their current team. Keep the whole response short and friendly - this is a guidance message, not a deep analysis.
-`
+                  isPersonalTeamQuery && !resolvedFplTeam.teamId
+                    ? buildNoTeamIdPromptNotice(userFirstName, message.slice(0, 120))
                     : "";
 
+                const pastedSquadNotice =
+                  !resolvedFplTeam.teamId && looksLikePastedFplSquad(message)
+                    ? buildPastedSquadPromptNotice(userFirstName)
+                    : "";
+
+                const teamIdChatNotice =
+                  resolvedFplTeam.source === "message" &&
+                  /^\d{5,10}$/.test(message.trim())
+                    ? `CHAT_TEAM_ID: User sent FPL Team ID ${message.trim()}. Their live squad is in USER'S FPL TEAM above. Continue any open team review or transfer question using that squad.\n\n`
+                    : resolvedFplTeam.source === "conversation"
+                      ? `CHAT_TEAM_ID: User confirmed their FPL Team ID from earlier in this chat. Use USER'S FPL TEAM above.\n\n`
+                      : "";
+
                 const enhancedMessage = combinedContext
-                  ? `${combinedContext}\n\n${redditInstruction}${formattingInstructions}${noTeamIdNotice}\n---\n\nUser Question: ${message}`
-                  : `${formattingInstructions}${noTeamIdNotice}\n---\n\nUser Question: ${message}`;
+                  ? `${combinedContext}\n\n${redditInstruction}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${teamIdChatNotice}\n---\n\nUser Question: ${message}`
+                  : `${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${teamIdChatNotice}\n---\n\nUser Question: ${message}`;
 
     console.log('=== DIFY PAYLOAD DEBUG ===');
     console.log('Enhanced message length:', enhancedMessage.length);
@@ -939,13 +874,12 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
               } catch {
                 continue;
               }
-              if (evt.event === "message" || evt.event === "agent_message") {
-                const rawChunk: string = evt.answer ?? "";
-                const text = rawChunk.replace(/\u2014/g, " - ").replace(/\u2013/g, " - ");
-                fullAnswer += text;
-                if (text) send({ type: "chunk", text });
-                if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
-              } else if (evt.event === "message_end") {
+              const prevLen = fullAnswer.length;
+              fullAnswer = appendDifyStreamAnswer(evt, fullAnswer);
+              const delta = fullAnswer.slice(prevLen);
+              if (delta) send({ type: "chunk", text: delta });
+              if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
+              if (evt.event === "message_end") {
                 if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
                 const usageTotal = evt?.metadata?.usage?.total_tokens;
                 if (typeof usageTotal === "number") totalTokens = usageTotal;
@@ -955,18 +889,9 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
             }
           }
 
-          if (!fullAnswer.trim()) {
-            throw new Error("EMPTY_DIFY_ANSWER");
-          }
-
-          // Fix hallucinated player photo URLs in the accumulated response
-          // Also strip any em-dashes that slipped through (belt-and-braces)
-          const fixedAnswer = normalizeAssistantChatFormatting(
-            stripInvalidMarkdownImages(
-              fixAssistantMarkdownPlayerPhotos(fullAnswer, photoRowsForFix)
-                .replace(/\u2014/g, " - ")
-                .replace(/\u2013/g, " - "),
-            ),
+          const fixedAnswer = postProcessAssistantAnswer(
+            fullAnswer,
+            photoRowsForFix,
             chatModelProfile,
           );
 

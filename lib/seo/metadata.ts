@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { llmMdPathForHtml } from "@/lib/llm-hubs"
 
 export const SITE_URL = "https://www.chatfpl.ai"
 export const SITE_NAME = "ChatFPL AI"
@@ -21,12 +22,16 @@ export function buildPageMetadata({
 }: PageMetadataInput): Metadata {
   const url = path === "/" ? SITE_URL : `${SITE_URL}${path}`
   const fullTitle = title.includes("ChatFPL") ? title : `${title} | ChatFPL AI`
+  const markdownPath = llmMdPathForHtml(path)
 
   return {
     title: fullTitle,
     description,
     alternates: {
       canonical: url,
+      ...(markdownPath
+        ? { types: { "text/markdown": `${SITE_URL}${markdownPath}` } }
+        : {}),
     },
     openGraph: {
       type: "website",

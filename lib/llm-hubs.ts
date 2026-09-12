@@ -92,6 +92,10 @@ export const LLM_HUB_ENTRIES: LlmHubEntry[] = [
   },
 ]
 
+export function llmMdPathForHtml(htmlPath: string): string | undefined {
+  return LLM_HUB_ENTRIES.find((e) => e.htmlPath === htmlPath)?.mdPath
+}
+
 function canonical(path: string): string {
   return path === "/" ? SITE_URL : `${SITE_URL}${path}`
 }

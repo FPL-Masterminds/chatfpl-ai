@@ -8,6 +8,8 @@ import Link from "next/link"
 import { ChatMessageContent } from "@/components/chat-message-content"
 import { ChatMessageActions } from "@/components/chat-message-actions"
 import { ChatInputBar, type ChatInputBarHandle } from "@/components/chat-input-bar"
+import { ChatTeamIdBanner } from "@/components/chat-team-id-banner"
+import { chatWelcomeMessage } from "@/lib/chat-team-id-guidance"
 import { ChatVoiceControls } from "@/components/chat-voice-controls"
 import type { ChatModelProfile } from "@/lib/chat-model-profile"
 import { useChatVoicePrefs } from "@/hooks/use-chat-voice-prefs"
@@ -163,6 +165,7 @@ export default function ChatPage() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [mobileEdgeOpen, setMobileEdgeOpen] = useState(false)
   const [chatModelProfile, setChatModelProfile] = useState<ChatModelProfile>("legacy")
+  const [hasFplTeamId, setHasFplTeamId] = useState(true)
   const inputBarRef = useRef<ChatInputBarHandle>(null)
   const [micListening, setMicListening] = useState(false)
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null)
@@ -248,17 +251,20 @@ export default function ChatPage() {
     const load = async () => {
       try {
         let firstName = "there"
+        let linkedFplTeam = false
         const accountRes = await fetch("/api/account")
         if (accountRes.ok) {
           const d = await accountRes.json()
           const name: string = d.user?.name || ""
           firstName = name.split(" ")[0] || "there"
+          linkedFplTeam = Boolean(d.user?.fpl_team_id)
           const initials = name.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase() || "CF"
           setUserFirstName(firstName)
           setUserInitials(initials)
           setMessagesUsed(d.usage?.messages_used ?? 0)
           setMessagesLimit(d.usage?.messages_limit ?? 20)
           setUserPlan(d.subscription?.plan || "Free")
+          setHasFplTeamId(linkedFplTeam)
         }
 
         const convsRes = await fetch("/api/chat/conversations")
@@ -277,7 +283,7 @@ export default function ChatPage() {
             setMessages([{
               id: "welcome",
               role: "assistant",
-              content: `Hi ${firstName}! I'm your ChatFPL AI analyst. Ask me about captains, transfers, differentials, fixtures - anything FPL.`,
+              content: chatWelcomeMessage(firstName, linkedFplTeam),
               timestamp: new Date(),
             }])
           }
@@ -384,7 +390,7 @@ export default function ChatPage() {
     setMessages([{
       id: "welcome",
       role: "assistant",
-      content: `Hi ${userFirstName}! What FPL question can I help you with today?`,
+      content: chatWelcomeMessage(userFirstName, hasFplTeamId),
       timestamp: new Date(),
     }])
     setConversationId(null)
@@ -602,7 +608,7 @@ export default function ChatPage() {
     setConversations((prev) => prev.filter((c) => c.id !== convId))
     if (conversationId === convId) {
       setConversationId(null)
-      setMessages([{ id: "welcome", role: "assistant", content: `Hi ${userFirstName}! What FPL question can I help you with today?`, timestamp: new Date() }])
+      setMessages([{ id: "welcome", role: "assistant", content: chatWelcomeMessage(userFirstName, hasFplTeamId), timestamp: new Date() }])
     }
   }
 
@@ -948,6 +954,8 @@ export default function ChatPage() {
                     onStopSpeaking={stopSpeaking}
                   />
                 ) : null}
+
+                {!hasFplTeamId ? <ChatTeamIdBanner /> : null}
 
                 <ChatInputBar
                   ref={inputBarRef}

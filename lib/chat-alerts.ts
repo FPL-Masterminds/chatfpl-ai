@@ -1,5 +1,10 @@
 import { fplPhotoUrlFromElement } from "@/lib/fpl-player-photo"
 import { fplLiveFetchOptions } from "@/lib/fpl-gw-live-status"
+import { asciiPlayerName } from "@/lib/chat-player-filter"
+
+function promptName(player: { web_name?: string }): string {
+  return asciiPlayerName(String(player.web_name ?? ""))
+}
 
 export type ChatAlertAvatar =
   | { kind: "cf" }
@@ -51,12 +56,12 @@ function playerAlert(
 ): ChatAlert {
   return {
     id,
-    title,
+    title: asciiPlayerName(title),
     body,
     prompt,
     avatar: {
       kind: "player",
-      name: player.web_name,
+      name: asciiPlayerName(player.web_name),
       photoUrl: fplPhotoUrlFromElement(player.photo, player.code),
     },
   }
@@ -286,7 +291,7 @@ export async function buildChatAlerts(fplTeamId: number | null): Promise<ChatAle
     alerts.push(cfAlert(
       "link-team",
       "Link your FPL team",
-      "Personal alerts need your public Team ID. Takes about 10 seconds in Settings.",
+      "Link your FPL Team ID in Settings for reliable squad advice. Pasting players in chat can lose context.",
       "How do I get the most from ChatFPL once my FPL team is linked?",
     ))
   }

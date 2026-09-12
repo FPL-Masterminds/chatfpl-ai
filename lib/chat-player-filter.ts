@@ -11,11 +11,18 @@ export type ChatPlayerRow = {
   position?: string;
 };
 
+export function foldAccents(s: string): string {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
+/** Keep punctuation FPL uses in web names (M.Sangare) but drop accents. */
+export function asciiPlayerName(s: string): string {
+  return foldAccents(s).replace(/[^\x20-\x7E]/g, "")
+}
+
 export function normalizeForChatMatch(s: string): string {
-  return s
+  return foldAccents(s)
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -46,6 +53,18 @@ export function findMentionedPlayers(
   });
 
   if (matches.length <= 1) return matches;
+
+  const initialled = matches.filter((p) => {
+    const web = normalizeForChatMatch(p.rawData.web_name);
+    const dotted = web.match(/^([a-z])\s+(.+)$/);
+    if (!dotted) return false;
+    return messageNorm.includes(`${dotted[1]} ${dotted[2]}`);
+  });
+  if (initialled.length === 1) return initialled;
+  if (initialled.length > 1) {
+    const squadHit = initialled.filter((p) => squadElementIds.includes(p.rawData.id));
+    return squadHit.length > 0 ? squadHit : initialled;
+  }
 
   const squadSet = new Set(squadElementIds);
   const inSquad = matches.filter((p) => squadSet.has(p.rawData.id));

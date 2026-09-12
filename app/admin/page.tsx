@@ -831,7 +831,12 @@ export default function AdminPage() {
             {/* FPL Settings */}
             <DarkCard>
               <SectionLabel>FPL Settings</SectionLabel>
-              <p className="text-sm text-white mb-4">Link your public FPL Team ID so ChatFPL AI can reference your squad, rank, and mini-league data in conversations.</p>
+              <p className="text-sm text-white mb-2">
+                Link your public FPL Team ID so ChatFPL can load your live 15, bank, chips, captain, and rank on every message. This is the most reliable way to get personal advice.
+              </p>
+              <p className="text-sm text-white/60 mb-4">
+                Pasting your squad from the FPL app in chat is a fallback only. Players can be missed, context can be lost between messages, and transfer advice is more likely to go wrong.
+              </p>
               <form onSubmit={handleSaveFplTeam} className="flex items-center gap-3">
                 <input
                   type="text"
