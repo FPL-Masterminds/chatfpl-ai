@@ -15,6 +15,8 @@ const DAILY_LIMIT = 200;
 
 // High-priority hub pages always submitted first
 const PRIORITY_URLS = [
+  `${SITE}/llms.txt`,
+  `${SITE}/sitemap.md`,
   `${SITE}/fpl/captains`,
   `${SITE}/fpl/differentials`,
   `${SITE}/fpl/comparisons`,

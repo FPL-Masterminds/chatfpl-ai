@@ -21,6 +21,9 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://www.chatfpl.ai/sitemap.xml',
+    sitemap: [
+      "https://www.chatfpl.ai/sitemap.xml",
+      "https://www.chatfpl.ai/sitemap.md",
+    ],
   }
 }
