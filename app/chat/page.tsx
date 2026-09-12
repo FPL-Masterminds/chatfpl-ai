@@ -17,6 +17,8 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { textForSpeech, textForVoiceboxSpeech } from "@/lib/chat-speech-text"
 import { unlockAudioPlayback } from "@/lib/audio-unlock"
 import { pickChatSuggestionPrompts } from "@/lib/chat-suggestion-prompts"
+import { ChatAlertPills } from "@/components/chat-alert-pills"
+import type { ChatAlert } from "@/lib/chat-alerts"
 
 function SuggestionRefreshIcon({ spinning }: { spinning: boolean }) {
   return (
@@ -184,9 +186,7 @@ export default function ChatPage() {
   const [tickerFading, setTickerFading] = useState(false)
   const [tickerPhoto, setTickerPhoto] = useState<string | null>(null)
 
-  type SquadAlert = { type: "injury" | "transfer"; message: string; detail: string | null; count: number } | null
-  const [squadAlert, setSquadAlert] = useState<SquadAlert>(null)
-  const [alertDismissed, setAlertDismissed] = useState(false)
+  const [chatAlerts, setChatAlerts] = useState<ChatAlert[]>([])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -318,7 +318,7 @@ export default function ChatPage() {
     if (!authorized) return
     fetch("/api/squad-alert")
       .then((r) => r.json())
-      .then((d) => { if (d.alert) setSquadAlert(d.alert) })
+      .then((d) => { if (Array.isArray(d.alerts)) setChatAlerts(d.alerts) })
       .catch(() => {})
   }, [authorized])
 
@@ -799,30 +799,12 @@ export default function ChatPage() {
             </div>
 
             {/* Chat window */}
-            <div className="flex-1 min-h-0 rounded-none md:rounded-[28px] border-0 md:border md:border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl md:shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
+            <div className="relative flex-1 min-h-0 rounded-none md:rounded-[28px] border-0 md:border md:border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl md:shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
+
+              <ChatAlertPills alerts={chatAlerts} onAsk={(prompt) => handleSend(prompt)} />
 
               {/* Messages */}
               <div className="chat-messages flex-1 overflow-y-auto p-4 pb-4 md:p-6 space-y-5">
-
-                {/* Squad Alert */}
-                {squadAlert && !alertDismissed && (
-                  <div className="flex items-start gap-3">
-                    <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg,#00FF87,#00FFFF)" }}>
-                      <span className="text-black font-bold text-xs">CF</span>
-                    </div>
-                    <div className="relative max-w-[82%] rounded-[20px] rounded-tl-sm px-4 py-3 text-sm leading-relaxed border" style={{ background: "rgba(0,255,135,0.06)", borderColor: "rgba(0,255,135,0.2)" }}>
-                      <p className="text-white font-medium">{squadAlert.message}</p>
-                      {squadAlert.detail && (
-                        <p className="text-white/50 text-xs mt-1">{squadAlert.detail}</p>
-                      )}
-                      <button
-                        onClick={() => setAlertDismissed(true)}
-                        className="absolute top-2 right-3 text-white/25 hover:text-white/60 text-xs transition-colors"
-                        aria-label="Dismiss"
-                      >✕</button>
-                    </div>
-                  </div>
-                )}
 
                 {messages.map((message, messageIndex) => (
                   message.role === "user" ? (

@@ -21,6 +21,7 @@ interface AccountData {
     created_at: string
     fpl_team_id: number | null
     marketing_opt_out: boolean
+    chat_alerts_enabled: boolean
   }
   subscription: {
     plan: string
@@ -196,6 +197,8 @@ export default function AdminPage() {
   const [upgradeError, setUpgradeError] = useState<string | null>(null)
   const [emailPrefSaving, setEmailPrefSaving] = useState(false)
   const [emailPrefError, setEmailPrefError] = useState<string | null>(null)
+  const [chatAlertPrefSaving, setChatAlertPrefSaving] = useState(false)
+  const [chatAlertPrefError, setChatAlertPrefError] = useState<string | null>(null)
   const [siteStats, setSiteStats] = useState<SiteStats | null>(null)
   const [siteStatsLoading, setSiteStatsLoading] = useState(false)
   const [topPages, setTopPages] = useState<TopPagesData | null>(null)
@@ -395,6 +398,26 @@ export default function AdminPage() {
       setTopPages(null)
     } finally {
       setTopPagesLoading(false)
+    }
+  }
+
+  const handleToggleChatAlerts = async (nextEnabled: boolean) => {
+    if (!data) return
+    setChatAlertPrefError(null)
+    setChatAlertPrefSaving(true)
+    setData({ ...data, user: { ...data.user, chat_alerts_enabled: nextEnabled } })
+    try {
+      const res = await fetch("/api/account/chat-alerts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_alerts_enabled: nextEnabled }),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    } catch {
+      setData({ ...data, user: { ...data.user, chat_alerts_enabled: !nextEnabled } })
+      setChatAlertPrefError("Couldn't save that. Try again in a moment.")
+    } finally {
+      setChatAlertPrefSaving(false)
     }
   }
 
@@ -676,6 +699,55 @@ export default function AdminPage() {
                 {data.user.marketing_opt_out
                   ? "You're unsubscribed. Flip the switch to opt back in any time."
                   : "You're subscribed. Flip the switch to unsubscribe any time."}
+              </p>
+            </DarkCard>
+
+            <DarkCard>
+              <SectionLabel>Chat Alerts</SectionLabel>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white">
+                    Live pills on Chat
+                  </p>
+                  <p className="text-xs text-white/60 mt-1 leading-relaxed">
+                    Small alerts when something is worth acting on: deadline
+                    pressure, a flagged player in your squad, or a transfer
+                    surge. Tap one to ask ChatFPL about it.
+                  </p>
+                  {chatAlertPrefError && (
+                    <p className="text-xs text-red-400 mt-2">{chatAlertPrefError}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={data.user.chat_alerts_enabled !== false}
+                  disabled={chatAlertPrefSaving}
+                  onClick={() =>
+                    handleToggleChatAlerts(!(data.user.chat_alerts_enabled !== false))
+                  }
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+                    data.user.chat_alerts_enabled !== false
+                      ? "bg-[#00FF87]"
+                      : "bg-white/15"
+                  } disabled:opacity-60 disabled:cursor-wait`}
+                  style={{
+                    boxShadow: data.user.chat_alerts_enabled !== false
+                      ? "0 0 12px rgba(0,255,135,0.35)"
+                      : "none",
+                  }}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-black transition-transform ${
+                      data.user.chat_alerts_enabled !== false ? "translate-x-[22px]" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+              <p className="text-[11px] text-white/40 mt-3">
+                {data.user.chat_alerts_enabled !== false
+                  ? "Alerts are on. Flip the switch to hide them."
+                  : "Alerts are off. Flip the switch to turn them back on."}
               </p>
             </DarkCard>
 

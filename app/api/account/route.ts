@@ -47,6 +47,7 @@ export async function GET() {
         created_at: userData.created_at.toISOString(),
         fpl_team_id: userData.fpl_team_id ?? null,
         marketing_opt_out: userData.marketing_opt_out ?? false,
+        chat_alerts_enabled: userData.chat_alerts_enabled ?? true,
       },
       subscription: {
         plan: subscription?.plan || "Free",
