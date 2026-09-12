@@ -68,6 +68,14 @@ export function ChatUsageToast({
 
   const accent = empty ? "#f97316" : low ? "#fbbf24" : "#00FF87"
 
+  const badgeLabel =
+    unlimited ? "∞" : remaining !== null && remaining >= 100 ? "99+" : String(remaining ?? 0)
+  const badgeTextClass = unlimited
+    ? "text-[1.75rem] leading-none tracking-tight"
+    : badgeLabel.length >= 2
+      ? "text-xl leading-none tabular-nums"
+      : "text-2xl leading-none tabular-nums"
+
   return (
     <div
       className={`pointer-events-none absolute inset-x-3 z-30 flex justify-end sm:inset-x-auto sm:right-4 ${
@@ -107,10 +115,11 @@ export function ChatUsageToast({
         </button>
         <div className="flex w-full items-start gap-3 px-3.5 py-3 pr-10 text-left">
           <span
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] text-[11px] font-black text-black"
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] font-black text-black ${badgeTextClass}`}
             style={{ background: `linear-gradient(135deg,${accent},#00FFFF)` }}
+            aria-hidden
           >
-            {unlimited ? "∞" : remaining}
+            {badgeLabel}
           </span>
           <span className="min-w-0">
             <span className="block text-[13px] font-semibold leading-snug text-white">{title}</span>
