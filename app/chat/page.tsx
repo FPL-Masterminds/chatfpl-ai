@@ -801,10 +801,10 @@ export default function ChatPage() {
             {/* Chat window */}
             <div className="relative flex-1 min-h-0 rounded-none md:rounded-[28px] border-0 md:border md:border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl md:shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
 
-              <ChatAlertPills alerts={chatAlerts} onAsk={(prompt) => handleSend(prompt)} />
-
               {/* Messages */}
-              <div className="chat-messages flex-1 overflow-y-auto p-4 pb-4 md:p-6 space-y-5">
+              <div className="relative flex-1 min-h-0">
+              <ChatAlertPills alerts={chatAlerts} onAsk={(prompt) => handleSend(prompt)} />
+              <div className="chat-messages h-full overflow-y-auto p-4 pb-4 md:p-6 space-y-5">
 
                 {messages.map((message, messageIndex) => (
                   message.role === "user" ? (
@@ -867,6 +867,7 @@ export default function ChatPage() {
                   </div>
                 )}
                 <div ref={messagesEndRef} />
+              </div>
               </div>
 
               {/* Suggested prompts + input */}

@@ -79,12 +79,14 @@ export function ChatAlertPills({
   }
 
   return (
-    <div className="pointer-events-none absolute inset-x-3 top-3 z-30 flex justify-center sm:inset-x-auto sm:right-4 sm:justify-end">
-      <output
+    <div className="pointer-events-none absolute inset-x-3 bottom-3 z-30 flex justify-end sm:inset-x-auto sm:right-4">
+      <div
+        role="status"
         data-phase={phase}
-        className="pointer-events-auto relative block w-[min(100%,22rem)] overflow-hidden rounded-[1.25rem] border border-white/15 bg-black/80 p-0 font-sans text-left shadow-[0_12px_40px_-8px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+        className="pointer-events-auto relative block w-[min(100%,22rem)] overflow-hidden rounded-[1.25rem] border border-white/15 bg-black/80 p-0 text-left shadow-[0_12px_40px_-8px_rgba(0,0,0,0.55)] backdrop-blur-xl"
         style={{
-          transform: phase === "closing" ? "translateY(-10px)" : "translateY(0)",
+          fontFamily: "inherit",
+          transform: phase === "closing" ? "translateY(10px)" : "translateY(0)",
           opacity: phase === "closing" ? 0 : 1,
           transition: "transform 260ms cubic-bezier(0.4,0,0.6,1), opacity 260ms cubic-bezier(0.4,0,0.6,1)",
         }}
@@ -124,7 +126,7 @@ export function ChatAlertPills({
             </span>
           </span>
         </button>
-      </output>
+      </div>
     </div>
   )
 }
