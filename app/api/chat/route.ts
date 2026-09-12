@@ -673,8 +673,8 @@ ${formFieldChatExplanation(formSampleGws)}
 - Minutes = Total minutes played this season
 - YC/RC = Yellow/Red cards this season
 - Saves/Pens/PensMissed = Goalkeeper/penalty stats
-- DC = Defensive Contributions this season - total matches where the player earned the +2 DEFCON bonus. DEFCON = new scoring system for 2025/26: defenders earn +2 pts when their combined Clearances+Blocks+Interceptions+Tackles (CBIT) reaches 10+ in a match; midfielders earn +2 pts when CBIT+Ball Recoveries reaches 12+. Goalkeepers and Forwards do NOT earn DEFCON points - ignore DC for them.
-- DC90 = Defensive Contributions per 90 minutes played - the reliability signal. Use this as the primary DEFCON ranking metric (raw DC favours high-minutes players unfairly). A DEF or MID at DC90 above ~0.7 is genuinely DEFCON-reliable.
+- DC = Defensive contribution actions this season (FPL `defensive_contribution`). This is a workload total, NOT the number of +2pt DEFCON bonuses earned. DEFCON = new scoring system for 2025/26: defenders earn +2 pts when their combined Clearances+Blocks+Interceptions+Tackles (CBIT) reaches 10+ in a match; midfielders earn +2 pts when CBIT+Ball Recoveries reaches 12+. Goalkeepers and Forwards do NOT earn DEFCON points - ignore DC for them.
+- DC90 = Defensive contribution actions per 90 minutes played. Use this as the primary DEFCON workload signal. Typical DEF/MID values sit around 5-16 actions per 90 early season. Never describe DC or DC90 as bonus matches earned.
 - CBIT = Clearances + Blocks + Interceptions + Tackles (raw combined count). Useful context for defenders and defensive midfielders.
 - Status: a=available, d=doubtful, i=injured, u=unavailable, s=suspended
 - Fitness% = Chance of playing next round (0-100)

@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await getDefconPositionHub("defenders")
   const gw = data?.gw ?? "?"
   const title = `Best FPL DEFCON Defenders for Gameweek ${gw} | ChatFPL AI`
-  const description = `Every eligible Fantasy Premier League defender ranked by DEFCON returns per 90 minutes for Gameweek ${gw}. The +2pt bonus triggers at 10+ clearances, blocks, interceptions and tackles per match.`
+  const description = `Every eligible Fantasy Premier League defender ranked by defensive contribution actions per 90 minutes for Gameweek ${gw}. The +2pt bonus triggers at 10+ clearances, blocks, interceptions and tackles per match.`
   return buildPageMetadata({
     title,
     description,

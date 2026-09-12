@@ -539,8 +539,8 @@ ${formFieldChatExplanation(formSampleGws)}
 - xGC = Expected goals conceded this season (useful for defenders/goalkeepers)
 - TI_GW = Transfers IN this gameweek (trending players)
 - TO_GW = Transfers OUT this gameweek
-- DC = Defensive Contribution matches this season (times +2pt DEFCON bonus was earned). DEFCON only applies to DEF and MID - ignore for GKP/FWD.
-- DC90 = DEFCON matches per 90 minutes. Use as the PRIMARY DEFCON ranking signal (accounts for minutes played).
+- DC = Defensive contribution actions this season (FPL workload total, NOT bonus matches earned). DEFCON only applies to DEF and MID - ignore for GKP/FWD.
+- DC90 = Defensive contribution actions per 90 minutes. Use as the PRIMARY DEFCON workload signal.
 - CBIT = raw Clearances+Blocks+Interceptions+Tackles count this season.
 - Status: a=available, d=doubtful, i=injured, u=unavailable, s=suspended
 - Fitness% = Chance of playing next round (0-100)

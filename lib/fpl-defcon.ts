@@ -35,12 +35,21 @@ const MINS_FLOOR_MIDSEASON = 450
 const MINS_FLOOR_EARLY = 90
 
 /** DEF/MID sitemap-worthy per-90 floor once we have a mature sample. */
-const DC90_FLOOR_MIDSEASON = 0.3
+const DC90_FLOOR_MIDSEASON = 5.0
+
+/** Peer pages: similar DC/90 profiles within this band. */
+const PEER_DC90_BAND = 2.0
+
+/** Compare pages: meaningful DC/90 gap between two players. */
+const COMPARE_DC90_GAP = 1.0
 
 /**
- * DATA READINESS. Below this line the FPL API's defensive_contribution and
- * per-90 fields cannot be trusted for the current season because they either
- * carry residual last-season totals or divide by too-small a denominator.
+ * DATA READINESS. Below this line the FPL API's defensive_contribution fields
+ * cannot be trusted for the current season because they either carry residual
+ * last-season totals or divide by too-small a denominator.
+ *
+ * IMPORTANT: `defensive_contribution` is total actions, not bonus matches.
+ * `defensive_contribution_per_90` is actions per 90, not bonuses per 90.
  *
  * DEFCON pages will only render live numbers once at least one player in the
  * league has this many minutes played (roughly four full 90-minute matches).
@@ -77,9 +86,10 @@ export const DEFCON_POSITION_META: Record<string, {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface DefconPlayer extends CaptainHubPlayer {
-  /** Total matches this season the +2pt DEFCON was earned. */
+  elementId: number
+  /** Season total defensive contribution actions (FPL `defensive_contribution`). */
   dc: number
-  /** DEFCON matches per 90 minutes. Primary ranking metric. */
+  /** Defensive contribution actions per 90 minutes. Primary ranking metric. */
   dc90: number
   /** Clearances + blocks + interceptions + tackles (raw total). */
   cbit: number
@@ -87,6 +97,10 @@ export interface DefconPlayer extends CaptainHubPlayer {
   elementType: number
   totalPts: number
   smallSample: boolean
+  /** Gameweeks where the DEFCON threshold was cleared (element-summary). */
+  bonusHits?: number
+  /** Appearances with minutes this season (element-summary). */
+  appearances?: number
 }
 
 export interface DefconHubData {
@@ -143,6 +157,7 @@ function buildDefconPlayer(
   const cbi  = toNumber(p.clearances_blocks_interceptions)
   const tkl  = toNumber(p.tackles)
   return {
+    elementId:     p.id,
     slug,
     displayName:   getDisplayName(p),
     webName:       p.web_name,
@@ -170,6 +185,40 @@ function buildDefconPlayer(
     totalPts:      p.total_points ?? 0,
     smallSample,
   }
+}
+
+async function fetchElementBonusStats(
+  elementId: number,
+  cbitThreshold: number,
+): Promise<{ bonusHits: number; appearances: number }> {
+  try {
+    const res = await fetch(
+      `https://fantasy.premierleague.com/api/element-summary/${elementId}/`,
+      { headers: FPL_HEADERS, next: { revalidate: 900 } },
+    )
+    if (!res.ok) return { bonusHits: 0, appearances: 0 }
+    const data = await res.json()
+    const history: any[] = data.history ?? []
+    let bonusHits = 0
+    let appearances = 0
+    for (const row of history) {
+      const mins = row.minutes ?? 0
+      if (mins <= 0) continue
+      appearances += 1
+      if (toNumber(row.defensive_contribution) >= cbitThreshold) bonusHits += 1
+    }
+    return { bonusHits, appearances }
+  } catch {
+    return { bonusHits: 0, appearances: 0 }
+  }
+}
+
+async function enrichPlayerWithBonusStats(
+  player: DefconPlayer,
+  cbitThreshold: number,
+): Promise<DefconPlayer> {
+  const stats = await fetchElementBonusStats(player.elementId, cbitThreshold)
+  return { ...player, ...stats }
 }
 
 async function fetchFixtureContext(gw: number, teamMap: Record<number, { name: string; short: string; code: number }>) {
@@ -371,15 +420,16 @@ export async function getDefconPlayerPage(slug: string): Promise<DefconPlayerPag
     const rank = ctx.players.findIndex(p => p.slug === player.slug) + 1
 
     const peers = positionPlayers
-      .filter(p => p.slug !== player.slug && Math.abs(p.dc90 - player.dc90) < 0.25)
+      .filter(p => p.slug !== player.slug && Math.abs(p.dc90 - player.dc90) < PEER_DC90_BAND)
       .slice(0, 4)
 
-    const qaItems = buildDefconPlayerQA(player, ctx.gw, positionRank, positionTotal, posMeta.cbitThreshold)
-    const verdict = buildDefconVerdict(player, positionRank, positionTotal)
+    const enrichedPlayer = await enrichPlayerWithBonusStats(player, posMeta.cbitThreshold)
+    const qaItems = buildDefconPlayerQA(enrichedPlayer, ctx.gw, positionRank, positionTotal, posMeta.cbitThreshold)
+    const verdict = buildDefconVerdict(enrichedPlayer, positionRank, positionTotal)
 
     return {
       gw: ctx.gw,
-      player,
+      player: enrichedPlayer,
       rank,
       positionRank,
       positionTotal,
@@ -426,16 +476,21 @@ export async function getDefconCompare(
     const posMeta = DEFCON_POSITION_META[positionSlug]
 
     let winner: "A" | "B" | "tie" = "tie"
-    if (playerA.dc90 > playerB.dc90 + 0.05) winner = "A"
-    else if (playerB.dc90 > playerA.dc90 + 0.05) winner = "B"
+    if (playerA.dc90 > playerB.dc90 + COMPARE_DC90_GAP) winner = "A"
+    else if (playerB.dc90 > playerA.dc90 + COMPARE_DC90_GAP) winner = "B"
 
-    const qaItems = buildDefconCompareQA(playerA, playerB, ctx.gw, posMeta.cbitThreshold)
-    const verdict = buildDefconCompareVerdict(playerA, playerB, winner)
+    const [enrichedA, enrichedB] = await Promise.all([
+      enrichPlayerWithBonusStats(playerA, posMeta.cbitThreshold),
+      enrichPlayerWithBonusStats(playerB, posMeta.cbitThreshold),
+    ])
+
+    const qaItems = buildDefconCompareQA(enrichedA, enrichedB, ctx.gw, posMeta.cbitThreshold)
+    const verdict = buildDefconCompareVerdict(enrichedA, enrichedB, winner)
 
     return {
       gw: ctx.gw,
-      playerA,
-      playerB,
+      playerA: enrichedA,
+      playerB: enrichedB,
       positionSlug,
       cbitThreshold: posMeta.cbitThreshold,
       qaItems,
@@ -507,12 +562,17 @@ function tierByMinutes(mins: number): "elite-load" | "regular" | "rotation" | "l
 }
 
 function tierByDc90(dc90: number, cbitThreshold: number): "elite" | "reliable" | "occasional" | "thin" {
-  // Rough calibration: elite defenders in a mature season sit around 0.9+
-  // per 90 while elite midfielders sit around 0.7+.
-  const scale = cbitThreshold === 10 ? 1.0 : 0.75
-  if (dc90 >= 0.85 * scale) return "elite"
-  if (dc90 >= 0.55 * scale) return "reliable"
-  if (dc90 >= 0.30 * scale) return "occasional"
+  // FPL `defensive_contribution_per_90` is actions per 90 (typically ~5-16),
+  // not bonus matches per 90. Thresholds calibrated from early-season league data.
+  if (cbitThreshold === 10) {
+    if (dc90 >= 11.5) return "elite"
+    if (dc90 >= 9.0) return "reliable"
+    if (dc90 >= 6.5) return "occasional"
+    return "thin"
+  }
+  if (dc90 >= 10.5) return "elite"
+  if (dc90 >= 8.0) return "reliable"
+  if (dc90 >= 5.5) return "occasional"
   return "thin"
 }
 
@@ -522,6 +582,17 @@ function fmtDc90(dc90: number): string {
 
 function fmtMins(mins: number): string {
   return mins.toLocaleString("en-GB")
+}
+
+function bonusHitsLine(player: DefconPlayer): string | null {
+  if (player.bonusHits == null || player.appearances == null || player.appearances <= 0) return null
+  return `earned the +2pt DEFCON bonus in ${player.bonusHits} of ${player.appearances} appearances this season`
+}
+
+function bonusRateLine(player: DefconPlayer): string | null {
+  if (player.bonusHits == null || player.appearances == null || player.appearances <= 0) return null
+  const rate = Math.round((player.bonusHits / player.appearances) * 100)
+  return `a ${rate}% hit rate on the +2pt DEFCON bonus`
 }
 
 const OPENERS_ELITE = [
@@ -604,21 +675,34 @@ export function buildDefconPlayerQA(
   const sampleCaveat = player.smallSample
     ? ` The sample is still small at ${minsStr} minutes, so treat the rate as a signal rather than a settled read.`
     : ""
+  const bonusLine = bonusHitsLine(player)
+  const bonusRate = bonusRateLine(player)
+  const workloadLine = `${player.displayName} averages ${dc90Str} defensive contribution actions per 90 minutes across ${minsStr} minutes played (${dcStr} total actions this season).`
 
   // Q1 — headline reliability
   const q1: { question: string; answer: string } = {
     question: `Is ${player.displayName} a reliable DEFCON asset in Fantasy Premier League?`,
     answer: (() => {
       if (tier === "elite") {
-        return `${opener} ${player.displayName} has earned the +2pt DEFCON bonus in ${dcStr} matches this season at a rate of ${dc90Str} per 90 minutes, which sits in the top tier for ${player.elementType === 2 ? "defenders" : "midfielders"} across the league. Across ${minsStr} minutes on the pitch that is a consistent, repeatable return rather than a hot streak.${sampleCaveat} ${closer}`
+        const bonusPart = bonusLine
+          ? `${bonusLine}, with ${bonusRate}.`
+          : `${workloadLine}`
+        return `${opener} ${bonusPart} That defensive workload sits in the top tier for ${player.elementType === 2 ? "defenders" : "midfielders"} across the league and points to a repeatable +2pt DEFCON floor when the ${cbitThreshold}-action threshold is cleared.${sampleCaveat} ${closer}`
       }
       if (tier === "reliable") {
-        return `${opener} ${player.displayName} has cleared the ${cbitThreshold}-CBIT threshold in ${dcStr} matches this season, giving a per-90 rate of ${dc90Str}. That is a solid return for a ${positionName} in this bracket - not the very top of the league, but comfortably above the level where DEFCON becomes a meaningful part of a player's weekly ceiling.${sampleCaveat} ${closer}`
+        const bonusPart = bonusLine ?? workloadLine
+        return `${opener} ${bonusPart} That is a solid profile for a ${positionName} in this bracket - not the very top of the league, but comfortably above the level where DEFCON becomes a meaningful part of a player's weekly ceiling.${sampleCaveat} ${closer}`
       }
       if (tier === "occasional") {
-        return `${opener} ${player.displayName} is on ${dcStr} DEFCON returns this season at ${dc90Str} per 90 across ${minsStr} minutes. That is a moderate rate rather than an elite one - roughly one in three or four matches yields the +2pt bonus.${sampleCaveat} ${closer}`
+        const bonusPart = bonusLine
+          ? `${bonusLine}. ${workloadLine}`
+          : workloadLine
+        return `${opener} ${bonusPart} That is a moderate workload rather than an elite one - DEFCON can land, but it should be treated as a bonus rather than a bankable weekly return.${sampleCaveat} ${closer}`
       }
-      return `${opener} ${player.displayName}'s per-90 rate of ${dc90Str} places them below the level where DEFCON becomes a genuinely bankable weekly return. Across ${minsStr} minutes they have only hit the ${cbitThreshold}-CBIT threshold in ${dcStr} matches, so any manager signing them should be doing so for attacking output or fixture reasons rather than defensive contributions.${sampleCaveat} ${closer}`
+      const bonusPart = bonusLine
+        ? `${bonusLine}. ${workloadLine}`
+        : workloadLine
+      return `${opener} ${bonusPart} That places ${player.displayName} below the level where DEFCON becomes a genuinely bankable weekly return, so any manager signing them should be doing so for attacking output or fixture reasons rather than defensive contributions.${sampleCaveat} ${closer}`
     })(),
   }
 
@@ -628,7 +712,7 @@ export function buildDefconPlayerQA(
     answer: (() => {
       const percentile = positionTotal > 0 ? Math.round((1 - (positionRank - 1) / positionTotal) * 100) : 0
       if (positionRank === 1) {
-        return `${player.webName} is currently the number one ranked FPL ${positionName} for DEFCON per 90 minutes this season, out of ${positionTotal} eligible players. That is the ceiling of what any manager can find at this position on defensive contributions alone. The next question is whether the fixture run and attacking output back up the defensive case.`
+        return `${player.webName} is currently the number one ranked FPL ${positionName} for defensive contribution actions per 90 minutes this season, out of ${positionTotal} eligible players. That is the ceiling of what any manager can find at this position on defensive workload alone. The next question is whether the fixture run and attacking output back up the defensive case.`
       }
       if (positionRank <= 3) {
         return `${player.webName} is the number ${positionRank} ranked FPL ${positionName} for DEFCON per 90 across the ${positionTotal} players who have played enough minutes to qualify. That is inside the top three at this position - as strong an endorsement as the data can offer on defensive contributions alone.`
@@ -647,7 +731,12 @@ export function buildDefconPlayerQA(
   const cbitPerMatch = player.minutes > 0 ? (player.cbit / (player.minutes / 90)).toFixed(1) : "0.0"
   const q3: { question: string; answer: string } = {
     question: `What do ${player.webName}'s raw defensive numbers look like this Fantasy Premier League season?`,
-    answer: `${player.webName} has racked up ${cbitStr} combined clearances, blocks, interceptions and tackles across ${minsStr} minutes. That works out to ${cbitPerMatch} defensive actions per 90 minutes on average. The ${cbitThreshold}-plus threshold has been hit in ${dcStr} matches, converting to the +2pt DEFCON bonus each time. ${mtier === "elite-load" ? `Playing ${minsStr} minutes puts ${player.webName} among the highest-load ${player.elementType === 2 ? "defenders" : "midfielders"} in the league - the base rate is genuinely tested by workload.` : mtier === "regular" ? `${minsStr} minutes is enough to trust the underlying rate for planning purposes.` : mtier === "rotation" ? `${minsStr} minutes is enough to see the shape of the underlying rate, though a larger sample would tighten confidence.` : `${minsStr} minutes is a small sample - the raw figures are directional rather than definitive.`}`,
+    answer: (() => {
+      const bonusPart = bonusLine
+        ? `The ${cbitThreshold}-plus threshold has been cleared in ${player.bonusHits} of ${player.appearances} appearances, converting to the +2pt DEFCON bonus each time.`
+        : `FPL lists ${dcStr} total defensive contribution actions this season, which is the workload proxy used to rank DEFCON profiles before full gameweek-by-gameweek bonus counts are available everywhere.`
+      return `${player.webName} has racked up ${cbitStr} combined clearances, blocks, interceptions and tackles across ${minsStr} minutes. That works out to ${cbitPerMatch} defensive actions per 90 minutes on average. ${bonusPart} ${mtier === "elite-load" ? `Playing ${minsStr} minutes puts ${player.webName} among the highest-load ${player.elementType === 2 ? "defenders" : "midfielders"} in the league - the base rate is genuinely tested by workload.` : mtier === "regular" ? `${minsStr} minutes is enough to trust the underlying rate for planning purposes.` : mtier === "rotation" ? `${minsStr} minutes is enough to see the shape of the underlying rate, though a larger sample would tighten confidence.` : `${minsStr} minutes is a small sample - the raw figures are directional rather than definitive.`}`
+    })(),
   }
 
   // Q4 — GW recommendation
@@ -661,18 +750,18 @@ export function buildDefconPlayerQA(
         return `${player.displayName} has an availability flag with a ${player.chance}% chance of playing next round. Wait for confirmation before committing a transfer - DEFCON reliability means nothing if the player does not start. ${opponentPart}`
       }
       if (tier === "elite" && (player.fdrNext ?? 3) <= 3) {
-        return `On DEFCON grounds the case is strong. ${player.displayName} is one of the most reliable ${player.elementType === 2 ? "defenders" : "midfielders"} in the league at ${dc90Str} bonuses per 90, and ${opponentPart.replace("The Gameweek", "the Gameweek").replace("is not yet available.", "is not yet available so treat this note as fixture-neutral.")} That combination points to a strong Gameweek ${gw} floor before any attacking output is factored in.`
+        return `On DEFCON grounds the case is strong. ${player.displayName} is one of the most reliable ${player.elementType === 2 ? "defenders" : "midfielders"} in the league at ${dc90Str} defensive contribution actions per 90${bonusLine ? ` and has ${bonusRate}` : ""}, and ${opponentPart.replace("The Gameweek", "the Gameweek").replace("is not yet available.", "is not yet available so treat this note as fixture-neutral.")} That combination points to a strong Gameweek ${gw} floor before any attacking output is factored in.`
       }
       if (tier === "elite" && (player.fdrNext ?? 3) >= 4) {
-        return `On DEFCON grounds the underlying case is strong at ${dc90Str} bonuses per 90 - one of the best rates in the position. ${opponentPart} A tougher matchup will not neutralise the DEFCON output because it is action-based rather than result-based, but the attacking upside is reduced. Signings on this profile are best sized around a longer-run fixture plan.`
+        return `On DEFCON grounds the underlying case is strong at ${dc90Str} defensive contribution actions per 90 - one of the best workloads in the position. ${opponentPart} A tougher matchup will not neutralise the DEFCON output because it is action-based rather than result-based, but the attacking upside is reduced. Signings on this profile are best sized around a longer-run fixture plan.`
       }
       if (tier === "reliable") {
-        return `The DEFCON case for ${player.displayName} is respectable at ${dc90Str} per 90. ${opponentPart} That is a sensible profile to bring in if you have space at the price point and want to lock in a baseline of defensive contributions, though it should sit alongside a stronger attacking or fixture reason rather than being the sole trigger.`
+        return `The DEFCON case for ${player.displayName} is respectable at ${dc90Str} defensive contribution actions per 90. ${opponentPart} That is a sensible profile to bring in if you have space at the price point and want to lock in a baseline of defensive contributions, though it should sit alongside a stronger attacking or fixture reason rather than being the sole trigger.`
       }
       if (tier === "occasional") {
-        return `${player.displayName}'s DEFCON rate of ${dc90Str} is moderate rather than elite. ${opponentPart} A transfer on defensive contributions alone is hard to justify at this profile - lean on the fixture, price, or attacking output as the primary case and treat DEFCON as an occasional bonus.`
+        return `${player.displayName}'s defensive workload of ${dc90Str} actions per 90 is moderate rather than elite. ${opponentPart} A transfer on defensive contributions alone is hard to justify at this profile - lean on the fixture, price, or attacking output as the primary case and treat DEFCON as an occasional bonus.`
       }
-      return `${player.displayName}'s DEFCON rate of ${dc90Str} is too thin to build a transfer around. ${opponentPart} If the attacking case is strong for other reasons, DEFCON is not the reason to hold back - but it should not be the reason to bring them in either.`
+      return `${player.displayName}'s defensive workload of ${dc90Str} actions per 90 is too thin to build a transfer around. ${opponentPart} If the attacking case is strong for other reasons, DEFCON is not the reason to hold back - but it should not be the reason to bring them in either.`
     })(),
   }
 
@@ -687,13 +776,17 @@ export function buildDefconVerdict(
   const tier = tierByDc90(player.dc90, player.elementType === 2 ? 10 : 12)
   const dc90Str = fmtDc90(player.dc90)
   const bullets: string[] = []
+  const bonusLine = bonusHitsLine(player)
 
-  if (tier === "elite" || tier === "reliable") {
-    bullets.push(`${player.dc} DEFCON returns from ${fmtMins(player.minutes)} minutes at ${dc90Str} per 90.`)
-  } else {
-    bullets.push(`${player.dc} DEFCON returns from ${fmtMins(player.minutes)} minutes - a per-90 rate of ${dc90Str}.`)
+  if (bonusLine) {
+    bullets.push(`${bonusLine.charAt(0).toUpperCase()}${bonusLine.slice(1)}.`)
   }
-  bullets.push(`Positional rank: ${positionRank} for DEFCON per 90.`)
+  if (tier === "elite" || tier === "reliable") {
+    bullets.push(`${player.dc} defensive contribution actions from ${fmtMins(player.minutes)} minutes at ${dc90Str} per 90.`)
+  } else {
+    bullets.push(`${player.dc} defensive contribution actions from ${fmtMins(player.minutes)} minutes - a per-90 rate of ${dc90Str}.`)
+  }
+  bullets.push(`Positional rank: ${positionRank} for defensive contribution actions per 90.`)
   if (player.smallSample) bullets.push(`Sample size still building - treat as a signal rather than a settled read.`)
   if (player.chance < 75) bullets.push(`Availability flagged - ${player.chance}% chance of playing next round.`)
   else bullets.push(`Fully available - ${player.chance}% chance of playing next round.`)
@@ -737,16 +830,19 @@ export function buildDefconCompareQA(
   const q1 = {
     question: `Who has the stronger DEFCON rate: ${a.webName} or ${b.webName}?`,
     answer: (() => {
-      if (parseFloat(rateGap) < 0.05) {
-        return `Barely anything in it. ${a.webName} averages ${aRate} DEFCON returns per 90 and ${b.webName} averages ${bRate} - a gap of ${rateGap} that is inside the natural noise of any per-90 metric. On the rate alone this is a coin toss and the decision should rest on fixture, price and attacking output rather than DEFCON.`
+      if (parseFloat(rateGap) < COMPARE_DC90_GAP) {
+        return `Barely anything in it. ${a.webName} averages ${aRate} defensive contribution actions per 90 and ${b.webName} averages ${bRate} - a gap of ${rateGap} that is inside the natural noise of any per-90 metric. On the workload alone this is a coin toss and the decision should rest on fixture, price and attacking output rather than DEFCON.`
       }
-      return `${rateWinner.webName} is the stronger DEFCON profile at ${fmtDc90(rateWinner.dc90)} per 90 against ${fmtDc90(rateLoser.dc90)} for ${rateLoser.webName} - a gap of ${rateGap} per 90. Over a 38-match season that difference works out to roughly ${(parseFloat(rateGap) * 38).toFixed(0)} extra DEFCON returns, or ${(parseFloat(rateGap) * 38 * 2).toFixed(0)} extra FPL points before any attacking upside is factored in.`
+      const extraActions = (parseFloat(rateGap) * 38).toFixed(0)
+      return `${rateWinner.webName} is the stronger DEFCON profile at ${fmtDc90(rateWinner.dc90)} actions per 90 against ${fmtDc90(rateLoser.dc90)} for ${rateLoser.webName} - a gap of ${rateGap} per 90. Over a 38-match season that difference works out to roughly ${extraActions} extra defensive contribution actions before any attacking upside is factored in.`
     })(),
   }
 
+  const aBonus = bonusHitsLine(a)
+  const bBonus = bonusHitsLine(b)
   const q2 = {
     question: `How do the raw defensive workloads of ${a.webName} and ${b.webName} compare?`,
-    answer: `${a.webName} has logged ${a.cbit} combined clearances, blocks, interceptions and tackles across ${aMins} minutes (${(a.cbit / Math.max(1, a.minutes / 90)).toFixed(1)} per 90). ${b.webName} has logged ${b.cbit} across ${bMins} minutes (${(b.cbit / Math.max(1, b.minutes / 90)).toFixed(1)} per 90). The ${cbitThreshold}-plus threshold has been cleared ${a.dc} times by ${a.webName} and ${b.dc} times by ${b.webName}. Higher raw counts often reflect a higher defensive workload; higher per-90 rates reflect efficiency at hitting the threshold.`,
+    answer: `${a.webName} has logged ${a.cbit} combined clearances, blocks, interceptions and tackles across ${aMins} minutes (${(a.cbit / Math.max(1, a.minutes / 90)).toFixed(1)} per 90). ${b.webName} has logged ${b.cbit} across ${bMins} minutes (${(b.cbit / Math.max(1, b.minutes / 90)).toFixed(1)} per 90). ${aBonus && bBonus ? `${a.webName} ${aBonus}; ${b.webName} ${bBonus}.` : `${a.webName} has ${a.dc} total defensive contribution actions and ${b.webName} has ${b.dc}.`} Higher raw counts reflect a higher defensive workload; higher per-90 rates reflect efficiency at sustaining that workload.`,
   }
 
   const q3 = {
@@ -765,8 +861,8 @@ export function buildDefconCompareQA(
   const q4 = {
     question: `Which ${positionName} should I pick for Gameweek ${gw} on DEFCON grounds?`,
     answer: (() => {
-      if (parseFloat(rateGap) < 0.05) {
-        return `The DEFCON rates are too close to call. Both ${a.webName} and ${b.webName} deliver similar defensive returns, so the pick should come down to price, fixtures and attacking output rather than DEFCON. On the defensive contributions alone this is a genuine coin toss.`
+      if (parseFloat(rateGap) < COMPARE_DC90_GAP) {
+        return `The DEFCON workloads are too close to call. Both ${a.webName} and ${b.webName} deliver similar defensive contribution rates, so the pick should come down to price, fixtures and attacking output rather than DEFCON. On the defensive contributions alone this is a genuine coin toss.`
       }
       const priceDiff = Math.abs(extractPriceRaw(a) - extractPriceRaw(b)).toFixed(1)
       if (parseFloat(priceDiff) < 0.1) {
@@ -791,8 +887,8 @@ export function buildDefconCompareVerdict(
   const aRate = fmtDc90(a.dc90)
   const bRate = fmtDc90(b.dc90)
   const bullets = [
-    `${a.webName}: ${aRate} DEFCON per 90 across ${fmtMins(a.minutes)} minutes (${a.dc} returns).`,
-    `${b.webName}: ${bRate} DEFCON per 90 across ${fmtMins(b.minutes)} minutes (${b.dc} returns).`,
+    `${a.webName}: ${aRate} defensive contribution actions per 90 across ${fmtMins(a.minutes)} minutes (${a.dc} total actions).`,
+    `${b.webName}: ${bRate} defensive contribution actions per 90 across ${fmtMins(b.minutes)} minutes (${b.dc} total actions).`,
   ]
   const priceDiff = Math.abs(extractPriceRaw(a) - extractPriceRaw(b))
   if (priceDiff >= 0.1) {

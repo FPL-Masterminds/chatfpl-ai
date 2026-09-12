@@ -26,8 +26,8 @@ export function DefconPositionRender({ data, priceSlug }: Props) {
   const gradientTail = `Gameweek ${data.gw}`
 
   const subtitle = isPriceView
-    ? `${data.positionLabel} priced at or below ${priceLabel} ranked by DEFCON returns per 90 minutes. Bonus earned at ${data.cbitThreshold}+ clearances, blocks, interceptions${data.positionSlug === "midfielders" ? ", tackles and ball recoveries" : " and tackles"} in a match.`
-    : `Every eligible ${data.positionSingular.toLowerCase()} in Fantasy Premier League ranked by DEFCON returns per 90 minutes. Bonus earned at ${data.cbitThreshold}+ clearances, blocks, interceptions${data.positionSlug === "midfielders" ? ", tackles and ball recoveries" : " and tackles"} in a match.`
+    ? `${data.positionLabel} priced at or below ${priceLabel} ranked by defensive contribution actions per 90 minutes. Bonus earned at ${data.cbitThreshold}+ clearances, blocks, interceptions${data.positionSlug === "midfielders" ? ", tackles and ball recoveries" : " and tackles"} in a match.`
+    : `Every eligible ${data.positionSingular.toLowerCase()} in Fantasy Premier League ranked by defensive contribution actions per 90 minutes. Bonus earned at ${data.cbitThreshold}+ clearances, blocks, interceptions${data.positionSlug === "midfielders" ? ", tackles and ball recoveries" : " and tackles"} in a match.`
 
   const relatedPrices = Object.entries(DEFCON_PRICE_META).filter(([slug]) => slug !== priceSlug)
 
@@ -78,8 +78,8 @@ export function DefconPositionRender({ data, priceSlug }: Props) {
 
           <p className="mt-4 text-center text-[11px] text-white/40 leading-relaxed">
             {isPriceView
-              ? `Ranked by DEFCON returns per 90 minutes for Gameweek ${data.gw}. All eligible ${data.positionLabel.toLowerCase()} at or below ${priceLabel} (${priceCap / 10}m). Updated hourly.`
-              : `Ranked by DEFCON returns per 90 minutes for Gameweek ${data.gw}. All eligible ${data.positionLabel.toLowerCase()}. Updated hourly.`
+              ? `Ranked by defensive contribution actions per 90 minutes for Gameweek ${data.gw}. All eligible ${data.positionLabel.toLowerCase()} at or below ${priceLabel} (${priceCap / 10}m). Updated hourly.`
+              : `Ranked by defensive contribution actions per 90 minutes for Gameweek ${data.gw}. All eligible ${data.positionLabel.toLowerCase()}. Updated hourly.`
             }
           </p>
 

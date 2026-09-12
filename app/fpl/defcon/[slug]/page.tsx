@@ -34,7 +34,7 @@ export async function generateMetadata({
   if (!data) return fallbackPageMetadata("FPL DEFCON Analysis | ChatFPL AI", "/fpl/defcon/x")
   const { player, gw } = data
   const title = `${player.displayName} DEFCON Analysis: Is he a reliable Fantasy Premier League pick for Gameweek ${gw}? | ChatFPL AI`
-  const description = `${player.displayName} has ${player.dc} DEFCON returns from ${player.minutes.toLocaleString("en-GB")} minutes at ${player.dc90.toFixed(2)} per 90 this season. Full DEFCON breakdown, fixture context and Gameweek ${gw} recommendation.`
+  const description = `${player.displayName} has ${player.dc} defensive contribution actions from ${player.minutes.toLocaleString("en-GB")} minutes at ${player.dc90.toFixed(2)} per 90 this season. Full DEFCON breakdown, fixture context and Gameweek ${gw} recommendation.`
   return buildPageMetadata({ title, description, path: `/fpl/defcon/${slug}` })
 }
 
@@ -65,7 +65,10 @@ export default async function DefconPlayerPage({
     answer: q.answer,
   }))
 
-  const welcome = `I've pulled the DEFCON data for ${player.displayName} - ${player.dc} returns from ${player.minutes.toLocaleString("en-GB")} minutes at ${player.dc90.toFixed(2)} per 90 this season. Click any question below for the full breakdown.`
+  const bonusIntro = player.bonusHits != null && player.appearances != null
+    ? `${player.bonusHits} +2pt DEFCON bonuses from ${player.appearances} appearances, `
+    : `${player.dc} defensive contribution actions, `
+  const welcome = `I've pulled the DEFCON data for ${player.displayName} - ${bonusIntro}${player.minutes.toLocaleString("en-GB")} minutes played and ${player.dc90.toFixed(2)} actions per 90 this season. Click any question below for the full breakdown.`
 
   const ctaHeading = (() => {
     if (verdict.label === "DEFCON Elite") return `${player.displayName} is one of the strongest DEFCON profiles in the league - does he fit your specific squad?`
@@ -105,7 +108,7 @@ export default async function DefconPlayerPage({
       <HubHero
         headingWhite={`${player.displayName} DEFCON Analysis: `}
         headingGradient={`Fantasy Premier League Gameweek ${gw}`}
-        subtitle={`${player.position} · ${player.club} · ${player.dc90.toFixed(2)} DEFCON per 90 · ranked ${positionRank} of ${positionTotal} eligible ${posMeta.label.toLowerCase()}.`}
+        subtitle={`${player.position} · ${player.club} · ${player.dc90.toFixed(2)} defensive actions per 90 · ranked ${positionRank} of ${positionTotal} eligible ${posMeta.label.toLowerCase()}.`}
         ctaHref="/chat"
         ctaLabel="Ask ChatFPL AI"
       />

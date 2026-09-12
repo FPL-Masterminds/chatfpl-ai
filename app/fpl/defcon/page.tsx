@@ -108,7 +108,7 @@ export default async function DefconHubPage() {
                 DEFCON is a scoring rule introduced for the 2025/26 Fantasy Premier League season. Defenders earn a +2 point bonus whenever their combined clearances, blocks, interceptions and tackles reach 10 or more in a single match. Midfielders earn the same +2 bonus when their combined clearances, blocks, interceptions, tackles and ball recoveries reach 12 or more. Goalkeepers and forwards do not qualify.
               </p>
               <p className="text-sm text-white/70 leading-relaxed mt-3">
-                The pages below rank every eligible defender and midfielder by DEFCON returns per 90 minutes - the fairest measure of who is genuinely reliable versus who has racked up counting stats through minutes alone.
+                The pages below rank every eligible defender and midfielder by defensive contribution actions per 90 minutes - the fairest measure of who is genuinely reliable versus who has racked up counting stats through minutes alone.
               </p>
             </div>
           </Reveal>
@@ -142,7 +142,7 @@ export default async function DefconHubPage() {
                 </span>
               </h2>
               <p className="text-center text-white/50 text-xs mb-6">
-                Ranked by DEFCON returns per 90 minutes. Bonus at 10+ clearances, blocks, interceptions and tackles.
+                Ranked by defensive contribution actions per 90 minutes. Bonus at 10+ clearances, blocks, interceptions and tackles.
               </p>
             </Reveal>
             <div className="flex flex-col gap-3">
@@ -184,7 +184,7 @@ export default async function DefconHubPage() {
                 </span>
               </h2>
               <p className="text-center text-white/50 text-xs mb-6">
-                Ranked by DEFCON returns per 90 minutes. Bonus at 12+ clearances, blocks, interceptions, tackles and ball recoveries.
+                Ranked by defensive contribution actions per 90 minutes. Bonus at 12+ clearances, blocks, interceptions, tackles and ball recoveries.
               </p>
             </Reveal>
             <div className="flex flex-col gap-3">
