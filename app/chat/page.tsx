@@ -18,6 +18,7 @@ import { textForSpeech, textForVoiceboxSpeech } from "@/lib/chat-speech-text"
 import { unlockAudioPlayback } from "@/lib/audio-unlock"
 import { pickChatSuggestionPrompts } from "@/lib/chat-suggestion-prompts"
 import { ChatAlertPills } from "@/components/chat-alert-pills"
+import { ChatUsageToast } from "@/components/chat-usage-toast"
 import type { ChatAlert } from "@/lib/chat-alerts"
 
 function SuggestionRefreshIcon({ spinning }: { spinning: boolean }) {
@@ -816,6 +817,13 @@ export default function ChatPage() {
 
               {/* Messages */}
               <div className="relative flex-1 min-h-0">
+              <ChatUsageToast
+                messagesUsed={messagesUsed}
+                messagesLimit={messagesLimit}
+                userPlan={userPlan}
+                ready={!isLoadingHistory}
+                fplAlertsQueued={chatAlerts.length > 0}
+              />
               <ChatAlertPills alerts={chatAlerts} onAsk={(prompt) => handleSend(prompt)} />
               <div className="chat-messages h-full overflow-y-auto p-4 pb-4 md:p-6 space-y-5">
 
