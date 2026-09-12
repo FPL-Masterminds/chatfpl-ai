@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { ChatModelProfile } from "@/lib/chat-model-profile";
+import { expandCbitForReaders } from "@/lib/chat-message-format";
 import { isFplPlayerPhotoUrl } from "@/lib/fpl-player-photo";
 
 const IMG_RE = /!\[([^\]]*)\]\(([^)]+)\)/;
@@ -249,8 +250,9 @@ export function ChatMessageContent({
   content: string;
   profile?: ChatModelProfile;
 }) {
+  const readable = expandCbitForReaders(content);
   if (profile === "structured") {
-    return <StructuredChatMessageContent content={content} />;
+    return <StructuredChatMessageContent content={readable} />;
   }
-  return <LegacyChatMessageContent content={content} />;
+  return <LegacyChatMessageContent content={readable} />;
 }

@@ -541,7 +541,7 @@ ${formFieldChatExplanation(formSampleGws)}
 - TO_GW = Transfers OUT this gameweek
 - DC = Defensive contribution actions this season (FPL workload total, NOT bonus matches earned). DEFCON only applies to DEF and MID - ignore for GKP/FWD.
 - DC90 = Defensive contribution actions per 90 minutes. Use as the PRIMARY DEFCON workload signal.
-- CBIT = raw Clearances+Blocks+Interceptions+Tackles count this season.
+- CBIT = raw Clearances+Blocks+Interceptions+Tackles count this season. In the user-facing reply, the first mention MUST be written as CBIT (clearances, blocks, interceptions and tackles).
 - Status: a=available, d=doubtful, i=injured, u=unavailable, s=suspended
 - Fitness% = Chance of playing next round (0-100)
 

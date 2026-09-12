@@ -676,7 +676,7 @@ ${formFieldChatExplanation(formSampleGws)}
 - Saves/Pens/PensMissed = Goalkeeper/penalty stats
 - DC = Defensive contribution actions this season (FPL defensive_contribution field). This is a workload total, NOT the number of +2pt DEFCON bonuses earned. DEFCON = new scoring system for 2025/26: defenders earn +2 pts when their combined Clearances+Blocks+Interceptions+Tackles (CBIT) reaches 10+ in a match; midfielders earn +2 pts when CBIT+Ball Recoveries reaches 12+. Goalkeepers and Forwards do NOT earn DEFCON points - ignore DC for them.
 - DC90 = Defensive contribution actions per 90 minutes played. Use this as the primary DEFCON workload signal. Typical DEF/MID values sit around 5-16 actions per 90 early season. Never describe DC or DC90 as bonus matches earned.
-- CBIT = Clearances + Blocks + Interceptions + Tackles (raw combined count). Useful context for defenders and defensive midfielders.
+- CBIT = Clearances + Blocks + Interceptions + Tackles (raw combined count). Useful context for defenders and defensive midfielders. In the user-facing reply, the first mention MUST be written as CBIT (clearances, blocks, interceptions and tackles).
 - Status: a=available, d=doubtful, i=injured, u=unavailable, s=suspended
 - Fitness% = Chance of playing next round (0-100)
 - [InjuryNews] = Latest injury/availability news if any

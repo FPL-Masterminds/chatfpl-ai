@@ -1,12 +1,27 @@
 import type { ChatModelProfile } from "@/lib/chat-model-profile";
 import { isFplPlayerPhotoUrl } from "@/lib/fpl-player-photo";
 
+export const CBIT_EXPANSION =
+  "CBIT (clearances, blocks, interceptions and tackles)";
+
+/** First bare CBIT in a reply gets the expansion so customers are not left guessing. */
+export function expandCbitForReaders(text: string): string {
+  if (!text || !/\bCBIT\b/i.test(text)) return text;
+  let expanded = false;
+  return text.replace(/\bCBIT\b(?!\s*\()/gi, (match) => {
+    if (expanded) return match;
+    expanded = true;
+    return match.toUpperCase() === "CBIT" ? CBIT_EXPANSION : `${match} (clearances, blocks, interceptions and tackles)`;
+  });
+}
+
 export function normalizeAssistantChatFormatting(
   text: string,
   profile: ChatModelProfile = "legacy",
 ): string {
-  if (profile !== "structured") return text;
-  return text
+  const withCbit = expandCbitForReaders(text);
+  if (profile !== "structured") return withCbit;
+  return withCbit
     .replace(/\*\*\s+([^*\n]+?)\s+\*\*/g, "$1")
     .replace(/\*\*([^*]+)\*\*/g, "$1")
     .replace(/\*\*/g, "")
@@ -36,6 +51,7 @@ export const LEGACY_CHAT_FORMATTING_RULES = `FORMATTING RULES:
 - Use bullet points (•) for lists and multiple items
 - Add a blank line between each major section or topic
 - Use hyphens ( - ) not em-dashes. This is mandatory.
+- JARGON: The first time you write CBIT, write CBIT (clearances, blocks, interceptions and tackles). Later mentions can stay as CBIT.
 - Keep each paragraph short (2-3 sentences max)
 - IMPORTANT: When mentioning a player, ALWAYS include their photo using: ![Full Name Exactly As In Data](PhotoURL)
 - PhotoURL MUST be copied character-for-character from the end of that player's row in LIVE FPL DATA (final field after the last |). Never invent, shorten, or alter the URL.
@@ -59,6 +75,7 @@ export const STRUCTURED_CHAT_FORMATTING_RULES = `FORMATTING RULES (plain text UI
 - PhotoURL MUST be copied character-for-character from the end of that player's row in LIVE FPL DATA.
 - LIVE FPL DATA is injected server-side. NEVER ask the user to paste player rows or PhotoURLs.
 - Use hyphens ( - ) not em-dashes.
+- JARGON: The first time you write CBIT, write CBIT (clearances, blocks, interceptions and tackles). Later mentions can stay as CBIT.
 ${REDDIT_FORMATTING_RULES}`;
 
 export function getChatFormattingRules(profile: ChatModelProfile): string {
