@@ -9,6 +9,13 @@ export const FPL_TEAM_ID_PASTE_WARNING =
 export const FPL_TEAM_ID_CHAT_BANNER =
   "Link your FPL Team ID in Settings for reliable squad advice. Pasting 15 players from the app is a fallback only and context can get lost between messages.";
 
+/** Injected on every chat request. ChatFPL cannot receive uploads or images. */
+export const CHAT_NO_UPLOADS_RULES = `USER INPUT LIMITS (MANDATORY):
+- ChatFPL is TEXT ONLY. Users cannot upload images, screenshots, files, or attachments in chat.
+- NEVER ask for a screenshot, screen grab, photo, picture, or image of their team, app, or FPL screen.
+- NEVER ask users to upload or send anything visual. We cannot see it.
+- For personal squad advice, direct users to link their public FPL Team ID at ${FPL_TEAM_ID_SETTINGS_URL}, or send the numeric Team ID in chat, or paste player names as plain text only as a last resort.`;
+
 export function chatWelcomeMessage(firstName: string, hasFplTeamId: boolean): string {
   const greeting = `Hi ${firstName}! I'm your ChatFPL AI analyst. Ask me about captains, transfers, differentials, fixtures - anything FPL.`;
   if (hasFplTeamId) return greeting;

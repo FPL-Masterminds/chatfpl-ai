@@ -56,8 +56,13 @@ import {
 import {
   buildNoTeamIdPromptNotice,
   buildPastedSquadPromptNotice,
+  CHAT_NO_UPLOADS_RULES,
   looksLikePastedFplSquad,
 } from "@/lib/chat-team-id-guidance";
+import {
+  CHAT_ABUSE_HANDLING_RULES,
+  prepareUserMessageForModel,
+} from "@/lib/chat-abuse-handling";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
@@ -143,9 +148,15 @@ export async function POST(request: Request) {
     }
     
     const userFirstName = user.name?.split(' ')[0] || "there";
+    const preparedUserMessage = await prepareUserMessageForModel(
+      message,
+      conversationId,
+      userFirstName,
+    );
+    const modelUserMessage = preparedUserMessage.modelMessage;
     const resolvedFplTeam = await resolveFplTeamIdForChat({
       userFplTeamId: user.fpl_team_id,
-      message,
+      message: modelUserMessage,
       conversationId,
     });
 
@@ -710,6 +721,10 @@ TRANSFERS:
 
 ${CHAT_FPL_TRANSFER_REPLACEMENT_RULES}
 
+${CHAT_NO_UPLOADS_RULES}
+
+${CHAT_ABUSE_HANDLING_RULES}
+
 ${CONVERSATIONAL_PROMPT_RULES}
 
 PERSONALITY RULES:
@@ -755,9 +770,11 @@ PERSONALITY RULES:
                     : "";
 
                 const pastedSquadNotice =
-                  !resolvedFplTeam.teamId && looksLikePastedFplSquad(message)
+                  !resolvedFplTeam.teamId && looksLikePastedFplSquad(modelUserMessage)
                     ? buildPastedSquadPromptNotice(userFirstName)
                     : "";
+
+                const abuseNotice = preparedUserMessage.abuseNotice;
 
                 const teamIdChatNotice =
                   resolvedFplTeam.source === "message" &&
@@ -768,8 +785,8 @@ PERSONALITY RULES:
                       : "";
 
                 const enhancedMessage = combinedContext
-                  ? `${combinedContext}\n\n${redditInstruction}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${teamIdChatNotice}\n---\n\nUser Question: ${message}`
-                  : `${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${teamIdChatNotice}\n---\n\nUser Question: ${message}`;
+                  ? `${combinedContext}\n\n${redditInstruction}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`
+                  : `${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`;
 
     console.log('=== DIFY PAYLOAD DEBUG ===');
     console.log('Enhanced message length:', enhancedMessage.length);
@@ -893,6 +910,7 @@ PERSONALITY RULES:
             fullAnswer,
             photoRowsForFix,
             chatModelProfile,
+            { userWasAbusive: preparedUserMessage.hadAbuse },
           );
 
           // ── DB operations (run after stream completes) ─────────────────

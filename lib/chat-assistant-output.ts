@@ -8,6 +8,8 @@ import {
   type FplPhotoRow,
 } from "@/lib/fpl-player-photo";
 
+import { FRUSTRATED_USER_EMPTY_FALLBACK } from "@/lib/chat-abuse-handling";
+
 export const EMPTY_ASSISTANT_FALLBACK =
   "Sorry, I hit a glitch and did not return a proper answer that time. Please send the question again. If you were asking for a transfer replacement, name the player you want to sell and I will only suggest same-position options from live FPL data.";
 
@@ -15,6 +17,7 @@ export function postProcessAssistantAnswer(
   rawAnswer: string,
   photoRows: FplPhotoRow[],
   profile: ChatModelProfile,
+  options?: { userWasAbusive?: boolean },
 ): string {
   const processed = normalizeAssistantChatFormatting(
     stripInvalidMarkdownImages(
@@ -24,7 +27,10 @@ export function postProcessAssistantAnswer(
     ),
     profile,
   );
-  return processed.trim() ? processed : EMPTY_ASSISTANT_FALLBACK;
+  if (processed.trim()) return processed;
+  return options?.userWasAbusive
+    ? FRUSTRATED_USER_EMPTY_FALLBACK
+    : EMPTY_ASSISTANT_FALLBACK;
 }
 
 /** Collect answer text from Dify SSE events (multiple event shapes). */
