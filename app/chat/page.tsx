@@ -498,12 +498,15 @@ export default function ChatPage() {
 
     let finalContent = ""
     let accumulated = ""
+    const abort = new AbortController()
+    const hangTimer = window.setTimeout(() => abort.abort(), 95_000)
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, conversationId }),
+        signal: abort.signal,
       })
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => ({ error: "Failed" }))
@@ -522,41 +525,51 @@ export default function ChatPage() {
         buf = lines.pop() ?? ""
         for (const line of lines) {
           if (!line.startsWith("data: ")) continue
+          let evt: any
           try {
-            const evt = JSON.parse(line.slice(6))
-            if (evt.type === "chunk") {
-              accumulated += evt.text
+            evt = JSON.parse(line.slice(6))
+          } catch {
+            continue
+          }
+          if (evt.type === "chunk") {
+            accumulated += evt.text
+            setMessages(prev => prev.map(m =>
+              m.id === aiMsgId ? { ...m, content: accumulated } : m
+            ))
+          } else if (evt.type === "done") {
+            setConversationId(evt.conversation_id)
+            setMessagesUsed(evt.messages_used)
+            setMessagesLimit(evt.messages_limit)
+            if (evt.assistant_message_id) {
               setMessages(prev => prev.map(m =>
-                m.id === aiMsgId ? { ...m, content: accumulated } : m
+                m.id === aiMsgId ? { ...m, id: evt.assistant_message_id as string } : m
               ))
-            } else if (evt.type === "done") {
-              setConversationId(evt.conversation_id)
-              setMessagesUsed(evt.messages_used)
-              setMessagesLimit(evt.messages_limit)
-              if (evt.assistant_message_id) {
-                setMessages(prev => prev.map(m =>
-                  m.id === aiMsgId ? { ...m, id: evt.assistant_message_id as string } : m
-                ))
-              }
-              if (evt.content) {
-                finalContent = evt.content
-                setMessages(prev => prev.map(m =>
-                  m.id === aiMsgId ? { ...m, content: evt.content } : m
-                ))
-              }
-            } else if (evt.type === "error") {
-              throw new Error(evt.message)
             }
-          } catch { /* skip malformed events */ }
+            if (evt.content) {
+              finalContent = evt.content
+              setMessages(prev => prev.map(m =>
+                m.id === aiMsgId ? { ...m, content: evt.content } : m
+              ))
+            }
+          } else if (evt.type === "error") {
+            throw new Error(evt.message || "Something went wrong generating your response. Please try again.")
+          }
         }
       }
       if (!finalContent) finalContent = accumulated
+      if (!finalContent.trim()) {
+        throw new Error("ChatFPL did not return an answer that time. Please try the question again.")
+      }
     } catch (e: any) {
-      finalContent = e.message || "Something went wrong."
+      const timedOut = e?.name === "AbortError"
+      finalContent = timedOut
+        ? "That answer took too long. Please try again, or ask a shorter question."
+        : (e.message || "Something went wrong.")
       setMessages(prev => prev.map(m =>
         m.id === aiMsgId ? { ...m, content: finalContent } : m
       ))
     } finally {
+      window.clearTimeout(hangTimer)
       setIsLoading(false)
       window.setTimeout(() => {
         suppressListenEndRef.current = false

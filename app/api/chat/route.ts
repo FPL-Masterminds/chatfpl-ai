@@ -54,6 +54,7 @@ import {
   isConversationalMessage,
 } from "@/lib/chat-conversational";
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 export async function POST(request: Request) {
   try {
@@ -912,8 +913,18 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
           ctrl.enqueue(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
 
         try {
+          const STREAM_IDLE_MS = 45_000;
           while (true) {
-            const { done, value } = await reader.read();
+            let idleTimer: ReturnType<typeof setTimeout> | undefined;
+            const chunk = await Promise.race([
+              reader.read().finally(() => {
+                if (idleTimer) clearTimeout(idleTimer);
+              }),
+              new Promise<never>((_, reject) => {
+                idleTimer = setTimeout(() => reject(new Error("STREAM_IDLE_TIMEOUT")), STREAM_IDLE_MS);
+              }),
+            ]);
+            const { done, value } = chunk;
             if (done) break;
             buf += dec.decode(value, { stream: true });
             const lines = buf.split("\n");
@@ -922,24 +933,30 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
               if (!line.startsWith("data: ")) continue;
               const json = line.slice(6).trim();
               if (!json || json === "[DONE]") continue;
+              let evt: any;
               try {
-                const evt = JSON.parse(json);
-                if (evt.event === "message" || evt.event === "agent_message") {
-                  // Strip em-dashes server-side — regardless of what the model outputs
-                  const rawChunk: string = evt.answer ?? "";
-                  const chunk = rawChunk.replace(/\u2014/g, " - ").replace(/\u2013/g, " - ");
-                  fullAnswer += chunk;
-                  if (chunk) send({ type: "chunk", text: chunk });
-                  if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
-                } else if (evt.event === "message_end") {
-                  if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
-                  const usageTotal = evt?.metadata?.usage?.total_tokens;
-                  if (typeof usageTotal === "number") totalTokens = usageTotal;
-                } else if (evt.event === "error") {
-                  throw new Error(evt.message || "Dify stream error");
-                }
-              } catch { /* skip malformed SSE lines */ }
+                evt = JSON.parse(json);
+              } catch {
+                continue;
+              }
+              if (evt.event === "message" || evt.event === "agent_message") {
+                const rawChunk: string = evt.answer ?? "";
+                const text = rawChunk.replace(/\u2014/g, " - ").replace(/\u2013/g, " - ");
+                fullAnswer += text;
+                if (text) send({ type: "chunk", text });
+                if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
+              } else if (evt.event === "message_end") {
+                if (evt.conversation_id) difyConvIdFinal = evt.conversation_id;
+                const usageTotal = evt?.metadata?.usage?.total_tokens;
+                if (typeof usageTotal === "number") totalTokens = usageTotal;
+              } else if (evt.event === "error") {
+                throw new Error(evt.message || "Dify stream error");
+              }
             }
+          }
+
+          if (!fullAnswer.trim()) {
+            throw new Error("EMPTY_DIFY_ANSWER");
           }
 
           // Fix hallucinated player photo URLs in the accumulated response
@@ -1000,7 +1017,14 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
           });
         } catch (err: any) {
           console.error("Streaming error:", err);
-          send({ type: "error", message: "Something went wrong generating your response. Please try again." });
+          const code = err?.message;
+          const message =
+            code === "STREAM_IDLE_TIMEOUT"
+              ? "The answer stalled before it finished. Please try again."
+              : code === "EMPTY_DIFY_ANSWER"
+                ? "ChatFPL did not return an answer that time. Please try again."
+                : "Something went wrong generating your response. Please try again.";
+          send({ type: "error", message });
         } finally {
           ctrl.close();
         }
