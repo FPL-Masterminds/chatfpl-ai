@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { StreamingText } from "@/components/streaming-text"
 
 export interface PlayerQA {
   id: string
@@ -18,9 +19,11 @@ type ChatMessage = {
   id: string
   role: "user" | "assistant"
   text: string
+  stream?: boolean
 }
 
 const SPRING = { type: "spring" as const, stiffness: 120, damping: 20 }
+const TYPING_DELAY_MS = 450
 
 function TypingDots() {
   return (
@@ -40,9 +43,10 @@ function TypingDots() {
 
 export function ConversationalPlayer({ welcome, qaItems }: ConversationalPlayerProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: "welcome", role: "assistant", text: welcome },
+    { id: "welcome", role: "assistant", text: welcome, stream: false },
   ])
   const [typing, setTyping] = useState(false)
+  const [streamingId, setStreamingId] = useState<string | null>(null)
   const [asked, setAsked] = useState<Set<string>>(new Set())
   const [showAll, setShowAll] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -51,22 +55,28 @@ export function ConversationalPlayer({ welcome, qaItems }: ConversationalPlayerP
     const container = scrollRef.current
     if (!container) return
     container.scrollTo({ top: container.scrollHeight, behavior: "smooth" })
-  }, [messages, typing])
+  }, [messages, typing, streamingId])
 
   function ask(item: PlayerQA) {
-    if (asked.has(item.id) || typing) return
+    if (asked.has(item.id) || typing || streamingId) return
     setAsked((prev) => new Set([...prev, item.id]))
     setShowAll(false)
     setMessages((prev) => [...prev, { id: `u-${item.id}`, role: "user", text: item.question }])
     setTyping(true)
-    setTimeout(() => {
+    window.setTimeout(() => {
       setTyping(false)
-      setMessages((prev) => [...prev, { id: `a-${item.id}`, role: "assistant", text: item.answer }])
-    }, 1100)
+      const answerId = `a-${item.id}`
+      setStreamingId(answerId)
+      setMessages((prev) => [
+        ...prev,
+        { id: answerId, role: "assistant", text: item.answer, stream: true },
+      ])
+    }, TYPING_DELAY_MS)
   }
 
   const remaining = qaItems.filter((q) => !asked.has(q.id))
   const visiblePills = showAll ? remaining : remaining.slice(0, 1)
+  const pillsLocked = typing || streamingId !== null
 
   return (
     <div
@@ -76,7 +86,6 @@ export function ConversationalPlayer({ welcome, qaItems }: ConversationalPlayerP
         background: "rgba(255,255,255,0.02)",
       }}
     >
-      {/* Chat window */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-4 min-h-0">
         <AnimatePresence initial={false}>
           {messages.map((msg) => (
@@ -100,7 +109,17 @@ export function ConversationalPlayer({ welcome, qaItems }: ConversationalPlayerP
                     : "border border-white/8 bg-black/30 text-white/85 rounded-bl-sm"
                 }`}
               >
-                {msg.text}
+                {msg.role === "assistant" && msg.stream ? (
+                  <StreamingText
+                    text={msg.text}
+                    active={streamingId === msg.id}
+                    onComplete={() => {
+                      if (streamingId === msg.id) setStreamingId(null)
+                    }}
+                  />
+                ) : (
+                  msg.text
+                )}
               </div>
             </motion.div>
           ))}
@@ -126,7 +145,6 @@ export function ConversationalPlayer({ welcome, qaItems }: ConversationalPlayerP
         </AnimatePresence>
       </div>
 
-      {/* Question pills */}
       {remaining.length > 0 && (
         <div className="px-4 md:px-6 pb-6 pt-3 border-t border-white/6">
           <p className="text-white/70 text-xs mb-3 uppercase tracking-widest">Ask a question</p>
@@ -141,7 +159,7 @@ export function ConversationalPlayer({ welcome, qaItems }: ConversationalPlayerP
                   exit={{ opacity: 0, scale: 0.85 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => ask(item)}
-                  disabled={typing}
+                  disabled={pillsLocked}
                   className="text-sm px-4 py-2 rounded-full border transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:-translate-y-0.5 hover:shadow-[0_0_16px_rgba(0,255,200,0.2)]"
                   style={{
                     borderColor: "rgba(0,255,200,0.25)",
@@ -158,7 +176,7 @@ export function ConversationalPlayer({ welcome, qaItems }: ConversationalPlayerP
               <motion.button
                 layout
                 onClick={() => setShowAll((v) => !v)}
-                disabled={typing}
+                disabled={pillsLocked}
                 className="text-sm px-4 py-2 rounded-full border transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed hover:-translate-y-0.5"
                 style={{
                   borderColor: "rgba(255,255,255,0.12)",
