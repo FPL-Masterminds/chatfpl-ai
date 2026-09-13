@@ -121,6 +121,56 @@ interface TopUser {
   messages: number
 }
 
+type HealthLevel = "ok" | "warning" | "critical"
+
+interface ProductHealth {
+  overall: HealthLevel
+  attention: string[]
+  chat: {
+    assistant_messages_7d: number
+    empty_replies_7d: number
+    empty_reply_rate_7d: number
+    status: HealthLevel
+  }
+  feedback: {
+    negative_7d: number
+    positive_7d: number
+    status: HealthLevel
+    recent_negative: {
+      email: string
+      name: string
+      submitted_at: string
+      prompt_preview: string
+    }[]
+  }
+  churn: {
+    pending_cancels: number
+    quick_cancels_7d: number
+    status: HealthLevel
+    recent: {
+      email: string
+      name: string
+      plan: string
+      status: string
+      cancel_at_period_end: boolean
+      period_end: string | null
+      user_messages_7d: number
+      quick_cancel: boolean
+    }[]
+  }
+  fetched_at: string
+}
+
+function healthStyles(level: HealthLevel): { border: string; text: string; bg: string } {
+  if (level === "critical") {
+    return { border: "border-red-400/30", text: "text-red-300", bg: "bg-red-400/[0.08]" }
+  }
+  if (level === "warning") {
+    return { border: "border-amber-400/30", text: "text-amber-300", bg: "bg-amber-400/[0.08]" }
+  }
+  return { border: "border-emerald-400/30", text: "text-emerald-300", bg: "bg-emerald-400/[0.08]" }
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function DarkCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -206,6 +256,8 @@ export default function AdminPage() {
   const [topPagesError, setTopPagesError] = useState<string | null>(null)
   const [topPagesSteps, setTopPagesSteps] = useState<string[]>([])
   const [topPagesDays, setTopPagesDays] = useState<1 | 7 | 28 | 90>(28)
+  const [productHealth, setProductHealth] = useState<ProductHealth | null>(null)
+  const [productHealthLoading, setProductHealthLoading] = useState(false)
 
   useEffect(() => { fetchAccountData() }, [])
 
@@ -215,6 +267,7 @@ export default function AdminPage() {
       fetchAnalytics()
       fetchCustomerEvents(eventsRange, eventsType)
       fetchSiteStats()
+      fetchProductHealth()
     }
   }, [data?.user.email])
 
@@ -375,6 +428,19 @@ export default function AdminPage() {
       console.error("fetchSiteStats failed:", err)
     } finally {
       setSiteStatsLoading(false)
+    }
+  }
+
+  const fetchProductHealth = async () => {
+    try {
+      setProductHealthLoading(true)
+      const res = await fetch("/api/admin/product-health", { cache: "no-store" })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      setProductHealth(await res.json())
+    } catch (err) {
+      console.error("fetchProductHealth failed:", err)
+    } finally {
+      setProductHealthLoading(false)
     }
   }
 
@@ -1302,6 +1368,126 @@ export default function AdminPage() {
         {/* ── Analytics Tab (admin) ── */}
         {activeTab === "analytics" && isOwner && (
           <div className="space-y-5">
+
+            {/* Product health - breakage signals, owner only */}
+            <DarkCard>
+              <div className="flex items-center justify-between mb-3">
+                <SectionLabel>Product Health (7 days)</SectionLabel>
+                <button
+                  onClick={fetchProductHealth}
+                  disabled={productHealthLoading}
+                  className="text-xs font-semibold text-[#00FF87] hover:text-[#00FFFF] disabled:opacity-40"
+                >
+                  {productHealthLoading ? "Refreshing..." : "Refresh"}
+                </button>
+              </div>
+
+              {!productHealth ? (
+                <p className="text-sm text-white/50">
+                  {productHealthLoading ? "Loading..." : "No data yet - try refreshing."}
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  <div
+                    className={`rounded-xl border px-4 py-3 ${healthStyles(productHealth.overall).border} ${healthStyles(productHealth.overall).bg}`}
+                  >
+                    <p className={`text-sm font-semibold ${healthStyles(productHealth.overall).text}`}>
+                      {productHealth.overall === "ok" ? "All clear" : productHealth.overall === "warning" ? "Needs attention" : "Critical"}
+                    </p>
+                    <ul className="mt-2 space-y-1">
+                      {productHealth.attention.map((line) => (
+                        <li key={line} className="text-xs text-white/70">{line}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className={`rounded-xl border p-4 ${healthStyles(productHealth.chat.status).border} ${healthStyles(productHealth.chat.status).bg}`}>
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Empty replies</p>
+                      <p className={`text-2xl font-bold ${healthStyles(productHealth.chat.status).text}`}>
+                        {productHealth.chat.empty_reply_rate_7d}%
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">
+                        {productHealth.chat.empty_replies_7d} of {productHealth.chat.assistant_messages_7d} assistant msgs
+                      </p>
+                    </div>
+                    <div className={`rounded-xl border p-4 ${healthStyles(productHealth.feedback.status).border} ${healthStyles(productHealth.feedback.status).bg}`}>
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Thumbs down</p>
+                      <p className={`text-2xl font-bold ${healthStyles(productHealth.feedback.status).text}`}>
+                        {productHealth.feedback.negative_7d}
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">
+                        {productHealth.feedback.positive_7d} thumbs up
+                      </p>
+                    </div>
+                    <div className={`rounded-xl border p-4 ${healthStyles(productHealth.churn.status).border} ${healthStyles(productHealth.churn.status).bg}`}>
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Pending cancels</p>
+                      <p className={`text-2xl font-bold ${healthStyles(productHealth.churn.status).text}`}>
+                        {productHealth.churn.pending_cancels}
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">Paid subs set to cancel</p>
+                    </div>
+                    <div className={`rounded-xl border p-4 ${healthStyles(productHealth.churn.quick_cancels_7d > 0 ? "critical" : "ok").border} ${healthStyles(productHealth.churn.quick_cancels_7d > 0 ? "critical" : "ok").bg}`}>
+                      <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">Quick cancels</p>
+                      <p className={`text-2xl font-bold ${healthStyles(productHealth.churn.quick_cancels_7d > 0 ? "critical" : "ok").text}`}>
+                        {productHealth.churn.quick_cancels_7d}
+                      </p>
+                      <p className="text-[11px] text-white/40 mt-1">Paid, cancelled soon after signup</p>
+                    </div>
+                  </div>
+
+                  {productHealth.feedback.recent_negative.length > 0 ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-white/60 mb-2">Recent thumbs-down (preview only)</p>
+                      <div className="space-y-2">
+                        {productHealth.feedback.recent_negative.map((row, i) => (
+                          <div key={`${row.submitted_at}-${i}`} className="rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5">
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <p className="text-sm font-medium text-white">{row.name}</p>
+                              <p className="text-[10px] text-white/40">{new Date(row.submitted_at).toLocaleString("en-GB")}</p>
+                            </div>
+                            <p className="text-[11px] text-white/45 mt-0.5">{row.email}</p>
+                            {row.prompt_preview ? (
+                              <p className="text-xs text-white/65 mt-1.5 line-clamp-2">{row.prompt_preview}</p>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {productHealth.churn.recent.length > 0 ? (
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-white/60 mb-2">Churn risk (paid)</p>
+                      <div className="rounded-xl border border-white/8 overflow-hidden">
+                        <div className="grid grid-cols-[1fr_auto_auto] gap-2 bg-emerald-400/[0.06] px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-emerald-400/70">
+                          <span>User</span>
+                          <span className="text-center">Msgs 7d</span>
+                          <span className="text-right">Plan</span>
+                        </div>
+                        {productHealth.churn.recent.map((row) => (
+                          <div key={row.email} className="grid grid-cols-[1fr_auto_auto] gap-2 border-t border-white/5 px-3 py-2 text-sm items-center">
+                            <div className="min-w-0">
+                              <p className="truncate text-white">{row.name}</p>
+                              <p className="truncate text-[11px] text-white/45">{row.email}</p>
+                              {row.quick_cancel ? (
+                                <span className="text-[10px] font-semibold text-red-300">Quick cancel</span>
+                              ) : null}
+                            </div>
+                            <span className="text-center font-semibold text-[#00FF87] tabular-nums">{row.user_messages_7d}</span>
+                            <span className="text-right text-xs text-white/60">{row.plan}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <p className="text-[10px] text-white/30">
+                    Owner only. Fetched {new Date(productHealth.fetched_at).toLocaleString("en-GB")}
+                  </p>
+                </div>
+              )}
+            </DarkCard>
 
             {/* Site Stats - operational at-a-glance panel */}
             <DarkCard>
