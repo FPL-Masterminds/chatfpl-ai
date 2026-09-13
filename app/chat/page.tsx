@@ -143,7 +143,9 @@ function TeamBadge({ code, name }: { code: number; name: string }) {
 export default function ChatPage() {
   const router = useRouter()
   const [authorized, setAuthorized] = useState(false)
-  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => pickChatSuggestionPrompts())
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() =>
+    pickChatSuggestionPrompts(null, false, null, false),
+  )
   const [gwInfo, setGwInfo] = useState<{ gw: number | null; hasDGW: boolean }>({ gw: null, hasDGW: false })
   const [comparisonPrompt, setComparisonPrompt] = useState<string | null>(null)
   const [promptsSpinning, setPromptsSpinning] = useState(false)
@@ -165,7 +167,7 @@ export default function ChatPage() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [mobileEdgeOpen, setMobileEdgeOpen] = useState(false)
   const [chatModelProfile, setChatModelProfile] = useState<ChatModelProfile>("legacy")
-  const [hasFplTeamId, setHasFplTeamId] = useState(true)
+  const [hasFplTeamId, setHasFplTeamId] = useState(false)
   const inputBarRef = useRef<ChatInputBarHandle>(null)
   const [micListening, setMicListening] = useState(false)
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null)
@@ -220,11 +222,13 @@ export default function ChatPage() {
         if (data) {
           setGwInfo({ gw: data.gw, hasDGW: data.hasDGW })
           setComparisonPrompt(data.comparisonPrompt ?? null)
-          setSuggestedPrompts(pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt))
+          setSuggestedPrompts(
+            pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt, hasFplTeamId),
+          )
         }
       })
       .catch(() => {})
-  }, [])
+  }, [hasFplTeamId])
 
   const refreshPrompts = () => {
     setPromptsSpinning(true)
@@ -234,13 +238,19 @@ export default function ChatPage() {
         if (data) {
           setGwInfo({ gw: data.gw, hasDGW: data.hasDGW })
           setComparisonPrompt(data.comparisonPrompt ?? null)
-          setSuggestedPrompts(pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt))
+          setSuggestedPrompts(
+            pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt, hasFplTeamId),
+          )
         } else {
-          setSuggestedPrompts(pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt))
+          setSuggestedPrompts(
+            pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt, hasFplTeamId),
+          )
         }
       })
       .catch(() => {
-        setSuggestedPrompts(pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt))
+        setSuggestedPrompts(
+          pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt, hasFplTeamId),
+        )
       })
       .finally(() => setTimeout(() => setPromptsSpinning(false), 500))
   }
@@ -265,6 +275,9 @@ export default function ChatPage() {
           setMessagesLimit(d.usage?.messages_limit ?? 20)
           setUserPlan(d.subscription?.plan || "Free")
           setHasFplTeamId(linkedFplTeam)
+          setSuggestedPrompts(
+            pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt, linkedFplTeam),
+          )
         }
 
         const convsRes = await fetch("/api/chat/conversations")

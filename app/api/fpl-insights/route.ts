@@ -44,7 +44,8 @@ const STAT_DEFS = [
     accent: "purple",
     sort: (a: any, b: any) =>
       parseFloat(b.selected_by_percent) - parseFloat(a.selected_by_percent),
-    value: (p: any) => `${p.selected_by_percent}%`,
+    value: (p: any) => `${parseFloat(p.selected_by_percent || "0").toFixed(1)}%`,
+    minValue: (p: any) => parseFloat(p.selected_by_percent || "0") > 0,
   },
 ]
 
@@ -74,7 +75,11 @@ export async function GET() {
       title: def.title,
       accent: def.accent,
       players: [...data.elements]
-        .filter((p: any) => def.id.includes("price") ? Math.abs(p.cost_change_event) > 0 : true)
+        .filter((p: any) => {
+          if (def.id.includes("price")) return Math.abs(p.cost_change_event) > 0
+          if ("minValue" in def && typeof def.minValue === "function") return def.minValue(p)
+          return true
+        })
         .sort(def.sort)
         .slice(0, 3)
         .map((p: any) => {

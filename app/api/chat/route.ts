@@ -63,6 +63,7 @@ import {
   CHAT_ABUSE_HANDLING_RULES,
   prepareUserMessageForModel,
 } from "@/lib/chat-abuse-handling";
+import { formatTransferReplacementFacts } from "@/lib/chat-transfer-replacement";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
@@ -289,6 +290,7 @@ export async function POST(request: Request) {
         // are always included in the player rows sent to the model.
         let userTeamContext = "";
         let squadElementIds: number[] = [];
+        let squadWebNames: string[] = [];
         if (resolvedFplTeam.teamId) {
           const teamCtx = await buildFplTeamContext(
             resolvedFplTeam.teamId,
@@ -299,6 +301,7 @@ export async function POST(request: Request) {
           );
           userTeamContext = teamCtx.context;
           squadElementIds = teamCtx.squadElementIds;
+          squadWebNames = teamCtx.squadWebNames;
           if (resolvedFplTeam.persistTeamId && teamCtx.context) {
             await persistFplTeamIdForUser(user.id, resolvedFplTeam.persistTeamId);
           }
@@ -776,6 +779,13 @@ PERSONALITY RULES:
 
                 const abuseNotice = preparedUserMessage.abuseNotice;
 
+                const transferReplacementFacts = formatTransferReplacementFacts(
+                  modelUserMessage,
+                  allPlayers,
+                  squadElementIds,
+                  squadWebNames,
+                );
+
                 const teamIdChatNotice =
                   resolvedFplTeam.source === "message" &&
                   /^\d{5,10}$/.test(message.trim())
@@ -784,9 +794,13 @@ PERSONALITY RULES:
                       ? `CHAT_TEAM_ID: User confirmed their FPL Team ID from earlier in this chat. Use USER'S FPL TEAM above.\n\n`
                       : "";
 
+                const transferBlock = transferReplacementFacts
+                  ? `${transferReplacementFacts}\n\n`
+                  : "";
+
                 const enhancedMessage = combinedContext
-                  ? `${combinedContext}\n\n${redditInstruction}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`
-                  : `${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`;
+                  ? `${combinedContext}\n\n${transferBlock}${redditInstruction}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`
+                  : `${transferBlock}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`;
 
     console.log('=== DIFY PAYLOAD DEBUG ===');
     console.log('Enhanced message length:', enhancedMessage.length);

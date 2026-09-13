@@ -328,17 +328,41 @@ export function buildGWPrompts(gw: number | null, hasDGW: boolean): string[] {
   return gwPrompts
 }
 
+/** Prompts that need a linked FPL Team ID — hidden until the user links in Settings. */
+export function promptRequiresLinkedFplTeam(prompt: string): boolean {
+  const lower = prompt.toLowerCase()
+  if (/\banalyse my team\b/.test(lower)) return true
+  if (/\brank my starting\b/.test(lower)) return true
+  if (/\bwhich of my\b/.test(lower)) return true
+  if (/\bmy\s+(team|squad|starting\s*xi|players|fixture\s*run|transfers|wildcard|free\s*hit)\b/.test(lower)) {
+    return true
+  }
+  if (/\bwho in my\b/.test(lower)) return true
+  if (/\bset my captain\b/.test(lower)) return true
+  if (/\bin my team\b/.test(lower)) return true
+  if (/\bmy likely transfer\b/.test(lower)) return true
+  if (/\bspend the extra.*\bmy squad\b/.test(lower)) return true
+  if (/\bwasting money on\b/.test(lower) && /\bmy squad\b/.test(lower)) return true
+  return false
+}
+
 export function pickChatSuggestionPrompts(
   gw: number | null = null,
   hasDGW = false,
   comparisonPrompt: string | null = null,
+  hasFplTeamId = true,
 ): string[] {
   const gwPrompts = buildGWPrompts(gw, hasDGW)
+  const allowedStatic = hasFplTeamId
+    ? CHAT_SUGGESTION_PROMPTS
+    : CHAT_SUGGESTION_PROMPTS.filter((p) => !promptRequiresLinkedFplTeam(p))
   const shuffledGW = [...gwPrompts].sort(() => Math.random() - 0.5)
-  const shuffledStatic = [...CHAT_SUGGESTION_PROMPTS].sort(() => Math.random() - 0.5)
+  const shuffledStatic = [...allowedStatic].sort(() => Math.random() - 0.5)
   const gwPick = shuffledGW.slice(0, 2)
   const staticPick = shuffledStatic.slice(0, comparisonPrompt ? 1 : 2)
   const picks = [...gwPick, ...staticPick]
   if (comparisonPrompt) picks.push(comparisonPrompt)
-  return picks.sort(() => Math.random() - 0.5)
+  return picks
+    .filter((p) => hasFplTeamId || !promptRequiresLinkedFplTeam(p))
+    .sort(() => Math.random() - 0.5)
 }
