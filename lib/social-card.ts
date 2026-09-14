@@ -123,7 +123,7 @@ const CAPTAIN_COLS: SocialCardTableCol[] = [
   { label: "Form", key: "formVal", higherIsBetter: true },
   { label: "Ownership", key: "ownership", higherIsBetter: false },
   { label: "Transfers In", key: "transfersIn", higherIsBetter: true },
-  { label: "FDR", key: "fdrNext", higherIsBetter: false },
+  { label: "Fixture Difficulty Rating", key: "fdrNext", higherIsBetter: false },
   { label: "Price", key: "priceRaw", higherIsBetter: false },
 ];
 

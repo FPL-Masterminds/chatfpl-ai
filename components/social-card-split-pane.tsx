@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { FixtureGW } from "@/lib/fpl-fixtures";
 import { SocialCardFixtureStrip } from "@/components/social-card-fixture-strip";
+import { SocialCardPlayerStatTable } from "@/components/social-card-player-stat-table";
 import type { SocialCardPlayer, SocialCardStat } from "@/lib/social-card";
 
 function badgeUrl(teamCode: number): string {
@@ -65,32 +66,6 @@ function PlayerPortrait({ player, compact = false }: { player: SocialCardPlayer;
   );
 }
 
-function StatBoxes({ stats }: { stats: SocialCardStat[] }) {
-  const cols = stats.length <= 4 ? 2 : 3;
-
-  return (
-    <div
-      className="grid w-full gap-3"
-      style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-    >
-      {stats.map((stat) => (
-        <div
-          key={stat.label}
-          className="flex min-h-[98px] flex-col justify-center rounded-xl px-3.5 py-[21px]"
-          style={{ background: "linear-gradient(135deg,#00ff85,#02efff)" }}
-        >
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#00190D" }}>
-            {stat.label}
-          </p>
-          <p className="mt-0.5 text-[19px] font-bold leading-tight" style={{ color: "rgba(0,0,0,0.88)" }}>
-            {stat.value}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function SocialCardSplitPane({
   players,
   dual,
@@ -104,7 +79,8 @@ export function SocialCardSplitPane({
   stats: SocialCardStat[];
   fixtures?: FixtureGW[];
 }) {
-  const paneHeight = fixtures?.length ? 600 : 560;
+  const hasFixtures = Boolean(fixtures?.length);
+  const paneHeight = hasFixtures ? 580 : 560;
 
   return (
     <div
@@ -141,8 +117,8 @@ export function SocialCardSplitPane({
         </div>
       </div>
 
-      {/* Right: prompt + stat boxes */}
-      <div className="flex min-w-0 flex-col gap-5 py-1">
+      {/* Right: prompt + stat table */}
+      <div className={`flex min-w-0 flex-col py-1 ${hasFixtures ? "gap-3" : "gap-4"}`}>
         <div>
           <span
             className="inline-block rounded-full px-3 py-1 text-[12px] font-bold uppercase tracking-widest"
@@ -157,9 +133,9 @@ export function SocialCardSplitPane({
           <p className="mt-3 text-[28px] font-medium leading-snug text-white">{prompt}</p>
         </div>
 
-        <StatBoxes stats={stats} />
+        <SocialCardPlayerStatTable stats={stats} compact={hasFixtures} />
 
-        {fixtures && fixtures.length > 0 ? <SocialCardFixtureStrip fixtures={fixtures} /> : null}
+        {hasFixtures ? <SocialCardFixtureStrip fixtures={fixtures!} /> : null}
       </div>
     </div>
   );
