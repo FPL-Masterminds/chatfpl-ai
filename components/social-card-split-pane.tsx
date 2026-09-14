@@ -17,7 +17,7 @@ function PlayerNameBlock({ player, compact = false }: { player: SocialCardPlayer
 
   return (
     <div
-      className="flex shrink-0 items-center justify-center gap-2.5 px-2"
+      className="flex shrink-0 items-center justify-center gap-2.5 px-2 text-center"
       style={{ height: compact ? 64 : NAME_BLOCK_H }}
     >
       <Image
@@ -28,7 +28,7 @@ function PlayerNameBlock({ player, compact = false }: { player: SocialCardPlayer
         className="shrink-0 object-contain"
         unoptimized
       />
-      <div className="min-w-0 text-left">
+      <div className="min-w-0">
         <p className={`font-bold leading-tight text-white ${compact ? "text-[16px]" : "text-[22px]"}`}>
           {player.displayName}
         </p>
@@ -137,7 +137,7 @@ export function SocialCardSplitPane({
       </div>
 
       {/* Right: prompt + stat table + fixtures */}
-      <div className="flex h-full min-h-0 flex-col">
+      <div className="flex h-full min-h-0 flex-col pb-3">
         <div className="shrink-0">
           <span
             className="inline-block rounded-full px-3 py-1 text-[12px] font-bold uppercase tracking-widest"

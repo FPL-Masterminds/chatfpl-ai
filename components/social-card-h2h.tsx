@@ -37,7 +37,7 @@ function H2HPlayerColumn({ player }: { player: SocialCardPlayer }) {
       </div>
 
       <div
-        className="mx-auto mt-3 flex w-full max-w-[92%] items-center gap-2.5 rounded-xl px-3 py-2.5"
+        className="mx-auto mt-3 flex w-full max-w-[92%] items-center justify-center gap-2.5 rounded-xl px-3 py-2.5 text-center"
         style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
       >
         <Image
@@ -48,7 +48,7 @@ function H2HPlayerColumn({ player }: { player: SocialCardPlayer }) {
           className="shrink-0 object-contain"
           unoptimized
         />
-        <div className="min-w-0 text-left">
+        <div className="min-w-0">
           <p className="text-[17px] font-bold leading-tight text-white">{player.displayName}</p>
           <p className="mt-0.5 text-[13px] text-white/50">
             {player.teamShort} · {player.position} · {player.price}
