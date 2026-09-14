@@ -1,5 +1,6 @@
 import type { SocialCardData } from "@/lib/social-card";
 import { SocialCardBackground } from "@/components/social-card-background";
+import { SocialCardFooter } from "@/components/social-card-footer";
 import { SocialCardSplitPane } from "@/components/social-card-split-pane";
 
 const SITE = "https://www.chatfpl.ai";
@@ -64,9 +65,14 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         />
       </div>
 
-      {/* Paragraph commentary */}
+      {/* Footer card (homepage "The Edge" style) */}
       <div className="relative z-10 mt-5 shrink-0">
-        <p className="text-[18px] leading-relaxed text-white/80">{card.paragraph}</p>
+        <SocialCardFooter
+          tag={card.footerTag}
+          title={card.footerTitle}
+          paragraph={card.paragraph}
+          slot={card.slot}
+        />
       </div>
     </div>
   );

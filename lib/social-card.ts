@@ -64,6 +64,8 @@ export interface SocialCardData {
   tableRows: SocialCardTableRow[];
   prompt: string;
   stats: SocialCardStat[];
+  footerTag: string;
+  footerTitle: string;
   paragraph: string;
   gw: number;
   cta: string;
@@ -291,6 +293,8 @@ async function buildCaptainCard(seed: number, gw: number): Promise<SocialCardDat
     tableRows: [rowFromCaptain(p)],
     prompt: `I'm thinking of captaining ${p.displayName} this week. What do the numbers say for Gameweek ${gw}?`,
     stats: statsFromRow(CAPTAIN_COLS, rowFromCaptain(p)),
+    footerTag: "THE ARMBAND",
+    footerTitle: "Weigh the numbers.",
     paragraph:
       `Not a directive, just context if the armband is on your mind. ${p.displayName} faces ${fixtureLine(p)} ` +
       `with ${p.ownership}% ownership, so the rank risk profile depends on how template your squad already is.`,
@@ -319,6 +323,8 @@ async function buildDifferentialCard(seed: number, gw: number): Promise<SocialCa
     tableRows: [rowFromCaptain(p)],
     prompt: `${p.displayName} is only ${p.ownership}% owned. Is he still worth bringing in for Gameweek ${gw}?`,
     stats: statsFromRow(CAPTAIN_COLS, rowFromCaptain(p)),
+    footerTag: "THE EDGE",
+    footerTitle: "Spot the invisible.",
     paragraph:
       `Low-owned picks can move rank quickly, but the risk profile is different from template assets. ` +
       `${p.displayName}'s next fixture is ${fixtureLine(p)}, rated ${fdrText(p.fdrNext)} for difficulty.`,
@@ -352,6 +358,8 @@ async function buildComparisonCard(seed: number, gw: number): Promise<SocialCard
     tableCols: COMPARE_COLS,
     tableRows: [rowFromComparisonPlayer(playerA), rowFromComparisonPlayer(playerB)],
     prompt: `Torn between ${playerA.displayName} and ${playerB.displayName} for Gameweek ${gw}?`,
+    footerTag: "HEAD TO HEAD",
+    footerTitle: "Cut through the noise.",
     stats: [
       { label: `${playerA.webName} xP`, value: playerA.ep_next.toFixed(1) },
       { label: `${playerB.webName} xP`, value: playerB.ep_next.toFixed(1) },
@@ -410,6 +418,8 @@ async function buildInjuryCard(seed: number, gw: number): Promise<SocialCardData
       },
     }],
     prompt: `Is ${p.displayName} fit for Gameweek ${gw}, and should you still be considering him?`,
+    footerTag: "THE FLAG",
+    footerTitle: "Check before you commit.",
     stats: statsFromRow(injuryCols, {
       code: p.code,
       webName: p.webName,
@@ -465,6 +475,8 @@ async function buildTransferCard(seed: number, gw: number): Promise<SocialCardDa
     tableCols: transferCols,
     tableRows: [rowFromTransferPlayer(out), rowFromTransferPlayer(inn)],
     prompt: `Thinking of swapping ${out.displayName} for ${inn.displayName} this gameweek?`,
+    footerTag: "THE MARKET",
+    footerTitle: "Follow the flow.",
     stats: [
       { label: "Transfers out", value: out.transfersOut.toLocaleString() },
       { label: "Transfers in", value: inn.transfersIn.toLocaleString() },
@@ -529,6 +541,8 @@ async function buildFixtureCard(seed: number, gw: number): Promise<SocialCardDat
       },
     }],
     prompt: `I want to bring in ${p.displayName} for the next few weeks. How good is his fixture run?`,
+    footerTag: "THE RUN",
+    footerTitle: "Plan the schedule.",
     stats: statsFromRow(fixtureCols, {
       code: p.code,
       webName: p.webName,
@@ -604,6 +618,8 @@ async function buildDefconCard(seed: number, gw: number): Promise<SocialCardData
       },
     }],
     prompt: `How many DEFCON points could ${p.displayName} bring in for Gameweek ${gw}, and why?`,
+    footerTag: "THE FLOOR",
+    footerTitle: "Defensive volume counts.",
     stats: statsFromRow(defconCols, {
       code: p.code,
       webName: p.webName,

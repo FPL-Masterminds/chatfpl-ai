@@ -83,7 +83,7 @@ export function SocialCardSplitPane({
   stats: SocialCardStat[];
 }) {
   return (
-    <div className="flex gap-5" style={{ height: 500 }}>
+    <div className="flex gap-5" style={{ height: 460 }}>
       {/* Left: player portrait(s) */}
       <div className="relative flex w-[46%] flex-col overflow-hidden rounded-3xl bg-black/35">
         <div
