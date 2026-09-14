@@ -282,9 +282,7 @@ export function parseSocialCardSlot(raw: string | undefined): SocialCardSlot {
   return "1";
 }
 
-export function isSocialCardTokenValid(_token: string | undefined): boolean {
-  return true;
-}
+export { isSocialCardCaptureTokenValid as isSocialCardTokenValid } from "@/lib/social-card-token";
 
 function statsFromRow(
   cols: SocialCardTableCol[],

@@ -8,6 +8,7 @@ import { signOut } from "next-auth/react"
 import { DevHeader } from "@/components/dev-header"
 import { ChatGreetingNameCard } from "@/components/chat-greeting-name-card"
 import { Footer } from "@/components/footer"
+import { AdminSocialScreenshots } from "@/components/admin-social-screenshots"
 import { GOD_MODE_EMAIL, isSiteOwner } from "@/lib/god-mode"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -221,7 +222,7 @@ export default function AdminPage() {
   const [data, setData] = useState<AccountData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [activeTab, setActiveTab] = useState<"account" | "rewards" | "admin" | "analytics" | "archive">("account")
+  const [activeTab, setActiveTab] = useState<"account" | "rewards" | "admin" | "analytics" | "social-screenshots" | "archive">("account")
   const [archivedConversations, setArchivedConversations] = useState<any[]>([])
   const [archiveLoading, setArchiveLoading] = useState(false)
   const [vipEmail, setVipEmail] = useState("")
@@ -577,6 +578,7 @@ export default function AdminPage() {
       { id: "rewards", label: `Reward Management${pendingClaims.length > 0 ? ` (${pendingClaims.length})` : ""}` },
       { id: "admin", label: "Administration" },
       { id: "analytics", label: "Analytics" },
+      { id: "social-screenshots", label: "Social Screenshots" },
     ] : []),
   ] as const
 
@@ -1697,6 +1699,10 @@ export default function AdminPage() {
               )}
             </DarkCard>
           </div>
+        )}
+
+        {activeTab === "social-screenshots" && isOwner && (
+          <AdminSocialScreenshots />
         )}
       </main>
 
