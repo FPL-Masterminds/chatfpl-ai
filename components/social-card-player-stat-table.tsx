@@ -17,18 +17,20 @@ export function SocialCardPlayerStatTable({
       {stats.map((stat, idx) => (
         <div
           key={stat.label}
-          className={`flex items-center px-5 ${fill ? "min-h-0 flex-1" : "py-[15px]"}`}
+          className={`flex items-center px-5 py-3.5 ${fill ? "min-h-[58px] flex-1" : "min-h-[54px]"}`}
           style={{
             borderBottom:
               idx < stats.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined,
           }}
         >
           <span
-            className="min-w-0 flex-1 pr-4 text-[20px] font-bold uppercase tracking-[0.06em] text-white/85"
+            className="min-w-0 flex-1 pr-4 text-[18px] font-bold uppercase leading-tight tracking-[0.06em] text-white/85"
           >
             {stat.label}
           </span>
-          <span className="shrink-0 text-[30px] font-bold tabular-nums text-white">{stat.value}</span>
+          <span className="shrink-0 text-[26px] font-bold leading-none tabular-nums text-white">
+            {stat.value}
+          </span>
         </div>
       ))}
     </div>
