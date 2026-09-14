@@ -4,8 +4,6 @@ import { SocialCardFooter } from "@/components/social-card-footer";
 import { SocialCardHeadToHead } from "@/components/social-card-h2h";
 import { SocialCardSplitPane } from "@/components/social-card-split-pane";
 
-const SITE = "https://www.chatfpl.ai";
-
 export function SocialCardCanvas({ card }: { card: SocialCardData }) {
   const dual = card.layout === "dual";
   const isDualTable = card.hub === "comparisons" || card.hub === "transfer_trends";

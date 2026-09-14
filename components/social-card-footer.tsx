@@ -14,7 +14,7 @@ export function SocialCardFooter({
       style={{ background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)" }}
     >
       <div
-        className="rounded-2xl px-6 py-4 pr-24 pb-5"
+        className="rounded-2xl px-6 py-4"
         style={{
           background: "linear-gradient(145deg,rgba(0,15,10,0.97),rgba(0,8,18,0.99))",
         }}
