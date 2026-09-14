@@ -11,22 +11,14 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
   return (
     <div
       className="relative flex flex-col bg-black text-white antialiased"
-      style={{ width: 1080, height: 1080, padding: "36px 44px 40px" }}
+      style={{ width: 1080, height: 1080, padding: "32px 44px 28px" }}
     >
       <SocialCardBackground />
 
-      {/* Brand header */}
-      <div className="relative z-10 flex shrink-0 items-center justify-between">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`${SITE}/ChatFPL_AI_Logo.png`}
-          alt="ChatFPL AI"
-          width={140}
-          height={140}
-          className="h-[72px] w-auto object-contain"
-        />
+      {/* Top bar: GW pill only */}
+      <div className="relative z-10 flex shrink-0 justify-end">
         <span
-          className="rounded-full px-6 py-2.5 text-[18px] font-bold tracking-wide text-[#1A0E24]"
+          className="rounded-full px-7 py-2.5 text-[22px] font-bold tracking-wide text-[#1A0E24]"
           style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
         >
           GW{card.gw}
@@ -35,12 +27,12 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
 
       {/* Headline */}
       <div
-        className="relative z-10 mt-4 flex shrink-0 items-center justify-center px-4 text-center"
-        style={{ marginBottom: 20 }}
+        className="relative z-10 mt-3 flex shrink-0 items-center justify-center px-2 text-center"
+        style={{ marginBottom: 16 }}
       >
         <h1
           className="font-bold leading-[1.08] tracking-tighter text-white"
-          style={{ fontSize: dual ? 36 : 44 }}
+          style={{ fontSize: dual ? 45 : 54 }}
         >
           {card.heroWhite}
           <span
@@ -55,7 +47,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         </h1>
       </div>
 
-      {/* Two-column split (landing page style, no glow borders) */}
+      {/* Two-column split */}
       <div className="relative z-10 shrink-0">
         <SocialCardSplitPane
           players={card.players}
@@ -65,13 +57,26 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         />
       </div>
 
-      {/* Footer card (homepage "The Edge" style) */}
-      <div className="relative z-10 mt-5 shrink-0">
+      {/* Edge-style commentary card */}
+      <div className="relative z-10 mt-4 shrink-0">
         <SocialCardFooter
           tag={card.footerTag}
           title={card.footerTitle}
           paragraph={card.paragraph}
-          slot={card.slot}
+        />
+      </div>
+
+      {/* Brand footer */}
+      <div
+        className="relative z-10 mt-3 flex shrink-0 items-center justify-center border-t border-white/8 pt-3"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${SITE}/ChatFPL_AI_Logo.png`}
+          alt="ChatFPL AI"
+          width={120}
+          height={120}
+          className="h-[48px] w-auto object-contain opacity-90"
         />
       </div>
     </div>
