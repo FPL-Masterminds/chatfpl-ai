@@ -34,7 +34,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
 
   return (
     <div
-      className="relative overflow-hidden bg-black text-white antialiased"
+      className="relative bg-black text-white antialiased"
       style={{
         width: 1080,
         height: 1080,
