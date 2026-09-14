@@ -1,12 +1,14 @@
 import type { SocialCardData } from "@/lib/social-card";
 import { SocialCardBackground } from "@/components/social-card-background";
 import { SocialCardFooter } from "@/components/social-card-footer";
+import { SocialCardHeadToHead } from "@/components/social-card-h2h";
 import { SocialCardSplitPane } from "@/components/social-card-split-pane";
 
 const SITE = "https://www.chatfpl.ai";
 
 export function SocialCardCanvas({ card }: { card: SocialCardData }) {
   const dual = card.layout === "dual";
+  const isHeadToHead = card.hub === "comparisons";
 
   return (
     <div
@@ -19,7 +21,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
       <div className="relative z-10 mb-4 flex w-full shrink-0 items-center justify-center px-2 text-center">
         <h1
           className="font-bold leading-[1.08] tracking-tighter text-white"
-          style={{ fontSize: dual ? 45 : 54 }}
+          style={{ fontSize: isHeadToHead ? 38 : dual ? 45 : 54 }}
         >
           {card.heroWhite}
           <span
@@ -34,14 +36,22 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         </h1>
       </div>
 
-      {/* Two-column split */}
+      {/* Player content */}
       <div className="relative z-10 w-full shrink-0">
-        <SocialCardSplitPane
-          players={card.players}
-          dual={dual}
-          prompt={card.prompt}
-          stats={card.stats}
-        />
+        {isHeadToHead ? (
+          <SocialCardHeadToHead
+            players={card.players}
+            tableCols={card.tableCols}
+            tableRows={card.tableRows}
+          />
+        ) : (
+          <SocialCardSplitPane
+            players={card.players}
+            dual={dual}
+            prompt={card.prompt}
+            stats={card.stats}
+          />
+        )}
       </div>
 
       {/* Edge-style commentary card */}

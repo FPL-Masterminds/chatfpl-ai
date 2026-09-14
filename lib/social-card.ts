@@ -1,4 +1,5 @@
 import { getComparisonHub, getComparisonData, type ComparisonPlayer } from "@/lib/fpl-comparison";
+import type { FixtureGW } from "@/lib/fpl-player-page";
 import { getDefconHub } from "@/lib/fpl-defcon";
 import { getFixtureHub } from "@/lib/fpl-fixtures";
 import { getInjuryHub, statusLabel } from "@/lib/fpl-injury";
@@ -105,6 +106,17 @@ const COMPARE_COLS: SocialCardTableCol[] = [
   { label: "Price", key: "priceRaw", higherIsBetter: false },
 ];
 
+const H2H_TABLE_COLS: SocialCardTableCol[] = [
+  { label: "GW xPts", key: "ep_next", higherIsBetter: true },
+  { label: "Home", key: "homeNext", higherIsBetter: false },
+  { label: "Season Pts", key: "totalPts", higherIsBetter: true },
+  { label: "Goals", key: "goals", higherIsBetter: true },
+  { label: "Assists", key: "assists", higherIsBetter: true },
+  { label: "Pts per £m", key: "ptsPerMillion", higherIsBetter: true },
+  { label: "Ownership", key: "ownership", higherIsBetter: false },
+  { label: "Price", key: "priceRaw", higherIsBetter: false },
+];
+
 const CAPTAIN_COLS: SocialCardTableCol[] = [
   { label: "GW xPts", key: "ep_next", higherIsBetter: true },
   { label: "Form", key: "formVal", higherIsBetter: true },
@@ -140,6 +152,20 @@ function fixtureLine(p: CaptainHubPlayer): string {
 function fdrText(fdr: number | null): string {
   if (!fdr) return "TBC";
   return FDR_LABELS[fdr] ?? "Medium";
+}
+
+function nextHomeLabel(fixtureRun: FixtureGW[]): string {
+  const match = fixtureRun[0]?.matches[0];
+  if (!match) return "TBC";
+  return match.isHome ? "Home" : "Away";
+}
+
+function rowWithHome(row: SocialCardTableRow, fixtureRun: FixtureGW[]): SocialCardTableRow {
+  return {
+    ...row,
+    nums: { ...row.nums, homeNext: 0 },
+    display: { ...row.display, homeNext: nextHomeLabel(fixtureRun) },
+  };
 }
 
 function rowFromComparisonPlayer(p: ComparisonPlayer): SocialCardTableRow {
@@ -339,14 +365,14 @@ async function buildComparisonCard(seed: number, gw: number): Promise<SocialCard
   const pair = hub.pairs[pickIndex(seed, hub.pairs.length, 23)];
   const data = await getComparisonData(pair.slugA, pair.slugB);
   if (!data) return null;
-  const { playerA, playerB } = data;
+  const { playerA, playerB, fixtureRunA, fixtureRunB } = data;
   return {
     slot: "1",
     hub: "comparisons",
     hubLabel: HUB_LABELS.comparisons,
     layout: "dual",
-    heroWhite: "Thinking of ",
-    heroGradient: `${playerA.displayName} or ${playerB.displayName}?`,
+    heroWhite: `${playerA.displayName} vs ${playerB.displayName}: Who should I pick for `,
+    heroGradient: `Fantasy Premier League Gameweek ${gw}?`,
     analysisLine: {
       white: `${playerA.displayName} vs ${playerB.displayName}: `,
       gradient: `Gameweek ${gw} Analysis`,
@@ -355,8 +381,11 @@ async function buildComparisonCard(seed: number, gw: number): Promise<SocialCard
       toSocialPlayer(playerA.code, playerA.displayName, playerA.webName, playerA.club, playerA.teamCode, playerA.position, playerA.price),
       toSocialPlayer(playerB.code, playerB.displayName, playerB.webName, playerB.club, playerB.teamCode, playerB.position, playerB.price),
     ],
-    tableCols: COMPARE_COLS,
-    tableRows: [rowFromComparisonPlayer(playerA), rowFromComparisonPlayer(playerB)],
+    tableCols: H2H_TABLE_COLS,
+    tableRows: [
+      rowWithHome(rowFromComparisonPlayer(playerA), fixtureRunA),
+      rowWithHome(rowFromComparisonPlayer(playerB), fixtureRunB),
+    ],
     prompt: `Torn between ${playerA.displayName} and ${playerB.displayName} for Gameweek ${gw}?`,
     footerTag: "HEAD TO HEAD",
     footerTitle: "Cut through the noise.",
@@ -675,10 +704,19 @@ async function buildForHub(
   }
 }
 
-export async function getSocialCardData(slot: SocialCardSlot): Promise<SocialCardData | null> {
+function parseHubOverride(raw: string | undefined): SocialHubType | null {
+  const v = raw?.toLowerCase().trim();
+  if (!v) return null;
+  return HUB_ORDER.find((hub) => hub === v || hub.replace("_", "-") === v) ?? null;
+}
+
+export async function getSocialCardData(
+  slot: SocialCardSlot,
+  hubOverride?: string,
+): Promise<SocialCardData | null> {
   const dateKey = utcDateKey();
   const seed = hashSeed(`${dateKey}:${slot}`);
-  const primaryHub = hubForSlot(dateKey, slot);
+  const primaryHub = parseHubOverride(hubOverride) ?? hubForSlot(dateKey, slot);
 
   let gw = 1;
   const captainPeek = await getCaptainHub();

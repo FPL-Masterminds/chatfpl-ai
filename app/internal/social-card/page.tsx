@@ -18,11 +18,11 @@ export const metadata: Metadata = {
 export default async function SocialCardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; slot?: string }>;
+  searchParams: Promise<{ token?: string; slot?: string; hub?: string }>;
 }) {
   const params = await searchParams;
   const slot = parseSocialCardSlot(params.slot);
-  const card = await getSocialCardData(slot);
+  const card = await getSocialCardData(slot, params.hub);
   if (!card) notFound();
 
   return <SocialCardCanvas card={card} />;
