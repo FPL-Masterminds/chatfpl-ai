@@ -1,5 +1,6 @@
 import type { SocialCardData } from "@/lib/social-card";
 import { SocialCardBackground } from "@/components/social-card-background";
+import { SocialCardInsights } from "@/components/social-card-insights";
 import { SocialCardPlayerHero, SocialCardPlayerPhoto } from "@/components/social-card-player-hero";
 import { SocialCardStatTable } from "@/components/social-card-stat-table";
 
@@ -19,19 +20,10 @@ function pickHighlightStats(card: SocialCardData) {
   });
 }
 
-/** Keep bubble copy short enough to read on Twitter. */
-function shortBubble(text: string, max = 200): string {
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max);
-  const lastSpace = cut.lastIndexOf(" ");
-  return `${cut.slice(0, lastSpace > 80 ? lastSpace : max).trim()}...`;
-}
-
 export function SocialCardCanvas({ card }: { card: SocialCardData }) {
   const dual = card.layout === "dual";
   const highlights = pickHighlightStats(card);
   const dualCols = card.tableCols.slice(0, 5);
-  const bubble = shortBubble(card.bubbleText);
 
   return (
     <div
@@ -41,8 +33,8 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         height: 1080,
         display: "grid",
         gridTemplateRows: dual
-          ? "72px 76px 248px 200px 1fr"
-          : "72px 88px 520px 1fr",
+          ? "68px 72px 220px 168px 1fr"
+          : "68px 84px 460px 1fr",
         gap: 14,
         padding: "36px 44px 40px",
       }}
@@ -123,16 +115,9 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         </div>
       )}
 
-      {/* Chat bubble */}
-      <div className="relative z-10 flex items-start gap-3 self-end">
-        <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 text-[11px] font-black text-black"
-        >
-          CF
-        </div>
-        <div className="flex-1 rounded-[20px] rounded-bl-md border border-white/10 bg-black/50 px-5 py-3.5">
-          <p className="text-[19px] leading-snug text-white/90 line-clamp-3">{bubble}</p>
-        </div>
+      {/* Insights panel */}
+      <div className="relative z-10 self-end">
+        <SocialCardInsights insights={card.insights} />
       </div>
     </div>
   );

@@ -46,6 +46,18 @@ export interface SocialCardTableRow {
   display: Record<string, string>;
 }
 
+export interface SocialCardBullet {
+  label: string;
+  text: string;
+}
+
+export interface SocialCardInsights {
+  sectionTitle: string;
+  badge: string;
+  headline: string;
+  bullets: SocialCardBullet[];
+}
+
 export interface SocialCardData {
   slot: SocialCardSlot;
   hub: SocialHubType;
@@ -57,7 +69,7 @@ export interface SocialCardData {
   players: SocialCardPlayer[];
   tableCols: SocialCardTableCol[];
   tableRows: SocialCardTableRow[];
-  bubbleText: string;
+  insights: SocialCardInsights;
   gw: number;
   cta: string;
 }
@@ -271,11 +283,23 @@ async function buildCaptainCard(seed: number, gw: number): Promise<SocialCardDat
     players: [toSocialPlayer(p.code, p.displayName, p.webName, p.club, p.teamCode, p.position, p.price)],
     tableCols: CAPTAIN_COLS,
     tableRows: [rowFromCaptain(p)],
-    bubbleText:
-      `Here are some numbers to weigh up. ${p.displayName} projects ${p.ep_next.toFixed(1)} xP ` +
-      `for Gameweek ${gw}, with form at ${p.form} and ${p.ownership}% ownership. ` +
-      `The fixture is ${fixtureLine(p)}, rated ${fdrText(p.fdrNext)} for difficulty. ` +
-      `Not a directive, just context if the armband is on your mind.`,
+    insights: {
+      sectionTitle: "THE CASE FOR",
+      badge: "CONTEXT",
+      headline: `Worth weighing up if the armband is on your mind for Gameweek ${gw}.`,
+      bullets: [
+        { label: "Form", text: `${p.form} pts/game recently` },
+        { label: "Expected points", text: `${p.ep_next.toFixed(1)} xP projected for GW${gw}` },
+        {
+          label: "Ownership",
+          text:
+            p.ownership >= 30
+              ? `${p.ownership}% owned - blanking carries rank risk`
+              : `${p.ownership}% owned - a differential captain call`,
+        },
+        { label: "Fixture", text: `${fixtureLine(p)} rated ${fdrText(p.fdrNext)}` },
+      ],
+    },
     gw,
     cta: "chatfpl.ai",
   };
@@ -299,10 +323,20 @@ async function buildDifferentialCard(seed: number, gw: number): Promise<SocialCa
     players: [toSocialPlayer(p.code, p.displayName, p.webName, p.club, p.teamCode, p.position, p.price)],
     tableCols: CAPTAIN_COLS,
     tableRows: [rowFromCaptain(p)],
-    bubbleText:
-      `${p.displayName} sits at ${p.ownership}% ownership with ${p.ep_next.toFixed(1)} xP projected ` +
-      `for Gameweek ${gw}. Form reads ${p.form} and the next fixture is ${fixtureLine(p)}. ` +
-      `Low-owned picks can move rank quickly, but the risk profile is different from template assets.`,
+    insights: {
+      sectionTitle: "THE CASE FOR",
+      badge: "DIFFERENTIAL",
+      headline: `${p.displayName} at ${p.ownership}% ownership could shift your rank if he delivers.`,
+      bullets: [
+        { label: "Expected points", text: `${p.ep_next.toFixed(1)} xP projected for GW${gw}` },
+        { label: "Form", text: `${p.form} pts/game recently` },
+        {
+          label: "Ownership",
+          text: `Only ${p.ownership}% owned - low template risk, high upside if he hauls`,
+        },
+        { label: "Fixture", text: `${fixtureLine(p)} rated ${fdrText(p.fdrNext)}` },
+      ],
+    },
     gw,
     cta: "chatfpl.ai",
   };
@@ -332,11 +366,23 @@ async function buildComparisonCard(seed: number, gw: number): Promise<SocialCard
     ],
     tableCols: COMPARE_COLS,
     tableRows: [rowFromComparisonPlayer(playerA), rowFromComparisonPlayer(playerB)],
-    bubbleText:
-      `A few stats if you are torn between them. ${playerA.displayName} projects ${playerA.ep_next.toFixed(1)} xP ` +
-      `with ${playerA.ownership.toFixed(1)}% ownership. ${playerB.displayName} is on ${playerB.ep_next.toFixed(1)} xP ` +
-      `at ${playerB.ownership.toFixed(1)}% owned. Form is ${playerA.form} vs ${playerB.form}. ` +
-      `Price gap: ${playerA.price} vs ${playerB.price}.`,
+    insights: {
+      sectionTitle: "HEAD TO HEAD",
+      badge: "VS",
+      headline: `Torn between ${playerA.displayName} and ${playerB.displayName} this week?`,
+      bullets: [
+        {
+          label: "Expected points",
+          text: `${playerA.displayName} ${playerA.ep_next.toFixed(1)} xP vs ${playerB.displayName} ${playerB.ep_next.toFixed(1)} xP`,
+        },
+        { label: "Form", text: `${playerA.form} vs ${playerB.form} over recent gameweeks` },
+        {
+          label: "Ownership",
+          text: `${playerA.ownership.toFixed(1)}% vs ${playerB.ownership.toFixed(1)}% owned`,
+        },
+        { label: "Price", text: `${playerA.price} vs ${playerB.price}` },
+      ],
+    },
     gw,
     cta: "chatfpl.ai",
   };
@@ -383,11 +429,17 @@ async function buildInjuryCard(seed: number, gw: number): Promise<SocialCardData
         priceRaw: p.price,
       },
     }],
-    bubbleText:
-      `Here is what the FPL flag says right now. Status: ${status}. ` +
-      `Chance of playing next round: ${p.chance}%. ` +
-      (p.news ? `Latest note: ${p.news}. ` : "") +
-      `Projected ${p.epNext.toFixed(1)} xP for Gameweek ${gw} if available. Worth checking before you commit a transfer.`,
+    insights: {
+      sectionTitle: "FITNESS CHECK",
+      badge: p.chance >= 75 ? "AVAILABLE" : p.chance >= 50 ? "DOUBT" : "RISK",
+      headline: `Check the flag before you commit to ${p.displayName} for GW${gw}.`,
+      bullets: [
+        { label: "Status", text: status },
+        { label: "Chance to play", text: `${p.chance}% for the next round` },
+        ...(p.news ? [{ label: "Latest note", text: p.news }] : []),
+        { label: "Expected points", text: `${p.epNext.toFixed(1)} xP if available` },
+      ],
+    },
     gw,
     cta: "chatfpl.ai",
   };
@@ -424,11 +476,23 @@ async function buildTransferCard(seed: number, gw: number): Promise<SocialCardDa
     ],
     tableCols: transferCols,
     tableRows: [rowFromTransferPlayer(out), rowFromTransferPlayer(inn)],
-    bubbleText:
-      `The market is active on this move. ${out.displayName} has ${out.transfersOut.toLocaleString()} transfers out ` +
-      `this gameweek. ${inn.displayName} has ${inn.transfersIn.toLocaleString()} transfers in. ` +
-      `xP projection: ${out.ep_next.toFixed(1)} out vs ${inn.ep_next.toFixed(1)} in. ` +
-      `Budget shift: ${pair.budgetDelta >= 0 ? "+" : ""}£${pair.budgetDelta.toFixed(1)}m.`,
+    insights: {
+      sectionTitle: "MARKET MOVEMENT",
+      badge: "TRENDING",
+      headline: `Managers are moving from ${out.displayName} to ${inn.displayName}.`,
+      bullets: [
+        { label: "Transfers out", text: `${out.transfersOut.toLocaleString()} managers selling ${out.displayName}` },
+        { label: "Transfers in", text: `${inn.transfersIn.toLocaleString()} managers buying ${inn.displayName}` },
+        {
+          label: "Expected points",
+          text: `${out.ep_next.toFixed(1)} xP out vs ${inn.ep_next.toFixed(1)} xP in for GW${gw}`,
+        },
+        {
+          label: "Budget shift",
+          text: `${pair.budgetDelta >= 0 ? "+" : ""}£${pair.budgetDelta.toFixed(1)}m if you make the swap`,
+        },
+      ],
+    },
     gw,
     cta: "chatfpl.ai",
   };
@@ -478,11 +542,17 @@ async function buildFixtureCard(seed: number, gw: number): Promise<SocialCardDat
         priceRaw: p.price,
       },
     }],
-    bubbleText:
-      `${p.displayName}'s upcoming run averages FDR ${p.avgFdr.toFixed(1)} (${p.verdictLabel}). ` +
-      `Next fixtures: ${nextFix || "TBC"}. ` +
-      `${p.ep_next.toFixed(1)} xP projected for Gameweek ${gw} with form at ${p.form}. ` +
-      `Fixture swings matter as much as raw form when you plan transfers.`,
+    insights: {
+      sectionTitle: "FIXTURE RUN",
+      badge: p.verdictLabel.toUpperCase(),
+      headline: `${p.displayName}'s schedule is ${p.verdictLabel.toLowerCase()} over the coming weeks.`,
+      bullets: [
+        { label: "Average FDR", text: `${p.avgFdr.toFixed(1)} across the next five gameweeks` },
+        { label: "Next fixtures", text: nextFix || "TBC" },
+        { label: "Expected points", text: `${p.ep_next.toFixed(1)} xP projected for GW${gw}` },
+        { label: "Form", text: `${p.form} pts/game recently` },
+      ],
+    },
     gw,
     cta: "chatfpl.ai",
   };
@@ -540,11 +610,20 @@ async function buildDefconCard(seed: number, gw: number): Promise<SocialCardData
         priceRaw: p.price,
       },
     }],
-    bubbleText:
-      `DEFCON context for ${p.displayName}. ${p.dc90.toFixed(1)} defensive actions per 90 this season, ` +
-      `${p.cbit.toLocaleString()} CBIT total, and ${p.bonusHits ?? 0} bonus hits at the ${threshold}+ threshold. ` +
-      `${p.displayName} projects ${p.ep_next.toFixed(1)} xP for Gameweek ${gw}. ` +
-      `DEF/MID defensive volume can add a floor even on quieter attacking returns.`,
+    insights: {
+      sectionTitle: "THE CASE FOR",
+      badge: "DEFCON",
+      headline: `${p.displayName} adds defensive volume that can floor quieter attacking weeks.`,
+      bullets: [
+        { label: "DC/90", text: `${p.dc90.toFixed(1)} defensive actions per 90 this season` },
+        { label: "CBIT", text: `${p.cbit.toLocaleString()} combined clearances, blocks, interceptions and tackles` },
+        {
+          label: "Bonus hits",
+          text: `${p.bonusHits ?? 0} at the ${threshold}+ threshold this season`,
+        },
+        { label: "Expected points", text: `${p.ep_next.toFixed(1)} xP projected for GW${gw}` },
+      ],
+    },
     gw,
     cta: "chatfpl.ai",
   };
