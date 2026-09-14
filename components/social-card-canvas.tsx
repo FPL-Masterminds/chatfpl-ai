@@ -1,4 +1,5 @@
 import type { SocialCardData } from "@/lib/social-card";
+import { SocialCardBackground } from "@/components/social-card-background";
 import { SocialCardPlayerHero, SocialCardPlayerPhoto } from "@/components/social-card-player-hero";
 import { SocialCardStatTable } from "@/components/social-card-stat-table";
 
@@ -46,13 +47,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         padding: "36px 44px 40px",
       }}
     >
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 45% at 50% 38%, rgba(0,255,133,0.18) 0%, transparent 55%), #000",
-        }}
-      />
+      <SocialCardBackground />
 
       {/* Brand header */}
       <div className="relative z-10 flex items-center justify-between">
