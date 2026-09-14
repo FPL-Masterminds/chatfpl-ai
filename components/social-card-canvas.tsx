@@ -31,8 +31,8 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         height: 1080,
         display: "grid",
         gridTemplateRows: dual
-          ? "88px 84px 210px 248px 230px 92px"
-          : "88px 100px 1fr 164px 92px",
+          ? "88px 84px 210px 248px 1fr"
+          : "88px 100px 1fr 1fr",
         gap: 12,
         padding: "32px 40px 36px",
       }}
@@ -142,26 +142,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
           CF
         </div>
         <div className="flex-1 rounded-[22px] rounded-bl-md border border-white/10 bg-black/45 px-5 py-4">
-          <p className="text-[20px] leading-snug text-white/92 line-clamp-3">{card.bubbleText}</p>
-        </div>
-      </div>
-
-      {/* CTA */}
-      <div className="relative z-10 flex items-center justify-center">
-        <div
-          className="rounded-full p-[3px]"
-          style={{
-            background: "rgba(0,0,0,0.55)",
-            border: "1px solid rgba(255,255,255,0.14)",
-            boxShadow: "0 0 32px rgba(0,255,135,0.28), inset 0 1px 0 rgba(255,255,255,0.16)",
-          }}
-        >
-          <div
-            className="rounded-full px-14 py-4 text-[28px] font-bold tracking-tight text-[#08020E]"
-            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-          >
-            {card.cta}
-          </div>
+          <p className="text-[20px] leading-snug text-white/92 line-clamp-4">{card.bubbleText}</p>
         </div>
       </div>
     </div>
