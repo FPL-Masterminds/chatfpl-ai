@@ -1,11 +1,17 @@
-export function getSocialCardCaptureToken(): string {
-  return process.env.SOCIAL_CARD_CAPTURE_TOKEN?.trim() ?? "";
+export function getSocialCardToken(): string {
+  return process.env.SOCIAL_CARD_TOKEN?.trim() ?? "";
 }
 
-export function isSocialCardCaptureTokenValid(token: string | undefined): boolean {
-  const secret = getSocialCardCaptureToken();
+/** @deprecated Use getSocialCardToken */
+export const getSocialCardCaptureToken = getSocialCardToken;
+
+export function isSocialCardTokenValid(token: string | undefined): boolean {
+  const secret = getSocialCardToken();
   if (!secret) {
     return process.env.NODE_ENV !== "production";
   }
   return token === secret;
 }
+
+/** @deprecated Use isSocialCardTokenValid */
+export const isSocialCardCaptureTokenValid = isSocialCardTokenValid;

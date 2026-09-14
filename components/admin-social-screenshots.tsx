@@ -105,7 +105,7 @@ export function AdminSocialScreenshots() {
           <ul className="space-y-2 text-sm text-amber-100/90">
             {!config.captureTokenConfigured ? (
               <li>
-                Set <code className="text-amber-200">SOCIAL_CARD_CAPTURE_TOKEN</code> in Vercel env vars
+                Set <code className="text-amber-200">SOCIAL_CARD_TOKEN</code> in Vercel env vars
                 (any long random string). Redeploy after saving.
               </li>
             ) : null}

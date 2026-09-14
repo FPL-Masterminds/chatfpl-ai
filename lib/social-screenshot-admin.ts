@@ -1,7 +1,4 @@
-import {
-  getSocialCardCaptureToken,
-  isSocialCardCaptureTokenValid,
-} from "@/lib/social-card-token";
+import { getSocialCardToken } from "@/lib/social-card-token";
 import { hubForSlot, type SocialCardSlot, type SocialHubType } from "@/lib/social-card";
 
 const HUB_LABELS: Record<SocialHubType, string> = {
@@ -21,8 +18,6 @@ function siteOrigin(): string {
 export function getScreenshotOneAccessKey(): string {
   return process.env.SCREENSHOTONE_ACCESS_KEY?.trim() ?? "";
 }
-
-export { getSocialCardCaptureToken, isSocialCardCaptureTokenValid };
 
 export function buildSocialCardPageUrl(
   slot: SocialCardSlot,
@@ -71,7 +66,7 @@ export interface SocialScreenshotAdminConfig {
 
 export function getSocialScreenshotAdminConfig(dateKey?: string): SocialScreenshotAdminConfig {
   const today = dateKey ?? new Date().toISOString().slice(0, 10);
-  const captureToken = getSocialCardCaptureToken();
+  const captureToken = getSocialCardToken();
   const accessKey = getScreenshotOneAccessKey();
   const captureTokenConfigured = captureToken.length > 0;
   const screenshotOneConfigured = accessKey.length > 0;
