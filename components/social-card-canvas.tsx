@@ -27,22 +27,13 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
 
   return (
     <div
-      className="relative bg-black text-white antialiased"
-      style={{
-        width: 1080,
-        height: 1080,
-        display: "grid",
-        gridTemplateRows: dual
-          ? "68px 72px 220px 168px 1fr"
-          : "68px 84px 460px 1fr",
-        gap: 14,
-        padding: "36px 44px 40px",
-      }}
+      className="relative flex flex-col bg-black text-white antialiased"
+      style={{ width: 1080, height: 1080, padding: "36px 44px 40px" }}
     >
       <SocialCardBackground />
 
       {/* Brand header */}
-      <div className="relative z-10 flex items-center justify-between">
+      <div className="relative z-10 flex shrink-0 items-center justify-between">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${SITE}/ChatFPL_AI_Logo.png`}
@@ -69,7 +60,10 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
       </div>
 
       {/* Headline */}
-      <div className="relative z-10 flex items-center justify-center px-4 text-center">
+      <div
+        className="relative z-10 mt-4 flex shrink-0 items-center justify-center px-4 text-center"
+        style={{ marginBottom: dual ? 16 : 24 }}
+      >
         <h1
           className="font-bold leading-[1.08] tracking-tighter text-white"
           style={{ fontSize: dual ? 36 : 46 }}
@@ -87,8 +81,8 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         </h1>
       </div>
 
-      {/* Player zone — overflow visible so photo head is not clipped */}
-      <div className="relative z-10 flex items-end justify-center" style={{ overflow: "visible" }}>
+      {/* Player zone */}
+      <div className="relative z-10 flex shrink-0 items-end justify-center" style={{ overflow: "visible" }}>
         {dual ? (
           <div className="flex w-full items-end justify-center gap-6">
             <SocialCardPlayerPhoto player={card.players[0]} />
@@ -110,13 +104,13 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
 
       {/* Dual stat table */}
       {dual && card.tableRows.length > 0 && (
-        <div className="relative z-10 min-h-0 overflow-hidden">
+        <div className="relative z-10 mt-3 shrink-0 overflow-hidden">
           <SocialCardStatTable cols={dualCols} rows={card.tableRows} compact />
         </div>
       )}
 
       {/* Insights panel */}
-      <div className="relative z-10 self-end">
+      <div className="relative z-10 mt-5 shrink-0">
         <SocialCardInsights insights={card.insights} />
       </div>
     </div>
