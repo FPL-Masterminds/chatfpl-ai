@@ -47,29 +47,18 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
 
       {/* Brand header */}
       <div className="relative z-10 flex items-center justify-between">
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`${SITE}/ChatFPL_AI_Logo.png`}
-            alt="ChatFPL"
-            width={100}
-            height={100}
-            className="h-[100px] w-[100px] object-contain"
+            alt="ChatFPL AI"
+            width={120}
+            height={120}
+            className="h-[120px] w-[120px] object-contain"
           />
-          <div>
-            <p
-              className="text-[32px] font-bold leading-none tracking-tight text-transparent bg-clip-text"
-              style={{
-                backgroundImage: "linear-gradient(to right,#00ff85,#02efff)",
-                WebkitBackgroundClip: "text",
-              }}
-            >
-              ChatFPL AI
-            </p>
-            <p className="mt-1.5 text-[14px] font-semibold uppercase tracking-[0.22em] text-white/45">
-              {card.hubLabel}
-            </p>
-          </div>
+          <p className="text-[16px] font-semibold uppercase tracking-[0.22em] text-white/45">
+            {card.hubLabel}
+          </p>
         </div>
         <span
           className="rounded-full px-6 py-2.5 text-[20px] font-bold tracking-wide"

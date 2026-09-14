@@ -13,11 +13,13 @@ export default function InternalLayout({ children }: { children: React.ReactNode
   return (
     <>
       <style>{`
-        body {
+        html, body {
+          width: 1080px !important;
+          height: 1080px !important;
           margin: 0 !important;
           padding: 0 !important;
           overflow: hidden !important;
-          background: #050505 !important;
+          background: #000 !important;
         }
       `}</style>
       {children}
