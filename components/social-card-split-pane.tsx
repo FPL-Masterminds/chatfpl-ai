@@ -76,7 +76,7 @@ function StatBoxes({ stats }: { stats: SocialCardStat[] }) {
       {stats.map((stat) => (
         <div
           key={stat.label}
-          className="rounded-xl px-3.5 py-3"
+          className="flex min-h-[98px] flex-col justify-center rounded-xl px-3.5 py-[21px]"
           style={{ background: "linear-gradient(135deg,#00ff85,#02efff)" }}
         >
           <p className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: "#00190D" }}>

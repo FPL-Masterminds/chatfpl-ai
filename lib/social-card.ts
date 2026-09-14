@@ -493,7 +493,7 @@ async function buildTransferCard(seed: number, gw: number): Promise<SocialCardDa
     hubLabel: HUB_LABELS.transfer_trends,
     layout: "dual",
     heroWhite: `Thinking of swapping ${out.displayName} for ${inn.displayName} in `,
-    heroGradient: `Gameweek ${gw}?`,
+    heroGradient: `Fantasy Premier League Gameweek ${gw}?`,
     analysisLine: {
       white: `${out.displayName} vs ${inn.displayName}: `,
       gradient: `Gameweek ${gw} Analysis`,
