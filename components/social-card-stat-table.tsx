@@ -38,7 +38,7 @@ export function SocialCardStatTable({
         <thead>
           <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
             <th
-              className="px-2 py-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/65"
+              className="px-2 py-3 text-[13px] font-semibold uppercase tracking-[0.1em] text-white/70"
               style={{ width: "18%" }}
             >
               Player
@@ -46,7 +46,7 @@ export function SocialCardStatTable({
             {cols.map((col) => (
               <th
                 key={col.key}
-                className="px-1 py-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/65"
+                className="px-1 py-3 text-[13px] font-semibold uppercase tracking-[0.08em] text-white/70"
               >
                 {col.label}
               </th>
@@ -63,9 +63,9 @@ export function SocialCardStatTable({
                   borderBottom: rowIdx === 0 ? "1px solid rgba(255,255,255,0.05)" : undefined,
                 }}
               >
-                <td className="px-2 py-2.5">
-                  <p className="text-[15px] font-bold leading-tight text-white">{row.webName}</p>
-                  <p className="mt-0.5 text-[11px] text-white/45">
+                <td className="px-2 py-3">
+                  <p className="text-[19px] font-bold leading-tight text-white">{row.webName}</p>
+                  <p className="mt-0.5 text-[14px] text-white/50">
                     {row.position} · {row.club}
                   </p>
                 </td>
@@ -73,9 +73,9 @@ export function SocialCardStatTable({
                   const wins = cellWins(col, row, other);
                   const value = row.display[col.key] ?? "";
                   return (
-                    <td key={col.key} className="px-1 py-2.5">
+                    <td key={col.key} className="px-1 py-3">
                       <span
-                        className="text-[15px] font-bold tabular-nums"
+                        className="text-[20px] font-bold tabular-nums"
                         style={wins ? WIN_STYLE : { color: "rgba(255,255,255,0.88)" }}
                       >
                         {value}

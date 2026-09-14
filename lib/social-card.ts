@@ -130,18 +130,22 @@ function utcDateKey(date = new Date()): string {
   return date.toISOString().slice(0, 10);
 }
 
-function hashSeed(input: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < input.length; i++) {
-    h ^= input.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
+export const DAILY_SOCIAL_CARD_SLOTS = 3;
+
+function utcDayNumber(dateKey = utcDateKey()): number {
+  return Math.floor(new Date(`${dateKey}T12:00:00Z`).getTime() / 86_400_000);
 }
 
-function pickIndex(seed: number, length: number, salt: number): number {
+/** Cycles through each hub's pool day by day so the same pick is not repeated daily. */
+export function pickRotatingIndex(
+  hub: SocialHubType,
+  length: number,
+  dateKey?: string,
+): number {
   if (length <= 0) return 0;
-  return ((seed + salt * 9973) >>> 0) % length;
+  const day = utcDayNumber(dateKey);
+  const hubOffset = HUB_ORDER.indexOf(hub);
+  return (day + hubOffset) % length;
 }
 
 function fixtureLine(p: CaptainHubPlayer): string {
@@ -293,16 +297,23 @@ function statsFromRow(
   }));
 }
 
-function hubForSlot(dateKey: string, slot: SocialCardSlot): SocialHubType {
-  const seed = hashSeed(`${dateKey}:${slot}`);
-  const offset = slot === "1" ? 0 : slot === "2" ? 2 : 4;
-  return HUB_ORDER[(seed + offset) % HUB_ORDER.length];
+function slotIndex(slot: SocialCardSlot): number {
+  if (slot === "2") return 1;
+  if (slot === "3") return 2;
+  return 0;
 }
 
-async function buildCaptainCard(seed: number, gw: number): Promise<SocialCardData | null> {
+/** Three hubs per day, rotating through all seven over time. */
+export function hubForSlot(dateKey: string, slot: SocialCardSlot): SocialHubType {
+  const day = utcDayNumber(dateKey);
+  const dailyStart = (day * DAILY_SOCIAL_CARD_SLOTS) % HUB_ORDER.length;
+  return HUB_ORDER[(dailyStart + slotIndex(slot)) % HUB_ORDER.length];
+}
+
+async function buildCaptainCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getCaptainHub();
   if (!hub?.players.length) return null;
-  const p = hub.players[pickIndex(seed, hub.players.length, 11)];
+  const p = hub.players[pickRotatingIndex("captains", hub.players.length)];
   return {
     slot: "1",
     hub: "captains",
@@ -329,10 +340,10 @@ async function buildCaptainCard(seed: number, gw: number): Promise<SocialCardDat
   };
 }
 
-async function buildDifferentialCard(seed: number, gw: number): Promise<SocialCardData | null> {
+async function buildDifferentialCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getDifferentialHub();
   if (!hub?.players.length) return null;
-  const p = hub.players[pickIndex(seed, hub.players.length, 19)];
+  const p = hub.players[pickRotatingIndex("differentials", hub.players.length)];
   return {
     slot: "1",
     hub: "differentials",
@@ -359,10 +370,10 @@ async function buildDifferentialCard(seed: number, gw: number): Promise<SocialCa
   };
 }
 
-async function buildComparisonCard(seed: number, gw: number): Promise<SocialCardData | null> {
+async function buildComparisonCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getComparisonHub();
   if (!hub?.pairs.length) return null;
-  const pair = hub.pairs[pickIndex(seed, hub.pairs.length, 23)];
+  const pair = hub.pairs[pickRotatingIndex("comparisons", hub.pairs.length)];
   const data = await getComparisonData(pair.slugA, pair.slugB);
   if (!data) return null;
   const { playerA, playerB, fixtureRunA, fixtureRunB } = data;
@@ -405,10 +416,10 @@ async function buildComparisonCard(seed: number, gw: number): Promise<SocialCard
   };
 }
 
-async function buildInjuryCard(seed: number, gw: number): Promise<SocialCardData | null> {
+async function buildInjuryCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getInjuryHub();
   if (!hub?.players.length) return null;
-  const p = hub.players[pickIndex(seed, hub.players.length, 29)];
+  const p = hub.players[pickRotatingIndex("injuries", hub.players.length)];
   const status = statusLabel(p.status, p.chance);
   const injuryCols: SocialCardTableCol[] = [
     { label: "Chance of Playing", key: "chance", higherIsBetter: true },
@@ -472,10 +483,10 @@ async function buildInjuryCard(seed: number, gw: number): Promise<SocialCardData
   };
 }
 
-async function buildTransferCard(seed: number, gw: number): Promise<SocialCardData | null> {
+async function buildTransferCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getTransferTrendsHub();
   if (!hub?.pairs.length) return null;
-  const pair = hub.pairs[pickIndex(seed, hub.pairs.length, 37)];
+  const pair = hub.pairs[pickRotatingIndex("transfer_trends", hub.pairs.length)];
   const out = pair.playerOut;
   const inn = pair.playerIn;
   const transferCols: SocialCardTableCol[] = [
@@ -525,10 +536,10 @@ async function buildTransferCard(seed: number, gw: number): Promise<SocialCardDa
   };
 }
 
-async function buildFixtureCard(seed: number, gw: number): Promise<SocialCardData | null> {
+async function buildFixtureCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getFixtureHub();
   if (!hub?.players.length) return null;
-  const p = hub.players[pickIndex(seed, hub.players.length, 41)];
+  const p = hub.players[pickRotatingIndex("fixtures", hub.players.length)];
   const nextFix = p.fixtures
     .slice(0, 3)
     .map((f) => `${f.opponentShort} (${f.isHome ? "H" : "A"}) FDR${f.fdr}`)
@@ -595,12 +606,12 @@ async function buildFixtureCard(seed: number, gw: number): Promise<SocialCardDat
   };
 }
 
-async function buildDefconCard(seed: number, gw: number): Promise<SocialCardData | null> {
+async function buildDefconCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getDefconHub();
   if (!hub?.ready) return null;
   const pool = [...hub.defenders, ...hub.midfielders];
   if (!pool.length) return null;
-  const p = pool[pickIndex(seed, pool.length, 47)];
+  const p = pool[pickRotatingIndex("defcon", pool.length)];
   const threshold = p.elementType === 2 ? 10 : 12;
   const defconCols: SocialCardTableCol[] = [
     { label: "DC/90", key: "dc90", higherIsBetter: true },
@@ -682,24 +693,23 @@ async function buildDefconCard(seed: number, gw: number): Promise<SocialCardData
 
 async function buildForHub(
   hub: SocialHubType,
-  seed: number,
   gwFallback: number,
 ): Promise<SocialCardData | null> {
   switch (hub) {
     case "captains":
-      return buildCaptainCard(seed, gwFallback);
+      return buildCaptainCard(gwFallback);
     case "differentials":
-      return buildDifferentialCard(seed, gwFallback);
+      return buildDifferentialCard(gwFallback);
     case "comparisons":
-      return buildComparisonCard(seed, gwFallback);
+      return buildComparisonCard(gwFallback);
     case "injuries":
-      return buildInjuryCard(seed, gwFallback);
+      return buildInjuryCard(gwFallback);
     case "transfer_trends":
-      return buildTransferCard(seed, gwFallback);
+      return buildTransferCard(gwFallback);
     case "fixtures":
-      return buildFixtureCard(seed, gwFallback);
+      return buildFixtureCard(gwFallback);
     case "defcon":
-      return buildDefconCard(seed, gwFallback);
+      return buildDefconCard(gwFallback);
     default:
       return null;
   }
@@ -724,19 +734,18 @@ export async function getSocialCardData(
   hubOverride?: string,
 ): Promise<SocialCardData | null> {
   const dateKey = utcDateKey();
-  const seed = hashSeed(`${dateKey}:${slot}`);
   const primaryHub = parseHubOverride(hubOverride) ?? hubForSlot(dateKey, slot);
 
   let gw = 1;
   const captainPeek = await getCaptainHub();
   if (captainPeek?.gw) gw = captainPeek.gw;
 
-  let card = await enrichSocialCard(await buildForHub(primaryHub, seed, gw));
+  let card = await enrichSocialCard(await buildForHub(primaryHub, gw));
   if (card) return { ...card, slot };
 
   for (let i = 1; i < HUB_ORDER.length; i++) {
     const fallbackHub = HUB_ORDER[(HUB_ORDER.indexOf(primaryHub) + i) % HUB_ORDER.length];
-    card = await enrichSocialCard(await buildForHub(fallbackHub, seed + i, gw));
+    card = await enrichSocialCard(await buildForHub(fallbackHub, gw));
     if (card) return { ...card, slot };
   }
 

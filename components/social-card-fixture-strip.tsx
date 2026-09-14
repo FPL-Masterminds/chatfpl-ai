@@ -11,8 +11,8 @@ function FdrDots({ fdr }: { fdr: number }) {
           key={i}
           className="block rounded-full"
           style={{
-            width: 7,
-            height: 7,
+            width: 9,
+            height: 9,
             background: i <= fdr ? GREEN : "rgba(255,255,255,0.12)",
           }}
         />
@@ -24,26 +24,25 @@ function FdrDots({ fdr }: { fdr: number }) {
 function FixtureCard({ fix }: { fix: FixtureGW }) {
   return (
     <div
-      className="flex flex-1 flex-col items-center justify-center gap-1 rounded-lg"
+      className="flex flex-1 flex-col items-center justify-center gap-1.5 rounded-lg"
       style={{
         background: "transparent",
         border: "1px solid rgba(255,255,255,0.12)",
-        padding: "8px 4px",
+        padding: "10px 4px 8px",
       }}
     >
-      <span className="text-[10px] font-semibold tabular-nums text-white">GW{fix.gw}</span>
+      <span className="text-[14px] font-bold tabular-nums text-white">GW{fix.gw}</span>
       {fix.opponentCode > 0 && (
         <Image
           src={`https://resources.premierleague.com/premierleague/badges/70/t${fix.opponentCode}.png`}
           alt={fix.opponentShort}
-          width={26}
-          height={26}
-          className="object-contain"
+          width={40}
+          height={40}
+          className="h-[40px] w-auto object-contain"
           unoptimized
         />
       )}
-      <span className="text-[11px] font-bold leading-none text-white">{fix.opponentShort}</span>
-      <span className="text-[10px] font-semibold leading-none text-white">{fix.isHome ? "H" : "A"}</span>
+      <span className="text-[15px] font-bold leading-none text-white">{fix.isHome ? "H" : "A"}</span>
       <FdrDots fdr={fix.fdr} />
     </div>
   );

@@ -14,7 +14,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
     <div
       id="social-card-canvas"
       className="relative box-border flex w-[1080px] min-w-[1080px] max-w-[1080px] flex-col overflow-hidden bg-black text-white antialiased"
-      style={{ height: 1080, padding: "36px 44px 32px" }}
+      style={{ height: 1080, padding: "32px 40px 24px" }}
     >
       <SocialCardBackground />
 
@@ -22,7 +22,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
       <div className="relative z-10 mb-4 flex w-full shrink-0 items-center justify-center px-2 text-center">
         <h1
           className="font-bold leading-[1.08] tracking-tighter text-white"
-          style={{ fontSize: isDualTable ? 38 : dual ? 45 : 54 }}
+          style={{ fontSize: isDualTable ? 44 : dual ? 52 : 62 }}
         >
           {card.heroWhite}
           <span
@@ -65,15 +65,15 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
         />
       </div>
 
-      {/* Brand footer */}
-      <div className="relative z-10 mt-3 flex w-full shrink-0 items-center justify-end border-t border-white/8 pt-3">
+      {/* Brand watermark */}
+      <div className="pointer-events-none absolute bottom-5 right-5 z-20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${SITE}/ChatFPL_AI_Logo.png`}
           alt="ChatFPL AI"
           width={120}
           height={120}
-          className="h-[48px] w-auto object-contain opacity-90"
+          className="h-[12px] w-auto object-contain opacity-80"
         />
       </div>
     </div>

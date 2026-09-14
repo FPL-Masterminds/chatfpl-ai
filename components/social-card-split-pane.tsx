@@ -6,19 +6,19 @@ import type { SocialCardPlayer, SocialCardStat } from "@/lib/social-card";
 
 const PL_PHOTO_W = 110;
 const PL_PHOTO_H = 140;
-const NAME_BLOCK_H = 76;
+const NAME_BLOCK_H = 88;
 
 function badgeUrl(teamCode: number): string {
   return `https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`;
 }
 
 function PlayerNameBlock({ player, compact = false }: { player: SocialCardPlayer; compact?: boolean }) {
-  const badgeSize = compact ? 28 : 36;
+  const badgeSize = compact ? 32 : 42;
 
   return (
     <div
       className="flex shrink-0 items-center justify-center gap-2.5 px-2 text-center"
-      style={{ height: compact ? 64 : NAME_BLOCK_H }}
+      style={{ height: compact ? 72 : NAME_BLOCK_H }}
     >
       <Image
         src={badgeUrl(player.teamCode)}
@@ -29,10 +29,10 @@ function PlayerNameBlock({ player, compact = false }: { player: SocialCardPlayer
         unoptimized
       />
       <div className="min-w-0">
-        <p className={`font-bold leading-tight text-white ${compact ? "text-[16px]" : "text-[22px]"}`}>
+        <p className={`font-bold leading-tight text-white ${compact ? "text-[20px]" : "text-[28px]"}`}>
           {player.displayName}
         </p>
-        <p className={`mt-0.5 text-white/50 ${compact ? "text-[12px]" : "text-[15px]"}`}>
+        <p className={`mt-0.5 text-white/50 ${compact ? "text-[15px]" : "text-[18px]"}`}>
           {player.teamShort} · {player.position} · {player.price}
         </p>
       </div>
@@ -115,7 +115,7 @@ export function SocialCardSplitPane({
                 <PlayerNameBlock player={players[0]} compact />
               </div>
               <span
-                className="pb-24 text-[26px] font-black tracking-widest text-transparent bg-clip-text"
+                className="pb-24 text-[32px] font-black tracking-widest text-transparent bg-clip-text"
                 style={{
                   backgroundImage: "linear-gradient(to bottom,#00FF87,#00FFFF)",
                   WebkitBackgroundClip: "text",
@@ -140,7 +140,7 @@ export function SocialCardSplitPane({
       <div className="flex h-full min-h-0 flex-col pb-3">
         <div className="shrink-0">
           <span
-            className="inline-block rounded-full px-3 py-1 text-[12px] font-bold uppercase tracking-widest"
+            className="inline-block rounded-full px-3.5 py-1.5 text-[14px] font-bold uppercase tracking-widest"
             style={{
               background: "rgba(0,255,135,0.1)",
               color: "#00FF87",
@@ -149,7 +149,7 @@ export function SocialCardSplitPane({
           >
             Ask ChatFPL AI
           </span>
-          <p className="mt-3 text-[28px] font-medium leading-snug text-white">{prompt}</p>
+          <p className="mt-3 text-[34px] font-medium leading-snug text-white">{prompt}</p>
         </div>
 
         <div className="mt-4 min-h-0 flex-1">

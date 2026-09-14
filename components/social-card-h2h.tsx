@@ -43,14 +43,14 @@ function H2HPlayerColumn({ player }: { player: SocialCardPlayer }) {
         <Image
           src={badgeUrl(player.teamCode)}
           alt={player.teamShort}
-          width={32}
-          height={32}
+          width={38}
+          height={38}
           className="shrink-0 object-contain"
           unoptimized
         />
         <div className="min-w-0">
-          <p className="text-[17px] font-bold leading-tight text-white">{player.displayName}</p>
-          <p className="mt-0.5 text-[13px] text-white/50">
+          <p className="text-[22px] font-bold leading-tight text-white">{player.displayName}</p>
+          <p className="mt-0.5 text-[16px] text-white/50">
             {player.teamShort} · {player.position} · {player.price}
           </p>
         </div>
