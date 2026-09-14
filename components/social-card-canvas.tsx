@@ -12,6 +12,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
 
   return (
     <div
+      id="social-card-canvas"
       className="relative box-border flex w-[1080px] min-w-[1080px] max-w-[1080px] flex-col overflow-hidden bg-black text-white antialiased"
       style={{ height: 1080, padding: "36px 44px 32px" }}
     >

@@ -14,16 +14,12 @@ export default function InternalLayout({ children }: { children: React.ReactNode
     <>
       <style>{`
         html, body {
-          width: 1080px !important;
-          min-width: 1080px !important;
-          max-width: 1080px !important;
-          height: 1080px !important;
-          min-height: 1080px !important;
-          max-height: 1080px !important;
           margin: 0 !important;
           padding: 0 !important;
-          overflow: hidden !important;
-          background: #000 !important;
+          min-width: 1080px !important;
+          min-height: 1080px !important;
+          overflow: auto !important;
+          background: #ffffff !important;
         }
       `}</style>
       {children}
