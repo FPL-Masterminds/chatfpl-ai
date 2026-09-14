@@ -93,11 +93,11 @@ export function SocialCardSplitPane({
 
   return (
     <div
-      className="grid w-full items-start gap-5"
-      style={{ gridTemplateColumns: "46fr 54fr", height: showFixtures ? 590 : 560 }}
+      className="grid w-full gap-5"
+      style={{ gridTemplateColumns: "46fr 54fr", height: showFixtures ? 600 : 560 }}
     >
       {/* Left: player portrait(s) */}
-      <div className="relative flex min-h-0 flex-col overflow-hidden rounded-3xl bg-black/35">
+      <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-3xl bg-black/35">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
