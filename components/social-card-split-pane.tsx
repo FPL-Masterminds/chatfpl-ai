@@ -1,6 +1,10 @@
 import Image from "next/image";
 import type { SocialCardPlayer, SocialCardStat } from "@/lib/social-card";
 
+function badgeUrl(teamCode: number): string {
+  return `https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`;
+}
+
 function PlayerPortrait({ player, compact = false }: { player: SocialCardPlayer; compact?: boolean }) {
   const maxH = compact ? 300 : 500;
   const photoW = compact ? 180 : 340;
@@ -47,7 +51,7 @@ function StatBoxes({ stats }: { stats: SocialCardStat[] }) {
 
   return (
     <div
-      className="grid gap-3"
+      className="grid w-full gap-3"
       style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
     >
       {stats.map((stat) => (
@@ -68,6 +72,25 @@ function StatBoxes({ stats }: { stats: SocialCardStat[] }) {
   );
 }
 
+function PlayerBadgeRow({ player }: { player: SocialCardPlayer }) {
+  return (
+    <div className="flex w-full items-center gap-3 border-t border-white/8 pt-4">
+      <Image
+        src={badgeUrl(player.teamCode)}
+        alt={player.teamShort}
+        width={36}
+        height={36}
+        className="object-contain"
+        unoptimized
+      />
+      <div>
+        <p className="text-[17px] font-bold leading-tight text-white">{player.displayName}</p>
+        <p className="text-[14px] text-white/40">{player.teamShort}</p>
+      </div>
+    </div>
+  );
+}
+
 export function SocialCardSplitPane({
   players,
   dual,
@@ -80,9 +103,12 @@ export function SocialCardSplitPane({
   stats: SocialCardStat[];
 }) {
   return (
-    <div className="flex gap-5" style={{ height: 520 }}>
+    <div
+      className="grid w-full gap-5"
+      style={{ gridTemplateColumns: "46fr 54fr", height: 500 }}
+    >
       {/* Left: player portrait(s) */}
-      <div className="relative flex w-[46%] flex-col overflow-hidden rounded-3xl bg-black/35">
+      <div className="relative flex min-w-0 flex-col overflow-hidden rounded-3xl bg-black/35">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -111,8 +137,8 @@ export function SocialCardSplitPane({
         </div>
       </div>
 
-      {/* Right: prompt + stat boxes */}
-      <div className="flex w-[54%] flex-col gap-5 py-1">
+      {/* Right: prompt + stat boxes + club badge */}
+      <div className="flex min-w-0 flex-col justify-between gap-4 py-1">
         <div>
           <span
             className="inline-block rounded-full px-3 py-1 text-[12px] font-bold uppercase tracking-widest"
@@ -128,6 +154,8 @@ export function SocialCardSplitPane({
         </div>
 
         <StatBoxes stats={stats} />
+
+        {!dual && players[0] ? <PlayerBadgeRow player={players[0]} /> : null}
       </div>
     </div>
   );

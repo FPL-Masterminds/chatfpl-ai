@@ -10,26 +10,13 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
 
   return (
     <div
-      className="relative flex flex-col bg-black text-white antialiased"
-      style={{ width: 1080, height: 1080, padding: "32px 44px 28px" }}
+      className="relative box-border flex w-[1080px] min-w-[1080px] max-w-[1080px] flex-col overflow-hidden bg-black text-white antialiased"
+      style={{ height: 1080, padding: "36px 44px 32px" }}
     >
       <SocialCardBackground />
 
-      {/* Top bar: GW pill only */}
-      <div className="relative z-10 flex shrink-0 justify-end">
-        <span
-          className="rounded-full px-7 py-2.5 text-[22px] font-bold tracking-wide text-[#1A0E24]"
-          style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-        >
-          GW{card.gw}
-        </span>
-      </div>
-
       {/* Headline */}
-      <div
-        className="relative z-10 mt-3 flex shrink-0 items-center justify-center px-2 text-center"
-        style={{ marginBottom: 16 }}
-      >
+      <div className="relative z-10 mb-4 flex w-full shrink-0 items-center justify-center px-2 text-center">
         <h1
           className="font-bold leading-[1.08] tracking-tighter text-white"
           style={{ fontSize: dual ? 45 : 54 }}
@@ -48,7 +35,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
       </div>
 
       {/* Two-column split */}
-      <div className="relative z-10 shrink-0">
+      <div className="relative z-10 w-full shrink-0">
         <SocialCardSplitPane
           players={card.players}
           dual={dual}
@@ -58,7 +45,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
       </div>
 
       {/* Edge-style commentary card */}
-      <div className="relative z-10 mt-4 shrink-0">
+      <div className="relative z-10 mt-4 w-full shrink-0">
         <SocialCardFooter
           tag={card.footerTag}
           title={card.footerTitle}
@@ -67,9 +54,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
       </div>
 
       {/* Brand footer */}
-      <div
-        className="relative z-10 mt-3 flex shrink-0 items-center justify-center border-t border-white/8 pt-3"
-      >
+      <div className="relative z-10 mt-3 flex w-full shrink-0 items-center justify-end border-t border-white/8 pt-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${SITE}/ChatFPL_AI_Logo.png`}
