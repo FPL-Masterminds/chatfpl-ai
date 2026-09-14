@@ -1,7 +1,6 @@
 import { getComparisonHub, getComparisonData, type ComparisonPlayer } from "@/lib/fpl-comparison";
-import type { FixtureGW } from "@/lib/fpl-player-page";
 import { getDefconHub } from "@/lib/fpl-defcon";
-import { getFixtureHub, type FixtureGW } from "@/lib/fpl-fixtures";
+import { getFixtureHub, getFixtureRunForPlayerCode, type FixtureGW } from "@/lib/fpl-fixtures";
 import { getInjuryHub, statusLabel } from "@/lib/fpl-injury";
 import {
   getCaptainHub,
@@ -412,7 +411,7 @@ async function buildInjuryCard(seed: number, gw: number): Promise<SocialCardData
   const p = hub.players[pickIndex(seed, hub.players.length, 29)];
   const status = statusLabel(p.status, p.chance);
   const injuryCols: SocialCardTableCol[] = [
-    { label: "Chance", key: "chance", higherIsBetter: true },
+    { label: "Chance of Playing", key: "chance", higherIsBetter: true },
     { label: "GW xPts", key: "epNext", higherIsBetter: true },
     { label: "Form", key: "formVal", higherIsBetter: true },
     { label: "Season Pts", key: "totalPts", higherIsBetter: true },
@@ -706,6 +705,14 @@ async function buildForHub(
   }
 }
 
+async function enrichSocialCard(card: SocialCardData | null): Promise<SocialCardData | null> {
+  if (!card || card.layout !== "single" || card.players.length !== 1) return card;
+  if (card.fixtures?.length) return card;
+
+  const fixtures = await getFixtureRunForPlayerCode(card.players[0].code);
+  return { ...card, fixtures };
+}
+
 function parseHubOverride(raw: string | undefined): SocialHubType | null {
   const v = raw?.toLowerCase().trim();
   if (!v) return null;
@@ -724,12 +731,12 @@ export async function getSocialCardData(
   const captainPeek = await getCaptainHub();
   if (captainPeek?.gw) gw = captainPeek.gw;
 
-  let card = await buildForHub(primaryHub, seed, gw);
+  let card = await enrichSocialCard(await buildForHub(primaryHub, seed, gw));
   if (card) return { ...card, slot };
 
   for (let i = 1; i < HUB_ORDER.length; i++) {
     const fallbackHub = HUB_ORDER[(HUB_ORDER.indexOf(primaryHub) + i) % HUB_ORDER.length];
-    card = await buildForHub(fallbackHub, seed + i, gw);
+    card = await enrichSocialCard(await buildForHub(fallbackHub, seed + i, gw));
     if (card) return { ...card, slot };
   }
 

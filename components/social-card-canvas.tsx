@@ -50,7 +50,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
             dual={dual}
             prompt={card.prompt}
             stats={card.stats}
-            fixtures={card.fixtures}
+            fixtures={card.fixtures ?? []}
           />
         )}
       </div>

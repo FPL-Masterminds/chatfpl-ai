@@ -313,6 +313,67 @@ export function buildFixturePageText(player: FixtureHubPlayer, gw: number, formS
 
 // ─── Data fetching ─────────────────────────────────────────────────────────────
 
+export function buildFixtureRunForTeam(
+  teamId: number,
+  allFixtures: any[],
+  teamMap: Record<number, { name: string; short: string; code: number }>,
+  currentGW: number,
+): FixtureGW[] {
+  const upcomingGWs = Array.from({ length: 5 }, (_, i) => currentGW + i);
+  const fixtures: FixtureGW[] = [];
+
+  for (const gw of upcomingGWs) {
+    const gwFixtures = allFixtures.filter(
+      (f: any) => f.event === gw && (f.team_h === teamId || f.team_a === teamId),
+    );
+    if (gwFixtures.length === 0) continue;
+    const f = gwFixtures[0];
+    const isHome = f.team_h === teamId;
+    const oppId = isHome ? f.team_a : f.team_h;
+    const opp = teamMap[oppId];
+    fixtures.push({
+      gw,
+      opponentShort: opp?.short ?? "TBD",
+      opponentName: opp?.name ?? "TBD",
+      opponentCode: opp?.code ?? 0,
+      isHome,
+      fdr: isHome ? (f.team_h_difficulty ?? 3) : (f.team_a_difficulty ?? 3),
+    });
+  }
+
+  return fixtures;
+}
+
+export async function getFixtureRunForPlayerCode(playerCode: number): Promise<FixtureGW[]> {
+  try {
+    const bootstrap = await getBootstrap();
+    if (!bootstrap?.elements) return [];
+
+    const teamMap: Record<number, { name: string; short: string; code: number }> = {};
+    (bootstrap.teams ?? []).forEach((t: any) => {
+      teamMap[t.id] = { name: t.name, short: t.short_name, code: t.code };
+    });
+
+    const events = bootstrap.events ?? [];
+    const currentGW: number =
+      events.find((e: any) => e.is_next)?.id ??
+      ((events.find((e: any) => e.is_current)?.id ?? 30) + 1);
+
+    const fixturesRes = await fetch(
+      "https://fantasy.premierleague.com/api/fixtures/?future=1",
+      { headers: FPL_HEADERS, next: { revalidate: 3600 } },
+    );
+    const allFixtures: any[] = fixturesRes.ok ? await fixturesRes.json() : [];
+
+    const el = (bootstrap.elements ?? []).find((p: any) => p.code === playerCode);
+    if (!el) return [];
+
+    return buildFixtureRunForTeam(el.team, allFixtures, teamMap, currentGW).slice(0, 5);
+  } catch {
+    return [];
+  }
+}
+
 export async function getFixtureSlugs(): Promise<{ slug: string }[]> {
   try {
     const bootstrap = await getBootstrap()
@@ -340,28 +401,7 @@ async function buildFixturePlayer(
     ? base
     : toSlug(el.web_name, team?.short)
 
-  // Build next 5 gameweek fixture list
-  const upcomingGWs = Array.from({ length: 5 }, (_, i) => currentGW + i)
-  const fixtures: FixtureGW[] = []
-
-  for (const gw of upcomingGWs) {
-    const gwFixtures = allFixtures.filter(
-      (f: any) => f.event === gw && (f.team_h === el.team || f.team_a === el.team)
-    )
-    if (gwFixtures.length === 0) continue // blank GW - skip this entry
-    const f = gwFixtures[0] // DGW: take first fixture for hub display
-    const isHome = f.team_h === el.team
-    const oppId = isHome ? f.team_a : f.team_h
-    const opp = teamMap[oppId]
-    fixtures.push({
-      gw,
-      opponentShort: opp?.short ?? "TBD",
-      opponentName: opp?.name ?? "TBD",
-      opponentCode: opp?.code ?? 0,
-      isHome,
-      fdr: isHome ? (f.team_h_difficulty ?? 3) : (f.team_a_difficulty ?? 3),
-    })
-  }
+  const fixtures = buildFixtureRunForTeam(el.team, allFixtures, teamMap, currentGW)
 
   const avgFdr = fixtures.length > 0
     ? fixtures.reduce((s, f) => s + f.fdr, 0) / fixtures.length

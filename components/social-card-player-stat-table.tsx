@@ -2,43 +2,35 @@ import type { SocialCardStat } from "@/lib/social-card";
 
 export function SocialCardPlayerStatTable({
   stats,
-  compact = false,
+  fill = false,
 }: {
   stats: SocialCardStat[];
-  compact?: boolean;
+  fill?: boolean;
 }) {
   if (stats.length === 0) return null;
 
-  const rowPy = compact ? "py-[9px]" : "py-[11px]";
-  const valueSize = compact ? "text-[15px]" : "text-[16px]";
-
   return (
     <div
-      className="w-full overflow-hidden rounded-2xl"
+      className={`w-full overflow-hidden rounded-2xl ${fill ? "flex h-full min-h-0 flex-col" : ""}`}
       style={{ border: "1px solid rgba(0,255,135,0.22)", background: "rgba(0,255,135,0.03)" }}
     >
-      <table className="w-full table-fixed">
-        <tbody>
-          {stats.map((stat, idx) => (
-            <tr
-              key={stat.label}
-              style={{
-                borderBottom:
-                  idx < stats.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined,
-              }}
-            >
-              <td className={`px-3 ${rowPy} align-middle`} style={{ width: "58%" }}>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/60">
-                  {stat.label}
-                </span>
-              </td>
-              <td className={`px-3 ${rowPy} align-middle text-right`}>
-                <span className={`${valueSize} font-bold tabular-nums text-white`}>{stat.value}</span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {stats.map((stat, idx) => (
+        <div
+          key={stat.label}
+          className={`flex items-center px-3 ${fill ? "min-h-0 flex-1" : "py-[11px]"}`}
+          style={{
+            borderBottom:
+              idx < stats.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined,
+          }}
+        >
+          <span
+            className="min-w-0 flex-1 pr-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white/60"
+          >
+            {stat.label}
+          </span>
+          <span className="shrink-0 text-[16px] font-bold tabular-nums text-white">{stat.value}</span>
+        </div>
+      ))}
     </div>
   );
 }
