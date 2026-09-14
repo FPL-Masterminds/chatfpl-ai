@@ -8,7 +8,7 @@ const SITE = "https://www.chatfpl.ai";
 
 export function SocialCardCanvas({ card }: { card: SocialCardData }) {
   const dual = card.layout === "dual";
-  const isHeadToHead = card.hub === "comparisons";
+  const isDualTable = card.hub === "comparisons" || card.hub === "transfer_trends";
 
   return (
     <div
@@ -21,7 +21,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
       <div className="relative z-10 mb-4 flex w-full shrink-0 items-center justify-center px-2 text-center">
         <h1
           className="font-bold leading-[1.08] tracking-tighter text-white"
-          style={{ fontSize: isHeadToHead ? 38 : dual ? 45 : 54 }}
+          style={{ fontSize: isDualTable ? 38 : dual ? 45 : 54 }}
         >
           {card.heroWhite}
           <span
@@ -38,7 +38,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
 
       {/* Player content */}
       <div className="relative z-10 w-full shrink-0">
-        {isHeadToHead ? (
+        {isDualTable ? (
           <SocialCardHeadToHead
             players={card.players}
             tableCols={card.tableCols}
@@ -50,6 +50,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
             dual={dual}
             prompt={card.prompt}
             stats={card.stats}
+            fixtures={card.fixtures}
           />
         )}
       </div>

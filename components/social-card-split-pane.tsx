@@ -1,4 +1,6 @@
 import Image from "next/image";
+import type { FixtureGW } from "@/lib/fpl-fixtures";
+import { SocialCardFixtureStrip } from "@/components/social-card-fixture-strip";
 import type { SocialCardPlayer, SocialCardStat } from "@/lib/social-card";
 
 function badgeUrl(teamCode: number): string {
@@ -94,16 +96,20 @@ export function SocialCardSplitPane({
   dual,
   prompt,
   stats,
+  fixtures,
 }: {
   players: SocialCardPlayer[];
   dual: boolean;
   prompt: string;
   stats: SocialCardStat[];
+  fixtures?: FixtureGW[];
 }) {
+  const paneHeight = fixtures?.length ? 600 : 560;
+
   return (
     <div
       className="grid w-full gap-5"
-      style={{ gridTemplateColumns: "46fr 54fr", height: 560 }}
+      style={{ gridTemplateColumns: "46fr 54fr", height: paneHeight }}
     >
       {/* Left: player portrait(s) */}
       <div className="relative flex min-w-0 flex-col overflow-hidden rounded-3xl bg-black/35">
@@ -152,6 +158,8 @@ export function SocialCardSplitPane({
         </div>
 
         <StatBoxes stats={stats} />
+
+        {fixtures && fixtures.length > 0 ? <SocialCardFixtureStrip fixtures={fixtures} /> : null}
       </div>
     </div>
   );

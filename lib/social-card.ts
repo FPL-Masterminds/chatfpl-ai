@@ -1,7 +1,7 @@
 import { getComparisonHub, getComparisonData, type ComparisonPlayer } from "@/lib/fpl-comparison";
 import type { FixtureGW } from "@/lib/fpl-player-page";
 import { getDefconHub } from "@/lib/fpl-defcon";
-import { getFixtureHub } from "@/lib/fpl-fixtures";
+import { getFixtureHub, type FixtureGW } from "@/lib/fpl-fixtures";
 import { getInjuryHub, statusLabel } from "@/lib/fpl-injury";
 import {
   getCaptainHub,
@@ -70,6 +70,7 @@ export interface SocialCardData {
   paragraph: string;
   gw: number;
   cta: string;
+  fixtures?: FixtureGW[];
 }
 
 const HUB_ORDER: SocialHubType[] = [
@@ -309,7 +310,7 @@ async function buildCaptainCard(seed: number, gw: number): Promise<SocialCardDat
     hubLabel: HUB_LABELS.captains,
     layout: "single",
     heroWhite: "Thinking of captaining ",
-    heroGradient: `${p.displayName}?`,
+    heroGradient: `${p.displayName} for Gameweek ${gw}?`,
     analysisLine: {
       white: `${p.displayName}: `,
       gradient: `Gameweek ${gw} Analysis`,
@@ -339,7 +340,7 @@ async function buildDifferentialCard(seed: number, gw: number): Promise<SocialCa
     hubLabel: HUB_LABELS.differentials,
     layout: "single",
     heroWhite: "Thinking of a differential like ",
-    heroGradient: `${p.displayName}?`,
+    heroGradient: `${p.webName} for Gameweek ${gw}?`,
     analysisLine: {
       white: `${p.displayName}: `,
       gradient: `Gameweek ${gw} Analysis`,
@@ -425,7 +426,7 @@ async function buildInjuryCard(seed: number, gw: number): Promise<SocialCardData
     hubLabel: HUB_LABELS.injuries,
     layout: "single",
     heroWhite: "Worried about ",
-    heroGradient: `${p.displayName}'s fitness?`,
+    heroGradient: `${p.displayName}'s fitness for Gameweek ${gw}?`,
     analysisLine: {
       white: `${p.displayName}: `,
       gradient: `Gameweek ${gw} Analysis`,
@@ -491,8 +492,8 @@ async function buildTransferCard(seed: number, gw: number): Promise<SocialCardDa
     hub: "transfer_trends",
     hubLabel: HUB_LABELS.transfer_trends,
     layout: "dual",
-    heroWhite: "Thinking of swapping ",
-    heroGradient: `${out.displayName} for ${inn.displayName}?`,
+    heroWhite: `Thinking of swapping ${out.displayName} for ${inn.displayName} in `,
+    heroGradient: `Gameweek ${gw}?`,
     analysisLine: {
       white: `${out.displayName} vs ${inn.displayName}: `,
       gradient: `Gameweek ${gw} Analysis`,
@@ -548,7 +549,7 @@ async function buildFixtureCard(seed: number, gw: number): Promise<SocialCardDat
     hubLabel: HUB_LABELS.fixtures,
     layout: "single",
     heroWhite: "Targeting ",
-    heroGradient: `${p.displayName} for fixtures?`,
+    heroGradient: `${p.displayName} for fixtures from Gameweek ${gw}?`,
     analysisLine: {
       white: `${p.displayName}: `,
       gradient: `Gameweek ${gw} Analysis`,
@@ -589,6 +590,7 @@ async function buildFixtureCard(seed: number, gw: number): Promise<SocialCardDat
     paragraph:
       `${p.displayName}'s upcoming run averages FDR ${p.avgFdr.toFixed(1)} (${p.verdictLabel.toLowerCase()}). ` +
       `Fixture swings matter as much as raw form when you plan transfers across the next few gameweeks.`,
+    fixtures: p.fixtures.slice(0, 5),
     gw,
     cta: "chatfpl.ai",
   };
@@ -617,7 +619,7 @@ async function buildDefconCard(seed: number, gw: number): Promise<SocialCardData
     hubLabel: HUB_LABELS.defcon,
     layout: "single",
     heroWhite: "Thinking of ",
-    heroGradient: `${p.displayName} for DEFCON?`,
+    heroGradient: `${p.displayName} in Gameweek ${gw} for DEFCON?`,
     analysisLine: {
       white: `${p.displayName}: `,
       gradient: `Gameweek ${gw} Analysis`,
