@@ -56,6 +56,56 @@ export function isFplPlayerPhotoUrl(url: string): boolean {
 
 export const FPL_PLAYER_PHOTO_SILHOUETTE = `${getFplPlayerPhotoBase()}/Photo-Missing.png`;
 
+const photoExistsCache = new Map<number, boolean>();
+
+/** True when the official PL CDN has a headshot for this FPL player code. */
+export async function fplPlayerPhotoExists(code: number): Promise<boolean> {
+  if (!code || code <= 0) return false;
+
+  const cached = photoExistsCache.get(code);
+  if (cached !== undefined) return cached;
+
+  const url = fplPlayerPhotoUrl(code);
+  let exists = false;
+
+  try {
+    const head = await fetch(url, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(6000),
+      cache: "force-cache",
+      next: { revalidate: 86_400 },
+    });
+    exists = head.ok;
+  } catch {
+    exists = false;
+  }
+
+  if (!exists) {
+    try {
+      const get = await fetch(url, {
+        method: "GET",
+        headers: { Range: "bytes=0-0" },
+        signal: AbortSignal.timeout(6000),
+        cache: "force-cache",
+        next: { revalidate: 86_400 },
+      });
+      exists = get.ok;
+    } catch {
+      exists = false;
+    }
+  }
+
+  photoExistsCache.set(code, exists);
+  return exists;
+}
+
+export async function fplPlayerPhotosExist(codes: number[]): Promise<boolean> {
+  const unique = [...new Set(codes.filter((code) => code > 0))];
+  if (!unique.length) return false;
+  const checks = await Promise.all(unique.map((code) => fplPlayerPhotoExists(code)));
+  return checks.every(Boolean);
+}
+
 export type FplPhotoRow = {
   web_name: string;
   first_name: string;

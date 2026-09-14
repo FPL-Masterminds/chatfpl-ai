@@ -7,7 +7,7 @@ import {
   getDifferentialHub,
   type CaptainHubPlayer,
 } from "@/lib/fpl-player-page";
-import { fplPlayerPhotoUrl } from "@/lib/fpl-player-photo";
+import { fplPlayerPhotoExists, fplPlayerPhotoUrl, fplPlayerPhotosExist } from "@/lib/fpl-player-photo";
 import { getTransferTrendsHub, type TransferTrendPlayer } from "@/lib/fpl-transfer-trends";
 
 export type SocialCardSlot = "1" | "2" | "3";
@@ -301,6 +301,19 @@ function slotIndex(slot: SocialCardSlot): number {
   return 0;
 }
 
+async function pickPlayerWithPhoto<T extends { code: number }>(
+  hub: SocialHubType,
+  pool: T[],
+): Promise<T | null> {
+  if (!pool.length) return null;
+  const start = pickRotatingIndex(hub, pool.length);
+  for (let i = 0; i < pool.length; i++) {
+    const player = pool[(start + i) % pool.length];
+    if (await fplPlayerPhotoExists(player.code)) return player;
+  }
+  return null;
+}
+
 /** Three hubs per day, rotating through all seven over time. */
 export function hubForSlot(dateKey: string, slot: SocialCardSlot): SocialHubType {
   const day = utcDayNumber(dateKey);
@@ -311,7 +324,8 @@ export function hubForSlot(dateKey: string, slot: SocialCardSlot): SocialHubType
 async function buildCaptainCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getCaptainHub();
   if (!hub?.players.length) return null;
-  const p = hub.players[pickRotatingIndex("captains", hub.players.length)];
+  const p = await pickPlayerWithPhoto("captains", hub.players);
+  if (!p) return null;
   return {
     slot: "1",
     hub: "captains",
@@ -341,7 +355,8 @@ async function buildCaptainCard(gw: number): Promise<SocialCardData | null> {
 async function buildDifferentialCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getDifferentialHub();
   if (!hub?.players.length) return null;
-  const p = hub.players[pickRotatingIndex("differentials", hub.players.length)];
+  const p = await pickPlayerWithPhoto("differentials", hub.players);
+  if (!p) return null;
   return {
     slot: "1",
     hub: "differentials",
@@ -371,8 +386,17 @@ async function buildDifferentialCard(gw: number): Promise<SocialCardData | null>
 async function buildComparisonCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getComparisonHub();
   if (!hub?.pairs.length) return null;
-  const pair = hub.pairs[pickRotatingIndex("comparisons", hub.pairs.length)];
-  const data = await getComparisonData(pair.slugA, pair.slugB);
+  const start = pickRotatingIndex("comparisons", hub.pairs.length);
+  let data: Awaited<ReturnType<typeof getComparisonData>> = null;
+  for (let i = 0; i < hub.pairs.length; i++) {
+    const pair = hub.pairs[(start + i) % hub.pairs.length];
+    const candidate = await getComparisonData(pair.slugA, pair.slugB);
+    if (!candidate) continue;
+    if (await fplPlayerPhotosExist([candidate.playerA.code, candidate.playerB.code])) {
+      data = candidate;
+      break;
+    }
+  }
   if (!data) return null;
   const { playerA, playerB, fixtureRunA, fixtureRunB } = data;
   return {
@@ -417,7 +441,8 @@ async function buildComparisonCard(gw: number): Promise<SocialCardData | null> {
 async function buildInjuryCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getInjuryHub();
   if (!hub?.players.length) return null;
-  const p = hub.players[pickRotatingIndex("injuries", hub.players.length)];
+  const p = await pickPlayerWithPhoto("injuries", hub.players);
+  if (!p) return null;
   const status = statusLabel(p.status, p.chance);
   const injuryCols: SocialCardTableCol[] = [
     { label: "Chance of Playing", key: "chance", higherIsBetter: true },
@@ -484,7 +509,16 @@ async function buildInjuryCard(gw: number): Promise<SocialCardData | null> {
 async function buildTransferCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getTransferTrendsHub();
   if (!hub?.pairs.length) return null;
-  const pair = hub.pairs[pickRotatingIndex("transfer_trends", hub.pairs.length)];
+  const start = pickRotatingIndex("transfer_trends", hub.pairs.length);
+  let pair: (typeof hub.pairs)[number] | null = null;
+  for (let i = 0; i < hub.pairs.length; i++) {
+    const candidate = hub.pairs[(start + i) % hub.pairs.length];
+    if (await fplPlayerPhotosExist([candidate.playerOut.code, candidate.playerIn.code])) {
+      pair = candidate;
+      break;
+    }
+  }
+  if (!pair) return null;
   const out = pair.playerOut;
   const inn = pair.playerIn;
   const transferCols: SocialCardTableCol[] = [
@@ -537,7 +571,8 @@ async function buildTransferCard(gw: number): Promise<SocialCardData | null> {
 async function buildFixtureCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getFixtureHub();
   if (!hub?.players.length) return null;
-  const p = hub.players[pickRotatingIndex("fixtures", hub.players.length)];
+  const p = await pickPlayerWithPhoto("fixtures", hub.players);
+  if (!p) return null;
   const nextFix = p.fixtures
     .slice(0, 3)
     .map((f) => `${f.opponentShort} (${f.isHome ? "H" : "A"}) FDR${f.fdr}`)
@@ -609,7 +644,8 @@ async function buildDefconCard(gw: number): Promise<SocialCardData | null> {
   if (!hub?.ready) return null;
   const pool = [...hub.defenders, ...hub.midfielders];
   if (!pool.length) return null;
-  const p = pool[pickRotatingIndex("defcon", pool.length)];
+  const p = await pickPlayerWithPhoto("defcon", pool);
+  if (!p) return null;
   const threshold = p.elementType === 2 ? 10 : 12;
   const defconCols: SocialCardTableCol[] = [
     { label: "DC/90", key: "dc90", higherIsBetter: true },
