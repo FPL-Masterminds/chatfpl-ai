@@ -94,7 +94,7 @@ export function SocialCardSplitPane({
   return (
     <div
       className="grid w-full gap-5"
-      style={{ gridTemplateColumns: "46fr 54fr", height: showFixtures ? 600 : 560 }}
+      style={{ gridTemplateColumns: "46fr 54fr", height: 560 }}
     >
       {/* Left: player portrait(s) */}
       <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-3xl bg-black/35">
@@ -136,8 +136,8 @@ export function SocialCardSplitPane({
         </div>
       </div>
 
-      {/* Right: prompt + stat table + fixtures */}
-      <div className="flex flex-col overflow-visible pb-1">
+      {/* Right: prompt + stat table + fixtures pinned to bottom (aligns with player name row) */}
+      <div className="flex h-full min-h-0 flex-col pb-3">
         <div className="shrink-0">
           <span
             className="inline-block rounded-full px-3.5 py-1.5 text-[14px] font-bold uppercase tracking-widest"
@@ -149,20 +149,22 @@ export function SocialCardSplitPane({
           >
             Ask ChatFPL AI
           </span>
-          <p className={`mt-2.5 font-medium leading-snug text-white ${showFixtures ? "text-[24px]" : "text-[34px]"}`}>
+          <p className={`mt-3 font-medium leading-snug text-white ${showFixtures ? "text-[28px]" : "text-[34px]"}`}>
             {prompt}
           </p>
         </div>
 
-        <div className="mt-2.5 shrink-0">
-          <SocialCardPlayerStatTable stats={stats} compact={showFixtures} />
-        </div>
-
-        {showFixtures ? (
-          <div className="shrink-0 pt-2.5">
-            <SocialCardFixtureStrip fixtures={fixtures} />
+        <div className="mt-3 flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1">
+            <SocialCardPlayerStatTable stats={stats} fill />
           </div>
-        ) : null}
+
+          {showFixtures ? (
+            <div className="shrink-0 pt-3">
+              <SocialCardFixtureStrip fixtures={fixtures} />
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );

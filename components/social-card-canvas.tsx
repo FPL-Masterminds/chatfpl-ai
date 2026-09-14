@@ -66,7 +66,7 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
       </div>
 
       {/* Brand watermark */}
-      <div className="pointer-events-none absolute bottom-5 right-5 z-20">
+      <div className="pointer-events-none absolute bottom-6 right-6 z-30">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${SITE}/ChatFPL_AI_Logo.png`}
