@@ -5,23 +5,27 @@ function badgeUrl(teamCode: number): string {
   return `https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`;
 }
 
+/** FPL cutout assets are 110x140 (11:14). Scale by height, never stretch. */
+const PL_PHOTO_W = 110;
+const PL_PHOTO_H = 140;
+
 function PlayerPortrait({ player, compact = false }: { player: SocialCardPlayer; compact?: boolean }) {
-  const maxH = compact ? 300 : 500;
-  const photoW = compact ? 180 : 340;
+  const nameBlockH = compact ? 64 : 76;
+  const badgeSize = compact ? 28 : 36;
 
   return (
-    <div className={`flex flex-col items-center ${compact ? "flex-1" : "h-full w-full"}`}>
+    <div className={`relative h-full w-full ${compact ? "flex-1" : ""}`}>
       <div
-        className="relative flex flex-1 items-end justify-center w-full"
-        style={{ minHeight: compact ? 240 : 420 }}
+        className="absolute inset-x-0 top-0 flex items-end justify-center overflow-hidden px-1"
+        style={{ bottom: nameBlockH }}
       >
         <Image
           src={player.photoUrl}
           alt={player.displayName}
-          width={photoW}
-          height={Math.round(photoW * 1.28)}
-          className="h-auto w-auto object-contain object-bottom"
-          style={{ maxHeight: maxH, filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.55))" }}
+          width={PL_PHOTO_W}
+          height={PL_PHOTO_H}
+          className="h-full w-auto max-w-full object-contain object-bottom"
+          style={{ filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.55))" }}
           unoptimized
         />
         <div
@@ -34,13 +38,26 @@ function PlayerPortrait({ player, compact = false }: { player: SocialCardPlayer;
           }}
         />
       </div>
-      <div className="mt-3 text-center px-2">
-        <p className={`font-bold leading-tight text-white ${compact ? "text-[18px]" : "text-[25px]"}`}>
-          {player.displayName}
-        </p>
-        <p className={`mt-0.5 text-white/50 ${compact ? "text-[13px]" : "text-[17px]"}`}>
-          {player.teamShort} · {player.position} · {player.price}
-        </p>
+      <div
+        className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2.5 px-2"
+        style={{ height: nameBlockH }}
+      >
+        <Image
+          src={badgeUrl(player.teamCode)}
+          alt={player.teamShort}
+          width={badgeSize}
+          height={badgeSize}
+          className="shrink-0 object-contain"
+          unoptimized
+        />
+        <div className="min-w-0 text-left">
+          <p className={`font-bold leading-tight text-white ${compact ? "text-[16px]" : "text-[22px]"}`}>
+            {player.displayName}
+          </p>
+          <p className={`mt-0.5 text-white/50 ${compact ? "text-[12px]" : "text-[15px]"}`}>
+            {player.teamShort} · {player.position} · {player.price}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -72,25 +89,6 @@ function StatBoxes({ stats }: { stats: SocialCardStat[] }) {
   );
 }
 
-function PlayerBadgeRow({ player }: { player: SocialCardPlayer }) {
-  return (
-    <div className="flex w-full items-center gap-3 border-t border-white/8 pt-4">
-      <Image
-        src={badgeUrl(player.teamCode)}
-        alt={player.teamShort}
-        width={36}
-        height={36}
-        className="object-contain"
-        unoptimized
-      />
-      <div>
-        <p className="text-[17px] font-bold leading-tight text-white">{player.displayName}</p>
-        <p className="text-[14px] text-white/40">{player.teamShort}</p>
-      </div>
-    </div>
-  );
-}
-
 export function SocialCardSplitPane({
   players,
   dual,
@@ -105,7 +103,7 @@ export function SocialCardSplitPane({
   return (
     <div
       className="grid w-full gap-5"
-      style={{ gridTemplateColumns: "46fr 54fr", height: 500 }}
+      style={{ gridTemplateColumns: "46fr 54fr", height: 560 }}
     >
       {/* Left: player portrait(s) */}
       <div className="relative flex min-w-0 flex-col overflow-hidden rounded-3xl bg-black/35">
@@ -116,7 +114,7 @@ export function SocialCardSplitPane({
               "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.55) 100%)",
           }}
         />
-        <div className="relative flex h-full flex-col px-3 pb-4 pt-2">
+        <div className="relative h-full px-2 pb-3 pt-1">
           {dual ? (
             <div className="flex h-full items-end justify-center gap-3">
               <PlayerPortrait player={players[0]} compact />
@@ -137,8 +135,8 @@ export function SocialCardSplitPane({
         </div>
       </div>
 
-      {/* Right: prompt + stat boxes + club badge */}
-      <div className="flex min-w-0 flex-col justify-between gap-4 py-1">
+      {/* Right: prompt + stat boxes */}
+      <div className="flex min-w-0 flex-col gap-5 py-1">
         <div>
           <span
             className="inline-block rounded-full px-3 py-1 text-[12px] font-bold uppercase tracking-widest"
@@ -154,8 +152,6 @@ export function SocialCardSplitPane({
         </div>
 
         <StatBoxes stats={stats} />
-
-        {!dual && players[0] ? <PlayerBadgeRow player={players[0]} /> : null}
       </div>
     </div>
   );
