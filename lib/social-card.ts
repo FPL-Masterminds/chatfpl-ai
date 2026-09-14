@@ -284,15 +284,19 @@ export function parseSocialCardSlot(raw: string | undefined): SocialCardSlot {
 
 export { isSocialCardTokenValid } from "@/lib/social-card-token";
 
+const SOCIAL_CARD_STAT_LIMIT = 4;
+
 function statsFromRow(
   cols: SocialCardTableCol[],
   row: SocialCardTableRow,
-  max = 6,
 ): SocialCardStat[] {
-  return cols.slice(0, max).map((col) => ({
-    label: col.label,
-    value: row.display[col.key] ?? "",
-  }));
+  return cols
+    .filter((col) => col.key !== "priceRaw")
+    .slice(0, SOCIAL_CARD_STAT_LIMIT)
+    .map((col) => ({
+      label: col.label,
+      value: row.display[col.key] ?? "",
+    }));
 }
 
 function slotIndex(slot: SocialCardSlot): number {

@@ -7,14 +7,15 @@ export function SocialCardPlayerStatTable({
   stats: SocialCardStat[];
   fill?: boolean;
 }) {
-  if (stats.length === 0) return null;
+  const rows = stats.filter((stat) => stat.label.toLowerCase() !== "price").slice(0, 4);
+  if (rows.length === 0) return null;
 
   return (
     <div
       className={`w-full rounded-2xl ${fill ? "flex h-full min-h-0 flex-col" : ""}`}
       style={{ border: "1px solid rgba(0,255,135,0.22)", background: "rgba(0,255,135,0.03)" }}
     >
-      {stats.map((stat, idx) => (
+      {rows.map((stat, idx) => (
         <div
           key={stat.label}
           className={`flex items-center px-4 py-3 ${fill ? "min-h-[44px] flex-1" : "min-h-[52px] shrink-0"}`}
