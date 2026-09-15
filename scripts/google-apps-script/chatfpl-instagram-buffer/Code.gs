@@ -108,11 +108,11 @@ function queueInstagramPost(imageUrl, caption) {
   const mutation = [
     'mutation {',
     '  createPost(input: {',
-    '    text: "' + escapeGraphql(caption) + '"',
-    '    channelId: "' + escapeGraphql(channelId) + '"',
+    '    text: "' + escapeGraphqlString(caption) + '"',
+    '    channelId: "' + escapeGraphqlString(channelId) + '"',
     '    schedulingType: automatic',
     '    mode: addToQueue',
-    '    assets: [{ image: { url: "' + escapeGraphql(imageUrl) + '" } }]',
+    '    assets: [{ image: { url: "' + escapeGraphqlString(imageUrl) + '" } }]',
     '    metadata: { instagram: { type: post, shouldShareToFeed: true } }',
     '  }) {',
     '    ... on PostActionSuccess { post { id dueAt } }',
@@ -209,7 +209,7 @@ function fetchBufferInstagramChannelId() {
   const channelsJson = bufferGraphql(
     [
       'query {',
-      '  channels(input: { organizationId: "' + escapeGraphql(orgId) + '" }) {',
+      '  channels(input: { organizationId: "' + escapeGraphqlString(orgId) + '" }) {',
       '    id',
       '    name',
       '    displayName',
