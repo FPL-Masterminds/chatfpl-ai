@@ -17,7 +17,7 @@ const CARDS = [
     tag: "THE CALL",
     number: "02",
     title: "Captain, transfer, bench. One clear answer.",
-    desc: "Stuck between two forwards? Not sure whether to sell or hold? ChatFPL reads your squad and gives you a recommendation you can act on before the deadline.",
+    desc: "Stuck between two forwards? Not sure whether to sell or hold? ChatFPL AI reads your squad and gives you a recommendation you can act on before the deadline.",
     side: "right" as const,
     position: "DEF",
   },
@@ -25,7 +25,7 @@ const CARDS = [
     tag: "THE DIFFERENTIAL",
     number: "03",
     title: "Low ownership. High upside. Spotted early.",
-    desc: "The template picks are obvious. The rank climbers find the 3% midfielder before the breakout. ChatFPL surfaces differentials with the numbers to back them up.",
+    desc: "The template picks are obvious. The rank climbers find the 3% midfielder before the breakout. ChatFPL AI surfaces differentials with the numbers to back them up.",
     side: "left" as const,
     position: "MID",
   },
@@ -33,7 +33,7 @@ const CARDS = [
     tag: "THE DEADLINE",
     number: "04",
     title: "Injuries, leaks, flags. Updated when it matters.",
-    desc: "A doubtful flag on Friday can wreck a Saturday captaincy. ChatFPL tracks availability and news so you're not scrambling at 11am on deadline day.",
+    desc: "A doubtful flag on Friday can wreck a Saturday captaincy. ChatFPL AI tracks availability and news so you're not scrambling at 11am on deadline day.",
     side: "right" as const,
     position: "FWD",
   },
@@ -313,7 +313,7 @@ export function WhyChatFPL() {
               delay: 0.1,
             }}
           >
-            xPTS, captaincy, differentials, and deadline news. Here&apos;s how managers use ChatFPL.
+            xPTS, captaincy, differentials, and deadline news. Here&apos;s how managers use ChatFPL AI.
           </motion.p>
         </div>
 
