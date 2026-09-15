@@ -62,18 +62,6 @@ export function SocialCardCanvas({ card }: { card: SocialCardData }) {
           paragraph={card.paragraph}
         />
       </div>
-
-      {/* Brand watermark */}
-      <div className="pointer-events-none absolute bottom-6 right-6 z-30">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`${SITE}/ChatFPL_AI_Logo.png`}
-          alt="ChatFPL AI"
-          width={120}
-          height={120}
-          className="h-[12px] w-auto object-contain opacity-80"
-        />
-      </div>
     </div>
   );
 }

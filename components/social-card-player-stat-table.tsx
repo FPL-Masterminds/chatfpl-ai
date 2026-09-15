@@ -21,7 +21,7 @@ export function SocialCardPlayerStatTable({
           className={`flex items-center px-4 py-3 ${fill ? "min-h-[44px] flex-1" : "min-h-[52px] shrink-0"}`}
           style={{
             borderBottom:
-              idx < stats.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined,
+              idx < rows.length - 1 ? "1px solid rgba(255,255,255,0.06)" : undefined,
           }}
         >
           <span
