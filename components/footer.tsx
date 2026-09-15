@@ -140,7 +140,6 @@ export function Footer() {
               {[
                 { href: "/privacy", label: "Privacy Policy"   },
                 { href: "/terms",   label: "Terms of Service" },
-                { href: "/llms.txt", label: "llms.txt (AI crawlers)" },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="flex items-center gap-2 text-sm text-gray-300 transition-colors hover:text-[#00FF87]">
