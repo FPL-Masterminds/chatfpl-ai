@@ -1,0 +1,240 @@
+/**
+ * ChatFPL Instagram via Buffer (standalone Apps Script project)
+ *
+ * Do NOT merge this with your Twitter project.
+ * Twitter:  ScreenshotOne -> Drive (ChatFPL_Screenshots) -> IFTTT -> X
+ * Instagram: ScreenshotOne -> Buffer queue -> chatfpl_ai (this script only)
+ *
+ * Setup (one time):
+ * 1. script.google.com -> New project -> paste this file -> name it ChatFPL Instagram
+ * 2. Project Settings -> Script properties -> add:
+ *    - SCREENSHOTONE_ACCESS_KEY
+ *    - SOCIAL_CARD_TOKEN
+ *    - BUFFER_API_KEY
+ *    - BUFFER_INSTAGRAM_CHANNEL_ID  (run fetchBufferInstagramChannelId first)
+ * 3. Run fetchBufferInstagramChannelId -> copy Instagram channel id into BUFFER_INSTAGRAM_CHANNEL_ID
+ * 4. Run setupStaggeredTriggers once
+ * 5. Turn OFF the IFTTT Drive -> Buffer Instagram applet (it fails without post type)
+ */
+
+const POST_TIMES = ['09:00', '14:00', '19:00'];
+const DRIVE_FOLDER_NAME = 'ChatFPL_Instagram';
+const BUFFER_API_URL = 'https://api.buffer.com';
+const CAPTION = 'Fantasy Premier League insights powered by AI. chatfpl.ai';
+
+const CARDS = [
+  { name: 'slot-1', slot: 1 },
+  { name: 'slot-2', slot: 2 },
+  { name: 'slot-3', slot: 3 },
+];
+
+function getProp(key) {
+  const value = PropertiesService.getScriptProperties().getProperty(key);
+  if (!value) {
+    throw new Error('Missing Script property: ' + key);
+  }
+  return value;
+}
+
+function cardPageUrl(slot) {
+  const token = getProp('SOCIAL_CARD_TOKEN');
+  return (
+    'https://www.chatfpl.ai/internal/social-card?slot=' +
+    slot +
+    '&token=' +
+    encodeURIComponent(token)
+  );
+}
+
+function buildScreenshotOneUrl(pageUrl) {
+  const accessKey = getProp('SCREENSHOTONE_ACCESS_KEY');
+  const params = [
+    'access_key=' + accessKey,
+    'url=' + encodeURIComponent(pageUrl),
+    'format=png',
+    'selector=%23social-card-canvas',
+    'delay=3',
+    'block_ads=true',
+    'block_cookie_banners=true',
+    'block_trackers=true',
+  ];
+  return 'https://api.screenshotone.com/take?' + params.join('&');
+}
+
+function getInstagramFolder() {
+  const folders = DriveApp.getFoldersByName(DRIVE_FOLDER_NAME);
+  if (!folders.hasNext()) {
+    return DriveApp.createFolder(DRIVE_FOLDER_NAME);
+  }
+  return folders.next();
+}
+
+function publicDriveImageUrl(file) {
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return 'https://drive.google.com/uc?export=download&id=' + file.getId();
+}
+
+function escapeGraphqlString(value) {
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n');
+}
+
+function bufferGraphql(query) {
+  const apiKey = getProp('BUFFER_API_KEY');
+  const response = UrlFetchApp.fetch(BUFFER_API_URL, {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Bearer ' + apiKey },
+    payload: JSON.stringify({ query: query }),
+    muteHttpExceptions: true,
+  });
+
+  const body = response.getContentText();
+  if (response.getResponseCode() !== 200) {
+    throw new Error('Buffer HTTP ' + response.getResponseCode() + ': ' + body);
+  }
+
+  const json = JSON.parse(body);
+  if (json.errors && json.errors.length) {
+    throw new Error('Buffer GraphQL error: ' + JSON.stringify(json.errors));
+  }
+  return json;
+}
+
+function queueInstagramPost(imageUrl, caption) {
+  const channelId = getProp('BUFFER_INSTAGRAM_CHANNEL_ID');
+  const mutation = [
+    'mutation {',
+    '  createPost(input: {',
+    '    text: "' + escapeGraphql(caption) + '"',
+    '    channelId: "' + escapeGraphql(channelId) + '"',
+    '    schedulingType: automatic',
+    '    mode: addToQueue',
+    '    assets: [{ image: { url: "' + escapeGraphql(imageUrl) + '" } }]',
+    '    metadata: { instagram: { type: post, shouldShareToFeed: true } }',
+    '  }) {',
+    '    ... on PostActionSuccess { post { id dueAt } }',
+    '    ... on MutationError { message }',
+    '  }',
+    '}',
+  ].join('\n');
+
+  const json = bufferGraphql(mutation);
+  const result = json.data && json.data.createPost;
+  if (!result) {
+    throw new Error('Buffer createPost returned no data: ' + JSON.stringify(json));
+  }
+  if (result.message) {
+    throw new Error('Buffer createPost failed: ' + result.message);
+  }
+  return result.post;
+}
+
+function captureAndQueueInstagram(cardIndex) {
+  const card = CARDS[cardIndex];
+  const date = new Date().toISOString().slice(0, 10);
+  const folder = getInstagramFolder();
+
+  const screenshotResponse = UrlFetchApp.fetch(buildScreenshotOneUrl(cardPageUrl(card.slot)), {
+    muteHttpExceptions: true,
+  });
+  if (screenshotResponse.getResponseCode() !== 200) {
+    throw new Error(
+      'ScreenshotOne failed: ' +
+        screenshotResponse.getResponseCode() +
+        ' ' +
+        screenshotResponse.getContentText().slice(0, 200),
+    );
+  }
+
+  const file = folder
+    .createFile(screenshotResponse.getBlob().setName(date + '-' + card.name + '.png'));
+  const imageUrl = publicDriveImageUrl(file);
+  const post = queueInstagramPost(imageUrl, CAPTION);
+
+  Logger.log('Queued Instagram post ' + post.id + ' for ' + post.dueAt + ' (' + file.getName() + ')');
+}
+
+function postSlot1() {
+  captureAndQueueInstagram(0);
+}
+
+function postSlot2() {
+  captureAndQueueInstagram(1);
+}
+
+function postSlot3() {
+  captureAndQueueInstagram(2);
+}
+
+function setupStaggeredTriggers() {
+  const handlers = ['postSlot1', 'postSlot2', 'postSlot3'];
+
+  ScriptApp.getProjectTriggers().forEach(function (trigger) {
+    ScriptApp.deleteTrigger(trigger);
+  });
+
+  POST_TIMES.forEach(function (time, i) {
+    const parts = time.split(':');
+    ScriptApp.newTrigger(handlers[i])
+      .timeBased()
+      .atHour(parseInt(parts[0], 10))
+      .nearMinute(parseInt(parts[1], 10))
+      .everyDays(1)
+      .create();
+  });
+}
+
+/**
+ * Run once after adding BUFFER_API_KEY.
+ * Copy the Instagram channel id into Script property BUFFER_INSTAGRAM_CHANNEL_ID.
+ */
+function fetchBufferInstagramChannelId() {
+  const accountJson = bufferGraphql(
+    'query { account { organizations { id name } } }',
+  );
+  const orgs = accountJson.data.account.organizations;
+  if (!orgs || !orgs.length) {
+    throw new Error('No Buffer organizations found on this API key.');
+  }
+
+  Logger.log('Buffer organizations:');
+  orgs.forEach(function (org) {
+    Logger.log('  ' + org.id + ' -> ' + org.name);
+  });
+
+  const orgId = orgs[0].id;
+  const channelsJson = bufferGraphql(
+    [
+      'query {',
+      '  channels(input: { organizationId: "' + escapeGraphql(orgId) + '" }) {',
+      '    id',
+      '    name',
+      '    displayName',
+      '    service',
+      '  }',
+      '}',
+    ].join('\n'),
+  );
+
+  const channels = channelsJson.data.channels || [];
+  Logger.log('Channels for ' + orgs[0].name + ':');
+  channels.forEach(function (channel) {
+    Logger.log(
+      '  [' + channel.service + '] ' + channel.displayName + ' (' + channel.name + ') -> ' + channel.id,
+    );
+  });
+
+  const instagram = channels.filter(function (channel) {
+    return String(channel.service).toLowerCase() === 'instagram';
+  });
+  if (!instagram.length) {
+    throw new Error('No Instagram channel found. Connect Instagram in Buffer first.');
+  }
+
+  Logger.log('');
+  Logger.log('Set Script property BUFFER_INSTAGRAM_CHANNEL_ID to:');
+  Logger.log(instagram[0].id);
+}
