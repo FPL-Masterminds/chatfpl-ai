@@ -37,19 +37,24 @@ export function isFlagged(p: { status: string; chance: number; news: string }): 
 }
 
 /**
- * Detects FPL players who have LEFT the Premier League (loan or permanent
- * move). FPL's stock phrasing in the `news` field always includes
- * "Has joined [club]" for these cases, e.g.
+ * Detects FPL players who have LEFT the Premier League (loan end, permanent
+ * move, or free-agent exit). Common FPL `news` phrasing:
  *   "Has joined Hamburg SV on loan for the rest of the season"
  *   "Has joined New England Revolution permanently"
- * These aren't injuries and don't belong on the injuries hub.
+ *   "has returned to Getafe CF"
+ *   "has departed the club as a free agent."
+ * These aren't injuries and don't belong on the injuries hub or social cards.
  */
 export function hasLeftClub(news: string): boolean {
   if (!news) return false
   const lower = news.toLowerCase()
-  // "Has joined" is FPL's unambiguous marker for a departure (loan or permanent).
-  // We also catch the older/rarer "Transferred to" phrasing just in case.
-  return /\bhas joined\b/.test(lower) || /\btransferred to\b/.test(lower)
+  return (
+    /\bhas joined\b/.test(lower) ||
+    /\btransferred to\b/.test(lower) ||
+    /\bhas returned to\b/.test(lower) ||
+    /\breturned to\b/.test(lower) ||
+    /\bhas departed the club\b/.test(lower)
+  )
 }
 
 // ─── Hub data — all flagged players ──────────────────────────────────────────

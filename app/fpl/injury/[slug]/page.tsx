@@ -8,6 +8,7 @@ import { UpgradeCTAPanel } from "@/components/upgrade-cta-panel"
 import {
   getInjuryPlayerData,
   getInjurySlugs,
+  hasLeftClub,
   statusLabel,
   type InjuryPlayer,
 } from "@/lib/fpl-injury"
@@ -107,9 +108,7 @@ function buildVerdict(player: InjuryPlayer, gw: number) {
     ]
     context = `Suspensions are short-term. If ${displayName} is central to your team, holding is usually the right call unless the alternatives below represent a clear upgrade.`
   } else if (isUnavailable) {
-    const newsLower = (news ?? "").toLowerCase()
-    const isOffBooks = /\b(loan|transferred|joined|signed|left)\b/.test(newsLower) && /\b(season|club|hibernian|loan)\b/.test(newsLower)
-    if (isOffBooks) {
+    if (hasLeftClub(news ?? "")) {
       verdictLabel = "UNAVAILABLE"
       verdict = `${displayName} is no longer available to FPL managers for Gameweek ${gw}.`
       bullets = [
