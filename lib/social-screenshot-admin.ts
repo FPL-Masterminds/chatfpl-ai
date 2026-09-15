@@ -240,7 +240,7 @@ function buildPipelines(values: {
       setupNotes: [
         "Turn OFF the IFTTT Drive → Buffer Instagram applet (it fails without post type).",
         "Repo script: scripts/google-apps-script/chatfpl-instagram-buffer/Code.gs",
-        "Buffer posts use the ScreenshotOne image URL directly. Drive is backup only.",
+        "Buffer uses ScreenshotOne screenshot_url from the JSON response. Drive is backup only.",
         "Optional: add BUFFER_API_KEY and BUFFER_INSTAGRAM_CHANNEL_ID to Vercel so you can copy them here.",
       ],
     },

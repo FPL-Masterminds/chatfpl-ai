@@ -46,7 +46,7 @@ function cardPageUrl(slot) {
   );
 }
 
-function buildScreenshotOneUrl(pageUrl) {
+function buildScreenshotOneApiUrl(pageUrl) {
   const accessKey = getProp('SCREENSHOTONE_ACCESS_KEY');
   const params = [
     'access_key=' + accessKey,
@@ -57,8 +57,40 @@ function buildScreenshotOneUrl(pageUrl) {
     'block_ads=true',
     'block_cookie_banners=true',
     'block_trackers=true',
+    'response_type=json',
+    'cache=true',
+    'cache_ttl=86400',
   ];
   return 'https://api.screenshotone.com/take?' + params.join('&');
+}
+
+/**
+ * Returns a direct PNG URL Buffer can fetch (screenshot_url / cache_url).
+ * The ScreenshotOne /take API URL itself is not a stable image link.
+ */
+function captureScreenshotImageUrl(pageUrl) {
+  const apiUrl = buildScreenshotOneApiUrl(pageUrl);
+  const response = UrlFetchApp.fetch(apiUrl, { muteHttpExceptions: true });
+  const status = response.getResponseCode();
+  const body = response.getContentText();
+
+  if (status !== 200) {
+    throw new Error('ScreenshotOne failed: ' + status + ' ' + body.slice(0, 200));
+  }
+
+  const json = JSON.parse(body);
+  const headers = response.getHeaders();
+  const cacheHeader =
+    headers['x-screenshotone-cache-url'] || headers['X-Screenshotone-Cache-Url'];
+  const imageUrl = json.cache_url || json.screenshot_url || cacheHeader;
+
+  if (!imageUrl) {
+    throw new Error(
+      'ScreenshotOne JSON missing image URL: ' + body.slice(0, 300),
+    );
+  }
+
+  return imageUrl;
 }
 
 function getInstagramFolder() {
@@ -143,28 +175,35 @@ function captureAndQueueInstagram(cardIndex) {
   const card = CARDS[cardIndex];
   const date = new Date().toISOString().slice(0, 10);
   const folder = getInstagramFolder();
-  const screenshotApiUrl = buildScreenshotOneUrl(cardPageUrl(card.slot));
+  const pageUrl = cardPageUrl(card.slot);
+  const imageUrl = captureScreenshotImageUrl(pageUrl);
 
-  const screenshotResponse = UrlFetchApp.fetch(screenshotApiUrl, {
-    muteHttpExceptions: true,
-  });
-  if (screenshotResponse.getResponseCode() !== 200) {
+  const imageResponse = UrlFetchApp.fetch(imageUrl, { muteHttpExceptions: true });
+  if (imageResponse.getResponseCode() !== 200) {
     throw new Error(
-      'ScreenshotOne failed: ' +
-        screenshotResponse.getResponseCode() +
+      'Could not download screenshot PNG: ' +
+        imageResponse.getResponseCode() +
         ' ' +
-        screenshotResponse.getContentText().slice(0, 200),
+        imageUrl,
     );
   }
 
   const filename = date + '-' + card.name + '.png';
-  archiveScreenshot(folder, screenshotResponse.getBlob(), filename);
+  archiveScreenshot(folder, imageResponse.getBlob(), filename);
 
-  // Buffer cannot fetch Google Drive links. Use the public ScreenshotOne PNG URL instead.
-  const post = queueInstagramPost(screenshotApiUrl, CAPTION);
+  // Buffer needs a direct image URL. Drive links and ScreenshotOne API URLs do not work.
+  const post = queueInstagramPost(imageUrl, CAPTION);
 
   Logger.log(
-    'Queued Instagram post ' + post.id + ' for ' + post.dueAt + ' (' + filename + ')',
+    'Queued Instagram post ' +
+      post.id +
+      ' for ' +
+      post.dueAt +
+      ' (' +
+      filename +
+      ', image=' +
+      imageUrl +
+      ')',
   );
 }
 

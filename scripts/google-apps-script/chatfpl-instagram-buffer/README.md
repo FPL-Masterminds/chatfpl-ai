@@ -31,6 +31,15 @@ Turn off the failing IFTTT **Drive -> Buffer** applet.
 
 ## Notes
 
-- Images archive to Drive folder **`ChatFPL_Instagram`** (backup only; Buffer uses the ScreenshotOne URL, not Drive)
+- Images archive to Drive folder **`ChatFPL_Instagram`** (backup only)
+- Buffer uses ScreenshotOne's hosted `screenshot_url` / `cache_url`, not the `/take` API link or Drive
 - Uses 3 extra ScreenshotOne captures per day (separate from Twitter)
-- Buffer posts at your schedule slots (9:05 / 2:05 / 7:05)
+- Apps Script triggers fire at 9:00 / 14:00 / 19:00; Buffer publishes at your queue times (e.g. 9:05 / 14:05 / 19:05)
+
+## Troubleshooting
+
+| Error | Fix |
+|-------|-----|
+| `Image could not be read from its URL` | Update `Code.gs` from this repo. Buffer cannot fetch the ScreenshotOne API URL; the script must pass `screenshot_url` from the JSON response. |
+| `Channel not found` | Run `verifyBufferInstagramChannelId` and fix `BUFFER_INSTAGRAM_CHANNEL_ID`. |
+| No execution at slot time | Re-run `setupStaggeredTriggers`. Check project timezone is Europe/London. |
