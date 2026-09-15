@@ -1,10 +1,9 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
-import { useSession } from "next-auth/react"
 import { AnimatedGlow } from "@/components/animated-glow"
 import Image from "next/image"
-import Link from "next/link"
+import { ProductCtaLink } from "@/components/product-cta-link"
 import { Mic } from "lucide-react"
 import {
   formatRecentChatDate,
@@ -104,8 +103,6 @@ function tabPlayersFor(data: ShowcasePlayers | null, tabIdx: number): ShowcasePl
 }
 
 export function ChatShowcase({ embedded = false }: { embedded?: boolean }) {
-  const { data: session } = useSession()
-  const ctaHref = session?.user ? "/chat" : "/signup"
   const [activeTab, setActiveTab]   = useState(0)
   const [promptsSpinning, setPromptsSpinning] = useState(false)
   const recentChatDates = useMemo(
@@ -818,22 +815,7 @@ export function ChatShowcase({ embedded = false }: { embedded?: boolean }) {
 
         {/* CTA */}
         <div className="mt-10 text-center" style={fi("0.7s")}>
-          <div
-            className="inline-block rounded-full p-[4px] transition-all duration-300 hover:-translate-y-0.5"
-            style={{
-              background: "rgba(0,0,0,0.55)",
-              border: "1px solid rgba(255,255,255,0.14)",
-              boxShadow: "0 0 32px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
-            }}
-          >
-            <Link
-              href={ctaHref}
-              className="relative block overflow-hidden px-8 py-4 rounded-full bg-gradient-to-r from-[#00FF87] to-[#00FFFF] text-black font-bold text-base"
-            >
-              <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
-              Start Chatting for Free →
-            </Link>
-          </div>
+          <ProductCtaLink variant="plain" />
           <p className="mt-3 text-xs text-white/60">Free trial · No credit card required</p>
         </div>
         </>

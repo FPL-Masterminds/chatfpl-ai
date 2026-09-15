@@ -40,7 +40,6 @@ export default async function TeamsHubPage() {
         headingGradient="by Club"
         subtitle={`Pick a Premier League team to see every eligible player ranked by expected points, form, and fixture difficulty for Gameweek ${gw}.`}
         ctaHref="/chat"
-        ctaLabel="Start Chatting for Free"
       />
 
       <main className="relative z-10 flex flex-col items-center px-4 pb-20">

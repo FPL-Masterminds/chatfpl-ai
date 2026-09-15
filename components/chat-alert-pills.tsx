@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import type { ChatAlert } from "@/lib/chat-alerts"
+import { CTA_ASK } from "@/lib/cta-copy"
 
 const EXIT_MS = 260
 const DISMISS_KEY = "chatfpl-alert-dismissed"
@@ -122,7 +123,7 @@ export function ChatAlertPills({
               {current.body}
             </span>
             <span className="mt-1.5 block text-[11px] font-medium text-[#00FF87]">
-              Ask ChatFPL
+              {CTA_ASK}
             </span>
           </span>
         </button>

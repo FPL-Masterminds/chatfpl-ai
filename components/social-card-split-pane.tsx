@@ -3,6 +3,7 @@ import type { FixtureGW } from "@/lib/fpl-fixtures";
 import { SocialCardFixtureStrip } from "@/components/social-card-fixture-strip";
 import { SocialCardPlayerStatTable } from "@/components/social-card-player-stat-table";
 import type { SocialCardPlayer, SocialCardStat } from "@/lib/social-card";
+import { CTA_ASK } from "@/lib/cta-copy";
 
 const PL_PHOTO_W = 110;
 const PL_PHOTO_H = 140;
@@ -147,7 +148,7 @@ export function SocialCardSplitPane({
               border: "1px solid rgba(0,255,135,0.25)",
             }}
           >
-            Ask ChatFPL AI
+            {CTA_ASK}
           </span>
           <p className={`mt-3 font-medium leading-snug text-white ${showFixtures ? "text-[28px]" : "text-[34px]"}`}>
             {prompt}

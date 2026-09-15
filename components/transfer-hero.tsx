@@ -1,9 +1,8 @@
 "use client"
 
-import Link from "next/link"
-import { useSession } from "next-auth/react"
 import { motion } from "framer-motion"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
+import { ProductCtaLink } from "@/components/product-cta-link"
 import type { TransferTrendPlayer } from "@/lib/fpl-transfer-trends"
 
 const GREEN = "#00FF87"
@@ -120,9 +119,6 @@ export interface TransferHeroProps {
 }
 
 export function TransferHero({ playerOut, playerIn, gw }: TransferHeroProps) {
-  const { data: session } = useSession()
-  const ctaHref = session?.user ? "/chat" : "/signup"
-
   return (
     <section className="relative flex flex-col items-center justify-center px-4 pt-28 pb-12">
       <DevHeroVideoBg />
@@ -184,24 +180,7 @@ export function TransferHero({ playerOut, playerIn, gw }: TransferHeroProps) {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="inline-block rounded-full p-[4px] transition-all duration-300 hover:scale-105" style={{
-          background: "rgba(0,0,0,0.55)",
-          border: "1px solid rgba(255,255,255,0.14)",
-          boxShadow: "0 0 40px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
-        }}>
-          <Link href={ctaHref}
-            className="relative block overflow-hidden rounded-full px-10 py-4 font-bold text-lg text-black"
-            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-          >
-            <span className="pointer-events-none absolute inset-0 rounded-full" style={{
-              background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)",
-              backgroundSize: "200% 100%",
-              animation: "shimmer 2.4s linear infinite",
-            }} />
-            Ask ChatFPL AI for free
-          </Link>
-        </div>
+        <ProductCtaLink textClassName="text-black" />
 
         <div className="flex items-center gap-6 text-sm">
           {["No credit card required", "Instant access"].map((t) => (

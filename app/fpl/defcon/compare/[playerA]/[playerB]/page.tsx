@@ -269,7 +269,6 @@ export default async function DefconComparePage({
         headingGradient={`Fantasy Premier League Gameweek ${gw}`}
         subtitle={`Head-to-head DEFCON comparison for two ${posMeta.label.toLowerCase()}. Per-90 rate, raw workload and Gameweek ${gw} recommendation.`}
         ctaHref="/chat"
-        ctaLabel="Ask ChatFPL AI"
       />
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">

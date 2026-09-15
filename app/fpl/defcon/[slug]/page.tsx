@@ -110,7 +110,6 @@ export default async function DefconPlayerPage({
         headingGradient={`Fantasy Premier League Gameweek ${gw}`}
         subtitle={`${player.position} · ${player.club} · ${player.dc90.toFixed(2)} defensive actions per 90 · ranked ${positionRank} of ${positionTotal} eligible ${posMeta.label.toLowerCase()}.`}
         ctaHref="/chat"
-        ctaLabel="Ask ChatFPL AI"
       />
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 pt-10 pb-16 bg-black">

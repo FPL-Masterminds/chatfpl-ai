@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { auth } from "@/lib/auth"
+import { ProductCtaLink } from "@/components/product-cta-link"
 import { DevHeader } from "@/components/dev-header"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 import { Button } from "@/components/ui/button"
@@ -30,8 +30,6 @@ export const metadata = buildPageMetadata({
 })
 
 export default async function HomePage() {
-  const session = await auth()
-  const ctaHref = session?.user ? "/chat" : "/signup"
   return (
     <div className="flex min-h-screen flex-col bg-black">
       <script
@@ -136,24 +134,7 @@ export default async function HomePage() {
             </p>
 
             <div className="hero-fadein flex flex-col items-center gap-5" style={{ animationDelay: '0.55s' }}>
-              {/* CTA button with liquid glass border */}
-              <div
-                className="inline-block rounded-full p-[4px] transition-all duration-300 hover:scale-105"
-                style={{
-                  background: "rgba(0,0,0,0.55)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  boxShadow: "0 0 40px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
-                }}
-              >
-                <Link
-                  href={ctaHref}
-                  className="relative block overflow-hidden rounded-full px-10 py-4 font-bold text-lg text-[#08020E]"
-                  style={{ background: 'linear-gradient(to right, #00FF87, #00FFFF)' }}
-                >
-                  <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
-                  Start Chatting for Free
-                </Link>
-              </div>
+              <ProductCtaLink />
 
               <div className="flex items-center gap-6 text-sm">
                 <div className="flex items-center gap-2">

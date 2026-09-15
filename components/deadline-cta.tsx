@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import Link from "next/link"
-import { useSession } from "next-auth/react"
+import { ProductCtaLink } from "@/components/product-cta-link"
 
 function calcRemaining(deadline: Date | null) {
   if (!deadline) return null
@@ -62,8 +61,6 @@ function Unit({ value, label, urgent, speed }: { value: string; label: string; u
 }
 
 export function DeadlineCTA() {
-  const { data: session } = useSession()
-  const ctaHref = session?.user ? "/chat" : "/signup"
   const [gw, setGw] = useState<number | null>(null)
   const [deadline, setDeadline] = useState<Date | null>(null)
   const [remaining, setRemaining] = useState<ReturnType<typeof calcRemaining>>(null)
@@ -227,31 +224,7 @@ export function DeadlineCTA() {
           transition={{ duration: 0.6, delay: 0.34 }}
           className="inline-block"
         >
-          <div
-            className="relative rounded-full p-[4px] transition-all duration-300 hover:scale-105"
-            style={{
-              background: "rgba(0,0,0,0.55)",
-              border: "1px solid rgba(255,255,255,0.14)",
-              boxShadow: "0 0 40px rgba(0,255,135,0.3), inset 0 1px 0 rgba(255,255,255,0.18)",
-            }}
-          >
-            <Link
-              href={ctaHref}
-              className="relative block overflow-hidden rounded-full px-10 py-4 font-bold text-lg text-[#08020E]"
-              style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-            >
-              {/* Shimmer sweep */}
-              <span
-                className="pointer-events-none absolute inset-0 rounded-full"
-                style={{
-                  background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.45) 50%, transparent 60%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 2.4s linear infinite",
-                }}
-              />
-              Start Your Free Trial Now
-            </Link>
-          </div>
+          <ProductCtaLink />
           <p className="mt-3 text-xs text-white/60">Free trial · No credit card required</p>
         </motion.div>
 

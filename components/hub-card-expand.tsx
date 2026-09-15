@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
+import { resolveProductCta } from "@/lib/cta-copy"
 
 interface HubCardExpandProps {
   slug: string
@@ -11,6 +13,9 @@ interface HubCardExpandProps {
 }
 
 export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProps) {
+  const { status } = useSession()
+  const isAuthenticated = status === "authenticated"
+  const { label: ctaLabel, href: ctaHref } = resolveProductCta(isAuthenticated)
   const [open, setOpen]           = useState(false)
   const [displayed, setDisplayed] = useState("")
   const intervalRef               = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -99,7 +104,7 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
             {/* CTA */}
             <div className="flex justify-center">
               <Link
-                href="/chat"
+                href={ctaHref}
                 className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-5 py-2.5 font-bold text-xs text-black transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(0,255,135,0.35)]"
                 style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
               >
@@ -111,7 +116,7 @@ export function HubCardExpand({ slug, gw, text, promptLabel }: HubCardExpandProp
                     animation: "shimmer 2.4s linear infinite",
                   }}
                 />
-                <span className="relative">Ask ChatFPL AI about your squad</span>
+                <span className="relative">{ctaLabel}</span>
               </Link>
             </div>
 

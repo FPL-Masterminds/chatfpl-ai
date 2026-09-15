@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import { motion, AnimatePresence } from "framer-motion"
 import { AnimatedGlow } from "@/components/animated-glow"
 import { Reveal } from "@/components/scroll-reveal"
+import { CTA_SUBSCRIBE, CTA_TRY_FREE } from "@/lib/cta-copy"
 
 type PlanId = "free" | "premium" | "elite"
 
@@ -27,7 +28,7 @@ const PLANS = [
       "FPL Dashboard access",
       "Limited support",
     ],
-    cta: "Get Started",
+    cta: CTA_TRY_FREE,
     ctaStyle: "outline" as const,
   },
   {
@@ -48,7 +49,7 @@ const PLANS = [
       "FPL Dashboard access",
       "Priority support",
     ],
-    cta: "Subscribe",
+    cta: CTA_SUBSCRIBE,
     ctaStyle: "filled" as const,
   },
   {
@@ -68,7 +69,7 @@ const PLANS = [
       "FPL Dashboard access",
       "Priority support",
     ],
-    cta: "Subscribe",
+    cta: CTA_SUBSCRIBE,
     ctaStyle: "outline-cyan" as const,
   },
 ]

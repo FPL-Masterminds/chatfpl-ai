@@ -3,15 +3,16 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import { CTA_ASK, CTA_TRY_FREE } from "@/lib/cta-copy"
 
 /**
  * The green-bordered call-to-action panel used at the bottom of every
  * programmatic pSEO page. Four variants:
  *
- *   Logged out       -> "Try ChatFPL AI for free"               -> /signup
+ *   Logged out       -> CTA_TRY_FREE ("Try ChatFPL AI Free")     -> /signup
  *   Free             -> "Upgrade to Premium - £7.99/month"       -> Stripe
  *   Premium (£7.99)  -> "Upgrade to Elite - £14.99/month"        -> Stripe
- *   Elite            -> "Ask ChatFPL AI"                         -> /chat
+ *   Elite            -> CTA_ASK                                  -> /chat
  *
  * The heading is always page-specific and passed in.  `subline` and
  * `chatQuery` are optional and useful for pages that already have a
@@ -127,7 +128,7 @@ export function UpgradeCTAPanel({ heading, subline, chatQuery }: UpgradeCTAPanel
     buttonNode = (
       <Link href={chatHref} className={BUTTON_CLASS} style={BUTTON_STYLE}>
         <ShimmerAndArrow />
-        Ask ChatFPL AI
+        {CTA_ASK}
       </Link>
     )
   } else if (isLoggedIn && plan === "premium") {
@@ -168,7 +169,7 @@ export function UpgradeCTAPanel({ heading, subline, chatQuery }: UpgradeCTAPanel
     buttonNode = (
       <Link href={chatHref} className={BUTTON_CLASS} style={BUTTON_STYLE}>
         <ShimmerAndArrow />
-        Ask ChatFPL AI
+        {CTA_ASK}
       </Link>
     )
   } else {
@@ -176,7 +177,7 @@ export function UpgradeCTAPanel({ heading, subline, chatQuery }: UpgradeCTAPanel
     buttonNode = (
       <Link href="/signup" className={BUTTON_CLASS} style={BUTTON_STYLE}>
         <ShimmerAndArrow />
-        Try ChatFPL AI for free
+        {CTA_TRY_FREE}
       </Link>
     )
   }

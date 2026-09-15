@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react"
-import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { useSession } from "next-auth/react"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
+import { ProductCtaLink } from "@/components/product-cta-link"
+import { CTA_ASK } from "@/lib/cta-copy"
 import { AnimatedGlow } from "@/components/animated-glow"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -120,8 +120,6 @@ const FALLBACK: Player[] = [
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function QueryCarousel() {
-  const { data: session } = useSession()
-  const ctaHref = session?.user ? "/chat" : "/signup"
   const [players, setPlayers] = useState<Player[]>(FALLBACK)
   const [idx, setIdx]         = useState(0)
   const [photoSrc, setPhotoSrc] = useState<string | null>(null)
@@ -326,7 +324,7 @@ export function QueryCarousel() {
                 className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest"
                 style={{ background: "rgba(0,255,135,0.1)", color: "#00FF87", border: "1px solid rgba(0,255,135,0.25)" }}
               >
-                Ask ChatFPL AI
+                {CTA_ASK}
               </span>
             </div>
 
@@ -454,17 +452,7 @@ export function QueryCarousel() {
           viewport={{ once: true }}
           transition={{ ...REVEAL, delay: 0.25 }}
         >
-          <Link
-            href={ctaHref}
-            className="relative inline-flex overflow-hidden items-center gap-2 rounded-full px-8 py-3.5 font-bold text-sm text-black transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,135,0.35)]"
-            style={{ background: "linear-gradient(to right,#00FF87,#00FFFF)" }}
-          >
-            <span className="pointer-events-none absolute inset-0 rounded-full" style={{ background: "linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.45) 50%,transparent 60%)", backgroundSize: "200% 100%", animation: "shimmer 2.4s linear infinite" }} />
-            Ask ChatFPL AI now
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
+          <ProductCtaLink variant="panel" showArrow />
         </motion.div>
 
       </div>
