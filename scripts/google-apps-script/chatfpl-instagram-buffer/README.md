@@ -31,6 +31,6 @@ Turn off the failing IFTTT **Drive -> Buffer** applet.
 
 ## Notes
 
-- Images archive to Drive folder **`ChatFPL_Instagram`** (not `ChatFPL_Screenshots`)
+- Images archive to Drive folder **`ChatFPL_Instagram`** (backup only; Buffer uses the ScreenshotOne URL, not Drive)
 - Uses 3 extra ScreenshotOne captures per day (separate from Twitter)
 - Buffer posts at your schedule slots (9:05 / 2:05 / 7:05)

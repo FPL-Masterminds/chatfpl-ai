@@ -69,9 +69,10 @@ function getInstagramFolder() {
   return folders.next();
 }
 
-function publicDriveImageUrl(file) {
+function archiveScreenshot(folder, blob, filename) {
+  const file = folder.createFile(blob.setName(filename));
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-  return 'https://drive.google.com/uc?export=download&id=' + file.getId();
+  return file;
 }
 
 function escapeGraphqlString(value) {
@@ -142,8 +143,9 @@ function captureAndQueueInstagram(cardIndex) {
   const card = CARDS[cardIndex];
   const date = new Date().toISOString().slice(0, 10);
   const folder = getInstagramFolder();
+  const screenshotApiUrl = buildScreenshotOneUrl(cardPageUrl(card.slot));
 
-  const screenshotResponse = UrlFetchApp.fetch(buildScreenshotOneUrl(cardPageUrl(card.slot)), {
+  const screenshotResponse = UrlFetchApp.fetch(screenshotApiUrl, {
     muteHttpExceptions: true,
   });
   if (screenshotResponse.getResponseCode() !== 200) {
@@ -155,12 +157,15 @@ function captureAndQueueInstagram(cardIndex) {
     );
   }
 
-  const file = folder
-    .createFile(screenshotResponse.getBlob().setName(date + '-' + card.name + '.png'));
-  const imageUrl = publicDriveImageUrl(file);
-  const post = queueInstagramPost(imageUrl, CAPTION);
+  const filename = date + '-' + card.name + '.png';
+  archiveScreenshot(folder, screenshotResponse.getBlob(), filename);
 
-  Logger.log('Queued Instagram post ' + post.id + ' for ' + post.dueAt + ' (' + file.getName() + ')');
+  // Buffer cannot fetch Google Drive links. Use the public ScreenshotOne PNG URL instead.
+  const post = queueInstagramPost(screenshotApiUrl, CAPTION);
+
+  Logger.log(
+    'Queued Instagram post ' + post.id + ' for ' + post.dueAt + ' (' + filename + ')',
+  );
 }
 
 function postSlot1() {
