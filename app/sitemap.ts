@@ -28,6 +28,7 @@ const excludedRoutes = [
   '/devdifferentials',
   '/devcomparisons',
   '/devteams',
+  '/dev-pricechangeshub',
   '/internal',
   '/internal/social-card',
   '/dashboard',
