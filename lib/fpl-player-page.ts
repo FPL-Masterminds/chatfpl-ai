@@ -20,7 +20,12 @@ const PLAYER_FIELDS = [
   "element_type","team","now_cost","selected_by_percent",
   "form","total_points","ep_next","goals_scored","assists",
   "news","status","chance_of_playing_next_round","minutes",
-  "transfers_in_event","transfers_out_event","cost_change_event",
+  "transfers_in_event","transfers_out_event",
+  "cost_change_event","cost_change_event_fall",
+  "cost_change_start","cost_change_start_fall",
+  "price_change_percent","price_change_hourly_rate",
+  "price_change_projections","price_change_locked_until",
+  "price_change_calibrating",
   "defensive_contribution","defensive_contribution_per_90",
   "clearances_blocks_interceptions","tackles",
 ] as const
@@ -36,22 +41,32 @@ function slim<T extends Record<string, unknown>>(arr: T[], fields: readonly stri
   })
 }
 
+async function fetchSlimBootstrap() {
+  const res = await fetch(
+    "https://fantasy.premierleague.com/api/bootstrap-static/",
+    { headers: { "User-Agent": "ChatFPL/1.0" }, cache: "no-store" }
+  )
+  const raw = await res.json()
+  return {
+    elements:       slim(raw.elements  ?? [], PLAYER_FIELDS),
+    teams:          slim(raw.teams     ?? [], TEAM_FIELDS),
+    events:         slim(raw.events    ?? [], EVENT_FIELDS),
+    element_types:  raw.element_types  ?? [],
+  }
+}
+
+/** Shared bootstrap cache for hub pages and static generation (1 hour). */
 export const getBootstrap = unstable_cache(
-  async () => {
-    const res = await fetch(
-      "https://fantasy.premierleague.com/api/bootstrap-static/",
-      { headers: { "User-Agent": "ChatFPL/1.0" }, cache: "no-store" }
-    )
-    const raw = await res.json()
-    return {
-      elements:       slim(raw.elements  ?? [], PLAYER_FIELDS),
-      teams:          slim(raw.teams     ?? [], TEAM_FIELDS),
-      events:         slim(raw.events    ?? [], EVENT_FIELDS),
-      element_types:  raw.element_types  ?? [],
-    }
-  },
+  fetchSlimBootstrap,
   ["fpl-bootstrap-slim"],
   { revalidate: 3600 }
+)
+
+/** Fresher bootstrap for price-change projections (15 minutes). */
+export const getBootstrapFresh = unstable_cache(
+  fetchSlimBootstrap,
+  ["fpl-bootstrap-fresh"],
+  { revalidate: 900 }
 )
 
 // ─── Types ────────────────────────────────────────────────────────────────────
