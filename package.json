@@ -7,7 +7,9 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "remotion:studio": "remotion studio remotion/index.ts",
+    "remotion:render": "remotion render remotion/index.ts Empty out.mp4"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.11.0",
@@ -41,6 +43,8 @@
     "@radix-ui/react-toggle": "1.1.1",
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
+    "@remotion/cli": "4.0.525",
+    "@remotion/player": "4.0.525",
     "@vercel/analytics": "latest",
     "autoprefixer": "^10.4.20",
     "bcryptjs": "^3.0.2",
@@ -67,6 +71,7 @@
     "react-hook-form": "^7.60.0",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.4",
+    "remotion": "4.0.525",
     "resend": "^6.2.2",
     "sonner": "^1.7.4",
     "stripe": "^19.2.0",

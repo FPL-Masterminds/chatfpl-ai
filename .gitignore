@@ -31,3 +31,6 @@ next-env.d.ts
 
 # One-off campaign data - contains real user PII, do not commit
 scripts/data/
+
+# Remotion render output
+out.mp4

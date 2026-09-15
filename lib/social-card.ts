@@ -442,10 +442,15 @@ async function buildComparisonCard(gw: number): Promise<SocialCardData | null> {
   };
 }
 
+/** Social injury cards need a real decision angle, not obvious outs at 0%. */
+const SOCIAL_INJURY_MIN_PLAY_CHANCE = 25;
+
 async function buildInjuryCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getInjuryHub();
   if (!hub?.players.length) return null;
-  const p = await pickPlayerWithPhoto("injuries", hub.players);
+  const eligible = hub.players.filter((player) => player.chance >= SOCIAL_INJURY_MIN_PLAY_CHANCE);
+  if (!eligible.length) return null;
+  const p = await pickPlayerWithPhoto("injuries", eligible);
   if (!p) return null;
   const status = statusLabel(p.status, p.chance);
   const injuryCols: SocialCardTableCol[] = [
