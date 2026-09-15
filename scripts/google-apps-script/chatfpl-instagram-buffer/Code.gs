@@ -33,7 +33,7 @@ function getProp(key) {
   if (!value) {
     throw new Error('Missing Script property: ' + key);
   }
-  return value;
+  return value.trim();
 }
 
 function cardPageUrl(slot) {
@@ -127,7 +127,13 @@ function queueInstagramPost(imageUrl, caption) {
     throw new Error('Buffer createPost returned no data: ' + JSON.stringify(json));
   }
   if (result.message) {
-    throw new Error('Buffer createPost failed: ' + result.message);
+    throw new Error(
+      'Buffer createPost failed: ' +
+        result.message +
+        ' (channelId=' +
+        channelId +
+        '). Run verifyBufferInstagramChannelId if unsure.',
+    );
   }
   return result.post;
 }
@@ -237,4 +243,48 @@ function fetchBufferInstagramChannelId() {
   Logger.log('');
   Logger.log('Set Script property BUFFER_INSTAGRAM_CHANNEL_ID to:');
   Logger.log(instagram[0].id);
+}
+
+/**
+ * Run if postSlot fails with "Channel not found".
+ * Confirms BUFFER_INSTAGRAM_CHANNEL_ID matches your Instagram channel.
+ */
+function verifyBufferInstagramChannelId() {
+  const stored = getProp('BUFFER_INSTAGRAM_CHANNEL_ID');
+  const accountJson = bufferGraphql('query { account { organizations { id name } } }');
+  const org = accountJson.data.account.organizations[0];
+  const channelsJson = bufferGraphql(
+    [
+      'query {',
+      '  channels(input: { organizationId: "' + escapeGraphqlString(org.id) + '" }) {',
+      '    id',
+      '    displayName',
+      '    service',
+      '  }',
+      '}',
+    ].join('\n'),
+  );
+
+  const instagram = (channelsJson.data.channels || []).filter(function (channel) {
+    return String(channel.service).toLowerCase() === 'instagram';
+  });
+  if (!instagram.length) {
+    throw new Error('No Instagram channel on this Buffer API key.');
+  }
+
+  const expected = instagram[0].id;
+  Logger.log('Stored BUFFER_INSTAGRAM_CHANNEL_ID: ' + stored);
+  Logger.log('Expected Instagram channel id:          ' + expected);
+
+  if (stored !== expected) {
+    throw new Error(
+      'Wrong channel id in Script properties. Use ' +
+        expected +
+        ' (not the organization id ' +
+        org.id +
+        ').',
+    );
+  }
+
+  Logger.log('Channel id looks correct. Run postSlot1 again.');
 }
