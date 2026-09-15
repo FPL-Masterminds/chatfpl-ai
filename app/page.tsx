@@ -13,6 +13,8 @@ import { WhyChatFPL } from "@/components/why-chatfpl"
 import { PricingSlider } from "@/components/pricing-slider"
 import { DeadlineCTA } from "@/components/deadline-cta"
 import { Reveal } from "@/components/scroll-reveal"
+import { auth } from "@/lib/auth"
+import { resolveProductCta } from "@/lib/cta-copy"
 import { buildPageMetadata, SITE_URL } from "@/lib/seo/metadata"
 import { 
   TrendingUp, 
@@ -30,6 +32,9 @@ export const metadata = buildPageMetadata({
 })
 
 export default async function HomePage() {
+  const session = await auth()
+  const { href: ctaHref } = resolveProductCta(!!session?.user)
+
   return (
     <div className="flex min-h-screen flex-col bg-black">
       <script
