@@ -6,34 +6,34 @@ import type { ShowcasePlayer } from "@/app/api/showcase-players/route"
 
 const CARDS = [
   {
-    tag: "THE FEAR",
+    tag: "THE DATA",
     number: "01",
-    title: "Eliminate the Variables.",
-    desc: "FPL is won on cold logic. While your rivals react to Sunday's highlights, you're executing a strategy backed by millions of match simulations.",
+    title: "See the numbers before the deadline.",
+    desc: "xPTS, form, ownership, price, and fixtures in one place. No spreadsheet archaeology, no waiting on a YouTube thumbnail. Just the state of play, right now.",
     side: "left" as const,
     position: "GKP",
   },
   {
-    tag: "THE EDGE",
+    tag: "THE CALL",
     number: "02",
-    title: "Spot the Invisible.",
-    desc: "Our engine identifies the sub-5% owned gems before they explode. Move first, move fast, and leave the pack behind.",
+    title: "Captain, transfer, bench. One clear answer.",
+    desc: "Stuck between two forwards? Not sure whether to sell or hold? ChatFPL reads your squad and gives you a recommendation you can act on before the deadline.",
     side: "right" as const,
     position: "DEF",
   },
   {
-    tag: "THE ROI",
+    tag: "THE DIFFERENTIAL",
     number: "03",
-    title: "Secure the Crown.",
-    desc: "Elite-level FPL management at a fraction of what your rivals spend on tips that don't work. One calculated captaincy call doesn't just pay for the season - it settles the debate.",
+    title: "Low ownership. High upside. Spotted early.",
+    desc: "The template picks are obvious. The rank climbers find the 3% midfielder before the breakout. ChatFPL surfaces differentials with the numbers to back them up.",
     side: "left" as const,
     position: "MID",
   },
   {
-    tag: "THE TIMING",
+    tag: "THE DEADLINE",
     number: "04",
-    title: "Total Tactical Awareness.",
-    desc: "Late leaks and injury news are filtered and processed in seconds. Your squad is locked, loaded, and bulletproof before the whistle blows.",
+    title: "Injuries, leaks, flags. Updated when it matters.",
+    desc: "A doubtful flag on Friday can wreck a Saturday captaincy. ChatFPL tracks availability and news so you're not scrambling at 11am on deadline day.",
     side: "right" as const,
     position: "FWD",
   },
@@ -64,7 +64,7 @@ function PlayerStack({
       }`}
       style={{ bottom: "50%", height: IMG_H + 1 }}
     >
-      {/* Full-width branch line running at the base — behind players */}
+      {/* Full-width branch line running at the base, behind players */}
       <motion.div
         initial={{ scaleX: 0 }}
         animate={inView ? { scaleX: 1 } : {}}
@@ -174,7 +174,7 @@ function Card({
       {/* Player images + branch */}
       <PlayerStack players={players} side={card.side} inView={inView} />
 
-      {/* Card panel — above branch line */}
+      {/* Card panel above branch line */}
       <motion.div
         initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
         animate={inView ? { opacity: 1, x: 0 } : {}}
@@ -290,7 +290,7 @@ export function WhyChatFPL() {
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
           >
             <h2 className="font-bold leading-[1.1] tracking-tighter mb-4 text-[36px] lg:text-6xl lg:whitespace-nowrap">
-              <span className="text-white">The Edge </span>
+              <span className="text-white">From question </span>
               <span
                 className="text-transparent bg-clip-text"
                 style={{
@@ -299,7 +299,7 @@ export function WhyChatFPL() {
                   WebkitBackgroundClip: "text",
                 }}
               >
-                Smart FPL Managers Have
+                to decision
               </span>
             </h2>
           </motion.div>
@@ -313,7 +313,7 @@ export function WhyChatFPL() {
               delay: 0.1,
             }}
           >
-            Four edges your rivals already have. Here&apos;s how you close the gap.
+            xPTS, captaincy, differentials, and deadline news. Here&apos;s how managers use ChatFPL.
           </motion.p>
         </div>
 
