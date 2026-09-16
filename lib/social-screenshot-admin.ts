@@ -12,7 +12,7 @@ const HUB_LABELS: Record<SocialHubType, string> = {
 };
 
 const INSTAGRAM_CAPTION =
-  "Fantasy Premier League insights powered by AI. chatfpl.ai";
+  "Fantasy Premier League insights powered ChatFPL.ai";
 
 function siteOrigin(): string {
   return (process.env.NEXTAUTH_URL ?? "https://www.chatfpl.ai").replace(/\/$/, "");

@@ -20,7 +20,7 @@
 const POST_TIMES = ['09:00', '14:00', '19:00'];
 const DRIVE_FOLDER_NAME = 'ChatFPL_Instagram';
 const BUFFER_API_URL = 'https://api.buffer.com';
-const CAPTION = 'Fantasy Premier League insights powered by AI. chatfpl.ai';
+const CAPTION = 'Fantasy Premier League insights powered ChatFPL.ai';
 
 const CARDS = [
   { name: 'slot-1', slot: 1 },
