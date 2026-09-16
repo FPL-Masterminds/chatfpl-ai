@@ -305,6 +305,50 @@ function slotIndex(slot: SocialCardSlot): number {
   return 0;
 }
 
+/** Social cards only (X + Instagram). SEO hubs keep their own wider eligibility. */
+export const SOCIAL_MIN_OWNERSHIP_DEFAULT = 3;
+export const SOCIAL_MIN_OWNERSHIP_TEMPLATE = 5;
+export const SOCIAL_MIN_OWNERSHIP_DIFFERENTIAL = 2;
+export const SOCIAL_MAX_OWNERSHIP_DIFFERENTIAL = 15;
+export const SOCIAL_TRANSFER_TREND_OWNERSHIP_FLOOR = 5;
+export const SOCIAL_TRANSFER_VOLUME_OVERRIDE = 20_000;
+export const SOCIAL_POOL_TOP_N = 15;
+
+function parseSocialOwnership(value: string | number): number {
+  const n = typeof value === "number" ? value : parseFloat(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function socialOwnershipPasses(
+  hub: SocialHubType,
+  ownership: number,
+  opts?: { transfersIn?: number; transfersOut?: number },
+): boolean {
+  if (hub === "differentials") {
+    return (
+      ownership >= SOCIAL_MIN_OWNERSHIP_DIFFERENTIAL &&
+      ownership <= SOCIAL_MAX_OWNERSHIP_DIFFERENTIAL
+    );
+  }
+  if (hub === "fixtures" || hub === "transfer_trends") {
+    if (ownership >= SOCIAL_TRANSFER_TREND_OWNERSHIP_FLOOR) return true;
+    const transfersIn = opts?.transfersIn ?? 0;
+    const transfersOut = opts?.transfersOut ?? 0;
+    return (
+      transfersIn >= SOCIAL_TRANSFER_VOLUME_OVERRIDE ||
+      transfersOut >= SOCIAL_TRANSFER_VOLUME_OVERRIDE
+    );
+  }
+  if (hub === "captains" || hub === "comparisons" || hub === "defcon") {
+    return ownership >= SOCIAL_MIN_OWNERSHIP_TEMPLATE;
+  }
+  return ownership >= SOCIAL_MIN_OWNERSHIP_DEFAULT;
+}
+
+function topSocialPool<T>(items: T[]): T[] {
+  return items.slice(0, SOCIAL_POOL_TOP_N);
+}
+
 async function pickPlayerWithPhoto<T extends { code: number }>(
   hub: SocialHubType,
   pool: T[],
@@ -328,7 +372,13 @@ export function hubForSlot(dateKey: string, slot: SocialCardSlot): SocialHubType
 async function buildCaptainCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getCaptainHub();
   if (!hub?.players.length) return null;
-  const p = await pickPlayerWithPhoto("captains", hub.players);
+  const pool = topSocialPool(
+    hub.players.filter((player) =>
+      socialOwnershipPasses("captains", parseSocialOwnership(player.ownership)),
+    ),
+  );
+  if (!pool.length) return null;
+  const p = await pickPlayerWithPhoto("captains", pool);
   if (!p) return null;
   return {
     slot: "1",
@@ -359,7 +409,13 @@ async function buildCaptainCard(gw: number): Promise<SocialCardData | null> {
 async function buildDifferentialCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getDifferentialHub();
   if (!hub?.players.length) return null;
-  const p = await pickPlayerWithPhoto("differentials", hub.players);
+  const pool = topSocialPool(
+    hub.players.filter((player) =>
+      socialOwnershipPasses("differentials", player.ownershipRaw),
+    ),
+  );
+  if (!pool.length) return null;
+  const p = await pickPlayerWithPhoto("differentials", pool);
   if (!p) return null;
   return {
     slot: "1",
@@ -390,12 +446,22 @@ async function buildDifferentialCard(gw: number): Promise<SocialCardData | null>
 async function buildComparisonCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getComparisonHub();
   if (!hub?.pairs.length) return null;
-  const start = pickRotatingIndex("comparisons", hub.pairs.length);
+  const pairs = topSocialPool(hub.pairs);
+  if (!pairs.length) return null;
+  const start = pickRotatingIndex("comparisons", pairs.length);
   let data: Awaited<ReturnType<typeof getComparisonData>> = null;
-  for (let i = 0; i < hub.pairs.length; i++) {
-    const pair = hub.pairs[(start + i) % hub.pairs.length];
+  for (let i = 0; i < pairs.length; i++) {
+    const pair = pairs[(start + i) % pairs.length];
     const candidate = await getComparisonData(pair.slugA, pair.slugB);
     if (!candidate) continue;
+    const ownA = candidate.playerA.ownership;
+    const ownB = candidate.playerB.ownership;
+    if (
+      !socialOwnershipPasses("comparisons", ownA) ||
+      !socialOwnershipPasses("comparisons", ownB)
+    ) {
+      continue;
+    }
     if (await fplPlayerPhotosExist([candidate.playerA.code, candidate.playerB.code])) {
       data = candidate;
       break;
@@ -518,10 +584,22 @@ async function buildInjuryCard(gw: number): Promise<SocialCardData | null> {
 async function buildTransferCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getTransferTrendsHub();
   if (!hub?.pairs.length) return null;
-  const start = pickRotatingIndex("transfer_trends", hub.pairs.length);
-  let pair: (typeof hub.pairs)[number] | null = null;
-  for (let i = 0; i < hub.pairs.length; i++) {
-    const candidate = hub.pairs[(start + i) % hub.pairs.length];
+  const pairs = topSocialPool(
+    hub.pairs.filter(
+      (candidate) =>
+        socialOwnershipPasses("transfer_trends", candidate.playerOut.ownership, {
+          transfersOut: candidate.playerOut.transfersOut,
+        }) &&
+        socialOwnershipPasses("transfer_trends", candidate.playerIn.ownership, {
+          transfersIn: candidate.playerIn.transfersIn,
+        }),
+    ),
+  );
+  if (!pairs.length) return null;
+  const start = pickRotatingIndex("transfer_trends", pairs.length);
+  let pair: (typeof pairs)[number] | null = null;
+  for (let i = 0; i < pairs.length; i++) {
+    const candidate = pairs[(start + i) % pairs.length];
     if (await fplPlayerPhotosExist([candidate.playerOut.code, candidate.playerIn.code])) {
       pair = candidate;
       break;
@@ -580,7 +658,15 @@ async function buildTransferCard(gw: number): Promise<SocialCardData | null> {
 async function buildFixtureCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getFixtureHub();
   if (!hub?.players.length) return null;
-  const p = await pickPlayerWithPhoto("fixtures", hub.players);
+  const pool = topSocialPool(
+    hub.players.filter((player) =>
+      socialOwnershipPasses("fixtures", player.ownership, {
+        transfersIn: player.transfersIn,
+      }),
+    ),
+  );
+  if (!pool.length) return null;
+  const p = await pickPlayerWithPhoto("fixtures", pool);
   if (!p) return null;
   const nextFix = p.fixtures
     .slice(0, 3)
@@ -651,7 +737,11 @@ async function buildFixtureCard(gw: number): Promise<SocialCardData | null> {
 async function buildDefconCard(gw: number): Promise<SocialCardData | null> {
   const hub = await getDefconHub();
   if (!hub?.ready) return null;
-  const pool = [...hub.defenders, ...hub.midfielders];
+  const pool = topSocialPool(
+    [...hub.defenders, ...hub.midfielders].filter((player) =>
+      socialOwnershipPasses("defcon", parseSocialOwnership(player.ownership)),
+    ),
+  );
   if (!pool.length) return null;
   const p = await pickPlayerWithPhoto("defcon", pool);
   if (!p) return null;

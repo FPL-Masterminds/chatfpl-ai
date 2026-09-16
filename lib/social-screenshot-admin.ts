@@ -343,6 +343,6 @@ export async function getSocialScreenshotAdminConfig(
     slots,
     postTimes,
     rotationNote:
-      "Three posts per day on X and Instagram. ChatFPL rotates which hub each slot shows. All seven hubs are covered over the week.",
+      "Three posts per day on X and Instagram. ChatFPL rotates which hub each slot shows. Social cards use stricter ownership filters than SEO pages (5%+ for template hubs, 2-15% for differentials, top 15 picks only).",
   };
 }
