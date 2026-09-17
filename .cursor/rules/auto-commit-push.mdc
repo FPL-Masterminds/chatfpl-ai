@@ -18,7 +18,7 @@ When you finish a task that changed files:
 3. Commit with a clear message focused on why.
 4. Push to `origin` on the current branch (usually `main`).
 5. Tell the user the commit hash briefly. Do not ask "want me to commit?"
-6. Follow **post-push-chat-status** (run `chat-production-status` script and report **Production chat:** Online/Offline).
+6. **Last line of your reply to the user:** run `node scripts/chat-production-status.mjs` (wait for deploy if just pushed) and end with exactly `**Production chat:** Online` or `**Production chat:** Offline`. This is for the owner in Cursor, not an in-app toast.
 
 ## Do not
 

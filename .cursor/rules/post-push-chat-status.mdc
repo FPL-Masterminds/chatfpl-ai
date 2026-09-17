@@ -3,7 +3,9 @@ description: After every push to main, report production chat online/offline
 alwaysApply: true
 ---
 
-# Post-push production chat status
+# Post-push production chat status (for the site owner in Cursor)
+
+This is **not** the in-app customer toast or apology banner. The user wants **you** (the agent) to tell **them** in this chat whether production chat is up after every commit and push.
 
 After you **commit and push** to `main` (including the required auto-commit workflow), you MUST verify production chat before ending your reply.
 
@@ -16,12 +18,14 @@ After you **commit and push** to `main` (including the required auto-commit work
 
 2. If the script exits non-zero or prints `Status: Chat Offline`, also check Vercel runtime errors for `/api/chat` (last 24h) and tell the user chat is **down** with the failed check names.
 
-3. End every push-related reply with **one prominent line** (exact wording):
+3. The **last line** of your reply to the user MUST be exactly one of these (no exceptions after a push):
 
-   - `**Production chat:** Online` when the script reports Chat Online  
-   - `**Production chat:** Offline` plus one sentence on what failed  
+   - `**Production chat:** Online`
+   - `**Production chat:** Offline` (then one short sentence: what failed)
 
-Do not say chat is fine without running the script (or confirming a green GitHub Actions run on the same commit).
+4. Same rule if the task included commit/push even when the user did not ask about health. They should never have to ask "is chat up?" after a deploy.
+
+Do not say chat is fine without running the script (or confirming a green GitHub Actions run on the same commit). Do not bury this line in the middle of the message.
 
 ## Reference
 
