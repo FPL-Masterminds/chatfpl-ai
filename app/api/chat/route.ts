@@ -53,6 +53,10 @@ import {
 } from "@/lib/chat-fpl-rules";
 import { enforceSquadOwnershipOnAnswer } from "@/lib/chat-squad-response-guard";
 import {
+  formatDefconLeaderboardFacts,
+  isDefconQuery,
+} from "@/lib/chat-defcon-facts";
+import {
   buildFplTeamContext,
   persistFplTeamIdForUser,
   resolveFplTeamIdForChat,
@@ -248,6 +252,7 @@ export async function POST(request: Request) {
     let allPlayers: ChatPlayerRow[] = [];
     let squadElementIds: number[] = [];
     let squadWebNames: string[] = [];
+    let defconFactsContext = "";
     try {
       // Fetch both bootstrap data and fixtures
       const [fplResponse, fixturesResponse] = await Promise.all([
@@ -423,15 +428,35 @@ export async function POST(request: Request) {
             .slice(0, 150);
           filterNote = `Showing in-form transfer targets`;
         }
-        else if (messageLower.match(/\b(gk|goalkeeper|keeper)\b/)) {
+        else if (isDefconQuery(message)) {
+          const defendersOnly =
+            /\b(defenders?|defence|defense|defs)\b/i.test(messageLower) &&
+            !/\b(midfielders?|mids)\b/i.test(messageLower);
+          const midsOnly = /\b(midfielders?|mids)\b/i.test(messageLower);
+          filteredPlayers = allPlayers
+            .filter((p) => {
+              if (p.rawData.minutes < 90) return false;
+              if (defendersOnly) return p.position === "DEF";
+              if (midsOnly) return p.position === "MID";
+              return p.position === "DEF" || p.position === "MID";
+            })
+            .sort(
+              (a, b) =>
+                parseFloat(String(b.rawData.defensive_contribution_per_90 ?? 0)) -
+                parseFloat(String(a.rawData.defensive_contribution_per_90 ?? 0)),
+            )
+            .slice(0, 80);
+          filterNote = `DEFCON mode: ranked by defensive_contribution_per_90 (DC90)`;
+        }
+        else if (messageLower.match(/\b(gk|goalkeepers?|keeper|keepers?)\b/)) {
           filteredPlayers = allPlayers.filter(p => p.position === 'GKP').slice(0, 80);
           filterNote = `Showing goalkeepers only`;
         }
-        else if (messageLower.match(/\b(def|defender|defence|defense)\b/)) {
+        else if (messageLower.match(/\b(def|defenders?|defence|defense)\b/)) {
           filteredPlayers = allPlayers.filter(p => p.position === 'DEF').slice(0, 120);
           filterNote = `Showing defenders only`;
         }
-        else if (messageLower.match(/\b(mid|midfielder|midfield)\b/)) {
+        else if (messageLower.match(/\b(mid|midfielders?|midfield)\b/)) {
           filteredPlayers = allPlayers.filter(p => p.position === 'MID').slice(0, 150);
           filterNote = `Showing midfielders only`;
         }
@@ -508,6 +533,8 @@ export async function POST(request: Request) {
         const teamStackFactsContext = isTeamStackQuery(message)
           ? formatTeamStackFactsContext(allPlayers, teamFixtures, adviceGwId)
           : "";
+
+        defconFactsContext = formatDefconLeaderboardFacts(message, allPlayers);
 
         const adviceGwIdForStructure = adviceGwId;
         const dgwTeams = (fplData.teams ?? []).filter((team: any) =>
@@ -599,7 +626,7 @@ ${adviceGwNote}
 
 ${transferWindowContext}
 
-${comparisonFactsContext ? `${comparisonFactsContext}\n\n` : ""}${teamStackFactsContext ? `${teamStackFactsContext}\n\n` : ""}${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${embeddedSquadGuard}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
+${comparisonFactsContext ? `${comparisonFactsContext}\n\n` : ""}${teamStackFactsContext ? `${teamStackFactsContext}\n\n` : ""}${defconFactsContext ? `${defconFactsContext}\n\n` : ""}${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${embeddedSquadGuard}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
@@ -811,6 +838,8 @@ PERSONALITY RULES:
                   ? `${transferReplacementFacts}\n\n`
                   : "";
 
+                const defconBlock = defconFactsContext ? `${defconFactsContext}\n\n` : "";
+
                 const squadOwnershipGuard = formatSquadOwnershipGuard(
                   squadWebNames,
                   squadElementIds,
@@ -820,8 +849,8 @@ PERSONALITY RULES:
                 const squadBlock = squadOwnershipGuard ? `${squadOwnershipGuard}\n\n` : "";
 
                 const enhancedMessage = combinedContext
-                  ? `${combinedContext}\n\n${squadBlock}${transferBlock}${redditInstruction}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`
-                  : `${squadBlock}${transferBlock}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`;
+                  ? `${combinedContext}\n\n${squadBlock}${defconBlock}${transferBlock}${redditInstruction}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`
+                  : `${squadBlock}${defconBlock}${transferBlock}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`;
 
     console.log('=== DIFY PAYLOAD DEBUG ===');
     console.log('Enhanced message length:', enhancedMessage.length);
