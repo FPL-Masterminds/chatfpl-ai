@@ -4,8 +4,8 @@ import { useEffect, useState } from "react"
 import type { ChatAlert } from "@/lib/chat-alerts"
 import { CTA_ASK } from "@/lib/cta-copy"
 import { ChatToastDismiss } from "@/components/chat-toast-dismiss"
-
-const EXIT_MS = 260
+import { ChatToastSurface } from "@/components/chat-toast-surface"
+import { CHAT_TOAST_DISSOLVE_MS } from "@/lib/chat-toast-motion"
 const DISMISS_KEY = "chatfpl-alert-dismissed"
 
 function dismissedSet(): Set<string> {
@@ -77,21 +77,14 @@ export function ChatAlertPills({
       persistDismissed(gone)
       setQueue((prev) => prev.slice(1))
       setPhase("open")
-    }, EXIT_MS)
+    }, CHAT_TOAST_DISSOLVE_MS)
   }
 
   return (
     <div className="pointer-events-none absolute inset-x-3 bottom-3 z-30 flex justify-end sm:inset-x-auto sm:right-4">
-      <div
-        role="status"
-        data-phase={phase}
-        className="pointer-events-auto relative block w-[min(100%,22rem)] overflow-hidden rounded-[1.25rem] border border-white/15 bg-black/80 p-0 text-left shadow-[0_12px_40px_-8px_rgba(0,0,0,0.55)] backdrop-blur-xl"
-        style={{
-          fontFamily: "inherit",
-          transform: phase === "closing" ? "translateY(10px)" : "translateY(0)",
-          opacity: phase === "closing" ? 0 : 1,
-          transition: "transform 260ms cubic-bezier(0.4,0,0.6,1), opacity 260ms cubic-bezier(0.4,0,0.6,1)",
-        }}
+      <ChatToastSurface
+        phase={phase}
+        className="pointer-events-auto block w-[min(100%,22rem)] rounded-[1.25rem] border border-white/15 bg-black/80 p-0 text-left font-[inherit] shadow-[0_12px_40px_-8px_rgba(0,0,0,0.55)] backdrop-blur-xl"
       >
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
@@ -121,7 +114,7 @@ export function ChatAlertPills({
           </button>
           <ChatToastDismiss onDismiss={dismiss} label="Dismiss alert" />
         </div>
-      </div>
+      </ChatToastSurface>
     </div>
   )
 }

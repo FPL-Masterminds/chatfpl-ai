@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { ChatToastDismiss } from "@/components/chat-toast-dismiss"
+import { ChatToastSurface } from "@/components/chat-toast-surface"
 import { isOutageApologyWindowActive } from "@/lib/chat-outage-apology-window"
-
-const EXIT_MS = 260
+import { CHAT_TOAST_DISSOLVE_MS } from "@/lib/chat-toast-motion"
 const DISMISS_KEY = "chatfpl-outage-apology-sep-2026-v2-dismissed"
 
 /**
@@ -39,20 +39,15 @@ export function ChatOutageApologyToast() {
     } catch {
       /* ignore */
     }
-    window.setTimeout(() => setOpen(false), EXIT_MS)
+    window.setTimeout(() => setOpen(false), CHAT_TOAST_DISSOLVE_MS)
   }
 
   if (!open || !isOutageApologyWindowActive()) return null
 
   return (
-    <div
-      role="status"
-      data-phase={phase}
+    <ChatToastSurface
+      phase={phase}
       className="shrink-0 border-b border-emerald-400/25 bg-emerald-950/90 px-3 py-2.5 sm:px-4"
-      style={{
-        opacity: phase === "closing" ? 0 : 1,
-        transition: "opacity 260ms ease",
-      }}
     >
       <div className="mx-auto flex max-w-3xl items-start gap-2 sm:gap-3">
         <span
@@ -71,6 +66,6 @@ export function ChatOutageApologyToast() {
         </div>
         <ChatToastDismiss onDismiss={dismiss} label="Dismiss service update" />
       </div>
-    </div>
+    </ChatToastSurface>
   )
 }

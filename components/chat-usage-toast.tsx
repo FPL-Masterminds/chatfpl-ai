@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ChatToastDismiss } from "@/components/chat-toast-dismiss"
-
-const EXIT_MS = 260
+import { ChatToastSurface } from "@/components/chat-toast-surface"
+import { CHAT_TOAST_DISSOLVE_MS } from "@/lib/chat-toast-motion"
 
 function isUnlimited(limit: number): boolean {
   return limit >= 999999
@@ -41,7 +41,7 @@ export function ChatUsageToast({
   const dismiss = () => {
     if (phase !== "open") return
     setPhase("closing")
-    window.setTimeout(() => setOpen(false), EXIT_MS)
+    window.setTimeout(() => setOpen(false), CHAT_TOAST_DISSOLVE_MS)
   }
 
   if (!open) return null
@@ -83,16 +83,9 @@ export function ChatUsageToast({
         fplAlertsQueued ? "bottom-[7.25rem]" : "bottom-3"
       }`}
     >
-      <div
-        role="status"
-        data-phase={phase}
-        className="pointer-events-auto relative block w-[min(100%,22rem)] overflow-hidden rounded-[1.25rem] border border-white/15 bg-black/80 p-0 text-left shadow-[0_12px_40px_-8px_rgba(0,0,0,0.55)] backdrop-blur-xl"
-        style={{
-          fontFamily: "inherit",
-          transform: phase === "closing" ? "translateY(10px)" : "translateY(0)",
-          opacity: phase === "closing" ? 0 : 1,
-          transition: "transform 260ms cubic-bezier(0.4,0,0.6,1), opacity 260ms cubic-bezier(0.4,0,0.6,1)",
-        }}
+      <ChatToastSurface
+        phase={phase}
+        className="pointer-events-auto block w-[min(100%,22rem)] rounded-[1.25rem] border border-white/15 bg-black/80 p-0 text-left font-[inherit] shadow-[0_12px_40px_-8px_rgba(0,0,0,0.55)] backdrop-blur-xl"
       >
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
@@ -131,7 +124,7 @@ export function ChatUsageToast({
           </div>
           <ChatToastDismiss onDismiss={dismiss} label="Dismiss message allowance notice" />
         </div>
-      </div>
+      </ChatToastSurface>
     </div>
   )
 }

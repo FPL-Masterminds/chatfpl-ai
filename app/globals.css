@@ -171,3 +171,78 @@
   box-sizing: border-box;
   pointer-events: none;
 }
+
+/* Chat toast dismiss: smoky dissolve (transitions.dev-inspired, ChatFPL tokens) */
+:root {
+  --chatfpl-toast-dissolve-dur: 520ms;
+  --chatfpl-toast-dissolve-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.chatfpl-toast-surface.is-dissolving {
+  animation: chatfpl-toast-smoky-dissolve var(--chatfpl-toast-dissolve-dur)
+    var(--chatfpl-toast-dissolve-ease) forwards;
+  pointer-events: none;
+}
+
+.chatfpl-toast-surface.is-dissolving::after {
+  content: "";
+  position: absolute;
+  inset: -20% -10% -30%;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(160, 160, 160, 0.22), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 30% 90%, rgba(0, 255, 135, 0.08), transparent 65%),
+    linear-gradient(to bottom, transparent 20%, rgba(0, 0, 0, 0.35) 100%);
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+  animation: chatfpl-toast-smoke-puff var(--chatfpl-toast-dissolve-dur) ease-out forwards;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes chatfpl-toast-smoky-dissolve {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  45% {
+    opacity: 0.88;
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+    filter: blur(12px);
+  }
+}
+
+@keyframes chatfpl-toast-smoke-puff {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(4px) scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chatfpl-toast-surface.is-dissolving {
+    animation: chatfpl-toast-fade-only 160ms ease forwards;
+    filter: none;
+  }
+
+  .chatfpl-toast-surface.is-dissolving::after {
+    display: none;
+  }
+}
+
+@keyframes chatfpl-toast-fade-only {
+  to {
+    opacity: 0;
+  }
+}
