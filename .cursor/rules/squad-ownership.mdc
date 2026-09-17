@@ -1,0 +1,13 @@
+---
+description: Never invent squad holdings or sell advice for unowned players
+alwaysApply: true
+---
+
+# Linked FPL squad is the only source of ownership
+
+When changing `/api/chat`, squad context, or transfer/sell logic:
+
+- If the user has a linked FPL Team ID and squad loads, **only those 15 `web_name` values** may be discussed as sells, bench problems, or "your" players.
+- Use `formatSquadOwnershipGuard` in the model payload and `enforceSquadOwnershipOnAnswer` on the assistant reply.
+- Do not remove or weaken these guards without an explicit user request.
+- FILTERED PLAYER DATA is for the whole league, not the user's team.

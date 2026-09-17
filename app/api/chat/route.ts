@@ -47,7 +47,11 @@ import {
   appendDifyStreamAnswer,
   postProcessAssistantAnswer,
 } from "@/lib/chat-assistant-output";
-import { CHAT_FPL_TRANSFER_REPLACEMENT_RULES } from "@/lib/chat-fpl-rules";
+import {
+  CHAT_FPL_TRANSFER_REPLACEMENT_RULES,
+  CHAT_SQUAD_OWNERSHIP_RULES,
+} from "@/lib/chat-fpl-rules";
+import { enforceSquadOwnershipOnAnswer } from "@/lib/chat-squad-response-guard";
 import {
   buildFplTeamContext,
   persistFplTeamIdForUser,
@@ -64,6 +68,7 @@ import {
   prepareUserMessageForModel,
 } from "@/lib/chat-abuse-handling";
 import { getTransferReplacementFactsForChat } from "@/lib/chat-transfer-envelope";
+import { formatSquadOwnershipGuard } from "@/lib/chat-squad-sell-guard";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
@@ -576,6 +581,11 @@ export async function POST(request: Request) {
 
         const formSampleGws = countFormSampleGameweeks(events);
 
+        const embeddedSquadGuard =
+          squadWebNames.length > 0
+            ? `${formatSquadOwnershipGuard(squadWebNames, squadElementIds, allPlayers, true)}\n\n`
+            : "";
+
         // Build context string with filtered players
         fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
@@ -589,7 +599,7 @@ ${adviceGwNote}
 
 ${transferWindowContext}
 
-${comparisonFactsContext ? `${comparisonFactsContext}\n\n` : ""}${teamStackFactsContext ? `${teamStackFactsContext}\n\n` : ""}${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
+${comparisonFactsContext ? `${comparisonFactsContext}\n\n` : ""}${teamStackFactsContext ? `${teamStackFactsContext}\n\n` : ""}${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}${embeddedSquadGuard}${dgwNote}${bgwNote}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
 
 FILTERED PLAYER DATA (${filteredPlayers.length} players - ${filterNote}):
@@ -638,6 +648,7 @@ DATA INTEGRITY (MANDATORY):
 - PhotoURL is always the final field after the last pipe (|) on each player row. Copy that URL exactly into markdown images. Never guess or reconstruct image links.
 - For markdown images use the player's real full name in the alt text (e.g. ![Jacob Ramsey](PhotoURL)) so the name matches the row you used for stats.
 - If a player does not appear in the filtered rows, say they are not in the current excerpt and ask to narrow the question. Do not invent stats or photos.
+- SQUAD OWNERSHIP GUARD (when present below) lists the only players the user owns. Never tell them to sell or bench anyone outside that list.
 - TEAM STACK / TRIPLE-UP: If TEAM STACK FACTS is present, use only those club groupings. Every player plays for the club shown in their pipe row (field 3: ClubFullName (ShortCode)). Never put a player under a club they do not play for in the data (e.g. if the row says Everton (EVE), never list them under Chelsea).
 - Only recommend triple-ups from Premier League clubs in the TEAMS list. Every player in a stack must share the same ShortCode in their data row.
 - DATA SOURCES AVAILABLE: FPL API data (players, fixtures, ownership, xG/xA, injuries from the news field) and Reddit hot posts from r/FantasyPL. Press conference transcripts, external news sites, and detailed midweek injury updates are NOT available — if asked for these, state clearly what data you do and do not have, then work with what you have.
@@ -727,7 +738,7 @@ TRANSFERS:
 
 ${CHAT_FPL_TRANSFER_REPLACEMENT_RULES}
 
-${CHAT_NO_UPLOADS_RULES}
+${squadWebNames.length > 0 ? `${CHAT_SQUAD_OWNERSHIP_RULES}\n\n` : ""}${CHAT_NO_UPLOADS_RULES}
 
 ${CHAT_ABUSE_HANDLING_RULES}
 
@@ -768,7 +779,8 @@ PERSONALITY RULES:
                 const isPersonalTeamQuery =
                   /\b(analyse|analyze|review|check|look at|rate)\s+my\b/.test(messageLowerForGate) ||
                   /\bmy\s+(team|squad|xi|eleven|captain|transfers?|bench|wildcard|free\s*hit|triple\s*captain|bench\s*boost|chips?)\b/.test(messageLowerForGate) ||
-                  /\bshould\s+i\s+(use|play|activate|trigger|burn)\s+my\b/.test(messageLowerForGate);
+                  /\bshould\s+i\s+(use|play|activate|trigger|burn)\s+my\b/.test(messageLowerForGate) ||
+                  /\b(who should i sell|sell first|clearest sell|weakest|dead weight|transfer out|what should i do|what would you do|who should i get rid of|get rid of|hold or sell|bench problem)\b/.test(messageLowerForGate);
 
                 const noTeamIdNotice =
                   isPersonalTeamQuery && !resolvedFplTeam.teamId
@@ -799,9 +811,17 @@ PERSONALITY RULES:
                   ? `${transferReplacementFacts}\n\n`
                   : "";
 
+                const squadOwnershipGuard = formatSquadOwnershipGuard(
+                  squadWebNames,
+                  squadElementIds,
+                  allPlayers,
+                  isPersonalTeamQuery || squadWebNames.length > 0,
+                );
+                const squadBlock = squadOwnershipGuard ? `${squadOwnershipGuard}\n\n` : "";
+
                 const enhancedMessage = combinedContext
-                  ? `${combinedContext}\n\n${transferBlock}${redditInstruction}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`
-                  : `${transferBlock}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`;
+                  ? `${combinedContext}\n\n${squadBlock}${transferBlock}${redditInstruction}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`
+                  : `${squadBlock}${transferBlock}${formattingInstructions}${noTeamIdNotice}${pastedSquadNotice}${abuseNotice}${teamIdChatNotice}\n---\n\nUser Question: ${modelUserMessage}`;
 
     console.log('=== DIFY PAYLOAD DEBUG ===');
     console.log('Enhanced message length:', enhancedMessage.length);
@@ -921,11 +941,16 @@ PERSONALITY RULES:
             }
           }
 
-          const fixedAnswer = postProcessAssistantAnswer(
+          const processedAnswer = postProcessAssistantAnswer(
             fullAnswer,
             photoRowsForFix,
             chatModelProfile,
             { userWasAbusive: preparedUserMessage.hadAbuse },
+          );
+          const fixedAnswer = enforceSquadOwnershipOnAnswer(
+            processedAnswer,
+            squadWebNames,
+            allPlayers,
           );
 
           // ── DB operations (run after stream completes) ─────────────────

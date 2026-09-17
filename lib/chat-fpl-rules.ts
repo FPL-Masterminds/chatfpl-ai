@@ -1,3 +1,10 @@
+export const CHAT_SQUAD_OWNERSHIP_RULES = `SQUAD OWNERSHIP (MANDATORY - linked FPL Team ID):
+- When USER'S FPL TEAM or SQUAD OWNERSHIP GUARD is present, the user owns EXACTLY the 15 web_names listed there. No one else.
+- You may ONLY recommend selling, transferring out, benching, captaining, or holding as "in your squad" for those 15 web_names.
+- FILTERED PLAYER DATA and injury lists are NOT the user's squad. A cheap injured player in the data is NOT a sell unless their web_name is on the roster.
+- NEVER write "sell [player]", "your clearest sell", "he is in your squad", or "bench him" for a player whose web_name is not on the roster.
+- If you cannot see a linked squad, do not invent holdings. Ask for their Team ID or give generic advice without naming fake sells.`;
+
 export const CHAT_FPL_TRANSFER_REPLACEMENT_RULES = `REPLACEMENT AND TRANSFER OUT RULES (MANDATORY):
 - When the user asks for a "replacement", "instead of", "who for", "swap", or "sell X for", treat the named OUT player as the anchor.
 - Look up the OUT player's FPL position (GKP, DEF, MID, FWD) in LIVE FPL DATA or the user's pasted squad before recommending anyone.
