@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { ChatToastDismiss } from "@/components/chat-toast-dismiss"
 
 const EXIT_MS = 260
 
@@ -103,39 +104,32 @@ export function ChatUsageToast({
                 : "linear-gradient(90deg,#00FF87,#00FFFF)",
           }}
         />
-        <button
-          type="button"
-          onClick={dismiss}
-          className="absolute top-2 right-2 z-10 flex size-6 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white"
-          aria-label="Dismiss message allowance notice"
-        >
-          <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.4">
-            <path d="M18 6 6 18M6 6l12 12" />
-          </svg>
-        </button>
-        <div className="flex w-full items-start gap-3 px-3.5 py-3 pr-10 text-left">
-          <span
-            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] font-black text-black ${badgeTextClass}`}
-            style={{ background: `linear-gradient(135deg,${accent},#00FFFF)` }}
-            aria-hidden
-          >
-            {badgeLabel}
-          </span>
-          <span className="min-w-0">
-            <span className="block text-[13px] font-semibold leading-snug text-white">{title}</span>
-            <span className="mt-0.5 block text-[12px] leading-relaxed text-white/70">{body}</span>
-            {empty ? (
-              <Link
-                href="/admin"
-                onClick={dismiss}
-                className="mt-1.5 inline-block text-[11px] font-medium text-[#00FF87] hover:underline"
-              >
-                Upgrade plan
-              </Link>
-            ) : (
-              <span className="mt-1.5 block text-[11px] text-white/45">Resets at the start of each month.</span>
-            )}
-          </span>
+        <div className="flex items-start gap-0.5 py-2 pl-3.5 pr-1">
+          <div className="flex min-w-0 flex-1 items-start gap-3 py-1 pr-1 text-left">
+            <span
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] font-black text-black ${badgeTextClass}`}
+              style={{ background: `linear-gradient(135deg,${accent},#00FFFF)` }}
+              aria-hidden
+            >
+              {badgeLabel}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[13px] font-semibold leading-snug text-white">{title}</span>
+              <span className="mt-0.5 block text-[12px] leading-relaxed text-white/70">{body}</span>
+              {empty ? (
+                <Link
+                  href="/admin"
+                  onClick={dismiss}
+                  className="mt-1.5 inline-block text-[11px] font-medium text-[#00FF87] hover:underline"
+                >
+                  Upgrade plan
+                </Link>
+              ) : (
+                <span className="mt-1.5 block text-[11px] text-white/45">Resets at the start of each month.</span>
+              )}
+            </span>
+          </div>
+          <ChatToastDismiss onDismiss={dismiss} label="Dismiss message allowance notice" />
         </div>
       </div>
     </div>

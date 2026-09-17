@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import type { ChatAlert } from "@/lib/chat-alerts"
 import { CTA_ASK } from "@/lib/cta-copy"
+import { ChatToastDismiss } from "@/components/chat-toast-dismiss"
 
 const EXIT_MS = 260
 const DISMISS_KEY = "chatfpl-alert-dismissed"
@@ -96,37 +97,30 @@ export function ChatAlertPills({
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
           style={{ background: "linear-gradient(90deg,#00FF87,#00FFFF)" }}
         />
-        <button
-          type="button"
-          onClick={dismiss}
-          className="absolute top-2 right-2 z-10 flex size-6 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white"
-          aria-label="Dismiss alert"
-        >
-          <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.4">
-            <path d="M18 6 6 18M6 6l12 12" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            onAsk(current.prompt)
-            dismiss()
-          }}
-          className="flex w-full items-start gap-3 px-3.5 py-3 pr-10 text-left"
-        >
-          <AlertAvatar alert={current} />
-          <span className="min-w-0">
-            <span className="block text-[13px] font-semibold leading-snug text-white">
-              {current.title}
+        <div className="flex items-start gap-0.5 py-2 pl-3.5 pr-1">
+          <button
+            type="button"
+            onClick={() => {
+              onAsk(current.prompt)
+              dismiss()
+            }}
+            className="flex min-w-0 flex-1 items-start gap-3 py-1 pr-1 text-left touch-manipulation"
+          >
+            <AlertAvatar alert={current} />
+            <span className="min-w-0">
+              <span className="block text-[13px] font-semibold leading-snug text-white">
+                {current.title}
+              </span>
+              <span className="mt-0.5 block text-[12px] leading-relaxed text-white/70">
+                {current.body}
+              </span>
+              <span className="mt-1.5 block text-[11px] font-medium text-[#00FF87]">
+                {CTA_ASK}
+              </span>
             </span>
-            <span className="mt-0.5 block text-[12px] leading-relaxed text-white/70">
-              {current.body}
-            </span>
-            <span className="mt-1.5 block text-[11px] font-medium text-[#00FF87]">
-              {CTA_ASK}
-            </span>
-          </span>
-        </button>
+          </button>
+          <ChatToastDismiss onDismiss={dismiss} label="Dismiss alert" />
+        </div>
       </div>
     </div>
   )

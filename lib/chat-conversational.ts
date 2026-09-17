@@ -37,7 +37,26 @@ const CONVERSATIONAL_PATTERNS: RegExp[] = [
   /\b(tell me a joke|make me laugh)\b/,
   /\b(love you|marry me|date me)\b/,
   /\b(what do you do for fun|do you sleep|do you eat)\b/,
+  /\b(are you not working|is (this|chat|the app|it) (broken|down|working))\b/,
+  /\b(not (working|responding|replying)|no response|nothing (happens|happening))\b/,
+  /\b(is chatfpl (down|working|ok))\b/,
 ]
+
+function isAppHealthQuestion(normalized: string): boolean {
+  if (/\b(are you not working|not working\?|isnt working|isn t working)\b/.test(normalized)) {
+    return true
+  }
+  if (/\b(not responding|not replying|no response|nothing happens|nothing happened)\b/.test(normalized)) {
+    return true
+  }
+  if (/\b(is (this|chat|the app|it|chatfpl) (broken|down|working|ok))\b/.test(normalized)) {
+    return true
+  }
+  if (/\b(are you (working|online|up))\b/.test(normalized)) {
+    return true
+  }
+  return false
+}
 
 /** Short social / off-topic chat that should not trigger the full FPL data pipeline. */
 export function isConversationalMessage(message: string): boolean {
@@ -64,6 +83,10 @@ export function isConversationalMessage(message: string): boolean {
 export function getConversationalReply(message: string, firstName: string): string {
   const normalized = normalizeForMatch(message)
   const name = firstName || "there"
+
+  if (isAppHealthQuestion(normalized)) {
+    return `I'm online and working, ${name}. If a message sat there with no reply, refresh and send your FPL question again. If it keeps failing, tell me what you asked right before it stopped and I'll help you troubleshoot.`
+  }
 
   if (/\b(fancy a|want a|grab a|come for a|up for a)\s+(pint|beer|drink)/.test(normalized) || /\b(pub)\b/.test(normalized)) {
     return `Ha! I'm flattered, ${name}, but I'm only good for FPL advice, not real pints. Ask me about captaincy, transfers, or fixtures whenever you like.`
@@ -101,11 +124,12 @@ export function getConversationalReply(message: string, firstName: string): stri
     return `All good on my side, ${name}. How's your team looking? Happy to dig into transfers or captaincy if you want.`
   }
 
-  return `I'm here for FPL, ${name}. If you want banter, I'm limited - but captaincy, transfers, and fixtures I'm your guy. What do you want to look at?`
+  return `I'm here for FPL, ${name}. Ask me about captaincy, transfers, fixtures, or your squad and I'll use live data. What do you want to look at?`
 }
 
 export const CONVERSATIONAL_PROMPT_RULES = `CONVERSATIONAL MESSAGES (thanks, greetings, banter, off-topic chat):
 - If the user is thanking you, saying hello/goodbye, joking, or chatting off-topic (e.g. drinks, pub, "are you real"), reply in 1-3 short friendly sentences.
+- If they ask whether chat is working, broken, or not responding, reassure them you are online, suggest refresh/retry, and invite them to resend their FPL question. Do not deflect with banter.
 - Stay in character as ChatFPL AI. You can be light and human, but steer back to FPL when natural.
 - Do not pull in player stats, transfer ideas, or captain picks unless they ask a new FPL question in the same message.
 - Do not say you lack data or refuse in a robotic way. Keep it warm.`

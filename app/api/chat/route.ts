@@ -240,6 +240,9 @@ export async function POST(request: Request) {
 
     let fplContext = "";
     let photoRowsForFix: FplPhotoRow[] = [];
+    let allPlayers: ChatPlayerRow[] = [];
+    let squadElementIds: number[] = [];
+    let squadWebNames: string[] = [];
     try {
       // Fetch both bootstrap data and fixtures
       const [fplResponse, fixturesResponse] = await Promise.all([
@@ -272,7 +275,7 @@ export async function POST(request: Request) {
         );
         
         // Get ALL players first
-        const allPlayers = fplData.elements?.map((p: any) => {
+        allPlayers = fplData.elements?.map((p: any) => {
           const team = fplData.teams?.find((t: any) => t.id === p.team);
           const position = fplData.element_types?.find((pt: any) => pt.id === p.element_type);
           const photoUrl = fplPhotoUrlFromElement(p.photo, p.code);
@@ -289,8 +292,8 @@ export async function POST(request: Request) {
         // Fetch user's personal FPL team data before filtering so squad players
         // are always included in the player rows sent to the model.
         let userTeamContext = "";
-        let squadElementIds: number[] = [];
-        let squadWebNames: string[] = [];
+        squadElementIds = [];
+        squadWebNames = [];
         if (resolvedFplTeam.teamId) {
           const teamCtx = await buildFplTeamContext(
             resolvedFplTeam.teamId,
