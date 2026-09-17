@@ -18,6 +18,7 @@ When you finish a task that changed files:
 3. Commit with a clear message focused on why.
 4. Push to `origin` on the current branch (usually `main`).
 5. Tell the user the commit hash briefly. Do not ask "want me to commit?"
+6. Follow **post-push-chat-status** (run `chat-production-status` script and report **Production chat:** Online/Offline).
 
 ## Do not
 

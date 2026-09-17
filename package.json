@@ -9,7 +9,8 @@
     "start": "next start",
     "postinstall": "prisma generate",
     "remotion:studio": "remotion studio remotion/index.ts",
-    "remotion:render": "remotion render remotion/index.ts Empty out.mp4"
+    "remotion:render": "remotion render remotion/index.ts Empty out.mp4",
+    "chat:status": "node scripts/chat-production-status.mjs"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.11.0",

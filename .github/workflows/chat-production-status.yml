@@ -1,0 +1,28 @@
+name: Chat production status
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-prod-health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install and build
+        run: npm ci && npm run build
+
+      - name: Wait for Vercel deploy
+        run: sleep 150
+
+      - name: Production chat health
+        env:
+          CHAT_HEALTH_URL: https://www.chatfpl.ai/api/health/chat
+        run: node scripts/chat-production-status.mjs

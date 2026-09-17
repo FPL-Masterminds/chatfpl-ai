@@ -20,6 +20,7 @@ import { textForSpeech, textForVoiceboxSpeech } from "@/lib/chat-speech-text"
 import { unlockAudioPlayback } from "@/lib/audio-unlock"
 import { pickChatSuggestionPrompts } from "@/lib/chat-suggestion-prompts"
 import { ChatAlertPills } from "@/components/chat-alert-pills"
+import { ChatOutageApologyToast } from "@/components/chat-outage-apology-toast"
 import { ChatUsageToast } from "@/components/chat-usage-toast"
 import type { ChatAlert } from "@/lib/chat-alerts"
 
@@ -836,6 +837,10 @@ export default function ChatPage() {
 
               {/* Messages */}
               <div className="relative flex-1 min-h-0">
+              <ChatOutageApologyToast
+                usageToastVisible={!isLoadingHistory}
+                fplAlertsQueued={chatAlerts.length > 0}
+              />
               <ChatUsageToast
                 messagesUsed={messagesUsed}
                 messagesLimit={messagesLimit}

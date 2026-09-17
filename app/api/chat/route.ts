@@ -63,7 +63,7 @@ import {
   CHAT_ABUSE_HANDLING_RULES,
   prepareUserMessageForModel,
 } from "@/lib/chat-abuse-handling";
-import { formatTransferReplacementFacts } from "@/lib/chat-transfer-replacement";
+import { getTransferReplacementFactsForChat } from "@/lib/chat-transfer-envelope";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
@@ -782,11 +782,9 @@ PERSONALITY RULES:
 
                 const abuseNotice = preparedUserMessage.abuseNotice;
 
-                const transferReplacementFacts = formatTransferReplacementFacts(
+                const transferReplacementFacts = getTransferReplacementFactsForChat(
                   modelUserMessage,
-                  allPlayers,
-                  squadElementIds,
-                  squadWebNames,
+                  { allPlayers, squadElementIds, squadWebNames },
                 );
 
                 const teamIdChatNotice =
