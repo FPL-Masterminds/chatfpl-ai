@@ -39,12 +39,11 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" https://www.chatfpl.ai/api/healt
 
 Includes `chat_pre_dify_pipeline` when `CRON_SECRET` matches.
 
-## GitHub Actions
+## GitHub Actions (optional)
 
-On every push to `main`, workflow **Chat production status** runs `npm run build` then polls production health.
+Workflow **Chat production status** is **manual only** (Actions tab → Run workflow). It polls `https://www.chatfpl.ai/api/health/chat` after a short wait. It does not run on every push, so you should not get failure emails on each commit.
 
-- Green check: production passed shallow health after deploy.
-- Red check: chat may be offline; open the job log for failed checks.
+After pushes, Cursor should run `npm run chat:status` and tell you `**Production chat:** Online` or `Offline`.
 
 ## Cursor agent rule
 

@@ -1,26 +1,18 @@
 name: Chat production status
 
+# Optional safety net after deploy. You asked for status from Cursor after pushes;
+# this workflow only pings live production (no local build, no secrets needed).
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build-and-prod-health:
+  prod-health:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-
-      - name: Install and build
-        run: npm ci && npm run build
-
       - name: Wait for Vercel deploy
-        run: sleep 150
+        run: sleep 120
 
       - name: Production chat health
         env:
