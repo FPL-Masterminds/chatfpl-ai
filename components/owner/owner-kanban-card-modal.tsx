@@ -15,17 +15,25 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSaved: (card: OwnerKanbanCardDto) => void;
+  onDeleted: (cardId: string) => void;
 };
 
 const fieldClass =
   "w-full rounded-lg border border-white/15 bg-black/50 px-3 py-2 text-sm text-white placeholder:text-white/25 focus:border-[#00FF87]/50 focus:outline-none";
 
-export function OwnerKanbanCardModal({ card, open, onOpenChange, onSaved }: Props) {
+export function OwnerKanbanCardModal({
+  card,
+  open,
+  onOpenChange,
+  onSaved,
+  onDeleted,
+}: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [userStory, setUserStory] = useState("");
   const [acceptanceCriteria, setAcceptanceCriteria] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -65,6 +73,31 @@ export function OwnerKanbanCardModal({ card, open, onOpenChange, onSaved }: Prop
       setError(e instanceof Error ? e.message : "Failed to save");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!card || saving || deleting) return;
+    const confirmed = window.confirm(
+      `Delete "${card.title}"? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/owner/kanban/cards/${card.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Failed to delete");
+      onDeleted(card.id);
+      onOpenChange(false);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to delete");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -110,7 +143,23 @@ export function OwnerKanbanCardModal({ card, open, onOpenChange, onSaved }: Prop
             />
           </label>
           {error && <p className="text-sm text-red-300">{error}</p>}
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+            <button
+              type="button"
+              disabled={saving || deleting}
+              onClick={() => void handleDelete()}
+              className="rounded-lg border border-red-500/40 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10 disabled:opacity-50"
+            >
+              {deleting ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting
+                </span>
+              ) : (
+                "Delete ticket"
+              )}
+            </button>
+            <div className="flex gap-2">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
@@ -120,7 +169,7 @@ export function OwnerKanbanCardModal({ card, open, onOpenChange, onSaved }: Prop
             </button>
             <button
               type="button"
-              disabled={saving || !title.trim()}
+              disabled={saving || deleting || !title.trim()}
               onClick={() => void handleSave()}
               className="rounded-lg px-4 py-2 text-sm font-semibold text-[#1A0E24] disabled:opacity-50"
               style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}
@@ -134,6 +183,7 @@ export function OwnerKanbanCardModal({ card, open, onOpenChange, onSaved }: Prop
                 "Save"
               )}
             </button>
+            </div>
           </div>
         </div>
       </DialogContent>

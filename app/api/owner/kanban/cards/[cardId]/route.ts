@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getOwnerApiSession } from "@/lib/owner-api-auth";
-import { updateOwnerKanbanCard } from "@/lib/owner-kanban-service";
+import {
+  deleteOwnerKanbanCard,
+  updateOwnerKanbanCard,
+} from "@/lib/owner-kanban-service";
 
 type RouteContext = { params: Promise<{ cardId: string }> };
 
@@ -42,6 +45,22 @@ export async function PATCH(request: Request, context: RouteContext) {
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Update failed";
     const status = message.includes("empty") ? 400 : 404;
+    return NextResponse.json({ error: message }, { status });
+  }
+}
+
+export async function DELETE(_request: Request, context: RouteContext) {
+  const gate = await getOwnerApiSession();
+  if (!gate.ok) return gate.response;
+
+  const { cardId } = await context.params;
+
+  try {
+    await deleteOwnerKanbanCard(cardId);
+    return NextResponse.json({ ok: true });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Delete failed";
+    const status = message.includes("not found") ? 404 : 500;
     return NextResponse.json({ error: message }, { status });
   }
 }

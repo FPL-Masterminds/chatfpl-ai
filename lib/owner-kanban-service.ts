@@ -250,3 +250,27 @@ export async function updateOwnerKanbanCard(
   });
   return toDto(row);
 }
+
+export async function deleteOwnerKanbanCard(cardId: string) {
+  const card = await prisma.ownerKanbanCard.findUnique({ where: { id: cardId } });
+  if (!card) throw new Error("Card not found");
+
+  const columnId = card.columnId;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.ownerKanbanCard.delete({ where: { id: cardId } });
+
+    const remaining = await tx.ownerKanbanCard.findMany({
+      where: { columnId },
+      orderBy: { sortOrder: "asc" },
+    });
+    for (let i = 0; i < remaining.length; i++) {
+      if (remaining[i].sortOrder !== i) {
+        await tx.ownerKanbanCard.update({
+          where: { id: remaining[i].id },
+          data: { sortOrder: i },
+        });
+      }
+    }
+  });
+}

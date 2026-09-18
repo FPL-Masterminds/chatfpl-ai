@@ -275,6 +275,10 @@ export function OwnerKanbanBoard() {
         onSaved={(updated) => {
           setCards((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
         }}
+        onDeleted={(cardId) => {
+          setCards((prev) => prev.filter((c) => c.id !== cardId));
+          setSelectedCard(null);
+        }}
       />
     </div>
   );
