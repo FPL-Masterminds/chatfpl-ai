@@ -159,7 +159,7 @@ export function DeadlineCTA() {
           {hasCounting
             ? "Ready When You Are."
             : betweenGWs
-            ? "Results are being processed. The next deadline will be confirmed shortly."
+            ? "The next deadline will be confirmed shortly."
             : isSeasonOver
             ? "The season's done. But the managers who finish top next year are already thinking. Don't start on the back foot."
             : null
