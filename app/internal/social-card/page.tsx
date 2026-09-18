@@ -29,7 +29,10 @@ export default async function SocialCardPage({
   if (!ownerPreview && !isSocialCardTokenValid(params.token)) notFound();
 
   const slot = parseSocialCardSlot(params.slot);
-  const card = await getSocialCardData(slot, params.hub);
+  const tokenCapture = isSocialCardTokenValid(params.token);
+  const card = await getSocialCardData(slot, params.hub, {
+    recordPick: tokenCapture && !ownerPreview,
+  });
   if (!card) notFound();
 
   return <SocialCardCanvas card={card} />;

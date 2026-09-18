@@ -204,3 +204,14 @@ model MessageFeedback {
   @@index([submitted_at])
   @@map("message_feedback")
 }
+
+// X + Instagram social cards: avoid reusing the same FPL player within a week.
+model SocialCardRecentPick {
+  id          String   @id @default(cuid())
+  player_code Int
+  picked_at   DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([picked_at])
+  @@index([player_code, picked_at])
+  @@map("social_card_recent_picks")
+}

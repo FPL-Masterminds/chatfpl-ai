@@ -9,6 +9,10 @@ import {
 } from "@/lib/fpl-player-page";
 import { fplPlayerPhotoExists, fplPlayerPhotoUrl, fplPlayerPhotosExist } from "@/lib/fpl-player-photo";
 import { getTransferTrendsHub, type TransferTrendPlayer } from "@/lib/fpl-transfer-trends";
+import {
+  getRecentlyUsedPlayerCodes,
+  recordSocialCardPlayerPicks,
+} from "@/lib/social-card-recent-picks";
 
 export type SocialCardSlot = "1" | "2" | "3";
 
@@ -352,14 +356,23 @@ function topSocialPool<T>(items: T[]): T[] {
 async function pickPlayerWithPhoto<T extends { code: number }>(
   hub: SocialHubType,
   pool: T[],
+  excluded: ReadonlySet<number>,
 ): Promise<T | null> {
   if (!pool.length) return null;
   const start = pickRotatingIndex(hub, pool.length);
-  for (let i = 0; i < pool.length; i++) {
-    const player = pool[(start + i) % pool.length];
-    if (await fplPlayerPhotoExists(player.code)) return player;
-  }
-  return null;
+
+  const tryPool = async (skipExcluded: boolean): Promise<T | null> => {
+    for (let i = 0; i < pool.length; i++) {
+      const player = pool[(start + i) % pool.length];
+      if (skipExcluded && excluded.has(player.code)) continue;
+      if (await fplPlayerPhotoExists(player.code)) return player;
+    }
+    return null;
+  };
+
+  const fresh = await tryPool(true);
+  if (fresh) return fresh;
+  return tryPool(false);
 }
 
 /** Three hubs per day, rotating through all seven over time. */
@@ -369,7 +382,10 @@ export function hubForSlot(dateKey: string, slot: SocialCardSlot): SocialHubType
   return HUB_ORDER[(dailyStart + slotIndex(slot)) % HUB_ORDER.length];
 }
 
-async function buildCaptainCard(gw: number): Promise<SocialCardData | null> {
+async function buildCaptainCard(
+  gw: number,
+  excluded: ReadonlySet<number>,
+): Promise<SocialCardData | null> {
   const hub = await getCaptainHub();
   if (!hub?.players.length) return null;
   const pool = topSocialPool(
@@ -378,7 +394,7 @@ async function buildCaptainCard(gw: number): Promise<SocialCardData | null> {
     ),
   );
   if (!pool.length) return null;
-  const p = await pickPlayerWithPhoto("captains", pool);
+  const p = await pickPlayerWithPhoto("captains", pool, excluded);
   if (!p) return null;
   return {
     slot: "1",
@@ -406,7 +422,10 @@ async function buildCaptainCard(gw: number): Promise<SocialCardData | null> {
   };
 }
 
-async function buildDifferentialCard(gw: number): Promise<SocialCardData | null> {
+async function buildDifferentialCard(
+  gw: number,
+  excluded: ReadonlySet<number>,
+): Promise<SocialCardData | null> {
   const hub = await getDifferentialHub();
   if (!hub?.players.length) return null;
   const pool = topSocialPool(
@@ -415,7 +434,7 @@ async function buildDifferentialCard(gw: number): Promise<SocialCardData | null>
     ),
   );
   if (!pool.length) return null;
-  const p = await pickPlayerWithPhoto("differentials", pool);
+  const p = await pickPlayerWithPhoto("differentials", pool, excluded);
   if (!p) return null;
   return {
     slot: "1",
@@ -443,7 +462,10 @@ async function buildDifferentialCard(gw: number): Promise<SocialCardData | null>
   };
 }
 
-async function buildComparisonCard(gw: number): Promise<SocialCardData | null> {
+async function buildComparisonCard(
+  gw: number,
+  excluded: ReadonlySet<number>,
+): Promise<SocialCardData | null> {
   const hub = await getComparisonHub();
   if (!hub?.pairs.length) return null;
   const pairs = topSocialPool(hub.pairs);
@@ -462,9 +484,34 @@ async function buildComparisonCard(gw: number): Promise<SocialCardData | null> {
     ) {
       continue;
     }
+    if (
+      excluded.has(candidate.playerA.code) ||
+      excluded.has(candidate.playerB.code)
+    ) {
+      continue;
+    }
     if (await fplPlayerPhotosExist([candidate.playerA.code, candidate.playerB.code])) {
       data = candidate;
       break;
+    }
+  }
+  if (!data) {
+    for (let i = 0; i < pairs.length; i++) {
+      const pair = pairs[(start + i) % pairs.length];
+      const candidate = await getComparisonData(pair.slugA, pair.slugB);
+      if (!candidate) continue;
+      const ownA = candidate.playerA.ownership;
+      const ownB = candidate.playerB.ownership;
+      if (
+        !socialOwnershipPasses("comparisons", ownA) ||
+        !socialOwnershipPasses("comparisons", ownB)
+      ) {
+        continue;
+      }
+      if (await fplPlayerPhotosExist([candidate.playerA.code, candidate.playerB.code])) {
+        data = candidate;
+        break;
+      }
     }
   }
   if (!data) return null;
@@ -511,12 +558,15 @@ async function buildComparisonCard(gw: number): Promise<SocialCardData | null> {
 /** Social injury cards need a real decision angle, not obvious outs at 0%. */
 const SOCIAL_INJURY_MIN_PLAY_CHANCE = 25;
 
-async function buildInjuryCard(gw: number): Promise<SocialCardData | null> {
+async function buildInjuryCard(
+  gw: number,
+  excluded: ReadonlySet<number>,
+): Promise<SocialCardData | null> {
   const hub = await getInjuryHub();
   if (!hub?.players.length) return null;
   const eligible = hub.players.filter((player) => player.chance >= SOCIAL_INJURY_MIN_PLAY_CHANCE);
   if (!eligible.length) return null;
-  const p = await pickPlayerWithPhoto("injuries", eligible);
+  const p = await pickPlayerWithPhoto("injuries", eligible, excluded);
   if (!p) return null;
   const status = statusLabel(p.status, p.chance);
   const injuryCols: SocialCardTableCol[] = [
@@ -581,7 +631,10 @@ async function buildInjuryCard(gw: number): Promise<SocialCardData | null> {
   };
 }
 
-async function buildTransferCard(gw: number): Promise<SocialCardData | null> {
+async function buildTransferCard(
+  gw: number,
+  excluded: ReadonlySet<number>,
+): Promise<SocialCardData | null> {
   const hub = await getTransferTrendsHub();
   if (!hub?.pairs.length) return null;
   const pairs = topSocialPool(
@@ -600,9 +653,24 @@ async function buildTransferCard(gw: number): Promise<SocialCardData | null> {
   let pair: (typeof pairs)[number] | null = null;
   for (let i = 0; i < pairs.length; i++) {
     const candidate = pairs[(start + i) % pairs.length];
+    if (
+      excluded.has(candidate.playerOut.code) ||
+      excluded.has(candidate.playerIn.code)
+    ) {
+      continue;
+    }
     if (await fplPlayerPhotosExist([candidate.playerOut.code, candidate.playerIn.code])) {
       pair = candidate;
       break;
+    }
+  }
+  if (!pair) {
+    for (let i = 0; i < pairs.length; i++) {
+      const candidate = pairs[(start + i) % pairs.length];
+      if (await fplPlayerPhotosExist([candidate.playerOut.code, candidate.playerIn.code])) {
+        pair = candidate;
+        break;
+      }
     }
   }
   if (!pair) return null;
@@ -655,7 +723,10 @@ async function buildTransferCard(gw: number): Promise<SocialCardData | null> {
   };
 }
 
-async function buildFixtureCard(gw: number): Promise<SocialCardData | null> {
+async function buildFixtureCard(
+  gw: number,
+  excluded: ReadonlySet<number>,
+): Promise<SocialCardData | null> {
   const hub = await getFixtureHub();
   if (!hub?.players.length) return null;
   const pool = topSocialPool(
@@ -666,7 +737,7 @@ async function buildFixtureCard(gw: number): Promise<SocialCardData | null> {
     ),
   );
   if (!pool.length) return null;
-  const p = await pickPlayerWithPhoto("fixtures", pool);
+  const p = await pickPlayerWithPhoto("fixtures", pool, excluded);
   if (!p) return null;
   const nextFix = p.fixtures
     .slice(0, 3)
@@ -734,7 +805,10 @@ async function buildFixtureCard(gw: number): Promise<SocialCardData | null> {
   };
 }
 
-async function buildDefconCard(gw: number): Promise<SocialCardData | null> {
+async function buildDefconCard(
+  gw: number,
+  excluded: ReadonlySet<number>,
+): Promise<SocialCardData | null> {
   const hub = await getDefconHub();
   if (!hub?.ready) return null;
   const pool = topSocialPool(
@@ -743,7 +817,7 @@ async function buildDefconCard(gw: number): Promise<SocialCardData | null> {
     ),
   );
   if (!pool.length) return null;
-  const p = await pickPlayerWithPhoto("defcon", pool);
+  const p = await pickPlayerWithPhoto("defcon", pool, excluded);
   if (!p) return null;
   const threshold = p.elementType === 2 ? 10 : 12;
   const defconCols: SocialCardTableCol[] = [
@@ -827,22 +901,23 @@ async function buildDefconCard(gw: number): Promise<SocialCardData | null> {
 async function buildForHub(
   hub: SocialHubType,
   gwFallback: number,
+  excluded: ReadonlySet<number>,
 ): Promise<SocialCardData | null> {
   switch (hub) {
     case "captains":
-      return buildCaptainCard(gwFallback);
+      return buildCaptainCard(gwFallback, excluded);
     case "differentials":
-      return buildDifferentialCard(gwFallback);
+      return buildDifferentialCard(gwFallback, excluded);
     case "comparisons":
-      return buildComparisonCard(gwFallback);
+      return buildComparisonCard(gwFallback, excluded);
     case "injuries":
-      return buildInjuryCard(gwFallback);
+      return buildInjuryCard(gwFallback, excluded);
     case "transfer_trends":
-      return buildTransferCard(gwFallback);
+      return buildTransferCard(gwFallback, excluded);
     case "fixtures":
-      return buildFixtureCard(gwFallback);
+      return buildFixtureCard(gwFallback, excluded);
     case "defcon":
-      return buildDefconCard(gwFallback);
+      return buildDefconCard(gwFallback, excluded);
     default:
       return null;
   }
@@ -862,24 +937,41 @@ function parseHubOverride(raw: string | undefined): SocialHubType | null {
   return HUB_ORDER.find((hub) => hub === v || hub.replace("_", "-") === v) ?? null;
 }
 
+export type GetSocialCardDataOptions = {
+  /** When true (automated X/IG capture), persist player codes for the 7-day cooldown. */
+  recordPick?: boolean;
+};
+
 export async function getSocialCardData(
   slot: SocialCardSlot,
   hubOverride?: string,
+  options?: GetSocialCardDataOptions,
 ): Promise<SocialCardData | null> {
   const dateKey = utcDateKey();
   const primaryHub = parseHubOverride(hubOverride) ?? hubForSlot(dateKey, slot);
+  const excluded = await getRecentlyUsedPlayerCodes();
 
   let gw = 1;
   const captainPeek = await getCaptainHub();
   if (captainPeek?.gw) gw = captainPeek.gw;
 
-  let card = await enrichSocialCard(await buildForHub(primaryHub, gw));
-  if (card) return { ...card, slot };
+  const finalize = async (raw: SocialCardData | null): Promise<SocialCardData | null> => {
+    const card = await enrichSocialCard(raw);
+    if (!card) return null;
+    const withSlot = { ...card, slot };
+    if (options?.recordPick) {
+      await recordSocialCardPlayerPicks(withSlot.players.map((player) => player.code));
+    }
+    return withSlot;
+  };
+
+  let card = await finalize(await buildForHub(primaryHub, gw, excluded));
+  if (card) return card;
 
   for (let i = 1; i < HUB_ORDER.length; i++) {
     const fallbackHub = HUB_ORDER[(HUB_ORDER.indexOf(primaryHub) + i) % HUB_ORDER.length];
-    card = await enrichSocialCard(await buildForHub(fallbackHub, gw));
-    if (card) return { ...card, slot };
+    card = await finalize(await buildForHub(fallbackHub, gw, excluded));
+    if (card) return card;
   }
 
   return null;
