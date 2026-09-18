@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import type { OwnerKanbanCardDto } from "@/lib/owner-kanban-service";
-import { COLUMNS, type OwnerKanbanColumnId } from "@/lib/owner-kanban";
+import { COLUMNS } from "@/lib/owner-kanban";
 import { OwnerKanbanCardModal } from "@/components/owner/owner-kanban-card-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,15 @@ export function OwnerKanbanBoard() {
   const [selectedCard, setSelectedCard] = useState<OwnerKanbanCardDto | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const dragEndedAt = useRef(0);
+  const [coarsePointer, setCoarsePointer] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse)");
+    const update = () => setCoarsePointer(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const load = useCallback(async () => {
     setError(null);
@@ -122,7 +131,9 @@ export function OwnerKanbanBoard() {
         <div>
           <h1 className="text-2xl font-bold text-foreground md:text-3xl">Owner board</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Customer journey lanes. Drag cards to update status. Only you can see this.
+            {coarsePointer
+              ? "Use the status dropdown on each card to move lanes. Tap a card to edit."
+              : "Customer journey lanes. Drag cards to update status. Only you can see this."}
           </p>
         </div>
         <form onSubmit={handleAdd} className="flex w-full max-w-md gap-2">
@@ -183,10 +194,13 @@ export function OwnerKanbanBoard() {
                 {columnCards.map((card, index) => (
                   <div
                     key={card.id}
-                    draggable
+                    draggable={!coarsePointer}
                     role="button"
                     tabIndex={0}
-                    onDragStart={() => {
+                    onDragStart={(e) => {
+                      if (coarsePointer) return;
+                      e.dataTransfer.effectAllowed = "move";
+                      e.dataTransfer.setData("text/plain", card.id);
                       draggingIdRef.current = card.id;
                       setDraggingId(card.id);
                     }}
@@ -223,6 +237,31 @@ export function OwnerKanbanBoard() {
                       <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                         {card.description}
                       </p>
+                    )}
+                    {coarsePointer && (
+                      <label
+                        className="mt-2 block text-[10px] text-muted-foreground"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Status
+                        <select
+                          className="mt-0.5 w-full rounded-md border border-input bg-white px-2 py-1 text-xs text-foreground"
+                          value={card.columnId}
+                          onChange={(e) => {
+                            const target = e.target.value;
+                            const destLen =
+                              cardsByColumn.get(target)?.filter((c) => c.id !== card.id)
+                                .length ?? 0;
+                            void move(card.id, target, destLen);
+                          }}
+                        >
+                          {COLUMNS.map((col) => (
+                            <option key={col.id} value={col.id}>
+                              {col.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
                     )}
                   </div>
                 ))}

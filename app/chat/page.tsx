@@ -22,6 +22,10 @@ import { pickChatSuggestionPrompts } from "@/lib/chat-suggestion-prompts"
 import { ChatAlertPills } from "@/components/chat-alert-pills"
 import { ChatUsageToast } from "@/components/chat-usage-toast"
 import type { ChatAlert } from "@/lib/chat-alerts"
+import {
+  clampContextMenuPosition,
+  createConversationLongPressHandlers,
+} from "@/lib/conversation-list-gestures"
 
 function SuggestionRefreshIcon({ spinning }: { spinning: boolean }) {
   return (
@@ -172,6 +176,7 @@ export default function ChatPage() {
   const [micListening, setMicListening] = useState(false)
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null)
   const suppressListenEndRef = useRef(false)
+  const suppressConvClickRef = useRef(false)
   const { prefs: voicePrefs, hydrated: voicePrefsHydrated, setReadReplies, setVoiceMode, setUseVoicebox } = useChatVoicePrefs()
   const speechOutput = useSpeechOutput()
   const isMobile = useIsMobile()
@@ -611,6 +616,27 @@ export default function ChatPage() {
     handleSendRef.current(finalText)
   }, [])
 
+  const openConversationMenu = useCallback((convId: string, x: number, y: number) => {
+    const pos = clampContextMenuPosition(x, y)
+    setContextMenu({
+      visible: true,
+      x: pos.x,
+      y: pos.y,
+      conversationId: convId,
+    })
+  }, [])
+
+  const conversationGestureHandlers = useCallback(
+    (convId: string) =>
+      createConversationLongPressHandlers({
+        onLongPress: ({ x, y }) => {
+          suppressConvClickRef.current = true
+          openConversationMenu(convId, x, y)
+        },
+      }),
+    [openConversationMenu],
+  )
+
   const handleArchive = async (convId: string) => {
     setContextMenu({ visible: false })
     await fetch("/api/chat/conversations", {
@@ -693,12 +719,19 @@ export default function ChatPage() {
                 conversations.map((conv) => (
                   <div
                     key={conv.id}
-                    onClick={() => { if (renamingId !== conv.id) loadConversation(conv.id) }}
+                    onClick={() => {
+                      if (suppressConvClickRef.current) {
+                        suppressConvClickRef.current = false
+                        return
+                      }
+                      if (renamingId !== conv.id) loadConversation(conv.id)
+                    }}
                     onContextMenu={(e) => {
                       e.preventDefault()
-                      setContextMenu({ visible: true, x: e.clientX, y: e.clientY, conversationId: conv.id })
+                      openConversationMenu(conv.id, e.clientX, e.clientY)
                     }}
-                    className={`rounded-xl p-3 border cursor-pointer transition-all select-none ${
+                    {...conversationGestureHandlers(conv.id)}
+                    className={`rounded-xl p-3 border cursor-pointer transition-all select-none touch-manipulation ${
                       conv.id === conversationId
                         ? "border-emerald-400/30 bg-emerald-400/10 shadow-[0_0_20px_rgba(16,185,129,0.1)]"
                         : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10"
@@ -1106,16 +1139,45 @@ export default function ChatPage() {
                   conversations.map((conv) => (
                     <div
                       key={conv.id}
-                      onClick={() => { loadConversation(conv.id); setMobileDrawerOpen(false) }}
-                      className={`rounded-xl p-3 border cursor-pointer transition-all ${
+                      onClick={() => {
+                        if (suppressConvClickRef.current) {
+                          suppressConvClickRef.current = false
+                          return
+                        }
+                        if (renamingId !== conv.id) {
+                          loadConversation(conv.id)
+                          setMobileDrawerOpen(false)
+                        }
+                      }}
+                      onContextMenu={(e) => {
+                        e.preventDefault()
+                        openConversationMenu(conv.id, e.clientX, e.clientY)
+                      }}
+                      {...conversationGestureHandlers(conv.id)}
+                      className={`rounded-xl p-3 border cursor-pointer transition-all select-none touch-manipulation ${
                         conv.id === conversationId
                           ? "border-emerald-400/30 bg-emerald-400/10"
                           : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05]"
                       }`}
                     >
-                      <div className="text-sm font-medium text-white truncate">
-                        {conv.title || conv.messages[0]?.content?.substring(0, 40) || "New Chat"}
-                      </div>
+                      {renamingId === conv.id ? (
+                        <input
+                          autoFocus
+                          value={renameValue}
+                          onChange={(e) => setRenameValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleRenameSubmit(conv.id)
+                            if (e.key === "Escape") setRenamingId(null)
+                          }}
+                          onBlur={() => handleRenameSubmit(conv.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full bg-white/10 text-white text-sm rounded px-2 py-0.5 outline-none border border-emerald-400/40"
+                        />
+                      ) : (
+                        <div className="text-sm font-medium text-white truncate">
+                          {conv.title || conv.messages[0]?.content?.substring(0, 40) || "New Chat"}
+                        </div>
+                      )}
                       <div className="text-[11px] text-white/40 mt-0.5">
                         {new Date(conv.updated_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                       </div>
@@ -1245,9 +1307,9 @@ export default function ChatPage() {
       {/* Right-click context menu */}
       {contextMenu.visible && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setContextMenu({ visible: false })} />
+          <div className="fixed inset-0 z-[60]" onClick={() => setContextMenu({ visible: false })} />
           <div
-            className="fixed z-50 min-w-[160px] rounded-2xl border border-white/10 bg-[#0d0d0d]/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] p-1.5 overflow-hidden"
+            className="fixed z-[70] min-w-[160px] rounded-2xl border border-white/10 bg-[#0d0d0d]/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] p-1.5 overflow-hidden"
             style={{ top: contextMenu.y, left: contextMenu.x }}
           >
             <button
