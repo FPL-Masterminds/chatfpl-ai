@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { DevHeader } from "@/components/dev-header";
+import { Footer } from "@/components/footer";
 import { OwnerKanbanBoard } from "@/components/owner/owner-kanban-board";
-import { GOD_MODE_EMAIL } from "@/lib/god-mode";
 
 export default function OwnerKanbanPage() {
   return (
@@ -17,9 +17,7 @@ export default function OwnerKanbanPage() {
         </div>
         <OwnerKanbanBoard />
       </main>
-      <p className="pb-8 text-center text-[11px] text-white/25">
-        Private board for {GOD_MODE_EMAIL} only. Not indexed.
-      </p>
+      <Footer />
     </div>
   );
 }
