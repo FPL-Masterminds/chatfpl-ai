@@ -1225,6 +1225,21 @@ export default function AdminPage() {
               </Link>
             </DarkCard>
 
+            <DarkCard>
+              <SectionLabel>Owner board</SectionLabel>
+              <p className="text-sm text-white/70 mb-4">
+                Kanban lanes for customer journey work. Drag cards, edit tickets, same flow as your
+                FPLEI board but on ChatFPL data. Owner-only.
+              </p>
+              <Link
+                href="/devboard"
+                className="inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-black transition hover:brightness-110"
+                style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}
+              >
+                Open owner board
+              </Link>
+            </DarkCard>
+
             {/* Grant VIP */}
             <DarkCard>
               <SectionLabel>Grant VIP Access</SectionLabel>
