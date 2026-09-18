@@ -3,19 +3,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import type { OwnerKanbanCardDto } from "@/lib/owner-kanban-service";
-import type { OwnerKanbanColumnId } from "@/lib/owner-kanban";
+import { COLUMNS, type OwnerKanbanColumnId } from "@/lib/owner-kanban";
 import { OwnerKanbanCardModal } from "@/components/owner/owner-kanban-card-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-type ColumnDef = { id: OwnerKanbanColumnId; label: string };
-
 export function OwnerKanbanBoard() {
-  const [columns, setColumns] = useState<ColumnDef[]>([]);
   const [cards, setCards] = useState<OwnerKanbanCardDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const draggingIdRef = useRef<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [selectedCard, setSelectedCard] = useState<OwnerKanbanCardDto | null>(null);
@@ -24,13 +22,12 @@ export function OwnerKanbanBoard() {
 
   const load = useCallback(async () => {
     setError(null);
-    const res = await fetch("/api/owner/kanban");
+    const res = await fetch("/api/owner/kanban", { credentials: "include" });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       throw new Error(data.error || "Failed to load board");
     }
     const data = await res.json();
-    setColumns(data.columns ?? []);
     setCards(data.cards ?? []);
   }, []);
 
@@ -40,9 +37,11 @@ export function OwnerKanbanBoard() {
       .finally(() => setLoading(false));
   }, [load]);
 
+  const columns = COLUMNS;
+
   const cardsByColumn = useMemo(() => {
     const map = new Map<string, OwnerKanbanCardDto[]>();
-    for (const col of columns) {
+    for (const col of COLUMNS) {
       map.set(
         col.id,
         cards
@@ -51,7 +50,7 @@ export function OwnerKanbanBoard() {
       );
     }
     return map;
-  }, [cards, columns]);
+  }, [cards]);
 
   async function move(cardId: string, columnId: string, index: number) {
     setSaving(true);
@@ -59,6 +58,7 @@ export function OwnerKanbanBoard() {
     try {
       const res = await fetch("/api/owner/kanban/move", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cardId, columnId, index }),
       });
@@ -85,6 +85,7 @@ export function OwnerKanbanBoard() {
     try {
       const res = await fetch("/api/owner/kanban/cards", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, columnId: "todo" }),
       });
@@ -165,8 +166,9 @@ export function OwnerKanbanBoard() {
               }}
               onDrop={(e) => {
                 e.preventDefault();
-                if (!draggingId) return;
-                void move(draggingId, column.id, columnCards.length);
+                const cardId = draggingIdRef.current ?? draggingId;
+                if (!cardId) return;
+                void move(cardId, column.id, columnCards.length);
               }}
             >
               <div className="border-b border-border px-3 py-3">
@@ -184,17 +186,24 @@ export function OwnerKanbanBoard() {
                     draggable
                     role="button"
                     tabIndex={0}
-                    onDragStart={() => setDraggingId(card.id)}
+                    onDragStart={() => {
+                      draggingIdRef.current = card.id;
+                      setDraggingId(card.id);
+                    }}
                     onDragEnd={() => {
                       dragEndedAt.current = Date.now();
-                      setDraggingId(null);
+                      window.setTimeout(() => {
+                        draggingIdRef.current = null;
+                        setDraggingId(null);
+                      }, 0);
                     }}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      if (!draggingId) return;
-                      void move(draggingId, column.id, index);
+                      const cardId = draggingIdRef.current ?? draggingId;
+                      if (!cardId) return;
+                      void move(cardId, column.id, index);
                     }}
                     onClick={() => openCard(card)}
                     onKeyDown={(e) => {

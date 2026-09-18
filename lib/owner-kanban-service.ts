@@ -50,17 +50,51 @@ async function listCardsOrdered() {
   return rows.map(toDto);
 }
 
+async function migrateLegacyOwnerBoardCardsIfNeeded() {
+  try {
+    const kanbanCount = await prisma.ownerKanbanCard.count();
+    if (kanbanCount > 0) return;
+
+    await prisma.$executeRaw`
+      INSERT INTO owner_kanban_cards (
+        id, title, description, user_story, acceptance_criteria,
+        column_id, sort_order, created_at, updated_at
+      )
+      SELECT
+        id,
+        title,
+        NULLIF(description, ''),
+        NULLIF(user_story, ''),
+        NULLIF(acceptance_criteria, ''),
+        status,
+        position,
+        created_at,
+        updated_at
+      FROM owner_board_cards
+      ON CONFLICT (id) DO NOTHING
+    `;
+  } catch {
+    // Legacy table may not exist in this database.
+  }
+}
+
 export async function ensureOwnerKanbanSeeded() {
+  await migrateLegacyOwnerBoardCardsIfNeeded();
+
   const count = await prisma.ownerKanbanCard.count();
   if (count === 0) {
-    await prisma.ownerKanbanCard.createMany({
-      data: OWNER_KANBAN_INITIAL_SEED.map((card) => ({
-        title: card.title,
-        description: card.description ?? null,
-        columnId: card.columnId,
-        sortOrder: card.sortOrder,
-      })),
-    });
+    await prisma.$transaction(
+      OWNER_KANBAN_INITIAL_SEED.map((card) =>
+        prisma.ownerKanbanCard.create({
+          data: {
+            title: card.title,
+            description: card.description ?? null,
+            columnId: card.columnId,
+            sortOrder: card.sortOrder,
+          },
+        }),
+      ),
+    );
   }
 
   for (const card of OWNER_KANBAN_BACKLOG_SEED) {

@@ -8,6 +8,7 @@
     "lint": "eslint .",
     "start": "next start",
     "postinstall": "prisma generate",
+    "db:push": "prisma db push",
     "remotion:studio": "remotion studio remotion/index.ts",
     "remotion:render": "remotion render remotion/index.ts Empty out.mp4",
     "chat:status": "node scripts/chat-production-status.mjs"
