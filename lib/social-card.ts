@@ -7,6 +7,7 @@ import {
   getDifferentialHub,
   type CaptainHubPlayer,
 } from "@/lib/fpl-player-page";
+import { fetchSocialCardGameweek } from "@/lib/social-card-gameweek";
 import { fplPlayerPhotoExists, fplPlayerPhotoUrl, fplPlayerPhotosExist } from "@/lib/fpl-player-photo";
 import { getTransferTrendsHub, type TransferTrendPlayer } from "@/lib/fpl-transfer-trends";
 import {
@@ -357,6 +358,7 @@ async function pickPlayerWithPhoto<T extends { code: number }>(
   hub: SocialHubType,
   pool: T[],
   excluded: ReadonlySet<number>,
+  strictExclusions: boolean,
 ): Promise<T | null> {
   if (!pool.length) return null;
   const start = pickRotatingIndex(hub, pool.length);
@@ -372,6 +374,7 @@ async function pickPlayerWithPhoto<T extends { code: number }>(
 
   const fresh = await tryPool(true);
   if (fresh) return fresh;
+  if (strictExclusions) return null;
   return tryPool(false);
 }
 
@@ -385,6 +388,7 @@ export function hubForSlot(dateKey: string, slot: SocialCardSlot): SocialHubType
 async function buildCaptainCard(
   gw: number,
   excluded: ReadonlySet<number>,
+  strictExclusions: boolean,
 ): Promise<SocialCardData | null> {
   const hub = await getCaptainHub();
   if (!hub?.players.length) return null;
@@ -394,7 +398,7 @@ async function buildCaptainCard(
     ),
   );
   if (!pool.length) return null;
-  const p = await pickPlayerWithPhoto("captains", pool, excluded);
+  const p = await pickPlayerWithPhoto("captains", pool, excluded, strictExclusions);
   if (!p) return null;
   return {
     slot: "1",
@@ -425,6 +429,7 @@ async function buildCaptainCard(
 async function buildDifferentialCard(
   gw: number,
   excluded: ReadonlySet<number>,
+  strictExclusions: boolean,
 ): Promise<SocialCardData | null> {
   const hub = await getDifferentialHub();
   if (!hub?.players.length) return null;
@@ -434,7 +439,7 @@ async function buildDifferentialCard(
     ),
   );
   if (!pool.length) return null;
-  const p = await pickPlayerWithPhoto("differentials", pool, excluded);
+  const p = await pickPlayerWithPhoto("differentials", pool, excluded, strictExclusions);
   if (!p) return null;
   return {
     slot: "1",
@@ -465,6 +470,7 @@ async function buildDifferentialCard(
 async function buildComparisonCard(
   gw: number,
   excluded: ReadonlySet<number>,
+  strictExclusions: boolean,
 ): Promise<SocialCardData | null> {
   const hub = await getComparisonHub();
   if (!hub?.pairs.length) return null;
@@ -495,7 +501,7 @@ async function buildComparisonCard(
       break;
     }
   }
-  if (!data) {
+  if (!data && !strictExclusions) {
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[(start + i) % pairs.length];
       const candidate = await getComparisonData(pair.slugA, pair.slugB);
@@ -561,12 +567,13 @@ const SOCIAL_INJURY_MIN_PLAY_CHANCE = 25;
 async function buildInjuryCard(
   gw: number,
   excluded: ReadonlySet<number>,
+  strictExclusions: boolean,
 ): Promise<SocialCardData | null> {
   const hub = await getInjuryHub();
   if (!hub?.players.length) return null;
   const eligible = hub.players.filter((player) => player.chance >= SOCIAL_INJURY_MIN_PLAY_CHANCE);
   if (!eligible.length) return null;
-  const p = await pickPlayerWithPhoto("injuries", eligible, excluded);
+  const p = await pickPlayerWithPhoto("injuries", eligible, excluded, strictExclusions);
   if (!p) return null;
   const status = statusLabel(p.status, p.chance);
   const injuryCols: SocialCardTableCol[] = [
@@ -634,6 +641,7 @@ async function buildInjuryCard(
 async function buildTransferCard(
   gw: number,
   excluded: ReadonlySet<number>,
+  strictExclusions: boolean,
 ): Promise<SocialCardData | null> {
   const hub = await getTransferTrendsHub();
   if (!hub?.pairs.length) return null;
@@ -664,7 +672,7 @@ async function buildTransferCard(
       break;
     }
   }
-  if (!pair) {
+  if (!pair && !strictExclusions) {
     for (let i = 0; i < pairs.length; i++) {
       const candidate = pairs[(start + i) % pairs.length];
       if (await fplPlayerPhotosExist([candidate.playerOut.code, candidate.playerIn.code])) {
@@ -726,6 +734,7 @@ async function buildTransferCard(
 async function buildFixtureCard(
   gw: number,
   excluded: ReadonlySet<number>,
+  strictExclusions: boolean,
 ): Promise<SocialCardData | null> {
   const hub = await getFixtureHub();
   if (!hub?.players.length) return null;
@@ -737,7 +746,7 @@ async function buildFixtureCard(
     ),
   );
   if (!pool.length) return null;
-  const p = await pickPlayerWithPhoto("fixtures", pool, excluded);
+  const p = await pickPlayerWithPhoto("fixtures", pool, excluded, strictExclusions);
   if (!p) return null;
   const nextFix = p.fixtures
     .slice(0, 3)
@@ -808,6 +817,7 @@ async function buildFixtureCard(
 async function buildDefconCard(
   gw: number,
   excluded: ReadonlySet<number>,
+  strictExclusions: boolean,
 ): Promise<SocialCardData | null> {
   const hub = await getDefconHub();
   if (!hub?.ready) return null;
@@ -817,7 +827,7 @@ async function buildDefconCard(
     ),
   );
   if (!pool.length) return null;
-  const p = await pickPlayerWithPhoto("defcon", pool, excluded);
+  const p = await pickPlayerWithPhoto("defcon", pool, excluded, strictExclusions);
   if (!p) return null;
   const threshold = p.elementType === 2 ? 10 : 12;
   const defconCols: SocialCardTableCol[] = [
@@ -902,22 +912,23 @@ async function buildForHub(
   hub: SocialHubType,
   gwFallback: number,
   excluded: ReadonlySet<number>,
+  strictExclusions: boolean,
 ): Promise<SocialCardData | null> {
   switch (hub) {
     case "captains":
-      return buildCaptainCard(gwFallback, excluded);
+      return buildCaptainCard(gwFallback, excluded, strictExclusions);
     case "differentials":
-      return buildDifferentialCard(gwFallback, excluded);
+      return buildDifferentialCard(gwFallback, excluded, strictExclusions);
     case "comparisons":
-      return buildComparisonCard(gwFallback, excluded);
+      return buildComparisonCard(gwFallback, excluded, strictExclusions);
     case "injuries":
-      return buildInjuryCard(gwFallback, excluded);
+      return buildInjuryCard(gwFallback, excluded, strictExclusions);
     case "transfer_trends":
-      return buildTransferCard(gwFallback, excluded);
+      return buildTransferCard(gwFallback, excluded, strictExclusions);
     case "fixtures":
-      return buildFixtureCard(gwFallback, excluded);
+      return buildFixtureCard(gwFallback, excluded, strictExclusions);
     case "defcon":
-      return buildDefconCard(gwFallback, excluded);
+      return buildDefconCard(gwFallback, excluded, strictExclusions);
     default:
       return null;
   }
@@ -950,10 +961,8 @@ export async function getSocialCardData(
   const dateKey = utcDateKey();
   const primaryHub = parseHubOverride(hubOverride) ?? hubForSlot(dateKey, slot);
   const excluded = await getRecentlyUsedPlayerCodes();
-
-  let gw = 1;
-  const captainPeek = await getCaptainHub();
-  if (captainPeek?.gw) gw = captainPeek.gw;
+  const strictExclusions = Boolean(options?.recordPick);
+  const gw = await fetchSocialCardGameweek();
 
   const finalize = async (raw: SocialCardData | null): Promise<SocialCardData | null> => {
     const card = await enrichSocialCard(raw);
@@ -965,12 +974,16 @@ export async function getSocialCardData(
     return withSlot;
   };
 
-  let card = await finalize(await buildForHub(primaryHub, gw, excluded));
+  let card = await finalize(
+    await buildForHub(primaryHub, gw, excluded, strictExclusions),
+  );
   if (card) return card;
 
   for (let i = 1; i < HUB_ORDER.length; i++) {
     const fallbackHub = HUB_ORDER[(HUB_ORDER.indexOf(primaryHub) + i) % HUB_ORDER.length];
-    card = await finalize(await buildForHub(fallbackHub, gw, excluded));
+    card = await finalize(
+      await buildForHub(fallbackHub, gw, excluded, strictExclusions),
+    );
     if (card) return card;
   }
 

@@ -38,11 +38,14 @@ function getProp(key) {
 
 function cardPageUrl(slot) {
   const token = getProp('SOCIAL_CARD_TOKEN');
+  const date = new Date().toISOString().slice(0, 10);
   return (
     'https://www.chatfpl.ai/internal/social-card?slot=' +
     slot +
     '&token=' +
-    encodeURIComponent(token)
+    encodeURIComponent(token) +
+    '&capture=' +
+    encodeURIComponent(date + '-slot-' + slot)
   );
 }
 
@@ -58,8 +61,7 @@ function buildScreenshotOneApiUrl(pageUrl) {
     'block_cookie_banners=true',
     'block_trackers=true',
     'response_type=json',
-    'cache=true',
-    'cache_ttl=86400',
+    'cache=false',
   ];
   return 'https://api.screenshotone.com/take?' + params.join('&');
 }
