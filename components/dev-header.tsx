@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
-import { Menu, X, LayoutDashboard, ShieldCheck, MessageSquareText } from "lucide-react"
+import { Menu, X, LayoutDashboard, ShieldCheck, MessageSquareText, Columns3 } from "lucide-react"
 
 const ADMIN_EMAIL = "johnmcdermott1979@gmail.com"
 
@@ -12,7 +12,8 @@ export function DevHeader() {
   const { data: session, status } = useSession()
   const isLoggedIn = status === "authenticated"
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const accountLabel = session?.user?.email === ADMIN_EMAIL ? "Admin" : "Account"
+  const isOwnerSite = session?.user?.email === ADMIN_EMAIL
+  const accountLabel = isOwnerSite ? "Admin" : "Account"
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
 
@@ -49,6 +50,15 @@ export function DevHeader() {
                   </Link>
                   <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded-md bg-black/90 border border-white/10 text-[11px] text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">{accountLabel}</span>
                 </div>
+
+                {isOwnerSite && (
+                  <div className="group relative" style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 5.2s linear infinite" }}>
+                    <Link href="/dashboard/owner/kanban" className="flex items-center justify-center rounded-full w-9 h-9" style={{ background: "rgba(0,0,0,0.9)" }}>
+                      <Columns3 className="w-4 h-4" style={{ color: "#00FF87" }} />
+                    </Link>
+                    <span className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded-md bg-black/90 border border-white/10 text-[11px] text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">Board</span>
+                  </div>
+                )}
 
                 {/* ChatFPL AI - full pill */}
                 <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 3.5s linear infinite" }}>
@@ -127,6 +137,13 @@ export function DevHeader() {
                     <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{accountLabel}</span>
                   </Link>
                 </div>
+                {isOwnerSite && (
+                  <div style={{ padding: "1.5px", borderRadius: "9999px", background: "linear-gradient(90deg,#00FF87,#00FFFF,#00FF87)", backgroundSize: "200% 200%", animation: "glow_scroll 5.2s linear infinite", display: "inline-block" }}>
+                    <Link href="/dashboard/owner/kanban" onClick={closeMobileMenu} className="block rounded-full px-4 py-2 text-sm font-semibold" style={{ background: "rgba(0,0,0,0.9)" }}>
+                      <span style={{ background: "linear-gradient(to right,#00FFFF,#00FF87)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Board</span>
+                    </Link>
+                  </div>
+                )}
               </nav>
               <div className="pt-4 mt-auto">
                 <button

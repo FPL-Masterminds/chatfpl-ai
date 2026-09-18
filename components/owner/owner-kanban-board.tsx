@@ -5,8 +5,6 @@ import { Loader2, Plus } from "lucide-react";
 import type { OwnerKanbanCardDto } from "@/lib/owner-kanban-service";
 import { COLUMNS } from "@/lib/owner-kanban";
 import { OwnerKanbanCardModal } from "@/components/owner/owner-kanban-card-modal";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export function OwnerKanbanBoard() {
   const [cards, setCards] = useState<OwnerKanbanCardDto[]>([]);
@@ -119,7 +117,7 @@ export function OwnerKanbanBoard() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center text-muted-foreground">
+      <div className="flex min-h-[40vh] items-center justify-center text-white/50">
         <Loader2 className="h-6 w-6 animate-spin" />
       </div>
     );
@@ -129,37 +127,37 @@ export function OwnerKanbanBoard() {
     <div className="max-w-full space-y-6 overflow-x-hidden">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">Owner board</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-2xl font-bold text-white md:text-3xl">Owner board</h1>
+          <p className="mt-1 text-sm text-white/55">
             {coarsePointer
               ? "Use the status dropdown on each card to move lanes. Tap a card to edit."
               : "Customer journey lanes. Drag cards to update status. Only you can see this."}
           </p>
         </div>
         <form onSubmit={handleAdd} className="flex w-full max-w-md gap-2">
-          <Input
+          <input
+            type="text"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="New ticket title"
-            className="flex-1"
+            className="flex-1 rounded-xl border border-white/15 bg-white/[0.04] px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-[#00FF87]/50 focus:outline-none"
           />
-          <Button
+          <button
             type="submit"
             disabled={saving || !newTitle.trim()}
-            className="bg-accent text-accent-foreground hover:bg-accent/90 shrink-0"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold text-[#1A0E24] disabled:opacity-50"
+            style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}
           >
-            <Plus className="mr-1 h-4 w-4" />
+            <Plus className="h-4 w-4" />
             Add
-          </Button>
+          </button>
         </form>
       </div>
 
-      {saving && (
-        <p className="text-xs text-muted-foreground">Saving…</p>
-      )}
+      {saving && <p className="text-xs text-white/45">Saving…</p>}
 
       {error && (
-        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2 text-sm text-destructive">
+        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
           {error}
         </p>
       )}
@@ -170,7 +168,7 @@ export function OwnerKanbanBoard() {
           return (
             <div
               key={column.id}
-              className="flex min-w-0 flex-col rounded-lg border border-border bg-muted/50"
+              className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03]"
               onDragOver={(e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = "move";
@@ -182,13 +180,11 @@ export function OwnerKanbanBoard() {
                 void move(cardId, column.id, columnCards.length);
               }}
             >
-              <div className="border-b border-border px-3 py-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-foreground break-words">
+              <div className="border-b border-white/10 px-3 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-white/80 break-words">
                   {column.label}
                 </p>
-                <p className="text-[10px] text-muted-foreground">
-                  {columnCards.length} items
-                </p>
+                <p className="text-[10px] text-white/40">{columnCards.length} items</p>
               </div>
               <div className="flex min-h-[320px] flex-col gap-2 p-2">
                 {columnCards.map((card, index) => (
@@ -226,26 +222,24 @@ export function OwnerKanbanBoard() {
                         openCard(card);
                       }
                     }}
-                    className={`cursor-pointer rounded-lg border border-border bg-white p-3 text-left shadow-sm transition hover:shadow-md active:cursor-grabbing break-words ${
-                      draggingId === card.id
-                        ? "opacity-50 ring-2 ring-accent"
-                        : ""
+                    className={`cursor-pointer rounded-xl border border-white/10 bg-black/40 p-3 text-left shadow-sm transition hover:border-[#00FF87]/35 active:cursor-grabbing break-words ${
+                      draggingId === card.id ? "opacity-50 ring-2 ring-[#00FF87]" : ""
                     }`}
                   >
-                    <p className="text-sm font-medium text-foreground">{card.title}</p>
+                    <p className="text-sm font-semibold text-white">{card.title}</p>
                     {card.description?.trim() && (
-                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-white/55">
                         {card.description}
                       </p>
                     )}
                     {coarsePointer && (
                       <label
-                        className="mt-2 block text-[10px] text-muted-foreground"
+                        className="mt-2 block text-[10px] text-white/50"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Status
                         <select
-                          className="mt-0.5 w-full rounded-md border border-input bg-white px-2 py-1 text-xs text-foreground"
+                          className="mt-0.5 w-full rounded-md border border-white/15 bg-black/60 px-2 py-1 text-xs text-white"
                           value={card.columnId}
                           onChange={(e) => {
                             const target = e.target.value;
@@ -276,9 +270,7 @@ export function OwnerKanbanBoard() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         onSaved={(updated) => {
-          setCards((prev) =>
-            prev.map((c) => (c.id === updated.id ? updated : c)),
-          );
+          setCards((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
         }}
       />
     </div>
