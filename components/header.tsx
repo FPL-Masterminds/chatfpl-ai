@@ -6,10 +6,12 @@ import Image from "next/image"
 import { useSession, signOut } from "next-auth/react"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { GOD_MODE_EMAIL } from "@/lib/god-mode"
 
 export function Header() {
   const { data: session, status } = useSession()
   const isLoggedIn = status === "authenticated"
+  const isOwnerSite = session?.user?.email === GOD_MODE_EMAIL
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
@@ -39,6 +41,11 @@ export function Header() {
                 <Button variant="ghost" size="sm" asChild>
                   <Link href="/admin">Admin Dashboard</Link>
                 </Button>
+                {isOwnerSite && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link href="/dashboard/owner/kanban">Board</Link>
+                  </Button>
+                )}
                 <Button size="sm" asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
                   <Link href="/chat">ChatFPL AI</Link>
                 </Button>
@@ -112,6 +119,15 @@ export function Header() {
                 >
                   Admin Dashboard
                 </Link>
+                {isOwnerSite && (
+                  <Link
+                    href="/dashboard/owner/kanban"
+                    onClick={closeMobileMenu}
+                    className="text-base font-semibold text-foreground hover:text-accent transition-colors"
+                  >
+                    Board
+                  </Link>
+                )}
               </nav>
               <div className="pt-4 mt-auto">
                 <Button
