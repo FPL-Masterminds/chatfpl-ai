@@ -21,9 +21,9 @@ export default async function DevBoardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen overflow-x-hidden bg-black">
       <DevHeader />
-      <main className="container mx-auto px-4 pb-16 pt-28">
+      <main className="container mx-auto max-w-full overflow-x-hidden px-4 pb-16 pt-28">
         <div className="mb-6 flex flex-wrap items-center gap-3 text-sm">
           <Link
             href="/admin"

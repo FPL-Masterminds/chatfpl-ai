@@ -220,7 +220,7 @@ export function OwnerBoard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-full space-y-6 overflow-x-hidden">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white md:text-3xl">Owner board</h1>
@@ -254,13 +254,13 @@ export function OwnerBoard() {
         </p>
       )}
 
-      <div className="flex gap-3 overflow-x-auto pb-4">
+      <div className="grid w-full max-w-full grid-cols-1 gap-3 pb-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
         {OWNER_BOARD_LANES.map((lane) => {
           const laneCards = cardsByLane.get(lane.id) ?? [];
           return (
             <div
               key={lane.id}
-              className="flex w-[min(100%,280px)] shrink-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03]"
+              className="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.03]"
               onDragOver={(e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = "move";
@@ -271,7 +271,7 @@ export function OwnerBoard() {
               }}
             >
               <div className="border-b border-white/10 px-3 py-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-white/80">
+                <p className="text-xs font-semibold uppercase tracking-wide text-white/80 break-words">
                   {lane.label}
                 </p>
                 <p className="text-[11px] text-white/40">{laneCards.length} items</p>
@@ -292,11 +292,11 @@ export function OwnerBoard() {
                     onClick={() => setEditing({ ...card })}
                     className="cursor-grab rounded-xl border border-white/10 bg-black/40 p-3 text-left shadow-sm transition hover:border-[#00FF87]/35 active:cursor-grabbing"
                   >
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-white break-words">
                       {card.ticketNumber}. {card.title}
                     </p>
                     {card.description.trim() && (
-                      <p className="mt-1 text-xs leading-relaxed text-white/55">
+                      <p className="mt-1 text-xs leading-relaxed text-white/55 break-words">
                         {snippet(card.description)}
                       </p>
                     )}
