@@ -855,6 +855,7 @@ PERSONALITY RULES:
                 const transferReplacementFacts = getTransferReplacementFactsForChat(
                   followUpTransferQuery ?? modelUserMessage,
                   { allPlayers, squadElementIds, squadWebNames },
+                  followUpFocusPlayer,
                 );
 
                 const teamIdChatNotice =

@@ -1,9 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import {
-  findMentionedPlayers,
-  normalizeForChatMatch,
-  type ChatPlayerRow,
-} from "@/lib/chat-player-filter";
+import { normalizeForChatMatch, type ChatPlayerRow } from "@/lib/chat-player-filter";
 
 function normalizeForMatch(message: string): string {
   return message
@@ -75,34 +71,29 @@ export function pickThreadFocusPlayer(
   assistantText: string,
   priorUserTexts: string[],
   allPlayers: ChatPlayerRow[],
-  squadElementIds: number[] = [],
+  _squadElementIds: number[] = [],
 ): ChatPlayerRow | null {
   const scores = new Map<number, number>();
 
-  const bump = (players: ChatPlayerRow[], weight: number, text: string) => {
-    for (const p of players) {
+  for (let i = 0; i < priorUserTexts.length; i++) {
+    const text = priorUserTexts[i];
+    const weight = 40 + i * 5;
+    for (const p of allPlayers) {
       const base = mentionStrength(text, p);
       if (base <= 0) continue;
       scores.set(p.rawData.id, (scores.get(p.rawData.id) ?? 0) + base * weight);
     }
-  };
-
-  for (let i = 0; i < priorUserTexts.length; i++) {
-    const text = priorUserTexts[i];
-    const mentioned = findMentionedPlayers(text, allPlayers, squadElementIds);
-    bump(mentioned, 30 + i, text);
   }
 
-  const assistantMentioned = findMentionedPlayers(
-    assistantText,
-    allPlayers,
-    squadElementIds,
-  );
-  bump(assistantMentioned, 12, assistantText);
+  for (const p of allPlayers) {
+    const base = mentionStrength(assistantText, p);
+    if (base <= 0) continue;
+    scores.set(p.rawData.id, (scores.get(p.rawData.id) ?? 0) + base * 15);
+  }
 
   if (scores.size === 0) return null;
 
-  let candidates = allPlayers.filter((p) => scores.has(p.rawData.id));
+  let candidates = allPlayers.filter((p) => (scores.get(p.rawData.id) ?? 0) > 0);
   const posHint = positionHintFromText(assistantText);
   if (posHint) {
     const filtered = candidates.filter((p) => p.position === posHint);
@@ -116,7 +107,7 @@ export function pickThreadFocusPlayer(
 }
 
 function assistantOffersReplacements(text: string): boolean {
-  return /\b(replacement|replacements|instead of|who to get|bring in|transfer in|move on from)\b/i.test(
+  return /\b(replacements?|instead of|who to get|bring in|transfer in|move on from|best\s+.+\s+at\s+£|give you the best)\b/i.test(
     text,
   );
 }
@@ -208,8 +199,9 @@ export async function expandAffirmativeFollowUpIfNeeded(
         )
       : null;
 
+  const offersReplacements = assistantOffersReplacements(lastAssistant);
   const transferQueryMessage =
-    focus && assistantOffersReplacements(lastAssistant)
+    focus && offersReplacements
       ? buildFollowUpTransferQuery(focus, lastAssistant)
       : null;
 

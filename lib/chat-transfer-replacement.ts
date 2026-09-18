@@ -5,7 +5,7 @@ import {
 } from "@/lib/chat-player-filter";
 
 const REPLACEMENT_QUERY_RE =
-  /\b(replacement|instead of|who for|swap|sell|replace|alternative to|who instead of|transfer out|move on from|dump)\b/i;
+  /\b(replacements?|instead of|who for|swap|sell|replace|alternative to|who instead of|transfer out|move on from|dump)\b/i;
 
 const OUT_PLAYER_PATTERNS = [
   /\binstead of\s+(.+?)(?:\?|\.|$)/i,
@@ -92,16 +92,13 @@ export function findTransferOutPlayer(
   return pickBestMentionedPlayer(message, mentioned, squadElementIds);
 }
 
-export function formatTransferReplacementFacts(
-  message: string,
+export function formatTransferReplacementFactsForOutPlayer(
+  outPlayer: ChatPlayerRow,
   allPlayers: ChatPlayerRow[],
   squadElementIds: number[],
   squadWebNames: string[],
 ): string {
-  if (!isTransferReplacementQuery(message)) return "";
-
-  const outPlayer = findTransferOutPlayer(message, allPlayers, squadElementIds);
-  if (!outPlayer?.position) return "";
+  if (!outPlayer.position) return "";
 
   const squadSet = new Set(squadElementIds);
   const ownedList =
@@ -141,4 +138,33 @@ NEVER recommend any owned player as a transfer IN option.
 Same-position IN pool (not in user's squad, top xPNext):
 ${candidateLines || `(none found in live data - say so and suggest another ${outPlayer.position} search)`}
 `;
+}
+
+export function formatTransferReplacementFacts(
+  message: string,
+  allPlayers: ChatPlayerRow[],
+  squadElementIds: number[],
+  squadWebNames: string[],
+  forcedOutPlayer?: ChatPlayerRow | null,
+): string {
+  if (forcedOutPlayer?.position) {
+    return formatTransferReplacementFactsForOutPlayer(
+      forcedOutPlayer,
+      allPlayers,
+      squadElementIds,
+      squadWebNames,
+    );
+  }
+
+  if (!isTransferReplacementQuery(message)) return "";
+
+  const outPlayer = findTransferOutPlayer(message, allPlayers, squadElementIds);
+  if (!outPlayer?.position) return "";
+
+  return formatTransferReplacementFactsForOutPlayer(
+    outPlayer,
+    allPlayers,
+    squadElementIds,
+    squadWebNames,
+  );
 }

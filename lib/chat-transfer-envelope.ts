@@ -11,11 +11,13 @@ export type ChatSquadContext = {
 export function getTransferReplacementFactsForChat(
   modelUserMessage: string,
   ctx: ChatSquadContext,
+  forcedOutPlayer?: ChatPlayerRow | null,
 ): string {
   return formatTransferReplacementFacts(
     modelUserMessage,
     ctx.allPlayers,
     ctx.squadElementIds,
     ctx.squadWebNames,
+    forcedOutPlayer,
   );
 }
