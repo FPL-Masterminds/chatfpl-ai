@@ -43,7 +43,11 @@ import {
   getConversationalReply,
   isConversationalMessage,
 } from "@/lib/chat-conversational";
-import { FOLLOW_UP_ACCEPTANCE_RULES } from "@/lib/chat-follow-up";
+import {
+  expandAffirmativeFollowUpIfNeeded,
+  FOLLOW_UP_ACCEPTANCE_RULES,
+  isAffirmativeFollowUp,
+} from "@/lib/chat-follow-up";
 import {
   appendDifyStreamAnswer,
   postProcessAssistantAnswer,
@@ -164,7 +168,9 @@ export async function POST(request: Request) {
       conversationId,
       userFirstName,
     );
-    const modelUserMessage = preparedUserMessage.modelMessage;
+    let modelUserMessage = preparedUserMessage.modelMessage;
+    let followUpTransferQuery: string | null = null;
+    let followUpFocusPlayer: ChatPlayerRow | null = null;
     const resolvedFplTeam = await resolveFplTeamIdForChat({
       userFplTeamId: user.fpl_team_id,
       message: modelUserMessage,
@@ -321,6 +327,21 @@ export async function POST(request: Request) {
           }
         }
 
+        if (isAffirmativeFollowUp(message) && conversationId) {
+          const followUp = await expandAffirmativeFollowUpIfNeeded(
+            message,
+            preparedUserMessage.modelMessage,
+            conversationId,
+            allPlayers,
+            squadElementIds,
+          );
+          if (followUp) {
+            modelUserMessage = followUp.modelMessage;
+            followUpTransferQuery = followUp.transferQueryMessage;
+            followUpFocusPlayer = followUp.focusPlayer;
+          }
+        }
+
         // Smart filtering based on question keywords
         const messageLower = message.toLowerCase();
         let filteredPlayers: ChatPlayerRow[] = allPlayers;
@@ -340,9 +361,16 @@ export async function POST(request: Request) {
         const comparePlayers = isNewsletterMode
           ? []
           : findComparePlayers(message, allPlayers);
-        const requestedPlayers = [...comparePlayers, ...mentionedPlayers.filter(
-          (p) => !comparePlayers.some((c) => c.rawData.id === p.rawData.id),
-        )];
+        const threadPinned = followUpFocusPlayer ? [followUpFocusPlayer] : [];
+        const requestedPlayers = [
+          ...comparePlayers,
+          ...threadPinned,
+          ...mentionedPlayers.filter(
+            (p) =>
+              !comparePlayers.some((c) => c.rawData.id === p.rawData.id) &&
+              !threadPinned.some((t) => t.rawData.id === p.rawData.id),
+          ),
+        ];
         const mentionedTeamCodes = findMentionedTeamCodes(message, fplData.teams ?? []);
 
         if (isNewsletterMode) {
@@ -825,7 +853,7 @@ PERSONALITY RULES:
                 const abuseNotice = preparedUserMessage.abuseNotice;
 
                 const transferReplacementFacts = getTransferReplacementFactsForChat(
-                  modelUserMessage,
+                  followUpTransferQuery ?? modelUserMessage,
                   { allPlayers, squadElementIds, squadWebNames },
                 );
 

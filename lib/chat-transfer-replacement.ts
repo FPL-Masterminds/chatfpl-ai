@@ -1,5 +1,6 @@
 import {
   findMentionedPlayers,
+  normalizeForChatMatch,
   type ChatPlayerRow,
 } from "@/lib/chat-player-filter";
 
@@ -17,7 +18,46 @@ const OUT_PLAYER_PATTERNS = [
 ];
 
 export function isTransferReplacementQuery(message: string): boolean {
+  if (message.includes("FOLLOW-UP ACCEPTANCE:")) {
+    return false;
+  }
   return REPLACEMENT_QUERY_RE.test(message);
+}
+
+function scorePlayerInMessage(message: string, player: ChatPlayerRow): number {
+  const norm = normalizeForChatMatch(message);
+  if (!norm) return 0;
+  let score = 0;
+  const web = normalizeForChatMatch(player.rawData.web_name);
+  if (web.length >= 3 && norm.includes(web)) score += web.length * 4;
+  const full = normalizeForChatMatch(
+    `${player.rawData.first_name} ${player.rawData.second_name}`,
+  );
+  if (full.length >= 5 && norm.includes(full)) score += full.length * 3;
+  return score;
+}
+
+function pickBestMentionedPlayer(
+  message: string,
+  mentioned: ChatPlayerRow[],
+  squadElementIds: number[],
+): ChatPlayerRow | null {
+  if (mentioned.length === 0) return null;
+  if (mentioned.length === 1) return mentioned[0];
+
+  const squadSet = new Set(squadElementIds);
+  const ranked = [...mentioned].sort(
+    (a, b) => scorePlayerInMessage(message, b) - scorePlayerInMessage(message, a),
+  );
+
+  const squadHits = ranked.filter((p) => squadSet.has(p.rawData.id));
+  if (squadHits.length === 1) return squadHits[0];
+  if (squadHits.length > 1) {
+    return squadHits.sort(
+      (a, b) => scorePlayerInMessage(message, b) - scorePlayerInMessage(message, a),
+    )[0];
+  }
+  return ranked[0];
 }
 
 function extractOutPlayerPhrase(message: string): string | null {
@@ -49,12 +89,7 @@ export function findTransferOutPlayer(
   if (!isTransferReplacementQuery(message)) return null;
 
   const mentioned = findMentionedPlayers(message, allPlayers, squadElementIds);
-  if (mentioned.length === 1) return mentioned[0];
-  if (squadElementIds.length && mentioned.length > 1) {
-    const inSquad = mentioned.filter((p) => squadElementIds.includes(p.rawData.id));
-    if (inSquad.length === 1) return inSquad[0];
-  }
-  return mentioned[0] ?? null;
+  return pickBestMentionedPlayer(message, mentioned, squadElementIds);
 }
 
 export function formatTransferReplacementFacts(
