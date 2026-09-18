@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import type { OwnerKanbanCardDto } from "@/lib/owner-kanban-service";
-import { COLUMNS } from "@/lib/owner-kanban";
+import { COLUMNS, formatOwnerKanbanCreatedDate } from "@/lib/owner-kanban";
 import { OwnerKanbanCardModal } from "@/components/owner/owner-kanban-card-modal";
 
 export function OwnerKanbanBoard() {
@@ -232,6 +232,9 @@ export function OwnerKanbanBoard() {
                         {card.description}
                       </p>
                     )}
+                    <p className="mt-2 text-[11px] text-white/35">
+                      Date created: {formatOwnerKanbanCreatedDate(card.createdAt)}
+                    </p>
                     {coarsePointer && (
                       <label
                         className="mt-2 block text-[10px] text-white/50"

@@ -24,6 +24,15 @@ export function isOwnerKanbanColumnId(value: string): value is OwnerKanbanColumn
   return COLUMN_SET.has(value);
 }
 
+/** FPLEI-style card footer, e.g. "18 Sept 2026". */
+export function formatOwnerKanbanCreatedDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export type OwnerKanbanSeedCard = {
   title: string;
   description?: string;
