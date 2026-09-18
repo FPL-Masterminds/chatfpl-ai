@@ -20,7 +20,6 @@ import { textForSpeech, textForVoiceboxSpeech } from "@/lib/chat-speech-text"
 import { unlockAudioPlayback } from "@/lib/audio-unlock"
 import { pickChatSuggestionPrompts } from "@/lib/chat-suggestion-prompts"
 import { ChatAlertPills } from "@/components/chat-alert-pills"
-import { ChatOutageApologyToast } from "@/components/chat-outage-apology-toast"
 import { ChatUsageToast } from "@/components/chat-usage-toast"
 import type { ChatAlert } from "@/lib/chat-alerts"
 
@@ -834,8 +833,6 @@ export default function ChatPage() {
 
             {/* Chat window */}
             <div className="relative flex-1 min-h-0 rounded-none md:rounded-[28px] border-0 md:border md:border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.02] backdrop-blur-2xl md:shadow-[0_20px_80px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
-
-              <ChatOutageApologyToast />
 
               {/* Messages */}
               <div className="relative flex-1 min-h-0">
