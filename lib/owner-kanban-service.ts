@@ -4,6 +4,7 @@ import {
   isOwnerKanbanColumnId,
   OWNER_KANBAN_BACKLOG_SEED,
   OWNER_KANBAN_INITIAL_SEED,
+  OWNER_KANBAN_TICKET_DEFINITIONS,
   type OwnerKanbanColumnId,
 } from "@/lib/owner-kanban";
 
@@ -89,6 +90,8 @@ export async function ensureOwnerKanbanSeeded() {
           data: {
             title: card.title,
             description: card.description ?? null,
+            userStory: card.userStory,
+            acceptanceCriteria: card.acceptanceCriteria,
             columnId: card.columnId,
             sortOrder: card.sortOrder,
           },
@@ -107,11 +110,27 @@ export async function ensureOwnerKanbanSeeded() {
         data: {
           title: card.title,
           description: card.description ?? null,
+          userStory: card.userStory,
+          acceptanceCriteria: card.acceptanceCriteria,
           columnId: card.columnId,
           sortOrder: card.sortOrder,
         },
       });
     }
+  }
+
+  for (const def of OWNER_KANBAN_TICKET_DEFINITIONS) {
+    await prisma.ownerKanbanCard.updateMany({
+      where: {
+        title: def.title,
+        OR: [{ userStory: null }, { acceptanceCriteria: null }],
+      },
+      data: {
+        userStory: def.userStory,
+        acceptanceCriteria: def.acceptanceCriteria,
+        description: def.description ?? null,
+      },
+    });
   }
 }
 

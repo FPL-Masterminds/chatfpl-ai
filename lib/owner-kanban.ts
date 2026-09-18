@@ -33,53 +33,9 @@ export function formatOwnerKanbanCreatedDate(iso: string): string {
   });
 }
 
-export type OwnerKanbanSeedCard = {
-  title: string;
-  description?: string;
-  columnId: OwnerKanbanColumnId;
-  sortOrder: number;
-};
-
-/** Initial board when empty. ChatFPL backlog, not FPLEI journey cards. */
-export const OWNER_KANBAN_INITIAL_SEED: OwnerKanbanSeedCard[] = [
-  {
-    title: "Conversational follow-ups (yes please)",
-    description: "Thread focus + transfer replacement must stay on prior player/topic.",
-    columnId: "in_progress",
-    sortOrder: 0,
-  },
-  {
-    title: "Chat production health + deploy checks",
-    description: "Owner status script after every push; deep checks when needed.",
-    columnId: "done",
-    sortOrder: 0,
-  },
-  {
-    title: "Stripe lifecycle E2E",
-    description: "Trial welcome, cancel, convert, access rules. Production sign-off.",
-    columnId: "in_progress",
-    sortOrder: 1,
-  },
-  {
-    title: "Owner email hub",
-    description: "Template gallery at /devemails, Resend HTML alignment.",
-    columnId: "done",
-    sortOrder: 1,
-  },
-  {
-    title: "Squad ownership guards",
-    description: "Linked Team ID only for sells and your players.",
-    columnId: "done",
-    sortOrder: 2,
-  },
-];
-
-/** Idempotent adds on each GET when title missing. */
-export const OWNER_KANBAN_BACKLOG_SEED: OwnerKanbanSeedCard[] = [
-  {
-    title: "Owner kanban at /dashboard/owner/kanban",
-    description: "FPLEI-parity board, ChatFPL branding, owner APIs.",
-    columnId: "done",
-    sortOrder: 3,
-  },
-];
+export type { OwnerKanbanTicketDefinition as OwnerKanbanSeedCard } from "@/lib/owner-kanban-tickets";
+export {
+  OWNER_KANBAN_BACKLOG_SEED,
+  OWNER_KANBAN_INITIAL_SEED,
+  OWNER_KANBAN_TICKET_DEFINITIONS,
+} from "@/lib/owner-kanban-tickets";
