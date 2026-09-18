@@ -37,6 +37,8 @@ model User {
   usageTracking UsageTracking[]
   conversations Conversation[]
   socialActions SocialAction[]
+  registrationEvents UserRegistrationEvent[]
+  trialAbuseSuspects TrialAbuseSuspect[]
 
   @@map("users")
 }
@@ -230,4 +232,46 @@ model OwnerKanbanCard {
 
   @@index([columnId, sortOrder])
   @@map("owner_kanban_cards")
+}
+
+/// Signup fingerprint for trial-abuse heuristics (mirrors FPLEI).
+model UserRegistrationEvent {
+  id               String   @id @default(cuid())
+  user_id          String
+  email            String   @db.VarChar(255)
+  normalized_email String   @db.VarChar(255)
+  ip_address       String?  @db.VarChar(64)
+  user_agent       String?  @db.Text
+  created_at       DateTime @default(now()) @db.Timestamp(6)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([normalized_email])
+  @@index([ip_address])
+  @@index([user_id])
+  @@index([created_at])
+  @@map("user_registration_events")
+}
+
+/// Flagged signups for owner manual review (no auto-ban).
+model TrialAbuseSuspect {
+  id               String    @id @default(cuid())
+  user_id          String?
+  email            String    @db.VarChar(255)
+  normalized_email String?   @db.VarChar(255)
+  ip_address       String?   @db.VarChar(64)
+  reason_code      String    @db.VarChar(64)
+  reason_detail    String    @db.Text
+  status           String    @default("pending") @db.VarChar(32)
+  related_user_ids String?   @db.Text
+  created_at       DateTime  @default(now()) @db.Timestamp(6)
+  reviewed_at      DateTime? @db.Timestamp(6)
+
+  user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([normalized_email])
+  @@index([ip_address])
+  @@index([created_at])
+  @@map("trial_abuse_suspects")
 }

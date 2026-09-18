@@ -6,6 +6,8 @@ import { Resend } from "resend";
 import { normalizeEmail, isDisposableEmail } from "@/lib/email-utils";
 import { wrapEmailContent } from "@/lib/email-templates";
 import { buildSignupVerificationContent } from "@/lib/email-content";
+import { getClientRequestMeta } from "@/lib/client-request-meta";
+import { recordSignupAndEvaluateTrialAbuse } from "@/lib/trial-abuse";
 
 export async function POST(request: Request) {
   try {
@@ -138,6 +140,13 @@ export async function POST(request: Request) {
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);
       // Don't fail signup if email fails - user can request a new one
+    }
+
+    const requestMeta = getClientRequestMeta(request);
+    try {
+      await recordSignupAndEvaluateTrialAbuse(prisma, newUser.id, newUser.email, requestMeta);
+    } catch (abuseCheckError) {
+      console.error("Trial abuse check failed (signup still succeeded):", abuseCheckError);
     }
 
     // Notify admin of new signup (fire and forget)

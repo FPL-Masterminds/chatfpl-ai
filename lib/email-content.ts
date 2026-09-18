@@ -73,6 +73,58 @@ export function buildPasswordResetContent(opts: { name?: string | null; resetUrl
   `
 }
 
+export type TrialAbuseReasonCode =
+  | "normalized_email_match"
+  | "same_ip_reregistration"
+  | "alias_style_email"
+  | "repeat_trial_identity"
+
+export function buildTrialAbuseSuspicionNotificationContent(opts: {
+  suspectId: string
+  email: string
+  normalizedEmail: string | null
+  ipAddress: string | null
+  reasonCode: TrialAbuseReasonCode | string
+  reasonDetail: string
+  relatedUserIds: string[]
+}) {
+  const related =
+    opts.relatedUserIds.length > 0 ? opts.relatedUserIds.join(", ") : "None listed"
+  const ukTime = new Date().toLocaleString("en-GB", { timeZone: "Europe/London" })
+
+  return {
+    subject: `Trial abuse review: ${opts.reasonCode} (${opts.email})`,
+    content: `
+      <h2 style="color: #2E0032;">Trial abuse suspicion</h2>
+      <p>A signup was flagged for manual review. This does <strong>not</strong> block the user automatically.</p>
+
+      <div style="background-color: #f3f4f6; border-left: 4px solid #00FF86; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        <p style="margin: 8px 0;"><strong>Suspect row ID:</strong> <span style="font-family: ui-monospace, monospace; font-size: 13px;">${opts.suspectId}</span></p>
+        <p style="margin: 8px 0;"><strong>Reason code:</strong> ${opts.reasonCode}</p>
+        <p style="margin: 8px 0;"><strong>Email:</strong> ${opts.email}</p>
+        <p style="margin: 8px 0;"><strong>Canonical email:</strong> ${opts.normalizedEmail ?? "n/a"}</p>
+        <p style="margin: 8px 0;"><strong>IP:</strong> ${opts.ipAddress ?? "unknown"}</p>
+        <p style="margin: 8px 0;"><strong>Related user IDs:</strong> <span style="font-family: ui-monospace, monospace; font-size: 13px;">${related}</span></p>
+        <p style="margin: 8px 0;"><strong>Detail:</strong> ${opts.reasonDetail}</p>
+        <p style="margin: 8px 0;"><strong>Time (UK):</strong> ${ukTime}</p>
+      </div>
+
+      <p>Review pending rows in Neon table <code style="font-size: 13px;">trial_abuse_suspects</code>. Set <code style="font-size: 13px;">status</code> and <code style="font-size: 13px;">reviewed_at</code> when you have checked.</p>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${SITE_URL}/admin"
+           style="display: inline-block; background-color: #00FF86; color: #2E0032; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+          Open Admin Dashboard
+        </a>
+      </div>
+
+      <p style="color: #999; font-size: 12px; margin-top: 30px;">
+        Automated ChatFPL trial abuse monitor (same rules as FPLEI).
+      </p>
+    `,
+  }
+}
+
 export function buildAdminSignupNotificationContent(opts: {
   userName?: string | null
   userEmail: string
@@ -372,6 +424,28 @@ export const EMAIL_PREVIEW_DEFINITIONS: EmailPreviewDefinition[] = [
         userName: SAMPLE_PREVIEW.name,
         userEmail: SAMPLE_PREVIEW.email,
         plan: "Elite",
+      }).content,
+  },
+  {
+    id: "admin-trial-abuse",
+    group: "admin",
+    label: "Admin: trial abuse suspicion",
+    description:
+      "Sent when signup heuristics create a row in trial_abuse_suspects (canonical email, IP, alias, repeat trial).",
+    subject: "Trial abuse review: normalized_email_match (alex@example.com)",
+    audience: "Site owner",
+    respectsOptOut: false,
+    includeUnsubscribe: false,
+    buildBody: () =>
+      buildTrialAbuseSuspicionNotificationContent({
+        suspectId: "sample-suspect-cuid",
+        email: "alias.user+free@gmail.com",
+        normalizedEmail: "aliasuser@gmail.com",
+        ipAddress: "203.0.113.42",
+        reasonCode: "normalized_email_match",
+        reasonDetail:
+          "Another account registered recently with the same canonical email (aliasuser@gmail.com). This often means Gmail dot/plus aliases or the same person signing up again for another 20 free messages.",
+        relatedUserIds: ["clsampleuserid0001", "clsampleuserid0002"],
       }).content,
   },
   {

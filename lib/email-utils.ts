@@ -4,36 +4,59 @@
  * Examples:
  * - john+test@gmail.com → john@gmail.com
  * - jo.hn@gmail.com → john@gmail.com (Gmail only)
- * - john+spam@googlemail.com → john@googlemail.com
+ * - john+spam@googlemail.com → john@gmail.com
  */
 export function normalizeEmail(email: string): string {
   const emailLower = email.toLowerCase().trim();
   
   // Split into local part (before @) and domain (after @)
-  const [localPart, domain] = emailLower.split('@');
-  
-  if (!localPart || !domain) {
-    return emailLower; // Invalid email format, return as-is
+  const at = emailLower.lastIndexOf('@');
+  if (at <= 0) {
+    return emailLower;
   }
 
-  let normalizedLocal = localPart;
+  let localPart = emailLower.slice(0, at);
+  let domain = emailLower.slice(at + 1);
+
+  if (domain === 'googlemail.com') {
+    domain = 'gmail.com';
+  }
 
   // For Gmail and Googlemail: remove dots and plus addressing
-  const isGmail = domain === 'gmail.com' || domain === 'googlemail.com';
+  const isGmail = domain === 'gmail.com';
   
   if (isGmail) {
-    // Remove all dots (Gmail ignores them)
-    normalizedLocal = normalizedLocal.replace(/\./g, '');
+    localPart = localPart.replace(/\./g, '');
   }
 
-  // Remove plus addressing (works for all email providers)
-  // john+test@example.com → john@example.com
-  const plusIndex = normalizedLocal.indexOf('+');
+  const plusIndex = localPart.indexOf('+');
   if (plusIndex !== -1) {
-    normalizedLocal = normalizedLocal.substring(0, plusIndex);
+    localPart = localPart.substring(0, plusIndex);
   }
 
-  return `${normalizedLocal}@${domain}`;
+  return `${localPart}@${domain}`;
+}
+
+/** Alias for FPLEI-style trial-abuse checks (canonical Gmail/plus handling). */
+export function normalizeEmailForAbuseCheck(rawEmail: string): string {
+  return normalizeEmail(rawEmail);
+}
+
+/** Heuristics that often indicate alias farming. */
+export function emailLooksAliasHeavy(rawEmail: string): boolean {
+  const trimmed = rawEmail.trim().toLowerCase();
+  const at = trimmed.lastIndexOf('@');
+  if (at <= 0) return false;
+
+  const local = trimmed.slice(0, at);
+  const domain = trimmed.slice(at + 1);
+
+  if (local.includes('+')) return true;
+  if ((domain === 'gmail.com' || domain === 'googlemail.com') && local.includes('.')) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
