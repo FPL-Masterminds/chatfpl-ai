@@ -43,6 +43,7 @@ import {
   getConversationalReply,
   isConversationalMessage,
 } from "@/lib/chat-conversational";
+import { FOLLOW_UP_ACCEPTANCE_RULES } from "@/lib/chat-follow-up";
 import {
   appendDifyStreamAnswer,
   postProcessAssistantAnswer,
@@ -770,6 +771,8 @@ ${squadWebNames.length > 0 ? `${CHAT_SQUAD_OWNERSHIP_RULES}\n\n` : ""}${CHAT_NO_
 ${CHAT_ABUSE_HANDLING_RULES}
 
 ${CONVERSATIONAL_PROMPT_RULES}
+
+${FOLLOW_UP_ACCEPTANCE_RULES}
 
 PERSONALITY RULES:
 - You are ChatFPL AI, a friendly FPL assistant

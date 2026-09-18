@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { expandAffirmativeFollowUpIfNeeded } from "@/lib/chat-follow-up";
 
 const PROFANITY_RE =
   /\b(fuck(?:ing|ed|er)?|shit|bastard|wanker|twat|bollocks|prick|cunt|bitch|numpty|ripoff|scam|idiot|idio|dolt|moron|stupid|useless)\b/i;
@@ -92,6 +93,15 @@ export async function prepareUserMessageForModel(
 
   if (!modelMessage.trim()) {
     modelMessage = originalMessage.trim();
+  }
+
+  const followUpExpanded = await expandAffirmativeFollowUpIfNeeded(
+    originalMessage,
+    modelMessage,
+    conversationId,
+  );
+  if (followUpExpanded) {
+    modelMessage = followUpExpanded;
   }
 
   const abuseNotice = hadAbuse

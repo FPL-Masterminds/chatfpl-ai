@@ -1,3 +1,5 @@
+import { isAffirmativeFollowUp } from "@/lib/chat-follow-up";
+
 const FPL_QUERY_SIGNAL =
   /\b(captain|transfer|wildcard|free hit|bench boost|triple captain|differential|fixture|fpl|gameweek|gw\d|chip|squad|lineup|price rise|who should i|should i|compare|vs\b|versus|recommend|pick|sell|buy|haaland|salah|palmer|saka|worth it|points per|ownership|clean sheet|defcon|blank|double gameweek|dgw|bgw)\b/i
 
@@ -62,6 +64,7 @@ function isAppHealthQuestion(normalized: string): boolean {
 export function isConversationalMessage(message: string): boolean {
   const normalized = normalizeForMatch(message)
   if (!normalized || normalized.length > 140) return false
+  if (isAffirmativeFollowUp(message)) return false
   if (FPL_QUERY_SIGNAL.test(normalized)) return false
 
   if (CONVERSATIONAL_PATTERNS.some((pattern) => pattern.test(normalized))) {
