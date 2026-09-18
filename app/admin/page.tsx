@@ -1210,6 +1210,21 @@ export default function AdminPage() {
         {activeTab === "admin" && isOwner && (
           <div className="space-y-5">
 
+            <DarkCard>
+              <SectionLabel>Email templates</SectionLabel>
+              <p className="text-sm text-white/70 mb-4">
+                Preview every customer email (signup, billing, rewards, and admin alerts) with live
+                ChatFPL branding. Owner-only; not indexed.
+              </p>
+              <Link
+                href="/devemails"
+                className="inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-black transition hover:brightness-110"
+                style={{ background: "linear-gradient(90deg,#00FF87,#00CFFF)" }}
+              >
+                Open email template gallery
+              </Link>
+            </DarkCard>
+
             {/* Grant VIP */}
             <DarkCard>
               <SectionLabel>Grant VIP Access</SectionLabel>
