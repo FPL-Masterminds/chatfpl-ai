@@ -227,6 +227,7 @@ export default function AdminPage() {
   const [archiveLoading, setArchiveLoading] = useState(false)
   const [vipEmail, setVipEmail] = useState("")
   const [vipLoading, setVipLoading] = useState(false)
+  const [vipWelcomeLoading, setVipWelcomeLoading] = useState(false)
   const [vipMessage, setVipMessage] = useState("")
   const [pendingClaims, setPendingClaims] = useState<PendingClaim[]>([])
   const [claimsLoading, setClaimsLoading] = useState(false)
@@ -311,6 +312,29 @@ export default function AdminPage() {
       setVipMessage(response.ok ? `✅ ${result.message}` : `❌ ${result.error}`)
       if (response.ok) { setVipEmail(""); setTimeout(() => setVipMessage(""), 5000) }
     } catch { setVipMessage("❌ Failed to grant VIP access.") } finally { setVipLoading(false) }
+  }
+
+  const handleSendVipWelcome = async () => {
+    if (!vipEmail.trim()) {
+      setVipMessage("❌ Enter their email first.")
+      return
+    }
+    setVipWelcomeLoading(true)
+    setVipMessage("")
+    try {
+      const response = await fetch("/api/admin/send-vip-welcome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: vipEmail }),
+      })
+      const result = await response.json()
+      setVipMessage(response.ok ? `✅ ${result.message}` : `❌ ${result.error}`)
+      if (response.ok) setTimeout(() => setVipMessage(""), 8000)
+    } catch {
+      setVipMessage("❌ Failed to send VIP welcome email.")
+    } finally {
+      setVipWelcomeLoading(false)
+    }
   }
 
   const fetchArchivedConversations = async () => {
@@ -1252,18 +1276,26 @@ export default function AdminPage() {
                   onChange={(e) => setVipEmail(e.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-white/25 focus:border-[#00FF87]/50 focus:outline-none disabled:opacity-50"
                   required
-                  disabled={vipLoading}
+                  disabled={vipLoading || vipWelcomeLoading}
                 />
                 {vipMessage && (
                   <p className={`text-sm ${vipMessage.includes("✅") ? "text-emerald-400" : "text-red-400"}`}>{vipMessage}</p>
                 )}
                 <button
                   type="submit"
-                  disabled={vipLoading}
+                  disabled={vipLoading || vipWelcomeLoading}
                   className="w-full rounded-xl py-2.5 text-sm font-semibold text-black transition hover:brightness-110 disabled:opacity-40"
                   style={{ background: "linear-gradient(90deg,#FFD700,#FFA500)" }}
                 >
                   {vipLoading ? "Processing..." : "👑 Make VIP"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendVipWelcome}
+                  disabled={vipLoading || vipWelcomeLoading || !vipEmail.trim()}
+                  className="w-full rounded-xl border border-[#FFD700]/40 py-2.5 text-sm font-semibold text-[#FFD700] transition hover:bg-[#FFD700]/10 disabled:opacity-40"
+                >
+                  {vipWelcomeLoading ? "Sending..." : "📧 Send VIP welcome email"}
                 </button>
               </form>
             </DarkCard>

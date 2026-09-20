@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { normalizeEmail } from "@/lib/email-utils";
 import { isSiteOwner } from "@/lib/god-mode";
+import { sendVipGrantEmail, VIP_GRANT_MESSAGES_PER_MONTH } from "@/lib/vip-grant-email";
 
 export async function POST(request: Request) {
   try {
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
     // Find the user
     const targetUser = await prisma.user.findUnique({
       where: { email: normalizedEmail },
-      include: { subscriptions: true }
+      include: { subscriptions: true },
     });
 
     if (!targetUser) {
@@ -84,19 +85,35 @@ export async function POST(request: Request) {
       await prisma.usageTracking.update({
         where: { id: usage.id },
         data: {
-          messages_limit: 100,
+          messages_limit: VIP_GRANT_MESSAGES_PER_MONTH,
           messages_used: 0 // Reset their usage
         }
       });
     }
 
+    let emailSent = false
+    try {
+      const sendResult = await sendVipGrantEmail({
+        to: targetUser.email,
+        name: targetUser.name,
+        unsubscribeToken: targetUser.unsubscribe_token,
+      })
+      emailSent = sendResult.ok
+      if (!sendResult.ok) {
+        console.error("VIP grant email failed:", sendResult.error)
+      }
+    } catch (emailError) {
+      console.error("VIP grant email failed:", emailError)
+    }
+
     return NextResponse.json({
-      message: `${targetUser.name || targetUser.email} has been granted VIP access!`,
+      message: `${targetUser.name || targetUser.email} has been granted VIP access!${emailSent ? " Welcome email sent." : ""}`,
       user: {
         name: targetUser.name,
         email: targetUser.email,
         plan: "VIP",
-        messages: 100
+        messages: VIP_GRANT_MESSAGES_PER_MONTH,
+        emailSent,
       }
     }, { status: 200 });
 

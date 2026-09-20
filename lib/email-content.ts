@@ -57,6 +57,39 @@ export function buildResendVerificationContent(opts: { verificationUrl: string }
   `
 }
 
+/** Complimentary VIP (friends & family). Sent when owner grants VIP from admin. */
+export function buildVipGrantContent(opts: {
+  name?: string | null
+  messagesPerMonth: number
+}) {
+  const firstName = opts.name?.trim().split(/\s+/)[0]
+  const hi = firstName ? firstName : "there"
+
+  return {
+    subject: "You've got VIP access on ChatFPL AI",
+    content: `
+      <h2 style="color: #2E0032;">You're on VIP, ${hi} 👑</h2>
+      <p>John has upgraded your ChatFPL AI account to <strong>VIP</strong>. It's our way of saying thanks for being part of the inner circle.</p>
+
+      <div style="background-color: #f3f4f6; padding: 18px; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0 0 10px; font-weight: bold; color: #2E0032;">What you get</p>
+        <ul style="margin: 0; padding-left: 20px; color: #444;">
+          <li><strong>${opts.messagesPerMonth} AI messages</strong> each month (resets on your VIP renewal date)</li>
+          <li>Full access to live FPL chat, stats, and the same tools paying members use</li>
+          <li>No card required. This is complimentary.</li>
+        </ul>
+      </div>
+
+      <p>Sign in and ask anything: captain picks, transfers, injury fallouts, or a full squad roast.</p>
+      <div style="text-align: center; margin: 28px 0;">
+        <a href="${SITE_URL}/chat" class="button">Start chatting</a>
+      </div>
+      <p style="color: #666; font-size: 14px;">Your message balance and plan are on your <a href="${SITE_URL}/admin" style="color: #00FF86;">account page</a>.</p>
+      <p style="margin-top: 24px;">Enjoy the season,<br/><strong>John &amp; the ChatFPL AI team</strong></p>
+    `,
+  }
+}
+
 export function buildPasswordResetContent(opts: { name?: string | null; resetUrl: string }) {
   return `
     <h2 style="color: #2E0032;">Reset Your Password</h2>
@@ -377,6 +410,22 @@ export const EMAIL_PREVIEW_DEFINITIONS: EmailPreviewDefinition[] = [
         name: SAMPLE_PREVIEW.name,
         resetUrl: SAMPLE_PREVIEW.resetUrl,
       }),
+  },
+  {
+    id: "vip-grant",
+    group: "user",
+    label: "VIP grant (friends & family)",
+    description:
+      "Sent when the site owner grants VIP from admin (and when resending the welcome from the same panel).",
+    subject: "You've got VIP access on ChatFPL AI",
+    audience: "User upgraded to complimentary VIP",
+    respectsOptOut: false,
+    includeUnsubscribe: true,
+    buildBody: () =>
+      buildVipGrantContent({
+        name: SAMPLE_PREVIEW.name,
+        messagesPerMonth: 100,
+      }).content,
   },
   {
     id: "admin-signup-free",
