@@ -80,7 +80,7 @@ export function buildVipGrantContent(opts: {
         </ul>
       </div>
 
-      <p>Sign in and ask anything: captain picks, transfers, injury fallouts, or a full squad roast.</p>
+      <p>Sign in and ask anything: captain picks, transfer dilemmas, bench order, or how an injury affects your team.</p>
       <div style="text-align: center; margin: 28px 0;">
         <a href="${SITE_URL}/chat" class="button">Start chatting</a>
       </div>
