@@ -6,10 +6,21 @@ Instagram only. Does not touch your Twitter / IFTTT project.
 
 | Project | What it does |
 |---------|----------------|
-| **ChatFPL.ai** (existing) | Screenshot -> `ChatFPL_Screenshots` -> IFTTT -> X |
+| **ChatFPL.ai** (Twitter) | Screenshot -> `ChatFPL_Screenshots` -> IFTTT -> X. Repo: `scripts/google-apps-script/chatfpl-twitter/Code.gs` |
 | **ChatFPL Instagram** (this one) | Screenshot -> Buffer queue -> Instagram |
 
 Turn off the failing IFTTT **Drive -> Buffer** applet.
+
+## ScreenshotOne quota (why X posts != API usage)
+
+Both projects use the **same** `SCREENSHOTONE_ACCESS_KEY`. **Every** `/take` request counts toward your plan, including:
+
+- Each daily X capture (1/day after you update triggers)
+- Each daily Instagram capture (1/day)
+- Failed runs that retry
+- Opening the **ScreenshotOne API URL** from the admin social screenshots page (it executes a capture)
+
+Example: with **3 posts/day on X and 3 on Instagram**, you burn **~6 captures/day** even though IFTTT only tweeted 3 times. That explains ~50 API uses vs ~19 visible X posts over a few weeks.
 
 ## Create the project
 
@@ -27,14 +38,16 @@ Turn off the failing IFTTT **Drive -> Buffer** applet.
 5. Run **`fetchBufferInstagramChannelId`** -> open **Execution log**
 6. Copy the Instagram id into Script property **`BUFFER_INSTAGRAM_CHANNEL_ID`**
 7. Run **`postSlot1`** once to test -> check Buffer **Publish** queue
-8. Run **`setupStaggeredTriggers`** once (9:00, 14:00, 19:00)
+8. Run **`setupStaggeredTriggers`** once (**09:00** London only, one post per day)
+
+Update the **Twitter** project the same way: paste `chatfpl-twitter/Code.gs` and run **`setupDailyTrigger`** once.
 
 ## Notes
 
 - Images archive to Drive folder **`ChatFPL_Instagram`** (backup only)
 - Buffer uses ScreenshotOne's hosted `screenshot_url` / `cache_url`, not the `/take` API link or Drive
-- Uses 3 extra ScreenshotOne captures per day (separate from Twitter)
-- Apps Script triggers fire at 9:00 / 14:00 / 19:00; Buffer publishes at your queue times (e.g. 9:05 / 14:05 / 19:05)
+- **One** ScreenshotOne capture per day on Instagram (slot 1). Hub rotates on the site by date.
+- Apps Script trigger at **09:00** London; Buffer publishes at your queue time
 
 ## Troubleshooting
 

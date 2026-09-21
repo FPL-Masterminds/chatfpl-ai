@@ -50,6 +50,7 @@ export function buildScreenshotOneApiUrl(pageUrl: string, accessKey: string): st
     "block_ads=true",
     "block_cookie_banners=true",
     "block_trackers=true",
+    "cache=false",
   ];
   return `https://api.screenshotone.com/take?${params.join("&")}`;
 }
@@ -200,13 +201,15 @@ function buildPipelines(values: {
       appsScriptProject: "ChatFPL.ai",
       driveFolder: "ChatFPL_Screenshots",
       destination: "IFTTT applet watches Drive folder, posts to X",
-      schedule: ["09:00", "14:00", "19:00"],
+      schedule: ["09:00"],
       scriptProperties: buildScriptProperties(sharedProps, values),
-      functions: ["postSlot1", "postSlot2", "postSlot3", "setupStaggeredTriggers"],
+      functions: ["postSlot1", "postDaily", "setupStaggeredTriggers"],
       setupNotes: [
         "Keep this project separate from Instagram.",
-        "Each slot saves a PNG to ChatFPL_Screenshots. IFTTT picks up new files.",
+        "One ScreenshotOne capture per day (slot 1). Repo: scripts/google-apps-script/chatfpl-twitter/Code.gs",
+        "Each run saves a PNG to ChatFPL_Screenshots. IFTTT picks up new files.",
         "Use Europe/London timezone in Apps Script project settings.",
+        "ScreenshotOne quota is shared with Instagram: each /take call counts, including retries and admin test URLs.",
       ],
     },
     {
@@ -217,7 +220,7 @@ function buildPipelines(values: {
       appsScriptProject: "ChatFPL Instagram",
       driveFolder: "ChatFPL_Instagram",
       destination: "Buffer Publish queue (ScreenshotOne URL, not Drive link)",
-      schedule: ["09:00", "14:00", "19:00"],
+      schedule: ["09:00"],
       scriptProperties: buildScriptProperties(
         [
           ...sharedProps,
@@ -233,8 +236,7 @@ function buildPipelines(values: {
         "fetchBufferInstagramChannelId",
         "verifyBufferInstagramChannelId",
         "postSlot1",
-        "postSlot2",
-        "postSlot3",
+        "postDaily",
         "setupStaggeredTriggers",
       ],
       setupNotes: [
@@ -290,7 +292,7 @@ export async function getSocialScreenshotAdminConfig(
   const bufferChannelId = getBufferInstagramChannelId();
   const captureTokenConfigured = captureToken.length > 0;
   const screenshotOneConfigured = accessKey.length > 0;
-  const postTimes = ["09:00", "14:00", "19:00"];
+  const postTimes = ["09:00"];
 
   const propertyValues = {
     captureToken,
@@ -343,6 +345,9 @@ export async function getSocialScreenshotAdminConfig(
     slots,
     postTimes,
     rotationNote:
-      "Three posts per day on X and Instagram. ChatFPL rotates which hub each slot shows. Social cards use stricter ownership filters than SEO pages (5%+ for template hubs, 2-15% for differentials, top 15 picks only).",
+      "One automated post per day on X (slot 1) and one on Instagram (slot 1), both at 09:00 London. " +
+      "The hub rotates daily via hubForSlot. Slots 2 and 3 are for manual preview only. " +
+      "ScreenshotOne: same API key for X + IG (~2 billable captures/day when both run, plus any retries or opening the ScreenshotOne API URL from this page). " +
+      "Social cards use stricter ownership filters than SEO pages (5%+ for template hubs, 2-15% for differentials, top 15 picks only).",
   };
 }

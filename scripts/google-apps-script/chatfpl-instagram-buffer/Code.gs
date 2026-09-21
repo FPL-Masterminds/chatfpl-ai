@@ -17,7 +17,8 @@
  * 5. Turn OFF the IFTTT Drive -> Buffer Instagram applet (it fails without post type)
  */
 
-const POST_TIMES = ['09:00', '14:00', '19:00'];
+/** One Instagram capture per day (slot 1). Hub rotates via hubForSlot on the site. */
+const POST_TIMES = ['09:00'];
 const DRIVE_FOLDER_NAME = 'ChatFPL_Instagram';
 const BUFFER_API_URL = 'https://api.buffer.com';
 const CAPTION = 'Fantasy Premier League insights powered ChatFPL.ai';
@@ -222,21 +223,24 @@ function postSlot3() {
 }
 
 function setupStaggeredTriggers() {
-  const handlers = ['postSlot1', 'postSlot2', 'postSlot3'];
-
   ScriptApp.getProjectTriggers().forEach(function (trigger) {
     ScriptApp.deleteTrigger(trigger);
   });
 
-  POST_TIMES.forEach(function (time, i) {
+  POST_TIMES.forEach(function (time) {
     const parts = time.split(':');
-    ScriptApp.newTrigger(handlers[i])
+    ScriptApp.newTrigger('postSlot1')
       .timeBased()
       .atHour(parseInt(parts[0], 10))
       .nearMinute(parseInt(parts[1], 10))
       .everyDays(1)
       .create();
   });
+}
+
+/** Alias for manual runs. Same as postSlot1. */
+function postDaily() {
+  captureAndQueueInstagram(0);
 }
 
 /**

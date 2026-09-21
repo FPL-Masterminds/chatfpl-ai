@@ -80,38 +80,23 @@ export function resolveFplGameweekContext(
   };
 }
 
-/** Hours after a GW deadline to label social cards with that live GW (not the next countdown). */
-const SOCIAL_CARD_LIVE_GW_MAX_HOURS = 120;
-
 /**
  * Gameweek number on X/Instagram cards.
- * Before a deadline: the upcoming GW managers are preparing for.
- * Just after deadline until that GW finishes: the GW that locked (e.g. GW6 at 7pm after 18:30 deadline).
+ * Always the next FPL deadline still in the future (prep GW). As soon as a deadline
+ * passes, labels flip to the following gameweek even if matches are still playing.
  */
 export function resolveSocialCardGameweek(
   events: FplEventLike[],
-  fixtures: FplFixtureLike[],
+  _fixtures: FplFixtureLike[],
   nowMs = Date.now(),
 ): number {
   const sorted = [...events].sort((a, b) => a.id - b.id);
   const upcoming = sorted.find(
     (e) => e.deadline_time && Date.parse(e.deadline_time) > nowMs,
   );
-  const ctx = resolveFplGameweekContext(events, fixtures);
-
-  if (ctx.currentEvent?.deadline_time) {
-    const hoursSinceDeadline =
-      (nowMs - Date.parse(ctx.currentEvent.deadline_time)) / (3600 * 1000);
-    if (
-      hoursSinceDeadline >= 0 &&
-      hoursSinceDeadline <= SOCIAL_CARD_LIVE_GW_MAX_HOURS &&
-      !ctx.currentGwComplete
-    ) {
-      return ctx.currentGwId;
-    }
-  }
-
   if (upcoming?.id) return upcoming.id;
+
+  const ctx = resolveFplGameweekContext(events, _fixtures);
   return ctx.planningGwId;
 }
 
