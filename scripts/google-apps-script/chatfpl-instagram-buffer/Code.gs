@@ -3,7 +3,7 @@
  *
  * Do NOT merge this with your Twitter project.
  * Twitter:  ScreenshotOne -> Drive (ChatFPL_Screenshots) -> IFTTT -> X
- * Instagram: ScreenshotOne -> Buffer queue -> chatfpl_ai (this script only)
+ * Instagram (+ optional Facebook Page): ScreenshotOne -> Buffer queue
  *
  * Setup (one time):
  * 1. script.google.com -> New project -> paste this file -> name it ChatFPL Instagram
@@ -35,6 +35,11 @@ function getProp(key) {
     throw new Error('Missing Script property: ' + key);
   }
   return value.trim();
+}
+
+function getOptionalProp(key) {
+  const value = PropertiesService.getScriptProperties().getProperty(key);
+  return value ? value.trim() : '';
 }
 
 function cardPageUrl(slot) {
@@ -139,8 +144,7 @@ function bufferGraphql(query) {
   return json;
 }
 
-function queueInstagramPost(imageUrl, caption) {
-  const channelId = getProp('BUFFER_INSTAGRAM_CHANNEL_ID');
+function queueBufferImagePost(channelId, imageUrl, caption, metadataLine) {
   const mutation = [
     'mutation {',
     '  createPost(input: {',
@@ -149,7 +153,7 @@ function queueInstagramPost(imageUrl, caption) {
     '    schedulingType: automatic',
     '    mode: addToQueue',
     '    assets: [{ image: { url: "' + escapeGraphqlString(imageUrl) + '" } }]',
-    '    metadata: { instagram: { type: post, shouldShareToFeed: true } }',
+    metadataLine,
     '  }) {',
     '    ... on PostActionSuccess { post { id dueAt } }',
     '    ... on MutationError { message }',
@@ -164,14 +168,25 @@ function queueInstagramPost(imageUrl, caption) {
   }
   if (result.message) {
     throw new Error(
-      'Buffer createPost failed: ' +
-        result.message +
-        ' (channelId=' +
-        channelId +
-        '). Run verifyBufferInstagramChannelId if unsure.',
+      'Buffer createPost failed: ' + result.message + ' (channelId=' + channelId + ').',
     );
   }
   return result.post;
+}
+
+function queueInstagramPost(imageUrl, caption) {
+  const channelId = getProp('BUFFER_INSTAGRAM_CHANNEL_ID');
+  return queueBufferImagePost(
+    channelId,
+    imageUrl,
+    caption,
+    '    metadata: { instagram: { type: post, shouldShareToFeed: true } },',
+  );
+}
+
+function queueFacebookPost(imageUrl, caption) {
+  const channelId = getProp('BUFFER_FACEBOOK_CHANNEL_ID');
+  return queueBufferImagePost(channelId, imageUrl, caption, '');
 }
 
 function captureAndQueueInstagram(cardIndex) {
@@ -195,19 +210,24 @@ function captureAndQueueInstagram(cardIndex) {
   archiveScreenshot(folder, imageResponse.getBlob(), filename);
 
   // Buffer needs a direct image URL. Drive links and ScreenshotOne API URLs do not work.
-  const post = queueInstagramPost(imageUrl, CAPTION);
-
+  const igPost = queueInstagramPost(imageUrl, CAPTION);
   Logger.log(
     'Queued Instagram post ' +
-      post.id +
+      igPost.id +
       ' for ' +
-      post.dueAt +
+      igPost.dueAt +
       ' (' +
       filename +
-      ', image=' +
-      imageUrl +
       ')',
   );
+
+  const facebookChannelId = getOptionalProp('BUFFER_FACEBOOK_CHANNEL_ID');
+  if (facebookChannelId) {
+    const fbPost = queueFacebookPost(imageUrl, CAPTION);
+    Logger.log('Queued Facebook post ' + fbPost.id + ' for ' + fbPost.dueAt);
+  } else {
+    Logger.log('Skipped Facebook (set BUFFER_FACEBOOK_CHANNEL_ID after connecting Page in Buffer).');
+  }
 }
 
 function postSlot1() {
@@ -247,7 +267,14 @@ function postDaily() {
  * Run once after adding BUFFER_API_KEY.
  * Copy the Instagram channel id into Script property BUFFER_INSTAGRAM_CHANNEL_ID.
  */
-function fetchBufferInstagramChannelId() {
+/**
+ * Lists all Buffer channels. Copy ids into Script properties for Instagram and Facebook.
+ */
+function listBufferChannels() {
+  fetchBufferInstagramChannelId(true);
+}
+
+function fetchBufferInstagramChannelId(listAll) {
   const accountJson = bufferGraphql(
     'query { account { organizations { id name } } }',
   );
@@ -286,13 +313,27 @@ function fetchBufferInstagramChannelId() {
   const instagram = channels.filter(function (channel) {
     return String(channel.service).toLowerCase() === 'instagram';
   });
-  if (!instagram.length) {
+  const facebook = channels.filter(function (channel) {
+    return String(channel.service).toLowerCase() === 'facebook';
+  });
+
+  if (!instagram.length && !listAll) {
     throw new Error('No Instagram channel found. Connect Instagram in Buffer first.');
   }
 
   Logger.log('');
-  Logger.log('Set Script property BUFFER_INSTAGRAM_CHANNEL_ID to:');
-  Logger.log(instagram[0].id);
+  if (instagram.length) {
+    Logger.log('Set BUFFER_INSTAGRAM_CHANNEL_ID to:');
+    Logger.log(instagram[0].id);
+  }
+  if (facebook.length) {
+    Logger.log('Set BUFFER_FACEBOOK_CHANNEL_ID to (optional, same image as Instagram):');
+    facebook.forEach(function (channel) {
+      Logger.log('  ' + channel.displayName + ' -> ' + channel.id);
+    });
+  } else {
+    Logger.log('No Facebook channel yet. In Buffer: Channels -> Connect -> Facebook Page (Chatfpl AI).');
+  }
 }
 
 /**

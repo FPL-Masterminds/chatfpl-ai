@@ -1,13 +1,13 @@
-# ChatFPL Instagram (separate Apps Script)
+# ChatFPL Instagram + optional Facebook Page (separate Apps Script)
 
-Instagram only. Does not touch your Twitter / IFTTT project.
+Instagram via Buffer. Optional **same image** to your **Facebook Page** via Buffer (not Meta Accounts Centre). Does not touch your Twitter / IFTTT project.
 
 ## Two projects
 
 | Project | What it does |
 |---------|----------------|
 | **ChatFPL.ai** (Twitter) | Screenshot -> `ChatFPL_Screenshots` -> IFTTT -> X. Repo: `scripts/google-apps-script/chatfpl-twitter/Code.gs` |
-| **ChatFPL Instagram** (this one) | Screenshot -> Buffer queue -> Instagram |
+| **ChatFPL Instagram** (this one) | Screenshot -> Buffer queue -> Instagram (+ optional Facebook Page) |
 
 Turn off the failing IFTTT **Drive -> Buffer** applet.
 
@@ -48,6 +48,18 @@ Update the **Twitter** project the same way: paste `chatfpl-twitter/Code.gs` and
 - Buffer uses ScreenshotOne's hosted `screenshot_url` / `cache_url`, not the `/take` API link or Drive
 - **One** ScreenshotOne capture per day on Instagram (slot 1). Hub rotates on the site by date.
 - Apps Script trigger at **09:00** London; Buffer publishes at your queue time
+
+## Facebook Page (same post as Instagram)
+
+Do **not** use Meta **Accounts Centre → Sharing across profiles**. That only targets your **personal** Facebook profile, not the Chatfpl AI Page, and there is no picker to fix it.
+
+1. **Accounts Centre** → **Sharing across profiles** → turn **Your Instagram posts** **OFF** (stops posting to your personal profile).
+2. Open [https://publish.buffer.com/](https://publish.buffer.com/) → left sidebar **Channels** → **Connect channel** → **Facebook** → **Page** → **Chatfpl AI**.
+3. In Apps Script project **ChatFPL Instagram**: paste latest `Code.gs` from this folder.
+4. Run **`listBufferChannels`** → **Execution log** → copy the **Facebook** channel id into Script property **`BUFFER_FACEBOOK_CHANNEL_ID`** (Instagram id stays in **`BUFFER_INSTAGRAM_CHANNEL_ID`**).
+5. Run **`postSlot1`** once → in Buffer **Queue**, you should see **two** posts (Instagram + Facebook) with the same image.
+
+One ScreenshotOne capture per run. Facebook is skipped if `BUFFER_FACEBOOK_CHANNEL_ID` is not set.
 
 ## Troubleshooting
 
