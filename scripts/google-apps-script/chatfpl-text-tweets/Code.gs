@@ -38,7 +38,52 @@ const POST_TIMES = ['08:00', '13:00', '18:00'];
 const TRIGGER_HANDLER = 'publishNextTweetToOutbox';
 
 function getSpreadsheet() {
+  const active = SpreadsheetApp.getActiveSpreadsheet();
+  if (active && active.getId() === SPREADSHEET_ID) {
+    return active;
+  }
   return SpreadsheetApp.openById(SPREADSHEET_ID);
+}
+
+/**
+ * Run this first if testPublishNextTweet hangs or fails.
+ * View: Executions -> latest run -> Logs (or legacy Execution log).
+ */
+function debugTextTweetSetup() {
+  Logger.log('Step 1: opening spreadsheet ' + SPREADSHEET_ID);
+  let ss;
+  try {
+    ss = getSpreadsheet();
+  } catch (e) {
+    Logger.log('FAILED to open sheet. Use the same Google account that owns the sheet. Error: ' + e);
+    throw e;
+  }
+  Logger.log('Step 2: opened "' + ss.getName() + '"');
+
+  const names = ss.getSheets().map(function (s) {
+    return s.getName() + ' (lastRow=' + s.getLastRow() + ')';
+  });
+  Logger.log('Step 3: tabs: ' + names.join(', '));
+
+  const tweets = ss.getSheetByName(TWEETS_SHEET_NAME);
+  if (!tweets) {
+    Logger.log(
+      'MISSING tab "' +
+        TWEETS_SHEET_NAME +
+        '". Create it or run testPublishNextTweet (script can create tabs).',
+    );
+    return;
+  }
+  if (tweets.getLastRow() < 2) {
+    Logger.log(
+      'Tab "' +
+        TWEETS_SHEET_NAME +
+        '" has no tweet rows. Put text in column A from row 2 up (not only on Sheet1).',
+    );
+    return;
+  }
+  Logger.log('Step 4: A2 preview: ' + String(tweets.getRange(2, 1).getValue()).slice(0, 80));
+  Logger.log('OK. Run testPublishNextTweet next.');
 }
 
 function ensureSheets(ss) {
@@ -117,7 +162,15 @@ function publishNextTweetToOutbox() {
 
 /** Manual test (same as trigger). */
 function testPublishNextTweet() {
-  publishNextTweetToOutbox();
+  Logger.log('testPublishNextTweet: start');
+  try {
+    publishNextTweetToOutbox();
+    SpreadsheetApp.flush();
+    Logger.log('testPublishNextTweet: done');
+  } catch (e) {
+    Logger.log('testPublishNextTweet: ERROR ' + e);
+    throw e;
+  }
 }
 
 /** Clears posted flags so the queue cycles again (does not clear Outbox). */
