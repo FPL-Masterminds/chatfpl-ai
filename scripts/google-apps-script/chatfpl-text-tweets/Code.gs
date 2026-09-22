@@ -41,6 +41,15 @@ const STRIP_URLS_FROM_TWEET = true;
 const APPEND_LINK_LINE = '';
 
 /**
+ * First line = headline (no bullet). Further lines get a green circle bullet on X.
+ * Set false if you type bullets yourself in the sheet.
+ */
+const BULLETIZE_LINES_AFTER_FIRST = true;
+
+/** Unicode large green circle (works on X). */
+const BULLET_EMOJI = '\uD83D\uDFE2 ';
+
+/**
  * Three runs per day, 24h clock, project timezone (set Europe/London).
  * Change times here if you want different slots.
  */
@@ -147,7 +156,37 @@ function normalizeTweetText(raw) {
       text = text ? text + '\n' + line : line;
     }
   }
-  return text;
+  return applyGreenCircleBullets(text);
+}
+
+function applyGreenCircleBullets(text) {
+  if (!BULLETIZE_LINES_AFTER_FIRST || !text) {
+    return text;
+  }
+  const lines = text.split('\n');
+  if (lines.length <= 1) {
+    return text;
+  }
+  const green = BULLET_EMOJI.trim();
+  return lines
+    .map(function (line, index) {
+      let t = line.trim();
+      if (!t) {
+        return '';
+      }
+      if (index === 0) {
+        return t;
+      }
+      if (t.indexOf(green) === 0) {
+        return t;
+      }
+      t = t.replace(/^\u2022\s+/, '').replace(/^[-*]\s+/, '');
+      return BULLET_EMOJI + t;
+    })
+    .filter(function (line) {
+      return line !== '';
+    })
+    .join('\n');
 }
 
 /**

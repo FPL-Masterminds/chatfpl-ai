@@ -25,6 +25,15 @@ Turn on **Format -> Wrapping -> Wrap** on column A (the script enables wrap on c
 
 Do not put `https://...` in the tweet column if you hate how X looks. The script strips URLs before posting when `STRIP_URLS_FROM_TWEET` is true (default). Your X bio / pinned post can carry the link. Optional: set `APPEND_LINK_LINE` to `chatfpl.ai` in `Code.gs` for one short domain line without https.
 
+### Green circle bullets
+
+With `BULLETIZE_LINES_AFTER_FIRST = true` (default), the script formats multi-line tweets like:
+
+- Line 1: headline (no bullet)
+- Line 2+: `🟢` before each line
+
+In the sheet you can use plain lines (Ctrl+Enter between them) or start lines with `-` / `•`; the script normalizes to 🟢 on X. Paste 🟢 yourself with **Win+.** (Windows) or **Ctrl+Cmd+Space** (Mac) if you prefer manual control (`BULLETIZE_LINES_AFTER_FIRST = false`).
+
 ### Tab `Outbox`
 
 | A1 | B1 |
