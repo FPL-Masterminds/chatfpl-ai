@@ -1,6 +1,6 @@
 # ChatFPL automated text tweets (FPL API)
 
-9 text posts per day **10:00-18:00** London (9am image stays on the Twitter/ScreenshotOne project).
+9 text posts per day **09:55-17:55** London (sheet + Outbox update; IFTTT posts shortly after). 9am image stays on the Twitter/ScreenshotOne project.
 
 Open script in Cursor: `scripts/google-apps-script/chatfpl-text-tweets/Code.gs`
 
@@ -14,17 +14,17 @@ Open script in Cursor: `scripts/google-apps-script/chatfpl-text-tweets/Code.gs`
 
 ## Schedule (auto-generated, next GW only)
 
-| Time | Topic |
-|------|--------|
-| 10:00 | Deadline DD:HH:MM:SS |
-| 11:00 | xPts leaders |
-| 12:00 | Transfers in |
-| 13:00 | Transfers out |
-| 14:00 | Captain watch |
-| 15:00 | Differentials |
-| 16:00 | Injuries |
-| 17:00 | DEFCON |
-| 18:00 | Player compare |
+| Sheet / Outbox update | Topic (intended hour) |
+|---------------------|------------------------|
+| 09:55 | Deadline countdown (~10am) |
+| 10:55 | xPts leaders (~11am) |
+| 11:55 | Transfers in (~12pm) |
+| 12:55 | Transfers out (~1pm) |
+| 13:55 | Captain watch (~2pm) |
+| 14:55 | Differentials (~3pm) |
+| 15:55 | Injuries (~4pm) |
+| 16:55 | DEFCON (~5pm) |
+| 17:55 | Player compare (~6pm) |
 
 Manual test: **`testFplTweetDeadline`** or **`testFplTweet('xpts')`**.
 

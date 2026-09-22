@@ -24,17 +24,21 @@ const COL_POSTED_AT = 3;
 const COL_TYPE = 4;
 const COL_GW = 5;
 
-/** London time. One handler name per row (Apps Script triggers need a real function). */
+/**
+ * London time. Fire at :55 so Outbox + Tweets update before the hour; IFTTT Pro can poll before :00.
+ * 9am image tweet is still the separate ScreenshotOne project.
+ */
+const FPL_TWEET_SLOT_MINUTE = 55;
 const FPL_TWEET_SLOTS = [
-  { hour: 10, minute: 0, type: 'deadline', handler: 'postFplTweet10' },
-  { hour: 11, minute: 0, type: 'xpts', handler: 'postFplTweet11' },
-  { hour: 12, minute: 0, type: 'transfers_in', handler: 'postFplTweet12' },
-  { hour: 13, minute: 0, type: 'transfers_out', handler: 'postFplTweet13' },
-  { hour: 14, minute: 0, type: 'captain', handler: 'postFplTweet14' },
-  { hour: 15, minute: 0, type: 'differentials', handler: 'postFplTweet15' },
-  { hour: 16, minute: 0, type: 'injuries', handler: 'postFplTweet16' },
-  { hour: 17, minute: 0, type: 'defcon', handler: 'postFplTweet17' },
-  { hour: 18, minute: 0, type: 'compare', handler: 'postFplTweet18' },
+  { hour: 9, type: 'deadline', handler: 'postFplTweet10' },
+  { hour: 10, type: 'xpts', handler: 'postFplTweet11' },
+  { hour: 11, type: 'transfers_in', handler: 'postFplTweet12' },
+  { hour: 12, type: 'transfers_out', handler: 'postFplTweet13' },
+  { hour: 13, type: 'captain', handler: 'postFplTweet14' },
+  { hour: 14, type: 'differentials', handler: 'postFplTweet15' },
+  { hour: 15, type: 'injuries', handler: 'postFplTweet16' },
+  { hour: 16, type: 'defcon', handler: 'postFplTweet17' },
+  { hour: 17, type: 'compare', handler: 'postFplTweet18' },
 ];
 
 function postFplTweet10() {
@@ -479,12 +483,18 @@ function setupFplTextTweetTriggers() {
     ScriptApp.newTrigger(slot.handler)
       .timeBased()
       .atHour(slot.hour)
-      .nearMinute(slot.minute)
+      .nearMinute(FPL_TWEET_SLOT_MINUTE)
       .everyDays(1)
       .create();
   });
 
-  Logger.log('Created ' + FPL_TWEET_SLOTS.length + ' FPL text tweet triggers (10:00-18:00 London).');
+  Logger.log(
+    'Created ' +
+      FPL_TWEET_SLOTS.length +
+      ' FPL text tweet triggers at :' +
+      FPL_TWEET_SLOT_MINUTE +
+      ' London (09:55-17:55).',
+  );
 }
 
 /** Run any slot manually: testFplTweet('deadline') */
