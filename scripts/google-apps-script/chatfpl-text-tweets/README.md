@@ -47,7 +47,7 @@ Create tabs manually or run `testPublishNextTweet` once after pasting the script
 1. Open the [spreadsheet](https://docs.google.com/spreadsheets/d/1-ZRSxETx67c9GD2yfFai_osHYIeCUnr0ziCgccyuGCU/edit).
 2. **Extensions** -> **Apps Script**.
 3. Name project **Text Tweets Script**.
-4. Paste `Code.gs` from this folder.
+4. Paste `Code.gs` from https://www.chatfpl.ai/chatfpl-text-tweets-script (or this repo folder).
 5. **Project Settings** -> Time zone **Europe/London**.
 6. Put at least one tweet in **`Tweets!A2`** (tab `Tweets`, not Sheet1).
 7. Run **`testPublishNextTweet`** -> **Review permissions** -> Allow (same Google account as the sheet).
