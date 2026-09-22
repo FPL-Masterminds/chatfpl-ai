@@ -12,6 +12,19 @@ Three **text** posts per day from [ChatFPL X.com sheet](https://docs.google.com/
 
 Data starts **row 2**. Script posts the first row where `posted` is blank, then sets `YES`.
 
+### Line breaks in a cell
+
+In Google Sheets, **Shift+Enter** usually moves to the next cell. For a new line **inside** the tweet cell use:
+
+- **Windows:** **Ctrl+Enter**
+- **Mac:** **Cmd+Enter**
+
+Turn on **Format -> Wrapping -> Wrap** on column A (the script enables wrap on column A when it creates the tab). X will post those line breaks as separate lines.
+
+### URLs
+
+Do not put `https://...` in the tweet column if you hate how X looks. The script strips URLs before posting when `STRIP_URLS_FROM_TWEET` is true (default). Your X bio / pinned post can carry the link. Optional: set `APPEND_LINK_LINE` to `chatfpl.ai` in `Code.gs` for one short domain line without https.
+
 ### Tab `Outbox`
 
 | A1 | B1 |

@@ -29,6 +29,18 @@ const COL_POSTED_AT = 3;
 const MAX_TWEET_LENGTH = 280;
 
 /**
+ * Remove https:// links from sheet text before posting (keeps tweets readable; no t.co clutter).
+ * Store notes/links in another column if you need them for reference only.
+ */
+const STRIP_URLS_FROM_TWEET = true;
+
+/**
+ * Optional last line without https (e.g. "chatfpl.ai"). Leave "" for no link line.
+ * X may still show a link card only if a URL is in the tweet text; plain domain is cleaner.
+ */
+const APPEND_LINK_LINE = '';
+
+/**
  * Three runs per day, 24h clock, project timezone (set Europe/London).
  * Change times here if you want different slots.
  */
@@ -94,6 +106,7 @@ function ensureSheets(ss) {
       ['tweet', 'posted', 'posted_at'],
     ]);
   }
+  tweets.getRange('A:A').setWrap(true);
   let outbox = ss.getSheetByName(OUTBOX_SHEET_NAME);
   if (!outbox) {
     outbox = ss.insertSheet(OUTBOX_SHEET_NAME, 0);
@@ -111,6 +124,30 @@ function ensureSheets(ss) {
 function isPostedFlag(value) {
   const v = String(value || '').trim().toLowerCase();
   return v === 'yes' || v === 'y' || v === 'true' || v === '1';
+}
+
+/**
+ * Keeps line breaks inside the cell; trims only leading/trailing blank lines.
+ */
+function normalizeTweetText(raw) {
+  let text = String(raw || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  if (STRIP_URLS_FROM_TWEET) {
+    text = text.replace(/https?:\/\/[^\s\n]+/gi, '');
+  }
+  text = text
+    .split('\n')
+    .map(function (line) {
+      return line.replace(/\s+/g, ' ').trim();
+    })
+    .join('\n');
+  text = text.replace(/\n{3,}/g, '\n\n').trim();
+  if (APPEND_LINK_LINE) {
+    const line = String(APPEND_LINK_LINE).trim();
+    if (line && text.indexOf(line) === -1) {
+      text = text ? text + '\n' + line : line;
+    }
+  }
+  return text;
 }
 
 /**
@@ -134,7 +171,7 @@ function publishNextTweetToOutbox() {
   for (let i = 0; i < data.length; i++) {
     if (!isPostedFlag(data[i][COL_POSTED - 1])) {
       pickedIndex = i;
-      text = String(data[i][COL_TWEET - 1] || '').trim();
+      text = normalizeTweetText(data[i][COL_TWEET - 1]);
       break;
     }
   }
