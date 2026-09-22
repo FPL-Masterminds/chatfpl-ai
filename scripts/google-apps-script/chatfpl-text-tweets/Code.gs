@@ -444,7 +444,7 @@ function generateCompareTweet(ctx) {
 function appendTweetLog(sheet, text, type, gw) {
   const row = sheet.getLastRow() + 1;
   const now = new Date();
-  sheet.getRange(row, COL_TWEET, row, COL_GW).setValues([[text, 'YES', now, type, gw]]);
+  sheet.getRange(row, COL_TWEET, 1, COL_GW).setValues([[text, 'YES', now, type, gw]]);
 }
 
 function publishFplScheduledTweet(type) {
