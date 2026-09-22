@@ -186,7 +186,12 @@ function queueInstagramPost(imageUrl, caption) {
 
 function queueFacebookPost(imageUrl, caption) {
   const channelId = getProp('BUFFER_FACEBOOK_CHANNEL_ID');
-  return queueBufferImagePost(channelId, imageUrl, caption, '');
+  return queueBufferImagePost(
+    channelId,
+    imageUrl,
+    caption,
+    '    metadata: { facebook: { type: post } },',
+  );
 }
 
 function captureAndQueueInstagram(cardIndex) {
