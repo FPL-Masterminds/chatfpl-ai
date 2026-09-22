@@ -214,17 +214,25 @@ function composeTweet(headline, bulletParts) {
   return text;
 }
 
-function formatDeadlineCountdown(deadlineMs) {
+function formatDeadlineBulletParts(deadlineMs) {
   const diff = Math.max(0, deadlineMs - Date.now());
   const totalSec = Math.floor(diff / 1000);
   const days = Math.floor(totalSec / 86400);
   const hours = Math.floor((totalSec % 86400) / 3600);
   const mins = Math.floor((totalSec % 3600) / 60);
   const secs = totalSec % 60;
-  function pad(n) {
+  function pad2(n) {
     return n < 10 ? '0' + n : String(n);
   }
-  return days + ':' + pad(hours) + ':' + pad(mins) + ':' + pad(secs);
+  function unit(n, singular, plural) {
+    return n + ' ' + (n === 1 ? singular : plural);
+  }
+  return [
+    unit(days, 'day', 'days'),
+    unit(hours, 'hour', 'hours'),
+    pad2(mins) + ' minutes',
+    pad2(secs) + ' seconds until the next FPL deadline',
+  ];
 }
 
 function topBy(players, filterFn, sortFn, limit) {
@@ -239,9 +247,7 @@ function generateTweetText(type, ctx) {
   const gwLabel = 'GW' + gw;
 
   if (type === 'deadline') {
-    return composeTweet(gwLabel + ' deadline countdown', [
-      formatDeadlineCountdown(ctx.deadlineMs) + ' until the next FPL lock',
-    ]);
+    return composeTweet(gwLabel + ' deadline countdown', formatDeadlineBulletParts(ctx.deadlineMs));
   }
 
   if (type === 'xpts') {
