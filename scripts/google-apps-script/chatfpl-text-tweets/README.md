@@ -37,10 +37,10 @@ Edit `POST_TIMES` in `Code.gs` before step 9 if you want different slots (defaul
 ## IFTTT Applet
 
 1. [Create Applet](https://ifttt.com/create/applet).
-2. **If** Google Sheets -> **Cell updated in spreadsheet** (or **Any cell updated**).
-   - Spreadsheet: **ChatFPL X.com**
-   - Worksheet: **Outbox**
-   - Cell: **A1** (or range `A1`)
+2. **If** Google Sheets -> **Cell updated in spreadsheet**.
+   - Spreadsheet: **ChatFPL X.com** (URL or folder + filename)
+   - **Which cell:** `A1` only (not `Outbox!A1`). IFTTT does not ask for a worksheet; it watches the **first tab** in the file.
+   - The script moves tab **Outbox** to the left (first position) when it runs. Run **`testPublishNextTweet`** once after setup.
 3. **Then** Twitter (X) -> **Post a tweet** (wording varies).
    - Tweet text: ingredient **Value** / **Cell value** from the trigger (column A).
 4. Turn **On**.

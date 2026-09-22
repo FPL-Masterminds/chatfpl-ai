@@ -96,9 +96,14 @@ function ensureSheets(ss) {
   }
   let outbox = ss.getSheetByName(OUTBOX_SHEET_NAME);
   if (!outbox) {
-    outbox = ss.insertSheet(OUTBOX_SHEET_NAME);
+    outbox = ss.insertSheet(OUTBOX_SHEET_NAME, 0);
     outbox.getRange('A1').setValue('');
     outbox.getRange('B1').setValue('updated_at');
+  }
+  // IFTTT "Cell updated" has no worksheet picker: it only watches the first tab (gid=0).
+  if (outbox.getIndex() !== 1) {
+    ss.setActiveSheet(outbox);
+    ss.moveActiveSheet(1);
   }
   return { tweets: tweets, outbox: outbox };
 }
