@@ -27,10 +27,12 @@ Create tabs manually or run `testPublishNextTweet` once after pasting the script
 3. Name project **Text Tweets Script**.
 4. Paste `Code.gs` from this folder.
 5. **Project Settings** -> Time zone **Europe/London**.
-6. Run **`setupTextTweetTriggers`** once (authorize).
-7. Run **`testPublishNextTweet`** once to test.
+6. Put at least one tweet in **`Tweets!A2`** (tab `Tweets`, not Sheet1).
+7. Run **`testPublishNextTweet`** -> **Review permissions** -> Allow (same Google account as the sheet).
+8. Run **`testPublishNextTweet`** again -> check **`Outbox!A1`** has the tweet and **`Tweets!B2`** is `YES`.
+9. Only after step 8 works: run **`setupTextTweetTriggers`** once (3 daily triggers).
 
-Edit `POST_TIMES` in `Code.gs` if you want different slots (default `08:00`, `13:00`, `18:00`).
+Edit `POST_TIMES` in `Code.gs` before step 9 if you want different slots (default `08:00`, `13:00`, `18:00`).
 
 ## IFTTT Applet
 
@@ -45,12 +47,9 @@ Edit `POST_TIMES` in `Code.gs` if you want different slots (default `08:00`, `13
 
 **Important:** Do not include the image Drive Applet logic here. Keep your existing **photo -> X** Applet separate.
 
-## Test
+## IFTTT test
 
-1. Put one tweet in `Tweets!A2`.
-2. Run **`testPublishNextTweet`**.
-3. Check `Outbox!A1` and IFTTT **Activity** (may take up to ~1 hour on free IFTTT).
-4. When satisfied, run **`setupTextTweetTriggers`**.
+After Apps Script step 8, check IFTTT **Activity** when `Outbox!A1` updates (free tier may take up to ~1 hour).
 
 ## Reset queue
 
