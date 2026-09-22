@@ -1,62 +1,69 @@
 /**
- * ChatFPL Text Tweets (Google Sheet -> Outbox cell -> IFTTT -> X)
+ * ChatFPL automated text tweets (FPL API -> Sheet log -> Outbox -> IFTTT -> X)
  *
- * Spreadsheet: https://docs.google.com/spreadsheets/d/1-ZRSxETx67c9GD2yfFai_osHYIeCUnr0ziCgccyuGCU/
+ * Sheet: https://docs.google.com/spreadsheets/d/1-ZRSxETx67c9GD2yfFai_osHYIeCUnr0ziCgccyuGCU/
+ * 9am image tweet: separate ChatFPL.ai / ScreenshotOne project (not this script).
  *
- * Setup:
- * 1. Create tabs "Tweets" and "Outbox" (see README).
- * 2. Paste this file into Apps Script project named "Text Tweets Script"
- *    (Extensions -> Apps Script from the spreadsheet, or standalone with SPREADSHEET_ID).
- * 3. Run setupTextTweetTriggers once (Europe/London project timezone).
- * 4. IFTTT: Google Sheets cell update on Outbox!A1 -> X post tweet text.
+ * Setup: paste this file, timezone Europe/London, run setupFplTextTweetTriggers once.
  */
 
-/** Spreadsheet ID from the sheet URL (path /d/THIS_ID/edit). */
 const SPREADSHEET_ID = '1-ZRSxETx67c9GD2yfFai_osHYIeCUnr0ziCgccyuGCU';
-
-/** Tab with tweet queue. Row 1 = headers. Data from row 2. */
 const TWEETS_SHEET_NAME = 'Tweets';
-
-/** Tab IFTTT watches. A1 = latest tweet text. */
 const OUTBOX_SHEET_NAME = 'Outbox';
+const FPL_BOOTSTRAP_URL = 'https://fantasy.premierleague.com/api/bootstrap-static/';
+const FPL_FIXTURES_URL = 'https://fantasy.premierleague.com/api/fixtures/';
+const MAX_TWEET_LENGTH = 280;
+const BULLET_EMOJI = '\uD83D\uDFE2 ';
+const STRIP_URLS_FROM_TWEET = true;
+const APPEND_LINK_LINE = '';
+const BULLETIZE_LINES_AFTER_FIRST = false;
 
-/** Column letters on Tweets sheet (row 1 = headers). */
 const COL_TWEET = 1;
 const COL_POSTED = 2;
 const COL_POSTED_AT = 3;
+const COL_TYPE = 4;
+const COL_GW = 5;
 
-/** Max length for X (API allows 280). */
-const MAX_TWEET_LENGTH = 280;
+/** London time. One handler name per row (Apps Script triggers need a real function). */
+const FPL_TWEET_SLOTS = [
+  { hour: 10, minute: 0, type: 'deadline', handler: 'postFplTweet10' },
+  { hour: 11, minute: 0, type: 'xpts', handler: 'postFplTweet11' },
+  { hour: 12, minute: 0, type: 'transfers_in', handler: 'postFplTweet12' },
+  { hour: 13, minute: 0, type: 'transfers_out', handler: 'postFplTweet13' },
+  { hour: 14, minute: 0, type: 'captain', handler: 'postFplTweet14' },
+  { hour: 15, minute: 0, type: 'differentials', handler: 'postFplTweet15' },
+  { hour: 16, minute: 0, type: 'injuries', handler: 'postFplTweet16' },
+  { hour: 17, minute: 0, type: 'defcon', handler: 'postFplTweet17' },
+  { hour: 18, minute: 0, type: 'compare', handler: 'postFplTweet18' },
+];
 
-/**
- * Remove https:// links from sheet text before posting (keeps tweets readable; no t.co clutter).
- * Store notes/links in another column if you need them for reference only.
- */
-const STRIP_URLS_FROM_TWEET = true;
-
-/**
- * Optional last line without https (e.g. "chatfpl.ai"). Leave "" for no link line.
- * X may still show a link card only if a URL is in the tweet text; plain domain is cleaner.
- */
-const APPEND_LINK_LINE = '';
-
-/**
- * First line = headline (no bullet). Further lines get a green circle bullet on X.
- * Set false if you type bullets yourself in the sheet.
- */
-const BULLETIZE_LINES_AFTER_FIRST = true;
-
-/** Unicode large green circle (works on X). */
-const BULLET_EMOJI = '\uD83D\uDFE2 ';
-
-/**
- * Three runs per day, 24h clock, project timezone (set Europe/London).
- * Change times here if you want different slots.
- */
-const POST_TIMES = ['08:00', '13:00', '18:00'];
-
-/** Function name used by time triggers. */
-const TRIGGER_HANDLER = 'publishNextTweetToOutbox';
+function postFplTweet10() {
+  publishFplScheduledTweet('deadline');
+}
+function postFplTweet11() {
+  publishFplScheduledTweet('xpts');
+}
+function postFplTweet12() {
+  publishFplScheduledTweet('transfers_in');
+}
+function postFplTweet13() {
+  publishFplScheduledTweet('transfers_out');
+}
+function postFplTweet14() {
+  publishFplScheduledTweet('captain');
+}
+function postFplTweet15() {
+  publishFplScheduledTweet('differentials');
+}
+function postFplTweet16() {
+  publishFplScheduledTweet('injuries');
+}
+function postFplTweet17() {
+  publishFplScheduledTweet('defcon');
+}
+function postFplTweet18() {
+  publishFplScheduledTweet('compare');
+}
 
 function getSpreadsheet() {
   const active = SpreadsheetApp.getActiveSpreadsheet();
@@ -66,63 +73,22 @@ function getSpreadsheet() {
   return SpreadsheetApp.openById(SPREADSHEET_ID);
 }
 
-/**
- * Run this first if testPublishNextTweet hangs or fails.
- * View: Executions -> latest run -> Logs (or legacy Execution log).
- */
-function debugTextTweetSetup() {
-  Logger.log('Step 1: opening spreadsheet ' + SPREADSHEET_ID);
-  let ss;
-  try {
-    ss = getSpreadsheet();
-  } catch (e) {
-    Logger.log('FAILED to open sheet. Use the same Google account that owns the sheet. Error: ' + e);
-    throw e;
-  }
-  Logger.log('Step 2: opened "' + ss.getName() + '"');
-
-  const names = ss.getSheets().map(function (s) {
-    return s.getName() + ' (lastRow=' + s.getLastRow() + ')';
-  });
-  Logger.log('Step 3: tabs: ' + names.join(', '));
-
-  const tweets = ss.getSheetByName(TWEETS_SHEET_NAME);
-  if (!tweets) {
-    Logger.log(
-      'MISSING tab "' +
-        TWEETS_SHEET_NAME +
-        '". Create it or run testPublishNextTweet (script can create tabs).',
-    );
-    return;
-  }
-  if (tweets.getLastRow() < 2) {
-    Logger.log(
-      'Tab "' +
-        TWEETS_SHEET_NAME +
-        '" has no tweet rows. Put text in column A from row 2 up (not only on Sheet1).',
-    );
-    return;
-  }
-  Logger.log('Step 4: A2 preview: ' + String(tweets.getRange(2, 1).getValue()).slice(0, 80));
-  Logger.log('OK. Run testPublishNextTweet next.');
-}
-
 function ensureSheets(ss) {
   let tweets = ss.getSheetByName(TWEETS_SHEET_NAME);
   if (!tweets) {
     tweets = ss.insertSheet(TWEETS_SHEET_NAME);
-    tweets.getRange(1, COL_TWEET, 1, COL_POSTED_AT).setValues([
-      ['tweet', 'posted', 'posted_at'],
-    ]);
+  }
+  if (tweets.getLastRow() < 1 || !tweets.getRange(1, 1).getValue()) {
+    tweets.getRange(1, 1, 1, COL_GW).setValues([['tweet', 'posted', 'posted_at', 'type', 'gw']]);
   }
   tweets.getRange('A:A').setWrap(true);
+
   let outbox = ss.getSheetByName(OUTBOX_SHEET_NAME);
   if (!outbox) {
     outbox = ss.insertSheet(OUTBOX_SHEET_NAME, 0);
     outbox.getRange('A1').setValue('');
     outbox.getRange('B1').setValue('updated_at');
   }
-  // IFTTT "Cell updated" has no worksheet picker: it only watches the first tab (gid=0).
   if (outbox.getIndex() !== 1) {
     ss.setActiveSheet(outbox);
     ss.moveActiveSheet(1);
@@ -130,156 +96,410 @@ function ensureSheets(ss) {
   return { tweets: tweets, outbox: outbox };
 }
 
-function isPostedFlag(value) {
-  const v = String(value || '').trim().toLowerCase();
-  return v === 'yes' || v === 'y' || v === 'true' || v === '1';
+function fetchJson(url) {
+  const response = UrlFetchApp.fetch(url, {
+    muteHttpExceptions: true,
+    headers: { 'User-Agent': 'ChatFPL/1.0' },
+  });
+  if (response.getResponseCode() !== 200) {
+    throw new Error('FPL fetch failed ' + response.getResponseCode() + ' ' + url);
+  }
+  return JSON.parse(response.getContentText());
 }
 
-/**
- * Keeps line breaks inside the cell; trims only leading/trailing blank lines.
- */
-function normalizeTweetText(raw) {
-  let text = String(raw || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  if (STRIP_URLS_FROM_TWEET) {
-    text = text.replace(/https?:\/\/[^\s\n]+/gi, '');
-  }
-  text = text
-    .split('\n')
-    .map(function (line) {
-      return line.replace(/\s+/g, ' ').trim();
-    })
-    .join('\n');
-  text = text.replace(/\n{3,}/g, '\n\n').trim();
-  if (APPEND_LINK_LINE) {
-    const line = String(APPEND_LINK_LINE).trim();
-    if (line && text.indexOf(line) === -1) {
-      text = text ? text + '\n' + line : line;
+function resolvePlanningEvent(events) {
+  const now = Date.now();
+  const sorted = events.slice().sort(function (a, b) {
+    return a.id - b.id;
+  });
+  for (let i = 0; i < sorted.length; i++) {
+    const e = sorted[i];
+    if (e.deadline_time && Date.parse(e.deadline_time) > now) {
+      return e;
     }
   }
-  return applyGreenCircleBullets(text);
+  const next = sorted.filter(function (e) {
+    return e.is_next;
+  })[0];
+  if (next) {
+    return next;
+  }
+  const current = sorted.filter(function (e) {
+    return e.is_current;
+  })[0];
+  return current || sorted[0];
 }
 
-function applyGreenCircleBullets(text) {
-  if (!BULLETIZE_LINES_AFTER_FIRST || !text) {
-    return text;
-  }
-  const lines = text.split('\n');
-  if (lines.length <= 1) {
-    return text;
-  }
-  const green = BULLET_EMOJI.trim();
-  return lines
-    .map(function (line, index) {
-      let t = line.trim();
-      if (!t) {
-        return '';
-      }
-      if (index === 0) {
-        return t;
-      }
-      if (t.indexOf(green) === 0) {
-        return t;
-      }
-      t = t.replace(/^\u2022\s+/, '').replace(/^[-*]\s+/, '');
-      return BULLET_EMOJI + t;
-    })
-    .filter(function (line) {
-      return line !== '';
-    })
-    .join('\n');
+function buildFplContext() {
+  const bootstrap = fetchJson(FPL_BOOTSTRAP_URL);
+  const events = bootstrap.events || [];
+  const teams = bootstrap.teams || [];
+  const elements = bootstrap.elements || [];
+  const planningEvent = resolvePlanningEvent(events);
+  const gw = planningEvent.id;
+  const teamShort = {};
+  teams.forEach(function (t) {
+    teamShort[t.id] = t.short_name;
+  });
+  const players = elements.map(function (e) {
+    return {
+      id: e.id,
+      name: e.web_name,
+      team: teamShort[e.team] || '',
+      ep: parseFloat(e.ep_next) || 0,
+      form: parseFloat(e.form) || 0,
+      sel: parseFloat(e.selected_by_percent) || 0,
+      ti: e.transfers_in_event || 0,
+      to: e.transfers_out_event || 0,
+      status: e.status,
+      news: e.news || '',
+      price: (e.now_cost / 10).toFixed(1),
+      type: e.element_type,
+      mins: e.minutes || 0,
+      dc90: parseFloat(e.defensive_contribution_per_90) || 0,
+      goals: e.goals_scored || 0,
+      assists: e.assists || 0,
+      pts: e.total_points || 0,
+    };
+  });
+  return {
+    planningEvent: planningEvent,
+    gw: gw,
+    players: players,
+    deadlineMs: planningEvent.deadline_time ? Date.parse(planningEvent.deadline_time) : 0,
+  };
 }
 
-/**
- * Picks the first unposted tweet (top to bottom), writes to Outbox!A1, marks row posted.
- */
-function publishNextTweetToOutbox() {
-  const ss = getSpreadsheet();
-  const sheets = ensureSheets(ss);
-  const tweets = sheets.tweets;
-  const outbox = sheets.outbox;
+function tweetCharLength(text) {
+  return String(text).length;
+}
 
-  const lastRow = tweets.getLastRow();
-  if (lastRow < 2) {
-    throw new Error('No tweets in sheet "' + TWEETS_SHEET_NAME + '". Add rows from row 2.');
-  }
+/** Headline + as many green-circle bullets as fit in 280 (emoji counts as 2). */
+function composeTweet(headline, bulletParts) {
+  headline = String(headline || '').replace(/\s+/g, ' ').trim();
+  const bullets = (bulletParts || [])
+    .map(function (b) {
+      return String(b).replace(/\s+/g, ' ').trim();
+    })
+    .filter(function (b) {
+      return b;
+    });
 
-  const data = tweets.getRange(2, 1, lastRow, COL_POSTED_AT).getValues();
-  let pickedIndex = -1;
-  let text = '';
-
-  for (let i = 0; i < data.length; i++) {
-    if (!isPostedFlag(data[i][COL_POSTED - 1])) {
-      pickedIndex = i;
-      text = normalizeTweetText(data[i][COL_TWEET - 1]);
+  let lines = [headline];
+  for (let i = 0; i < bullets.length; i++) {
+    const nextLine = BULLET_EMOJI + bullets[i];
+    const candidate = lines.concat([nextLine]).join('\n');
+    if (tweetCharLength(candidate) > MAX_TWEET_LENGTH) {
       break;
     }
+    lines.push(nextLine);
   }
 
-  if (pickedIndex < 0) {
-    Logger.log('All tweets marked posted. Run resetTweetQueue() or add new rows.');
-    return;
+  let text = lines.join('\n');
+  if (tweetCharLength(text) > MAX_TWEET_LENGTH) {
+    text = text.slice(0, MAX_TWEET_LENGTH - 1) + '\u2026';
+  }
+  if (STRIP_URLS_FROM_TWEET) {
+    text = text.replace(/https?:\/\/[^\s\n]+/gi, '').trim();
+  }
+  if (APPEND_LINK_LINE && text.indexOf(APPEND_LINK_LINE) === -1) {
+    const extra = text ? text + '\n' + APPEND_LINK_LINE : APPEND_LINK_LINE;
+    if (tweetCharLength(extra) <= MAX_TWEET_LENGTH) {
+      text = extra;
+    }
+  }
+  if (tweetCharLength(text) > MAX_TWEET_LENGTH) {
+    throw new Error('Tweet still too long after trim: ' + tweetCharLength(text));
+  }
+  return text;
+}
+
+function formatDeadlineCountdown(deadlineMs) {
+  const diff = Math.max(0, deadlineMs - Date.now());
+  const totalSec = Math.floor(diff / 1000);
+  const days = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400) / 3600);
+  const mins = Math.floor((totalSec % 3600) / 60);
+  const secs = totalSec % 60;
+  function pad(n) {
+    return n < 10 ? '0' + n : String(n);
+  }
+  return days + ':' + pad(hours) + ':' + pad(mins) + ':' + pad(secs);
+}
+
+function topBy(players, filterFn, sortFn, limit) {
+  return players
+    .filter(filterFn)
+    .sort(sortFn)
+    .slice(0, limit);
+}
+
+function generateTweetText(type, ctx) {
+  const gw = ctx.gw;
+  const gwLabel = 'GW' + gw;
+
+  if (type === 'deadline') {
+    return composeTweet(gwLabel + ' deadline countdown', [
+      formatDeadlineCountdown(ctx.deadlineMs) + ' until the next FPL lock',
+    ]);
   }
 
-  if (!text) {
-    throw new Error('Empty tweet text on Tweets row ' + (pickedIndex + 2));
-  }
-  if (text.length > MAX_TWEET_LENGTH) {
-    throw new Error(
-      'Tweet too long (' + text.length + ' chars) on row ' + (pickedIndex + 2) + '. Max ' + MAX_TWEET_LENGTH,
+  if (type === 'xpts') {
+    const top = topBy(
+      ctx.players,
+      function (p) {
+        return p.ep > 0 && p.mins > 0;
+      },
+      function (a, b) {
+        return b.ep - a.ep;
+      },
+      5,
+    );
+    return composeTweet(
+      gwLabel + ' xPts leaders (next GW)',
+      top.map(function (p) {
+        return p.name + ' ' + p.ep + ' (' + p.team + ', £' + p.price + 'm)';
+      }),
     );
   }
 
-  const rowNumber = pickedIndex + 2;
+  if (type === 'transfers_in') {
+    const top = topBy(
+      ctx.players,
+      function (p) {
+        return p.ti > 0;
+      },
+      function (a, b) {
+        return b.ti - a.ti;
+      },
+      4,
+    );
+    return composeTweet(
+      gwLabel + ' most transferred in',
+      top.map(function (p) {
+        return p.name + ' +' + formatThousands(p.ti) + ' (' + p.team + ')';
+      }),
+    );
+  }
+
+  if (type === 'transfers_out') {
+    const top = topBy(
+      ctx.players,
+      function (p) {
+        return p.to > 0;
+      },
+      function (a, b) {
+        return b.to - a.to;
+      },
+      4,
+    );
+    return composeTweet(
+      gwLabel + ' most transferred out',
+      top.map(function (p) {
+        return p.name + ' -' + formatThousands(p.to) + ' (' + p.team + ')';
+      }),
+    );
+  }
+
+  if (type === 'captain') {
+    const top = topBy(
+      ctx.players,
+      function (p) {
+        return p.ep > 0;
+      },
+      function (a, b) {
+        return b.ep - a.ep;
+      },
+      4,
+    );
+    return composeTweet(
+      gwLabel + ' captain watch (xPts)',
+      top.map(function (p) {
+        return p.name + ' ' + p.ep + ' xPts, ' + p.sel + '% owned';
+      }),
+    );
+  }
+
+  if (type === 'differentials') {
+    const top = topBy(
+      ctx.players,
+      function (p) {
+        return p.ep >= 4 && p.sel < 12 && p.mins > 0;
+      },
+      function (a, b) {
+        return b.ep - a.ep;
+      },
+      4,
+    );
+    return composeTweet(
+      gwLabel + ' differentials rising',
+      top.map(function (p) {
+        return p.name + ' ' + p.ep + ' xPts, ' + p.sel + '% (' + p.team + ')';
+      }),
+    );
+  }
+
+  if (type === 'injuries') {
+    const flagged = topBy(
+      ctx.players,
+      function (p) {
+        return p.status !== 'a' && (p.news || p.status === 'i' || p.status === 'd');
+      },
+      function (a, b) {
+        return b.sel - a.sel;
+      },
+      5,
+    );
+    return composeTweet(
+      gwLabel + ' injury flags',
+      flagged.map(function (p) {
+        const bit = shortNews(p.news) || p.status.toUpperCase();
+        return p.name + ' (' + p.team + '): ' + bit;
+      }),
+    );
+  }
+
+  if (type === 'defcon') {
+    const top = topBy(
+      ctx.players,
+      function (p) {
+        return (p.type === 2 || p.type === 3) && p.mins >= 90 && p.dc90 > 0;
+      },
+      function (a, b) {
+        return b.dc90 - a.dc90;
+      },
+      4,
+    );
+    return composeTweet(
+      gwLabel + ' DEFCON (DC/90)',
+      top.map(function (p) {
+        return p.name + ' ' + p.dc90.toFixed(1) + ' DC/90 (' + p.team + ')';
+      }),
+    );
+  }
+
+  if (type === 'compare') {
+    return generateCompareTweet(ctx);
+  }
+
+  throw new Error('Unknown tweet type: ' + type);
+}
+
+function formatThousands(n) {
+  if (n >= 1000000) {
+    return (n / 1000000).toFixed(1) + 'm';
+  }
+  if (n >= 1000) {
+    return (n / 1000).toFixed(0) + 'k';
+  }
+  return String(n);
+}
+
+function shortNews(news) {
+  const s = String(news || '').replace(/\s+/g, ' ').trim();
+  if (!s) {
+    return '';
+  }
+  return s.length > 42 ? s.slice(0, 39) + '...' : s;
+}
+
+function generateCompareTweet(ctx) {
+  const gwLabel = 'GW' + ctx.gw;
+  const pool = ctx.players.filter(function (p) {
+    return p.mins > 180 && p.ep > 0;
+  });
+  if (pool.length < 2) {
+    return composeTweet(gwLabel + ' player compare', ['Data updating for next GW']);
+  }
+  const metrics = [
+    { key: 'ep', label: 'xPts', fmt: function (p) {
+      return p.ep;
+    } },
+    { key: 'form', label: 'form', fmt: function (p) {
+      return p.form;
+    } },
+    { key: 'goals', label: 'goals', fmt: function (p) {
+      return p.goals;
+    } },
+    { key: 'assists', label: 'assists', fmt: function (p) {
+      return p.assists;
+    } },
+    { key: 'pts', label: 'season pts', fmt: function (p) {
+      return p.pts;
+    } },
+  ];
+  const seed = ctx.gw * 1000 + new Date().getDate();
+  const m = metrics[seed % metrics.length];
+  pool.sort(function (a, b) {
+    return b[m.key] - a[m.key];
+  });
+  const a = pool[0];
+  const b = pool[1 + (seed % Math.min(5, pool.length - 1))];
+  return composeTweet(gwLabel + ' ' + m.label + ' compare', [
+    a.name + ' (' + a.team + ') ' + m.fmt(a),
+    b.name + ' (' + b.team + ') ' + m.fmt(b),
+  ]);
+}
+
+function appendTweetLog(sheet, text, type, gw) {
+  const row = sheet.getLastRow() + 1;
+  const now = new Date();
+  sheet.getRange(row, COL_TWEET, row, COL_GW).setValues([[text, 'YES', now, type, gw]]);
+}
+
+function publishFplScheduledTweet(type) {
+  const ss = getSpreadsheet();
+  const sheets = ensureSheets(ss);
+  const ctx = buildFplContext();
+  const text = generateTweetText(type, ctx);
   const now = new Date();
 
-  outbox.getRange('A1').setValue(text);
-  outbox.getRange('B1').setValue(now.toISOString());
+  sheets.outbox.getRange('A1').setValue(text);
+  sheets.outbox.getRange('B1').setValue(now.toISOString());
+  appendTweetLog(sheets.tweets, text, type, ctx.gw);
+  SpreadsheetApp.flush();
 
-  tweets.getRange(rowNumber, COL_POSTED).setValue('YES');
-  tweets.getRange(rowNumber, COL_POSTED_AT).setValue(now);
-
-  Logger.log('Outbox updated from Tweets row ' + rowNumber + ' (' + text.length + ' chars).');
+  Logger.log(
+    'Published ' + type + ' GW' + ctx.gw + ' (' + tweetCharLength(text) + ' chars) to Outbox',
+  );
 }
 
-/** Manual test (same as trigger). */
-function testPublishNextTweet() {
-  Logger.log('testPublishNextTweet: start');
-  try {
-    publishNextTweetToOutbox();
-    SpreadsheetApp.flush();
-    Logger.log('testPublishNextTweet: done');
-  } catch (e) {
-    Logger.log('testPublishNextTweet: ERROR ' + e);
-    throw e;
-  }
-}
-
-/** Clears posted flags so the queue cycles again (does not clear Outbox). */
-function resetTweetQueue() {
-  const ss = getSpreadsheet();
-  const tweets = ensureSheets(ss).tweets;
-  const lastRow = tweets.getLastRow();
-  if (lastRow < 2) {
-    return;
-  }
-  tweets.getRange(2, COL_POSTED, lastRow, COL_POSTED_AT).clearContent();
-  Logger.log('Cleared posted flags on rows 2-' + lastRow);
-}
-
-function setupTextTweetTriggers() {
+function setupFplTextTweetTriggers() {
   ScriptApp.getProjectTriggers().forEach(function (trigger) {
     ScriptApp.deleteTrigger(trigger);
   });
 
-  POST_TIMES.forEach(function (time) {
-    const parts = time.split(':');
-    ScriptApp.newTrigger(TRIGGER_HANDLER)
+  FPL_TWEET_SLOTS.forEach(function (slot) {
+    ScriptApp.newTrigger(slot.handler)
       .timeBased()
-      .atHour(parseInt(parts[0], 10))
-      .nearMinute(parseInt(parts[1], 10))
+      .atHour(slot.hour)
+      .nearMinute(slot.minute)
       .everyDays(1)
       .create();
   });
 
-  Logger.log('Created ' + POST_TIMES.length + ' daily triggers for ' + TRIGGER_HANDLER + ': ' + POST_TIMES.join(', '));
+  Logger.log('Created ' + FPL_TWEET_SLOTS.length + ' FPL text tweet triggers (10:00-18:00 London).');
+}
+
+/** Run any slot manually: testFplTweet('deadline') */
+function testFplTweet(type) {
+  publishFplScheduledTweet(type);
+}
+
+function testFplTweetDeadline() {
+  publishFplScheduledTweet('deadline');
+}
+
+function debugTextTweetSetup() {
+  const ctx = buildFplContext();
+  Logger.log('Planning GW' + ctx.gw + ' deadline ' + ctx.planningEvent.deadline_time);
+  FPL_TWEET_SLOTS.forEach(function (slot) {
+    const text = generateTweetText(slot.type, ctx);
+    Logger.log(slot.hour + ':00 ' + slot.type + ' (' + tweetCharLength(text) + ' chars)');
+  });
+}
+
+/** @deprecated Use setupFplTextTweetTriggers */
+function setupTextTweetTriggers() {
+  setupFplTextTweetTriggers();
 }
