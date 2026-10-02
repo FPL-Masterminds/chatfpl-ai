@@ -8,7 +8,13 @@ import {
   type CaptainHubPlayer,
 } from "@/lib/fpl-player-page";
 import { fetchSocialCardGameweek } from "@/lib/social-card-gameweek";
-import { fplPlayerPhotoExists, fplPlayerPhotoUrl, fplPlayerPhotosExist } from "@/lib/fpl-player-photo";
+import {
+  buildTeamDuplicateFirstNameMap,
+  fplPlayerPhotoExists,
+  fplPlayerPhotoUrlForSocialCard,
+  fplPlayerPhotosExist,
+} from "@/lib/fpl-player-photo";
+import { getBootstrapFresh } from "@/lib/fpl-player-page";
 import { getTransferTrendsHub, type TransferTrendPlayer } from "@/lib/fpl-transfer-trends";
 import {
   getRecentlyUsedPlayerCodes,
@@ -276,7 +282,31 @@ function toSocialPlayer(
     teamCode,
     position,
     price,
-    photoUrl: fplPlayerPhotoUrl(code),
+    photoUrl: fplPlayerPhotoUrlForSocialCard(code),
+  };
+}
+
+async function applySocialPhotoGuard(card: SocialCardData): Promise<SocialCardData> {
+  const bootstrap = await getBootstrapFresh();
+  const teamFirstNamePeers = buildTeamDuplicateFirstNameMap(bootstrap.elements ?? []);
+  const byCode = new Map<number, { team: number; first_name?: string }>();
+  for (const el of bootstrap.elements ?? []) {
+    byCode.set(el.code, { team: el.team, first_name: el.first_name });
+  }
+
+  return {
+    ...card,
+    players: card.players.map((player) => {
+      const el = byCode.get(player.code);
+      return {
+        ...player,
+        photoUrl: fplPlayerPhotoUrlForSocialCard(player.code, {
+          teamId: el?.team,
+          firstName: el?.first_name,
+          teamFirstNamePeers,
+        }),
+      };
+    }),
   };
 }
 
@@ -565,12 +595,13 @@ async function buildComparisonCard(
 const SOCIAL_INJURY_MIN_PLAY_CHANCE = 25;
 
 async function buildInjuryCard(
-  gw: number,
+  _gwFallback: number,
   excluded: ReadonlySet<number>,
   strictExclusions: boolean,
 ): Promise<SocialCardData | null> {
-  const hub = await getInjuryHub();
+  const hub = await getInjuryHub({ fresh: true });
   if (!hub?.players.length) return null;
+  const gw = hub.gw;
   const eligible = hub.players.filter((player) => player.chance >= SOCIAL_INJURY_MIN_PLAY_CHANCE);
   if (!eligible.length) return null;
   const p = await pickPlayerWithPhoto("injuries", eligible, excluded, strictExclusions);
@@ -965,8 +996,10 @@ export async function getSocialCardData(
   const gw = await fetchSocialCardGameweek();
 
   const finalize = async (raw: SocialCardData | null): Promise<SocialCardData | null> => {
-    const card = await enrichSocialCard(raw);
+    if (!raw) return null;
+    let card = await enrichSocialCard(raw);
     if (!card) return null;
+    card = await applySocialPhotoGuard(card);
     const withSlot = { ...card, slot };
     if (options?.recordPick) {
       await recordSocialCardPlayerPicks(withSlot.players.map((player) => player.code));

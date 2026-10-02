@@ -41,6 +41,61 @@ export function fplPlayerPhotoUrl(code: number): string {
   return `${base}/${code}.png?${getFplPlayerPhotoCacheBust()}`;
 }
 
+/**
+ * PL CDN headshots that return HTTP 200 but the wrong face (same club / recycled code).
+ * Social cards use a silhouette rather than misidentify a player publicly.
+ */
+const UNTRUSTED_HEADSHOT_CODES = new Set<number>([
+  222694, // Pascal Struijk (BHA) currently serves Pascal Groß on premierleague25 CDN
+]);
+
+export type SocialCardPhotoContext = {
+  teamId?: number;
+  firstName?: string;
+  /** teamId -> normalized first names (lowercase) also on that squad in bootstrap */
+  teamFirstNamePeers?: ReadonlyMap<number, ReadonlySet<string>>;
+};
+
+export function fplPlayerPhotoUrlForSocialCard(
+  code: number,
+  context?: SocialCardPhotoContext,
+): string {
+  if (!code || code <= 0) return FPL_PLAYER_PHOTO_SILHOUETTE;
+  if (UNTRUSTED_HEADSHOT_CODES.has(code)) return FPL_PLAYER_PHOTO_SILHOUETTE;
+
+  const first = context?.firstName?.trim().toLowerCase();
+  const teamId = context?.teamId;
+  if (first && teamId != null && context?.teamFirstNamePeers) {
+    const dupes = context.teamFirstNamePeers.get(teamId);
+    if (dupes?.has(first)) return FPL_PLAYER_PHOTO_SILHOUETTE;
+  }
+
+  return fplPlayerPhotoUrl(code);
+}
+
+/** Map team id -> first names that appear more than once on that squad (different players). */
+export function buildTeamDuplicateFirstNameMap(
+  elements: Array<{ team: number; first_name?: string }>,
+): Map<number, Set<string>> {
+  const byTeam = new Map<number, Map<string, number>>();
+  for (const el of elements) {
+    const first = (el.first_name ?? "").trim().toLowerCase();
+    if (!first) continue;
+    const teamMap = byTeam.get(el.team) ?? new Map<string, number>();
+    teamMap.set(first, (teamMap.get(first) ?? 0) + 1);
+    byTeam.set(el.team, teamMap);
+  }
+  const out = new Map<number, Set<string>>();
+  for (const [teamId, names] of byTeam) {
+    const dupes = new Set<string>();
+    for (const [name, count] of names) {
+      if (count > 1) dupes.add(name);
+    }
+    if (dupes.size) out.set(teamId, dupes);
+  }
+  return out;
+}
+
 /** True when URL points at the official FPL player headshot CDN (not badges, icons, or invented links). */
 export function isFplPlayerPhotoUrl(url: string): boolean {
   const trimmed = url.trim();

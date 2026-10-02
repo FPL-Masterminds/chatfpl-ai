@@ -1,10 +1,12 @@
-import { getBootstrap, toSlug, getDisplayName } from "@/lib/fpl-player-page"
+import { getBootstrap, getBootstrapFresh, toSlug, getDisplayName } from "@/lib/fpl-player-page"
 
 export interface InjuryPlayer {
   slug:        string
   displayName: string
   webName:     string
   code:        number
+  teamId:      number
+  firstName:   string
   club:        string
   teamCode:    number
   position:    string
@@ -59,9 +61,9 @@ export function hasLeftClub(news: string): boolean {
 
 // ─── Hub data — all flagged players ──────────────────────────────────────────
 
-export async function getInjuryHub(): Promise<InjuryHubData | null> {
+export async function getInjuryHub(options?: { fresh?: boolean }): Promise<InjuryHubData | null> {
   try {
-    const bootstrap = await getBootstrap()
+    const bootstrap = options?.fresh ? await getBootstrapFresh() : await getBootstrap()
     const events: any[] = bootstrap.events ?? []
     const nextEvent    = events.find((e: any) => e.is_next)
     const currentEvent = events.find((e: any) => e.is_current)
@@ -99,6 +101,8 @@ export async function getInjuryHub(): Promise<InjuryHubData | null> {
           displayName: getDisplayName(p),
           webName:     p.web_name,
           code:        p.code,
+          teamId:      p.team,
+          firstName:   p.first_name ?? "",
           club:        team.name,
           teamCode:    team.code,
           position:    posMap[p.element_type] ?? "",
@@ -176,6 +180,8 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
       displayName: getDisplayName(el),
       webName:     el.web_name,
       code:        el.code,
+      teamId:      el.team,
+      firstName:   el.first_name ?? "",
       club:        el._team.name,
       teamCode:    el._team.code,
       position:    el._pos,
@@ -216,6 +222,8 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
         displayName: getDisplayName(p),
         webName:     p.web_name,
         code:        p.code,
+        teamId:      p.team,
+        firstName:   p.first_name ?? "",
         club:        p._team.name,
         teamCode:    p._team.code,
         position:    p._pos,
