@@ -9,9 +9,8 @@ import {
 } from "@/lib/fpl-player-page";
 import { fetchSocialCardGameweek } from "@/lib/social-card-gameweek";
 import {
-  buildTeamDuplicateFirstNameMap,
   fplPlayerPhotoExists,
-  fplPlayerPhotoUrlForSocialCard,
+  fplPlayerPhotoUrlForElement,
   fplPlayerPhotosExist,
 } from "@/lib/fpl-player-photo";
 import { getBootstrapFresh } from "@/lib/fpl-player-page";
@@ -282,16 +281,15 @@ function toSocialPlayer(
     teamCode,
     position,
     price,
-    photoUrl: fplPlayerPhotoUrlForSocialCard(code),
+    photoUrl: fplPlayerPhotoUrlForElement(0, code),
   };
 }
 
 async function applySocialPhotoGuard(card: SocialCardData): Promise<SocialCardData> {
   const bootstrap = await getBootstrapFresh();
-  const teamFirstNamePeers = buildTeamDuplicateFirstNameMap(bootstrap.elements ?? []);
-  const byCode = new Map<number, { team: number; first_name?: string }>();
+  const byCode = new Map<number, { id: number; code: number }>();
   for (const el of bootstrap.elements ?? []) {
-    byCode.set(el.code, { team: el.team, first_name: el.first_name });
+    byCode.set(el.code, { id: el.id, code: el.code });
   }
 
   return {
@@ -300,11 +298,7 @@ async function applySocialPhotoGuard(card: SocialCardData): Promise<SocialCardDa
       const el = byCode.get(player.code);
       return {
         ...player,
-        photoUrl: fplPlayerPhotoUrlForSocialCard(player.code, {
-          teamId: el?.team,
-          firstName: el?.first_name,
-          teamFirstNamePeers,
-        }),
+        photoUrl: fplPlayerPhotoUrlForElement(el?.id ?? 0, player.code),
       };
     }),
   };

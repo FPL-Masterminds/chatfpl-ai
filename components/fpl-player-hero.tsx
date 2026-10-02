@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { DevHeroVideoBg } from "@/components/dev-hero-video-bg"
 import { ProductCtaLink } from "@/components/product-cta-link"
+import { fplPlayerPhotoUrlForElement } from "@/lib/fpl-player-photo"
 
 // Single green pill colour — same as player-carousel
 const PILL_COLOR = "#00FF85"
@@ -12,12 +13,13 @@ function badgeUrl(teamCode: number) {
   return `https://resources.premierleague.com/premierleague/badges/70/t${teamCode}.png`
 }
 
-function photoUrl(code: number) {
-  return `https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`
+function photoUrl(code: number, elementId?: number) {
+  return fplPlayerPhotoUrlForElement(elementId ?? 0, code)
 }
 
 export interface FplCardPlayer {
   code: number
+  elementId?: number
   name: string
   club: string       // full team name e.g. "Manchester City"
   teamCode: number
@@ -83,7 +85,7 @@ function PlayerCard({ player, isCenter }: { player: FplCardPlayer; isCenter: boo
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={imgRef}
-            src={errored ? SILHOUETTE : photoUrl(player.code)}
+            src={errored ? SILHOUETTE : photoUrl(player.code, player.elementId)}
             alt={player.name}
             draggable={false}
             onError={() => setErrored(true)}

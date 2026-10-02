@@ -1,15 +1,17 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { FPL_PLAYER_PHOTO_SILHOUETTE, fplPlayerPhotoUrl } from "@/lib/fpl-player-photo"
+import { FPL_PLAYER_PHOTO_SILHOUETTE, fplPlayerPhotoUrlForElement } from "@/lib/fpl-player-photo"
 
 const SILHOUETTE = FPL_PLAYER_PHOTO_SILHOUETTE
 
 export function HubPlayerPhoto({
   code,
+  elementId,
   name,
 }: {
   code: number
+  elementId?: number
   name: string
 }) {
   const [errored, setErrored] = useState(false)
@@ -23,7 +25,7 @@ export function HubPlayerPhoto({
     }
   }, [])
 
-  const src = errored ? SILHOUETTE : fplPlayerPhotoUrl(code)
+  const src = errored ? SILHOUETTE : fplPlayerPhotoUrlForElement(elementId ?? 0, code)
 
   return (
     // eslint-disable-next-line @next/next/no-img-element

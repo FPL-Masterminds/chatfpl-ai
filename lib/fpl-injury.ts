@@ -2,6 +2,7 @@ import { getBootstrap, getBootstrapFresh, toSlug, getDisplayName } from "@/lib/f
 
 export interface InjuryPlayer {
   slug:        string
+  elementId:   number
   displayName: string
   webName:     string
   code:        number
@@ -98,6 +99,7 @@ export async function getInjuryHub(options?: { fresh?: boolean }): Promise<Injur
         const slug  = slugCounts[base] > 1 ? toSlug(p.web_name, team.short) : base
         return {
           slug,
+          elementId:   p.id,
           displayName: getDisplayName(p),
           webName:     p.web_name,
           code:        p.code,
@@ -177,6 +179,7 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
 
     const player: InjuryPlayer = {
       slug,
+      elementId:   el.id,
       displayName: getDisplayName(el),
       webName:     el.web_name,
       code:        el.code,
@@ -219,6 +222,7 @@ export async function getInjuryPlayerData(slug: string): Promise<InjuryPlayerDat
       .slice(0, 4)
       .map((p: any) => ({
         slug:        p._slug,
+        elementId:   p.id,
         displayName: getDisplayName(p),
         webName:     p.web_name,
         code:        p.code,

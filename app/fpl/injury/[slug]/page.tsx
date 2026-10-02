@@ -12,6 +12,7 @@ import {
   statusLabel,
   type InjuryPlayer,
 } from "@/lib/fpl-injury"
+import { fplPlayerPhotoUrlForElement } from "@/lib/fpl-player-photo"
 import { isSeasonOver } from "@/lib/fpl-player-page"
 import { SeasonEnded } from "@/components/season-ended"
 
@@ -49,8 +50,9 @@ export async function generateMetadata({
 
 function toCard(p: InjuryPlayer): FplCardPlayer {
   return {
-    code:     p.code,
-    name:     p.displayName,
+    code:      p.code,
+    elementId: p.elementId,
+    name:      p.displayName,
     club:     p.club,
     teamCode: p.teamCode,
     position: p.position,
@@ -157,7 +159,7 @@ function AltBox({ player }: { player: InjuryPlayer }) {
     >
       <div className="flex flex-col items-center">
         <Image
-          src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${player.code}.png`}
+          src={fplPlayerPhotoUrlForElement(player.elementId, player.code)}
           alt={player.displayName} width={80} height={102}
           style={{ objectFit: "contain", display: "block" }} unoptimized
         />

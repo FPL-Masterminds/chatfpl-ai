@@ -2,11 +2,12 @@
 
 import { useState, useMemo, useRef, useEffect } from "react"
 import Image from "next/image"
+import { fplPlayerPhotoUrlForElement } from "@/lib/fpl-player-photo"
 
 // ─── Player photo with fallback ───────────────────────────────────────────────
 
-function PlayerPhoto({ code, name, width, height, className }: {
-  code: number; name: string; width: number; height: number; className?: string
+function PlayerPhoto({ code, elementId, name, width, height, className }: {
+  code: number; elementId: number; name: string; width: number; height: number; className?: string
 }) {
   const [errored, setErrored] = useState(false)
 
@@ -24,7 +25,7 @@ function PlayerPhoto({ code, name, width, height, className }: {
 
   return (
     <Image
-      src={`https://resources.premierleague.com/premierleague25/photos/players/110x140/${code}.png`}
+      src={fplPlayerPhotoUrlForElement(elementId, code)}
       alt={name} width={width} height={height}
       className={className}
       style={{ objectFit: "contain" }}
@@ -185,7 +186,7 @@ function InjuryCard({ player, rank }: { player: InjuryPlayer; rank: number }) {
           </div>
           <div className="flex flex-col items-center">
             <PlayerPhoto
-              code={player.code} name={player.displayName}
+              code={player.code} elementId={player.elementId} name={player.displayName}
               width={160} height={204} className="w-14 sm:w-[160px]"
             />
             <div className="w-14 sm:w-[160px]" style={{
