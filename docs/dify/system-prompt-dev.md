@@ -3,7 +3,7 @@
 INSTRUCTIONS field for the Dify app "ChatFPL DEV", used by `/devchat` via `DIFY_DEV_API_KEY`. Edit here first, then paste into the Dify dev app and click Publish. Starts as an exact copy of `system-prompt-prod.md`.
 
 - Created: 4 Nov 2026 (identical to production, no Nov26 changes yet)
-- Model: gpt-5.4-mini
+- Model in both apps: **gpt-5.4-mini** (confirmed in Dify Orchestrate, 4 Nov 2026).
 - Diff against `system-prompt-prod.md` to see exactly what the dev app changes.
 
 ```text

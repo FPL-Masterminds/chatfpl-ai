@@ -8,6 +8,8 @@ Working document for adding a "how to think" layer to ChatFPL answers, based on 
 
 We work through this one step at a time. Each step has a status, a "done when" check, and nothing moves to production until Step 10.
 
+**Current focus:** Step 1. Read the draft rules in this file (sections 1a through 1d), approve or edit them, then we apply them in Step 3 to `docs/dify/system-prompt-dev.md` and paste into ChatFPL DEV.
+
 ---
 
 ## What the current Dify system prompt changes
@@ -104,19 +106,6 @@ The first dev test is a useful "before" example for Step 7. Asked "Who should I 
 Checked against the live API: **xPNext equals form exactly for all three players.** FPL's own xPNext is built largely from recent form, so it is not an independent projection. A prompt that says "rank by xPNext" is effectively saying "rank by form", which is the short-term signal the articles warn against. Captaining a £4.8m defender on six good weeks is the textbook case. This changes Step 1 (see 1c).
 
 **Note:** `/devchat` and `/chat` share the same conversation list. A conversation started in devchat is linked to the dev app, so continue it in devchat, not `/chat`.
-
-1. In the Dify dashboard, duplicate the production ChatFPL app. Name it something like "ChatFPL Dev".
-2. Create an API key for the dev app.
-3. Add `DIFY_DEV_API_KEY` to Vercel (and `.env.local`). The devchat route uses `DIFY_DEV_API_KEY` when set, otherwise falls back to `DIFY_API_KEY`, so nothing breaks if the key is missing.
-4. Save the current production system prompt into the repo as `docs/dify/system-prompt-prod.md` (exact copy, the baseline).
-5. Create `docs/dify/system-prompt-dev.md` as a copy. All prompt edits happen here first, then get pasted into the Dify dev app.
-
-**Things to know:**
-
-- Dify conversation IDs belong to one app. Existing devchat conversations were created in the production app, so after switching, start new devchat conversations (old ones will fail to continue or silently start fresh).
-- Model and settings in the dev app should match production exactly, so any difference in answers comes from the prompt, not the model.
-
-**Done when:** Devchat talks to the dev app (confirmed in the Dify dev app logs), and both prompt files are in the repo.
 
 ---
 
@@ -501,15 +490,16 @@ Use devchat for normal questions for a few days. Note anything odd in the soak l
 
 1. Default risk mode when the user doesn't say: **Balanced** (proposed). Agree?
 2. Should the answer always include the one-line "assumed mode" note, or only for captaincy and hits?
-3. Are you happy to create the duplicate Dify dev app (Step 0)? It's a few clicks in the dashboard plus one Vercel env var.
+3. ~~Are you happy to create the duplicate Dify dev app?~~ Done (Step 0).
 4. Promote the two bug fixes (DEFCON definition, chip availability) to production early, once tested on devchat, or wait for the full framework?
 5. Any principles from the articles you disagree with or want stronger or softer?
+6. **Step 1:** Approve 1a, 1b, and **1c** (xPNext vs form). The GW10 captain test showed captaining Konsa on xPNext alone is exactly what we want to stop.
 
 ---
 
 ## Parking lot (found along the way, not part of the framework)
 
-- **Konsa headshot 403 (4 Nov 2026).** Ezri Konsa (now Arsenal) has no image at his code on the PL `premierleague25` CDN, so chat shows a broken image with alt text. Same class of problem as the Struijk fix: needs either an entry in `lib/fpl-headshot-overrides.ts` or a general fallback to the silhouette when the CDN returns an error. Affects production too.
+- **Missing PL headshots (post photo day signings, 4 Nov 2026).** Players signed after the Premier League photo shoot often have no image on the `premierleague25` CDN (403 or broken img). Example: Ezri Konsa at Arsenal in devchat captain test. Expected limitation, not a Nov26 framework blocker. Optional later: silhouette fallback when CDN fails, or verified overrides in `lib/fpl-headshot-overrides.ts` for high-traffic names. Struijk-style wrong-face overrides stay separate from "no image at all."
 
 ---
 
