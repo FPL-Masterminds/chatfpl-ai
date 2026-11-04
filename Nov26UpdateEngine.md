@@ -83,15 +83,25 @@ Answer -> existing output guards (ownership, photos, em-dash strip)
 
 ## Step 0: Set up a Dify dev app and snapshot the prompts
 
-**Status:** In progress. Items 1-5 done (4 Nov 2026). Waiting on the log check below.
+**Status:** Done (4 Nov 2026, commit `00e6e0d`)
 
 - [x] Dify app duplicated as "ChatFPL DEV"
 - [x] Dev API key created
 - [x] `DIFY_DEV_API_KEY` added to Vercel (Production)
 - [x] `/devchat` uses `DIFY_DEV_API_KEY`, falls back to `DIFY_API_KEY`. If an old conversation's Dify ID isn't found in the dev app, devchat starts a fresh Dify conversation instead of erroring
 - [x] `docs/dify/system-prompt-prod.md` and `docs/dify/system-prompt-dev.md` saved
-- [ ] Fresh devchat conversation appears in ChatFPL DEV logs
-- [ ] Dev app model and settings confirmed to match production
+- [x] Fresh devchat conversation ("Who should I captain this week?") appears in ChatFPL DEV logs, not production
+- [x] Dev app runs gpt-5.4-mini, same as production
+
+### Baseline answer (current prompt, GW10)
+
+The first dev test is a useful "before" example for Step 7. Asked "Who should I captain this week?", the bot:
+
+- Recommended **Ezri Konsa (Arsenal DEF, £4.8m)** as first-choice captain because he leads xPNext at 9.2 with "elite form" at 9.2.
+- Offered Gabriel (xPNext 8.2, form 8.2) and Haaland (xPNext 7.2, form 7.2, 79% owned) as alternatives.
+- Konsa's photo was broken (see parking lot).
+
+Checked against the live API: **xPNext equals form exactly for all three players.** FPL's own xPNext is built largely from recent form, so it is not an independent projection. A prompt that says "rank by xPNext" is effectively saying "rank by form", which is the short-term signal the articles warn against. Captaining a £4.8m defender on six good weeks is the textbook case. This changes Step 1 (see 1c).
 
 **Note:** `/devchat` and `/chat` share the same conversation list. A conversation started in devchat is linked to the dev app, so continue it in devchat, not `/chat`.
 
@@ -260,13 +270,22 @@ GENERAL GAMEWEEK INSIGHTS:
 
 - Change "Structure answers with clear sections" to: "Use sections only when the answer covers several topics. Short questions get short answers."
 
-### 1c. Things we deliberately leave out
+### 1c. Amendment after the baseline test: xPNext is not independent of form
+
+Found in the Step 0 test: FPL's xPNext tracks recent form closely (identical for Konsa, Gabriel and Haaland at GW10). The 1a and 1b drafts lean on xPNext as "the projection", so they would inherit the same form bias. Proposed changes, for your review alongside 1a and 1b:
+
+- Add to the core principles: "xPNext is FPL's short-horizon estimate and leans heavily on recent form. Treat it as one input, not the answer. Check it against season-long xGI (or DC90 for defensive picks), minutes and role before ranking anyone."
+- Captaincy step 1 becomes: "Shortlist by xPNext, then rank by season-long attacking threat (xGI, xG, shots role, penalties), minutes security and fixture. A defender or low-threat player topping xPNext on a short streak needs a structural reason (set pieces, penalties, new role) to be first choice."
+- Comparisons and differentials: same check. When xPNext and season xGI disagree, say so and explain which you trust and why.
+- Expected effect on the baseline question: Haaland or another high-threat attacker becomes the default first choice unless the data shows a real structural reason for the defender, and the answer states the risk mode.
+
+### 1d. Things we deliberately leave out
 
 - Champion and Hall of Fame names, interview anecdotes, and the academic research summary. Good for a blog, not useful for a prompt.
 - "Never transfer within 24 hours of a rank drop". The bot can't see when a user is on tilt. We keep the underlying rule instead (don't move on results alone).
 - Detailed price-change strategy. Covered by one principle line.
 
-**Done when:** You've read 1a, 1b and 1c and either approved them or marked changes.
+**Done when:** You've read 1a, 1b, 1c and 1d and either approved them or marked changes.
 
 ---
 
@@ -485,6 +504,12 @@ Use devchat for normal questions for a few days. Note anything odd in the soak l
 3. Are you happy to create the duplicate Dify dev app (Step 0)? It's a few clicks in the dashboard plus one Vercel env var.
 4. Promote the two bug fixes (DEFCON definition, chip availability) to production early, once tested on devchat, or wait for the full framework?
 5. Any principles from the articles you disagree with or want stronger or softer?
+
+---
+
+## Parking lot (found along the way, not part of the framework)
+
+- **Konsa headshot 403 (4 Nov 2026).** Ezri Konsa (now Arsenal) has no image at his code on the PL `premierleague25` CDN, so chat shows a broken image with alt text. Same class of problem as the Struijk fix: needs either an entry in `lib/fpl-headshot-overrides.ts` or a general fallback to the silhouette when the CDN returns an error. Affects production too.
 
 ---
 
