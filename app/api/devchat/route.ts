@@ -612,7 +612,8 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
       : `${formattingInstructions}${noTeamIdNotice}\n---\n\nUser Question: ${message}`;
 
     // ── Dify API call ─────────────────────────────────────────────────────────
-    const difyApiKey = process.env.DIFY_API_KEY;
+    const difyDevApiKey = process.env.DIFY_DEV_API_KEY?.trim();
+    const difyApiKey = difyDevApiKey || process.env.DIFY_API_KEY;
     const difyBaseUrl = process.env.DIFY_BASE_URL || "https://api.dify.ai/v1";
 
     if (!difyApiKey) {
@@ -631,9 +632,8 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-    let difyData: any;
-    try {
-      const difyResponse = await fetch(`${difyBaseUrl}/chat-messages`, {
+    const postToDify = (difyConversation: string) =>
+      fetch(`${difyBaseUrl}/chat-messages`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${difyApiKey}`,
@@ -643,15 +643,32 @@ Do NOT invent a generic squad. Do NOT answer with "the average FPL manager would
           inputs: {},
           query: enhancedMessage,
           response_mode: "blocking",
-          conversation_id: difyConversationId,
+          conversation_id: difyConversation,
           user: user.id,
         }),
         signal: controller.signal,
       });
 
+    let difyData: any;
+    try {
+      let difyResponse = await postToDify(difyConversationId);
+
+      // Conversations created through the production Dify app do not exist in the dev app.
+      if (difyResponse.status === 404 && difyConversationId) {
+        console.warn(
+          `[devchat] Dify conversation ${difyConversationId} not found in ${difyDevApiKey ? "dev" : "prod"} app; starting fresh`,
+        );
+        difyResponse = await postToDify("");
+      }
+
       clearTimeout(timeoutId);
 
       if (!difyResponse.ok) {
+        console.error(
+          "[devchat] Dify error:",
+          difyResponse.status,
+          await difyResponse.text().catch(() => ""),
+        );
         return NextResponse.json(
           { error: "I'm having trouble processing your question right now. Please try again." },
           { status: 500 }

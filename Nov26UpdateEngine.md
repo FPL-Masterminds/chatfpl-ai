@@ -83,7 +83,17 @@ Answer -> existing output guards (ownership, photos, em-dash strip)
 
 ## Step 0: Set up a Dify dev app and snapshot the prompts
 
-**Status:** Not started
+**Status:** In progress. Items 1-5 done (4 Nov 2026). Waiting on the log check below.
+
+- [x] Dify app duplicated as "ChatFPL DEV"
+- [x] Dev API key created
+- [x] `DIFY_DEV_API_KEY` added to Vercel (Production)
+- [x] `/devchat` uses `DIFY_DEV_API_KEY`, falls back to `DIFY_API_KEY`. If an old conversation's Dify ID isn't found in the dev app, devchat starts a fresh Dify conversation instead of erroring
+- [x] `docs/dify/system-prompt-prod.md` and `docs/dify/system-prompt-dev.md` saved
+- [ ] Fresh devchat conversation appears in ChatFPL DEV logs
+- [ ] Dev app model and settings confirmed to match production
+
+**Note:** `/devchat` and `/chat` share the same conversation list. A conversation started in devchat is linked to the dev app, so continue it in devchat, not `/chat`.
 
 1. In the Dify dashboard, duplicate the production ChatFPL app. Name it something like "ChatFPL Dev".
 2. Create an API key for the dev app.
