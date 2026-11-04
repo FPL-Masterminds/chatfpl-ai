@@ -6,18 +6,50 @@ Working document for adding a "how to think" layer to ChatFPL answers, based on 
 - Part 2: The elite manager's playbook (transfers, hits, captaincy, chips)
 - Part 3: FPL is a skill game (evidence, survivorship traps, risk modes)
 
-We work through this one step at a time. Each step has a status, a "done when" check, and nothing moves to production until Step 9.
+We work through this one step at a time. Each step has a status, a "done when" check, and nothing moves to production until Step 10.
+
+---
+
+## What the current Dify system prompt changes
+
+The Dify system prompt already contains a **REASONING FRAMEWORK**, and several parts of it point the model in the opposite direction to the articles. If we only injected new rules from code, the model would get two conflicting sets of instructions (system prompt says one thing, the message says another) and behave inconsistently. So the Dify prompt has to be part of this work.
+
+### Section-by-section verdict
+
+| Dify section | Current rule | Conflict with the articles | Verdict |
+|---|---|---|---|
+| Identity + photos | Expert assistant, always use PhotoURL | None | **Keep** |
+| Captaincy | Safe = highest xP + ownership > 40% + good fixture. Differential = form > 7.0 + ownership < 20% | Hard ownership thresholds instead of risk mode. Form-led differential (short-term form is noise). Low ownership treated as a reason in itself | **Rewrite** |
+| Transfers | Prioritise form > 6.0, good fixtures, "price rises likely" | Form-first, price-chasing. No forced sells, no "roll vs move", no minutes-first, no opportunity cost. Never considers doing nothing | **Rewrite** |
+| Pre-season unlimited transfers | GW1 deadline logic | None. Factual and correct | **Keep as is** |
+| Standard rules | 1 FT per GW, bank up to 5, -4 per extra | None. Confirms the 5-transfer cap from the articles | **Keep** |
+| Player comparisons | Order: Form, Fixtures (5), Price, PPG, Ownership | Minutes missing entirely. Form ranked first | **Rewrite** (minutes and role first, routes to points, horizon) |
+| Differentials | Ownership < 10%, form > 6.0, price < £8.0m, minutes > 200 | 200 minutes is too weak a minutes test. Form-led. Needs projection behind it | **Rewrite** (keep filters as a starting pool, add minutes security and projection) |
+| General GW insights | Prioritise injury news, fixture swings, form spikes, price changes | Form spikes and price changes promoted to top signals | **Soften** (keep injuries and fixture swings, demote form spikes and price changes) |
+| Formatting | Photos, concise, bullets, "clear sections", hyphens, British English | "Clear sections" can push long, structured answers on simple questions | **Minor edit** (sections only when the answer needs them) |
+| Personal team data | Use USER'S FPL TEAM when present | None. This is what risk mode and roll-vs-move will build on | **Keep, extend** (mention risk mode and free transfers once Step 4 lands) |
+| DEFCON | `defensive_contribution` = matches where bonus earned. Per 90 "above ~0.7" = reliable | **Factually wrong.** Live API (GW9): top defenders show DC of about 105 and DC90 of about 11. These are action counts, not matches. The chat route code already says this correctly, so the system prompt and code contradict each other in production today | **Fix** (Step 2, flagged for production too) |
+| Chips | Not mentioned in the system prompt | Live API confirms two full chip sets (all four chips in GW1-19 and again in GW20-38). The code that builds "Chips Still Available" treats Free Hit, Bench Boost and Triple Captain as once per season | **Add** chip rules and fix the code (Step 2) |
+
+### What this means for the plan
+
+1. **We need a separate Dify app for devchat.** `/devchat` and `/api/chat` both use `DIFY_API_KEY`, so they share one Dify app and one system prompt. To test a rewritten system prompt safely, devchat needs its own copy of the app with its own key. This was optional before. Now it's Step 0.
+2. **The framework lives in two layers, not one:**
+   - **System prompt (Dify dev app):** the static "how to think" rules. Core principles plus short playbooks replace the old REASONING FRAMEWORK sections.
+   - **Code (devchat route):** the per-request parts the system prompt can't know: detected question type, the user's risk mode, free transfers, chips per half, rank trend.
+3. **Two production bugs surfaced** (DEFCON definition, chip availability). They're real errors in live answers today. We fix and test them on devchat first, but they're good candidates to promote early, ahead of the full framework (see Step 2).
 
 ---
 
 ## Ground rules
 
-1. **Development only.** All changes go into `/devchat` (`app/api/devchat/route.ts`). The `/devchat` page and API are owner-only (403 for everyone else).
-2. **Do not edit the Dify system prompt.** `/devchat` and `/api/chat` share the same `DIFY_API_KEY`, so the same Dify app. A dashboard change would hit production instantly. Framework text is injected from code in the devchat route only.
-3. **Our own words.** The articles are a competitor's content. We encode the general FPL principles as our own rules. No pasted article text, no SmartPlay branding, no quoting named managers in prompts or answers.
-4. **Our rules, not theirs.** Any game-rule fact (free transfer cap, chip sets, chip expiry, DEFCON scoring) is checked against the live FPL API and our existing rules before it is encoded. The blog is not a source of truth for rules.
-5. **Existing guards stay.** `formatSquadOwnershipGuard`, `enforceSquadOwnershipOnAnswer`, data integrity rules, no em-dashes, photo rules. The framework sits on top of these and never weakens them.
-6. **Shape reasoning, not length.** The framework changes how the model decides. Answers stay short. No reciting checklists to the user.
+1. **Development only.** Code changes go into `/devchat` (`app/api/devchat/route.ts`) and new shared lib files that only devchat imports. The `/devchat` page and API are owner-only (403 for everyone else).
+2. **Production Dify app is not touched** until Step 10. All system prompt work happens in a duplicate Dify app used only by devchat.
+3. **Everything in git.** The Dify system prompt lives in the Dify dashboard, not the repo. We keep a copy of both the production and dev prompts in the repo so every change is reviewable and reversible.
+4. **Our own words.** The articles are a competitor's content. We encode the general FPL principles as our own rules. No pasted article text, no SmartPlay branding, no quoting named managers in prompts or answers.
+5. **Our rules, not theirs.** Any game-rule fact (free transfer cap, chip sets, chip expiry, DEFCON scoring) is checked against the live FPL API before it is encoded.
+6. **Existing guards stay.** `formatSquadOwnershipGuard`, `enforceSquadOwnershipOnAnswer`, data integrity rules, no em-dashes, photo rules, GW1 unlimited transfer logic. The framework sits on top of these and never weakens them.
+7. **Shape reasoning, not length.** The framework changes how the model decides. Answers stay short. No reciting checklists to the user.
 
 ---
 
@@ -27,22 +59,44 @@ We work through this one step at a time. Each step has a status, a "done when" c
 User question
    |
    v
-[1] Intent detection (code)            -> transfer / hit / captaincy / chip / squad review / general
+[1] Question type detection (code)     -> transfer / hit / captaincy / chip / comparison / differential / squad review / general / casual
    |
    v
-[2] User context (code, Team ID)       -> rank, rank trend, free transfers, bank, chips left, risk mode
+[2] User context (code, Team ID)       -> rank, rank trend, free transfers, bank, chips left per half, risk mode
    |
    v
-[3] Prompt assembly (devchat route)
+[3] Message assembly (devchat route)
        - Live FPL data (existing)
        - Squad ownership guard (existing)
-       - Core principles block (new, always on for FPL questions)
-       - One matching playbook (new, only the relevant one)
-       - User context + assumed risk mode (new)
+       - DECISION CONTEXT block (new): question type, risk mode, free transfers, chip window
    |
    v
-Dify (unchanged app)  ->  answer  ->  existing output guards
+Dify DEV app (new copy)
+   System prompt = current prompt with REASONING FRAMEWORK rewritten
+                   (core principles + playbooks + fixed DEFCON + chip rules)
+   |
+   v
+Answer -> existing output guards (ownership, photos, em-dash strip)
 ```
+
+---
+
+## Step 0: Set up a Dify dev app and snapshot the prompts
+
+**Status:** Not started
+
+1. In the Dify dashboard, duplicate the production ChatFPL app. Name it something like "ChatFPL Dev".
+2. Create an API key for the dev app.
+3. Add `DIFY_DEV_API_KEY` to Vercel (and `.env.local`). The devchat route uses `DIFY_DEV_API_KEY` when set, otherwise falls back to `DIFY_API_KEY`, so nothing breaks if the key is missing.
+4. Save the current production system prompt into the repo as `docs/dify/system-prompt-prod.md` (exact copy, the baseline).
+5. Create `docs/dify/system-prompt-dev.md` as a copy. All prompt edits happen here first, then get pasted into the Dify dev app.
+
+**Things to know:**
+
+- Dify conversation IDs belong to one app. Existing devchat conversations were created in the production app, so after switching, start new devchat conversations (old ones will fail to continue or silently start fresh).
+- Model and settings in the dev app should match production exactly, so any difference in answers comes from the prompt, not the model.
+
+**Done when:** Devchat talks to the dev app (confirmed in the Dify dev app logs), and both prompt files are in the repo.
 
 ---
 
@@ -50,47 +104,71 @@ Dify (unchanged app)  ->  answer  ->  existing output guards
 
 **Status:** Draft below, awaiting your review
 
-The articles become two things: a short set of always-on principles, and a playbook per question type. Written as instructions to the model, in our words.
+These replace the CAPTAINCY, TRANSFER, PLAYER COMPARISONS, DIFFERENTIALS and GENERAL GAMEWEEK INSIGHTS sections of the Dify REASONING FRAMEWORK (in the dev prompt only). Photo rules stay attached to each section exactly as now.
 
-### 1a. Core principles (always on for FPL advice questions)
+### 1a. Core principles (top of the REASONING FRAMEWORK)
 
 ```text
-DECISION PRINCIPLES:
+DECISION PRINCIPLES (apply to all advice):
 - Judge every recommendation on the information available now, not on last gameweek's result.
 - One or two gameweeks of form is noise unless something structural changed: role, minutes,
-  penalty or set-piece duty, or team setup. Long-run underlying numbers outrank a short hot streak.
+  penalty or set-piece duty, or team setup. Long-run underlying numbers (xG, xA, xGI, minutes)
+  outrank a short hot streak.
 - Minutes first. A player must be likely to start and play 70-90 minutes before ceiling, fixtures
-  or price matter.
+  or price matter. Check Status, Fitness% and Minutes before recommending anyone.
 - Prefer players with more than one route to points (goals, assists, clean sheets, defensive
   contributions, set pieces, penalties, bonus).
 - Evaluate transfers over the next 3-6 gameweeks, not the next match.
 - Never recommend a move whose only justification is a recent haul or a recent blank.
 - Doing nothing (rolling the transfer) is a valid recommendation when no sell is forced and no buy
   is clearly better.
+- Price rises are a minor tie-breaker, never the main reason for a transfer. Waiting for team news
+  is usually worth more than beating a price change.
 - Explain why the call makes sense in two or three short reasons. The reasoning matters more than
   the name.
+- Use the DECISION CONTEXT block (when present) for the user's risk mode, free transfers and chip window.
 ```
 
-### 1b. Playbooks (one injected per question)
+### 1b. Playbooks (replace the old sections)
 
-**Transfers**
+**Captaincy** (replaces the ownership > 40% / form > 7.0 rules)
 
 ```text
-TRANSFER FRAMEWORK (work through in order, do not recite to the user):
+CAPTAINCY DECISIONS:
+1. Rank options by xPNext after adjusting for minutes and rotation risk.
+2. Factor penalty and set-piece duty, the opponent's defensive quality, and home/away.
+3. Apply the risk mode from DECISION CONTEXT (default Balanced):
+   - Protect: highest-projected heavily owned option unless there is a real minutes or role concern.
+   - Balanced: highest projection; ownership only breaks ties.
+   - Chase: a lower-owned captain only if the projection gap is small or the ceiling is clearly higher.
+     Low ownership alone is never the reason.
+4. Give a clear first choice plus 1-2 alternatives, with the reason each one ranks where it does.
+5. Say in one line which risk mode you assumed.
+- ALWAYS include player photos for each option.
+```
+
+**Transfers** (replaces form > 6.0 / price rises likely)
+
+```text
+TRANSFER SUGGESTIONS (work through in order, do not recite the steps):
 1. Forced sells first: injured, suspended, lost role, or blank with no reason to hold.
-2. High-confidence buys: secure minutes, good fixtures over 3-6 GWs, strong team context,
+2. High-confidence buys: secure minutes, good fixtures over the next 3-6 GWs, strong team context,
    clear route to points.
 3. Compare every move against rolling the transfer. Ask what an extra free transfer unlocks next week.
+   If rolling is best, say so plainly.
 4. Opportunity cost: is the move sideways? Does it block a future premium? Does it create a
    benching headache between two similar players?
-5. Only then use the user's risk mode to break remaining ties.
-"He blanked twice" is not a sell reason. "Role changed, minutes shrinking, fixtures turn" is.
+5. Only then use the risk mode to break remaining ties.
+- "He blanked twice" is not a sell reason. "Role changed, minutes shrinking, fixtures turn" is.
+- Max 3 players from one team. Always mention budget impact.
+- When suggesting buys, offer 2-3 options at different price points.
+- ALWAYS include player photos for each suggestion.
 ```
 
-**Hits (-4)**
+**Hits (-4)** (new section)
 
 ```text
-HIT TEST:
+HITS (-4):
 A hit is a price, not a sin. Recommend it only when the expected gain over 2-4 GWs clearly beats
 4 points with room for error.
 Supports a hit: player out is injured/suspended/dropped; player in is a genuine captaincy option;
@@ -100,159 +178,223 @@ will likely be reversed within two weeks; it burns a transfer or chip route wort
 State which side of the test the move falls on.
 ```
 
-**Captaincy**
+**Player comparisons** (replaces Form, Fixtures, Price, PPG, Ownership order)
 
 ```text
-CAPTAINCY FRAMEWORK:
-1. Rank options by xPNext after adjusting for minutes and rotation risk.
-2. Factor penalty and set-piece duty, the opponent's defensive quality, and home/away.
-3. Apply risk mode:
-   - Protect: highest-projected heavily owned option unless there is a real minutes or role concern.
-   - Balanced (default): highest projection; ownership only breaks ties.
-   - Chase: a lower-owned captain only if the projection gap is small or the ceiling is clearly higher.
-     Low ownership alone is never the reason.
-4. Say in one line which mode you assumed.
+PLAYER COMPARISONS - compare in this order:
+1. Availability and minutes security (Status, Fitness%, Minutes, role).
+2. Underlying output over the season (xGI, xG, xA, DC90 for DEF/MID) and routes to points.
+3. Fixtures over the next 3-6 GWs.
+4. Price and what the price difference buys elsewhere in the squad.
+5. Recent form and ownership as context only.
+- Give a clear recommendation with reasoning.
+- ALWAYS include player photos for players being compared.
 ```
 
-**Chips**
+**Differentials** (keeps the filters as a starting pool, adds substance)
 
 ```text
-CHIP FRAMEWORK (use only the chip rules in the USER'S FPL TEAM / rules data, never from memory):
+DIFFERENTIALS / HIDDEN GEMS:
+- Starting pool: Ownership < 10%, Price < £8.0m.
+- Must have secure minutes (regular starter, not just 200+ minutes) and a projection that holds up
+  (xPNext, xGI) - low ownership alone is not a reason.
+- Form is supporting evidence, not the filter.
+- Focus on upcoming fixture swings over 3-6 GWs.
+- Highlight 3-4 specific players max.
+- ALWAYS include player photos for each differential.
+```
+
+**Chips** (new section)
+
+```text
+CHIPS:
+- There are two full chip sets: Wildcard, Free Hit, Bench Boost and Triple Captain for GW1-19,
+  and a fresh set for GW20-38. First-half chips expire at the GW19 deadline and do not carry over.
+- Use "Chips Still Available" in USER'S FPL TEAM as the source of truth for what the user has.
 - Wildcard: for a structural expected-points problem or a fixture swing that needs a reshape.
   Never after one bad week.
 - Free Hit: when one gameweek's schedule is so distorted that a one-week squad clearly beats the real one.
-- Triple Captain: premium with strong fixture and high minutes confidence. Take the opportunity
+- Triple Captain: premium with strong fixture and high minutes confidence. Take a strong opportunity
   when it appears rather than saving into a corner.
 - Bench Boost: only when the bench is naturally playable. Do not advise building an expensive bench
   just for the chip.
-- If chips expire at a deadline, plan to use them on real opportunities before expiry rather than
-  dumping them in the last week.
+- Plan to use expiring chips on real opportunities before the deadline, not dump them in the last week.
 ```
 
-**Squad review / structure**
+**Squad review / structure** (new section)
 
 ```text
-SQUAD STRUCTURE:
+SQUAD REVIEW:
 - GK: low opportunity cost usually wins. Rotation pairs only if the saving is real.
 - DEF: favour multiple routes (attacking returns, set pieces, clean-sheet odds, defensive
-  contributions). Expensive defenders must justify more than clean sheets. Cheap nailed starters are
-  valuable for budget and Bench Boost.
+  contributions). Expensive defenders must justify more than clean sheets.
 - MID: prioritise penalties, set pieces, advanced roles, 90-minute security, strong team attacks.
 - FWD: penalties, minutes and team chance quality dominate. A mid-priced forward beats a premium when
   the premium's price weakens the rest of the squad too much.
 - Bench: neither dead nor expensive. Match bench strength to rotation risk and chip plans.
+- Start with forced problems (injuries, lost roles), then structural weaknesses, then nice-to-haves.
 ```
+
+**General gameweek insights** (softened)
+
+```text
+GENERAL GAMEWEEK INSIGHTS:
+- Focus on 6-8 key players across different positions.
+- Prioritise: injury and availability news, role and minutes changes, fixture swings.
+- Treat form spikes and price changes as secondary - mention them only when something
+  structural explains them.
+- ALWAYS include player photos for key players mentioned.
+```
+
+**Formatting** (one small edit)
+
+- Change "Structure answers with clear sections" to: "Use sections only when the answer covers several topics. Short questions get short answers."
 
 ### 1c. Things we deliberately leave out
 
 - Champion and Hall of Fame names, interview anecdotes, and the academic research summary. Good for a blog, not useful for a prompt.
 - "Never transfer within 24 hours of a rank drop". The bot can't see when a user is on tilt. We keep the underlying rule instead (don't move on results alone).
-- Price-change strategy detail. Kept to one line: wait for team news unless a price change would block a move already decided.
+- Detailed price-change strategy. Covered by one principle line.
 
 **Done when:** You've read 1a, 1b and 1c and either approved them or marked changes.
 
 ---
 
-## Step 2: Verify game-rule facts
+## Step 2: Verify game-rule facts and fix the two live bugs
 
-**Status:** Not started
+**Status:** Partly verified (checked live API at GW9, 4 Nov 2026)
 
-The articles make rule claims for 2026/27. Before any of these go into a prompt, we confirm them against the live FPL API (`bootstrap-static` chips list, `entry/{id}/history`) and existing code.
-
-| Claim in articles | What we check | Notes |
+| Fact | Source | Result |
 |---|---|---|
-| Up to 5 free transfers can be banked | FPL game rules / API | Affects "rolling is an active decision" |
-| Two full chip sets, first set expires at GW19 deadline | `bootstrap-static` `chips` (`start_event` / `stop_event`) | `fpl_temp.json` already shows wildcard and free hit split 2-19 / 20-38 |
-| Defensive contribution scoring thresholds | Existing DEFCON text in the chat prompt | Current prompt labels it "2025/26". Confirm still correct this season |
-| Bonus system tweak this season | FPL announcements | Only mention if confirmed |
+| Free transfers bank up to 5 | Current Dify prompt (STANDARD RULES) | Already in production prompt. Keep |
+| Two full chip sets, first set expires GW19 | `bootstrap-static` `chips` | **Confirmed.** Wildcard, Free Hit, Bench Boost, Triple Captain each have windows 1(or 2)-19 and 20-38 |
+| `defensive_contribution` meaning | `bootstrap-static` elements | **Confirmed it's an action count**, not matches earned. Top DEF at GW9: DC about 105, DC90 about 11 |
+| DEFCON thresholds (DEF CBIT 10+, MID CBIT + recoveries 12+) | Dify prompt + chat route | To confirm still correct this season |
+| "Bonus system tweak this season" (from articles) | FPL announcements | Not encoding unless confirmed |
 
-**Known existing issue to look at here:** `lib/chat-fpl-team-context.ts` (and the inline Team ID block in the devchat route) treats Free Hit, Bench Boost and Triple Captain as one-per-season, and wildcard as two. If every chip now comes in two halves, "Chips Still Available" can be wrong for users, which would undermine the chip playbook. Fix belongs in this step (devchat first).
+### Bug 1: DEFCON definition in the Dify prompt (live in production)
 
-**Done when:** Every row above is confirmed or corrected, and chip availability is computed per half-season in the devchat context.
+The Dify prompt says `defensive_contribution` is "matches where the player earned the DEFCON bonus" and that per 90 "above ~0.7" means reliable. Both are wrong. The chat route's FIELD EXPLANATIONS say it's an action count with DC90 typically 5-16, which matches the API. The model currently gets both definitions.
+
+Fix in the dev prompt: rewrite the DEFCON section to match the API and the route text (DC = defensive actions, DC90 = actions per 90, reliability judged against the 10 / 12 per-match thresholds, never call DC "matches earned"). Also align field names with the pipe data (`DC`, `DC90`, `CBIT`).
+
+### Bug 2: Chip availability in team context (live in production)
+
+`lib/chat-fpl-team-context.ts` and the inline Team ID block in the devchat route count wildcards up to 2, but treat Free Hit, Bench Boost and Triple Captain as once per season. Under the two-set rules, a user who used Bench Boost in GW5 still has one for GW20-38, but we tell the model it's gone.
+
+Fix (devchat first): compute availability per half using the `chips` windows from `bootstrap-static` and `history.chips[].event`. Output something like:
+
+```text
+Chips (GW1-19 set, expires GW19 deadline, 10 GWs left): Wildcard, Free Hit, Triple Captain available. Bench Boost used GW5.
+Chips (GW20-38 set): all four available from GW20.
+```
+
+**Recommendation:** these two bugs are worth promoting to production on their own once tested on devchat, rather than waiting for the full framework. Your call (see open questions).
+
+**Done when:** Remaining facts confirmed, both bugs fixed on devchat and checked against a real Team ID.
 
 ---
 
-## Step 3: Add user context the frameworks need
+## Step 3: Write the dev system prompt
 
 **Status:** Not started
 
-The risk-mode and roll-vs-move logic only works if the model knows the user's situation. Most of this is already fetched when a Team ID is linked (`entry`, `picks`, `history`). We add:
+1. In `docs/dify/system-prompt-dev.md`, replace the REASONING FRAMEWORK sections with Step 1 (as approved), keep the untouched sections word for word, and apply the DEFCON fix from Step 2.
+2. Paste it into the Dify dev app.
+3. Commit the file so the diff against `system-prompt-prod.md` shows exactly what changed.
+
+**Done when:** Dev app runs the new prompt, and the prod vs dev diff is reviewed.
+
+---
+
+## Step 4: Add user context the frameworks need
+
+**Status:** Not started
+
+Most of this is already fetched when a Team ID is linked (`entry`, `picks`, `history`). We add:
 
 | Field | Source | Status |
 |---|---|---|
 | Overall rank | `entry.summary_overall_rank` | Already in context |
 | Rank trend (last 3-5 GWs) | `history.current[].overall_rank` | New |
-| Free transfers available now | Derived from `history.current[].event_transfers` and transfer rules | New, must compute (FPL API doesn't return it directly) |
+| Free transfers available now | Derived from `history.current[].event_transfers`, chip weeks and the 5 cap | New. FPL API doesn't return it directly, so we compute it |
 | Bank | `entry.last_deadline_bank` | Already in context |
-| Chips available, per half | `history.chips` + chip windows from Step 2 | Fix in Step 2 |
+| Chips per half | Step 2 fix | Step 2 |
 | Hits taken recently | `history.current[].event_transfers_cost` | New |
-| Gameweeks left in this chip half | Current GW vs expiry GW | New |
+| GWs left before first-half chips expire | Current GW vs 19 | New |
 
 **Risk mode:**
 
-- Default is **Balanced**, stated in the answer in one short line.
-- If the user says "protecting my lead", "chasing", "need a differential", "mini-league rival", we switch mode from their wording.
-- Phase 2 (optional): infer a suggestion from rank trend or GW number (for example, late season with a falling rank), but never silently. The model says what it assumed.
+- Default is **Balanced**.
+- If the user says "protecting my lead", "chasing", "need a differential", "mini-league rival" and similar, we set the mode from their wording.
+- Phase 2 (optional): suggest a mode from rank trend or season stage, but never silently. The model states what it assumed.
 - Mini-league position needs a league ID we don't currently store. Out of scope for now. The user can just tell us.
 
-**Done when:** Devchat context includes rank trend, computed free transfers, recent hits, per-half chips and a risk-mode line, verified against a real Team ID.
+Output goes into a short **DECISION CONTEXT** block in the message (see Step 6).
+
+**Done when:** Devchat context includes rank trend, computed free transfers, recent hits, per-half chips and risk mode, verified against a real Team ID.
 
 ---
 
-## Step 4: Intent detection
+## Step 5: Question type detection
 
 **Status:** Not started
 
-A small, deterministic classifier in code (new file, for example `lib/chat-decision-intent.ts`) that maps the user's message to one intent:
+With the playbooks now in the system prompt, detection doesn't need to inject large blocks. It just tells the model which playbook applies and helps pick risk mode. New file, for example `lib/chat-decision-intent.ts`:
 
-| Intent | Example triggers |
+| Type | Example triggers |
 |---|---|
 | `transfer` | "who should I bring in", "sell X?", "replace", "upgrade" |
 | `hit` | "-4", "take a hit", "minus 4", "worth a hit" |
-| `captaincy` | "captain", "armband", "(C)", "triple captain" (also flags chip) |
+| `captaincy` | "captain", "armband", "(C)" |
 | `chip` | "wildcard", "free hit", "bench boost", "triple captain", "chip" |
+| `comparison` | "X or Y", "X vs Y", "compare" |
+| `differential` | "differential", "hidden gem", "punt", "low owned" |
 | `squad_review` | "rate my team", "review my squad", "team structure" |
-| `general` | Everything else FPL related (stat lookups, comparisons): principles only, no playbook |
-| `none` | Casual chat (reuse `chat-conversational.ts`): no framework at all |
+| `general` | Other FPL questions (stat lookups etc.) |
+| `casual` | Reuse `chat-conversational.ts`. No decision context at all |
 
 Rules:
 
-- Keyword and pattern based first. No extra LLM call, no added latency.
-- A message can carry two intents (for example "take a -4 to bring in Salah as captain"). Cap at two playbooks.
-- Unit tests for the classifier using the question set from Step 6.
+- Keyword and pattern based. No extra AI call, no added latency.
+- A message can have up to two types (for example "take a -4 to bring in Salah as captain" = hit + captaincy).
+- Unit tests using the question set from Step 7.
 
-**Done when:** Classifier exists with tests and gives the expected intent for every question in the Step 6 set.
-
----
-
-## Step 5: Wire into `/devchat` only
-
-**Status:** Not started
-
-In `app/api/devchat/route.ts`, add a decision framework section to the assembled message:
-
-1. Core principles block (Step 1a) for any intent except `none`.
-2. Matching playbook(s) (Step 1b) from Step 4.
-3. User context and assumed risk mode (Step 3).
-4. One instruction: "Use the framework to decide. Do not list the framework steps in your answer."
-
-Placement: after live data and the squad ownership guard, before formatting rules, so data integrity and ownership rules still win any conflict.
-
-Kept in a new file (for example `lib/chat-decision-framework.ts`) so production can import the same thing later with no copy-paste.
-
-Optional toggle: a query param or owner setting to switch the framework off in devchat, for side-by-side comparison.
-
-**Done when:** Devchat answers use the framework, production `/api/chat` is untouched (verified by diff), and the toggle works.
+**Done when:** Classifier exists with tests and gives the expected type for every question in the Step 7 set.
 
 ---
 
-## Step 6: Test question set (before and after)
+## Step 6: Wire into `/devchat` only
 
 **Status:** Not started
 
-About 20 realistic questions, run on devchat with the framework off, then on. Stored in this repo (for example `docs/nov26-engine-eval.md`) with both answers side by side.
+In `app/api/devchat/route.ts`:
 
-Draft list:
+1. Use `DIFY_DEV_API_KEY` (from Step 0).
+2. Add a short DECISION CONTEXT block to the message, after live data and the squad ownership guard:
+
+```text
+DECISION CONTEXT:
+Question type: hit, captaincy
+Risk mode: Balanced (default - user did not specify)
+Free transfers available: 2 (bank cap 5)
+Recent hits: -4 in GW8
+First-half chips expire in 10 GWs: Wildcard, Free Hit, Triple Captain still available
+Apply the matching playbook from your instructions. Do not list the playbook steps in your answer.
+```
+
+3. Keep the builder in a new file (for example `lib/chat-decision-context.ts`) so production can import it later with no copy-paste.
+4. Optional toggle (query param or owner setting) to switch back to the production Dify app for side-by-side comparison.
+
+**Done when:** Devchat answers use the new prompt and context, production `/api/chat` is untouched (verified by diff), and the toggle works.
+
+---
+
+## Step 7: Test question set (before and after)
+
+**Status:** Not started
+
+About 20 realistic questions, each run against the production prompt and the dev prompt. Stored in the repo (for example `docs/nov26-engine-eval.md`) with both answers side by side.
 
 1. "Should I take a -4 to bring in [in-form player] for [blanking player]?"
 2. "[Player] has blanked twice. Should I sell?"
@@ -271,50 +413,56 @@ Draft list:
 15. "Should I get [player] before his price rises?"
 16. "I took a big hit and lost rank, what now?"
 17. "Best differential for this gameweek?"
-18. "Should I sell [injured player] or wait?"
-19. Casual message (for example "thanks mate"): framework must not trigger.
-20. Pure stat lookup (for example "How many goals has Haaland scored?"): principles only, no playbook, still short.
+18. "Who are the best DEFCON defenders?" (checks Bug 1 fix)
+19. "What chips do I have left?" (Team ID with a chip used, checks Bug 2 fix)
+20. Casual message (for example "thanks mate"): no decision context.
+21. Pure stat lookup ("How many goals has Haaland scored?"): short answer, no playbook.
 
 **What we judge each answer on:**
 
 - Uses the right reasoning (minutes, horizon, forced sells, hit test, risk mode).
 - States assumed risk mode when relevant.
 - Recommends rolling when that's genuinely best.
+- No form-chasing or price-chasing as the main reason.
+- DEFCON and chip facts correct.
 - Still correct on data, ownership, prices and photos.
 - Not longer or preachier than before.
 
-**Done when:** You've reviewed both columns and are happy the "on" answers are better.
+**Done when:** You've reviewed both columns and are happy the dev answers are better.
 
 ---
 
-## Step 7: Tune
+## Step 8: Tune
 
 **Status:** Not started
 
-Adjust wording, trim anything the model recites back, fix intent misses found in Step 6. Re-run only the questions that failed.
+Adjust prompt wording, trim anything the model recites back, fix question-type misses found in Step 7. Re-run only the questions that failed. Every prompt change goes through `docs/dify/system-prompt-dev.md` first.
 
 **Done when:** No open issues from the eval.
 
 ---
 
-## Step 8: Soak on devchat
+## Step 9: Soak on devchat
 
 **Status:** Not started
 
-Use devchat for normal questions for a few days. Note anything odd in a short log at the bottom of this file.
+Use devchat for normal questions for a few days. Note anything odd in the soak log at the bottom of this file.
 
 **Done when:** A few days of normal use with no regressions.
 
 ---
 
-## Step 9: Promote to production
+## Step 10: Promote to production
 
 **Status:** Not started
 
-1. Import the same `lib/chat-decision-framework.ts` and intent classifier into `app/api/chat/route.ts`.
-2. Apply the Step 2 chip fix and Step 3 context to the shared `lib/chat-fpl-team-context.ts`.
-3. Commit, push, run production chat status check.
-4. Spot-check five questions from the eval set on `https://www.chatfpl.ai`.
+1. Copy `docs/dify/system-prompt-dev.md` into the production Dify app. Update `docs/dify/system-prompt-prod.md` to match.
+2. Import `lib/chat-decision-context.ts` and the question type classifier into `app/api/chat/route.ts`.
+3. Apply the Step 2 chip fix and Step 4 context to the shared `lib/chat-fpl-team-context.ts`.
+4. Commit, push, run the production chat status check.
+5. Spot-check five questions from the eval set on `https://www.chatfpl.ai`.
+
+**Rollback:** paste `system-prompt-prod.md` (previous version from git) back into the production Dify app and revert the route commit.
 
 **Done when:** Live on production with status Online and spot-checks passing.
 
@@ -324,8 +472,9 @@ Use devchat for normal questions for a few days. Note anything odd in a short lo
 
 1. Default risk mode when the user doesn't say: **Balanced** (proposed). Agree?
 2. Should the answer always include the one-line "assumed mode" note, or only for captaincy and hits?
-3. Do you want a separate Dify dev app (own API key) for devchat later, so we could test system prompt changes too? Not needed for this plan.
-4. Any principles from the articles you disagree with or want stronger or softer?
+3. Are you happy to create the duplicate Dify dev app (Step 0)? It's a few clicks in the dashboard plus one Vercel env var.
+4. Promote the two bug fixes (DEFCON definition, chip availability) to production early, once tested on devchat, or wait for the full framework?
+5. Any principles from the articles you disagree with or want stronger or softer?
 
 ---
 
