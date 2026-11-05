@@ -11,9 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Wait for Vercel deploy
-        run: sleep 120
-
       - name: Production chat health
         env:
           CHAT_HEALTH_URL: https://www.chatfpl.ai/api/health/chat

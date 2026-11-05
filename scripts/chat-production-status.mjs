@@ -3,23 +3,22 @@
  * Production chat status for humans and Cursor agents.
  * Usage: node scripts/chat-production-status.mjs
  * Optional: CHAT_HEALTH_URL=https://www.chatfpl.ai/api/health/chat
+ *
+ * Deploy wait is OFF by default (instant check). To wait before checking, set BOTH:
+ *   CHAT_HEALTH_ALLOW_LONG_WAIT=1
+ *   CHAT_HEALTH_WAIT_MS=<milliseconds>
  */
 
 const HEALTH_URL =
   process.env.CHAT_HEALTH_URL ?? "https://www.chatfpl.ai/api/health/chat";
 
-const rawWait = Number(process.env.CHAT_HEALTH_WAIT_MS ?? "0");
 const allowLong =
   process.env.CHAT_HEALTH_ALLOW_LONG_WAIT === "1" ||
   process.env.CHAT_HEALTH_ALLOW_LONG_WAIT === "true";
-const DEPLOY_WAIT_MS =
-  rawWait > 0 && !allowLong && rawWait > 30_000 ? 0 : Math.max(0, rawWait);
 
-if (rawWait > 30_000 && DEPLOY_WAIT_MS === 0 && rawWait > 0) {
-  console.log(
-    "Note: ignoring CHAT_HEALTH_WAIT_MS > 30s (stale shell env). Set CHAT_HEALTH_ALLOW_LONG_WAIT=1 to wait for deploy.",
-  );
-}
+const DEPLOY_WAIT_MS = allowLong
+  ? Math.max(0, Number(process.env.CHAT_HEALTH_WAIT_MS ?? "0"))
+  : 0;
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));

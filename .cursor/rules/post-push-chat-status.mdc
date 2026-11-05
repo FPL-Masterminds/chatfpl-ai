@@ -9,7 +9,7 @@ This is **not** the in-app customer toast. Tell **you** in this chat whether pro
 
 ## Steps
 
-1. Run `node scripts/chat-production-status.mjs` with **no** deploy wait. Do **not** set `CHAT_HEALTH_WAIT_MS`. On PowerShell, clear a stale value first: `$env:CHAT_HEALTH_WAIT_MS=$null; node scripts/chat-production-status.mjs`
+1. Run `node scripts/chat-production-status.mjs` (instant; the script never waits unless `CHAT_HEALTH_ALLOW_LONG_WAIT=1`). Do not set wait env vars for normal agent checks.
 2. If the script exits non-zero or prints `Status: Chat Offline`, note what failed briefly.
 3. The **last line** of your reply after a push (or when the task included push) must be exactly one of:
    - `**Production chat:** Online`

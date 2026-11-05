@@ -8,12 +8,12 @@ Use this when **you** want to know if real FPL chat can reach Dify, not just the
 node scripts/chat-production-status.mjs
 ```
 
-Default: no deploy wait (`CHAT_HEALTH_WAIT_MS` defaults to `0`). Run the script immediately after a push; do not block the reply on a two-minute Vercel wait unless the owner asks.
+Default: **instant check** (no deploy wait). `CHAT_HEALTH_WAIT_MS` is ignored unless you also set `CHAT_HEALTH_ALLOW_LONG_WAIT=1`.
 
-If you just pushed and want to poll until deploy finishes, set a wait yourself (optional):
+Optional manual wait before check:
 
 ```bash
-CHAT_HEALTH_WAIT_MS=60000 node scripts/chat-production-status.mjs
+CHAT_HEALTH_ALLOW_LONG_WAIT=1 CHAT_HEALTH_WAIT_MS=60000 node scripts/chat-production-status.mjs
 ```
 
 After pushes that affect production chat, Cursor agents should run the script with **zero wait** and end the owner reply with:
