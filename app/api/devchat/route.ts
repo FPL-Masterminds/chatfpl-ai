@@ -377,9 +377,17 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
                   (p: any) =>
                     p.rawData.total_points > 30 && parseFloat(p.rawData.form) > 4.0
                 )
-                .sort((a: any, b: any) => b.rawData.total_points - a.rawData.total_points)
+                .sort((a: any, b: any) => {
+                  const xgiA = parseFloat(String(a.rawData.expected_goal_involvements ?? "0"));
+                  const xgiB = parseFloat(String(b.rawData.expected_goal_involvements ?? "0"));
+                  if (xgiB !== xgiA) return xgiB - xgiA;
+                  return (
+                    parseFloat(String(b.rawData.ep_next ?? "0")) -
+                    parseFloat(String(a.rawData.ep_next ?? "0"))
+                  );
+                })
                 .slice(0, 120);
-              filterNote = "Showing top captaincy options based on points and form";
+              filterNote = "Showing captaincy-relevant players (use xGI and attacking threat, not xPNext alone)";
             } else if (
               messageLower.includes("transfer") ||
               messageLower.includes("who to get") ||
@@ -506,6 +514,16 @@ IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my tra
 
             const formSampleGws = countFormSampleGameweeks(events);
 
+            const captaincyDataGuard = messageLower.includes("captain")
+              ? `CAPTAINCY DATA GUARD (MANDATORY for this question):
+- Do NOT pick #1 captain solely because xPNext is highest. xPNext closely tracks recent form (often identical to Form in these rows).
+- Default #1 captain: a FWD or MID with strong season xGI, penalties or set pieces where relevant, secure minutes, and a good fixture.
+- A DEF with top xPNext on a short streak is NOT a default captain. Name a DEF first only with penalties, set pieces, or a clear structural reason.
+- Do not add a "Risk mode assumed..." footer line.
+
+`
+              : "";
+
             fplContext = `LIVE FPL DATA (Updated: ${new Date().toISOString()}):
 
 CURRENT GAMEWEEK: ${currentGameweek?.name || "Unknown"} (ID: ${currentGW})
@@ -516,7 +534,7 @@ ${nextGameweek ? `NEXT GAMEWEEK: ${nextGameweek.name} (ID: ${nextGameweek.id}) -
 
 ${adviceGwNote}
 
-${transferWindowContext}
+${captaincyDataGuard}${transferWindowContext}
 
 ${comparisonFactsContext ? `${comparisonFactsContext}\n\n` : ""}${requestedPlayersContext ? `${requestedPlayersContext}\n\n` : ""}${gwFixtureStatusContext ? `${gwFixtureStatusContext}\n\n` : ""}${planningFixtureContext ? `${planningFixtureContext}\n\n` : ""}${userTeamContext ? userTeamContext + "\n" : ""}TEAM FIXTURE RUNS (${fixtureWindowLabel}, from Gameweek ${adviceGwId}) - Format: OPPONENT(H/A-Difficulty). First opponent listed = next fixture:
 ${fixtureRunsText}
@@ -531,7 +549,7 @@ ${fplData.teams?.map((t: any) => `${t.name} (${t.short_name})`).join(", ")}
 FIELD EXPLANATIONS:
 - GWpts = Points scored THIS gameweek only (live). 0 often means the player's fixture has not started yet - check CURRENT GW FIXTURE STATUS before criticising.
 ${formFieldChatExplanation(formSampleGws)}
-- xPNext = Expected points for the ADVICE/PLANNING gameweek (Gameweek ${adviceGwId}, FPL official prediction)
+- xPNext = Expected points for the ADVICE/PLANNING gameweek (Gameweek ${adviceGwId}, FPL official prediction). It leans heavily on recent form; do not treat highest xPNext as automatic captain.
 - xPThis = Expected points for CURRENT gameweek
 - xG = Expected goals this season (FPL/Opta data)
 - xA = Expected assists this season
@@ -571,7 +589,7 @@ STARTING XI: 1 GKP + 10 outfield. Min 3 DEF, 2 MID, 1 FWD.
 VALID FORMATIONS: 3-4-3, 3-5-2, 4-3-3, 4-4-2, 4-5-1, 5-2-3, 5-3-2, 5-4-1
 POINTS: Goals GKP/DEF=6, MID=5, FWD=4. Assists=3. CS (60+ min) GKP/DEF=4, MID=1. Captain doubles.
 TRANSFERS: Follow the TRANSFER WINDOW block above (computed from live FPL deadlines). Wildcard/Free Hit = unlimited after GW1 deadline. Extra transfers = -4pts each.
-DEFCON: New 2025/26 scoring. Defenders +2pts at 10+ CBIT in a match; Midfielders +2pts at 12+ CBIT+recoveries. GKP/FWD do NOT earn DEFCON. Field DC = total matches earned; DC90 = per 90 minutes (use as primary DEFCON ranking); CBIT = raw combined count.
+DEFCON: New 2025/26 scoring. Defenders +2pts at 10+ CBIT in a match; Midfielders +2pts at 12+ CBIT+recoveries. GKP/FWD do NOT earn DEFCON. Field DC = defensive actions workload total (NOT matches earned); DC90 = actions per 90 (primary DEFCON ranking signal); CBIT = raw combined count.
 
 PERSONALITY:
 - You are ChatFPL AI. Use "I" not "ChatFPL AI has..."

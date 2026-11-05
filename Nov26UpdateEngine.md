@@ -116,7 +116,7 @@ Checked against the live API: **xPNext equals form exactly for all three players
 **Decisions locked in:**
 
 - Default risk mode: **Balanced**
-- Assumed risk mode: **always one line in the answer** (revisit after eval if noisy)
+- Assumed risk mode line: **removed** (apply Protect/Balanced/Chase internally; no "Risk mode assumed..." footer unless user asks about rank context)
 - Principles: **approved as written** (no soften/strengthen changes)
 - Early promote: **DEFCON + chip fixes to production after devchat test**, if they look good (no need to wait for full framework)
 
@@ -151,15 +151,11 @@ DECISION PRINCIPLES (apply to all advice):
 
 ```text
 CAPTAINCY DECISIONS:
-1. Rank options by xPNext after adjusting for minutes and rotation risk.
-2. Factor penalty and set-piece duty, the opponent's defensive quality, and home/away.
-3. Apply the risk mode from DECISION CONTEXT (default Balanced):
-   - Protect: highest-projected heavily owned option unless there is a real minutes or role concern.
-   - Balanced: highest projection; ownership only breaks ties.
-   - Chase: a lower-owned captain only if the projection gap is small or the ceiling is clearly higher.
-     Low ownership alone is never the reason.
-4. Give a clear first choice plus 1-2 alternatives, with the reason each one ranks where it does.
-5. Say in one line which risk mode you assumed.
+1. Do NOT name #1 captain because xPNext is highest (it tracks recent form).
+2. Default #1: FWD/MID with strong xGI, penalties/set pieces, minutes, fixture.
+3. DEF first only with structural reason (penalties, set pieces). Cheap DEF on xPNext streak is wrong.
+4. Apply Protect/Balanced/Chase internally (default Balanced). No "Risk mode assumed..." footer.
+5. First choice plus 1-2 alternatives with reasons.
 - ALWAYS include player photos for each option.
 ```
 
@@ -319,10 +315,10 @@ Chips (GW20-38 set): all four available from GW20.
 
 ## Step 3: Write the dev system prompt
 
-**Status:** Not started
+**Status:** In progress (prompt in git + devchat CAPTAINCY DATA GUARD shipped; **re-publish Dify dev app** after each prompt edit). Smoke test: Konsa-on-xPNext should fail after Dify publish + new devchat thread.
 
 1. In `docs/dify/system-prompt-dev.md`, replace the REASONING FRAMEWORK sections with Step 1 (as approved), keep the untouched sections word for word, and apply the DEFCON fix from Step 2.
-2. Paste it into the Dify dev app.
+2. Paste it into the Dify dev app and **Publish**.
 3. Commit the file so the diff against `system-prompt-prod.md` shows exactly what changed.
 
 **Done when:** Dev app runs the new prompt, and the prod vs dev diff is reviewed.
@@ -349,7 +345,7 @@ Most of this is already fetched when a Team ID is linked (`entry`, `picks`, `his
 
 - Default is **Balanced**.
 - If the user says "protecting my lead", "chasing", "need a differential", "mini-league rival" and similar, we set the mode from their wording.
-- Phase 2 (optional): suggest a mode from rank trend or season stage, but never silently. The model states what it assumed.
+- Phase 2 (optional): suggest a mode from rank trend or season stage, but never silently. Do not add a risk-mode footer unless the user asks about rank context.
 - Mini-league position needs a league ID we don't currently store. Out of scope for now. The user can just tell us.
 
 Output goes into a short **DECISION CONTEXT** block in the message (see Step 6).
