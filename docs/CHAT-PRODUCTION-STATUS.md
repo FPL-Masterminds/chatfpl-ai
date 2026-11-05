@@ -1,27 +1,31 @@
 # Chat production status
 
-Use this after every deploy to know if **real FPL chat** can reach Dify, not just the conversational shortcut.
+Use this when **you** want to know if real FPL chat can reach Dify, not just the conversational shortcut.
 
-## Quick check (you or Cursor)
+## Quick check (manual)
 
 ```bash
 node scripts/chat-production-status.mjs
 ```
 
-After a fresh push, wait for Vercel (~2 minutes):
+Default: no deploy wait (`CHAT_HEALTH_WAIT_MS` defaults to `0`).
+
+If you just pushed and Vercel may still be building, wait on your side or set a short wait yourself:
 
 ```bash
-# bash
-CHAT_HEALTH_WAIT_MS=120000 node scripts/chat-production-status.mjs
+# bash (optional)
+CHAT_HEALTH_WAIT_MS=60000 node scripts/chat-production-status.mjs
 ```
 
 ```powershell
-# PowerShell
-$env:CHAT_HEALTH_WAIT_MS=120000; node scripts/chat-production-status.mjs
+# PowerShell (optional)
+$env:CHAT_HEALTH_WAIT_MS=60000; node scripts/chat-production-status.mjs
 ```
 
 **Output you want:** `Status: Chat Online`  
 **Bad:** `Status: Chat Offline` (script exits code 1)
+
+Cursor agents must **not** run this script automatically after every push or block replies on a multi-minute deploy wait.
 
 ## HTTP endpoint
 
@@ -41,15 +45,7 @@ Includes `chat_pre_dify_pipeline` when `CRON_SECRET` matches.
 
 ## GitHub Actions (optional)
 
-Workflow **Chat production status** is **manual only** (Actions tab → Run workflow). It polls `https://www.chatfpl.ai/api/health/chat` after a short wait. It does not run on every push, so you should not get failure emails on each commit.
-
-After pushes, Cursor should run `npm run chat:status` and tell you `**Production chat:** Online` or `Offline`.
-
-## Cursor agent rule
-
-`.cursor/rules/post-push-chat-status.mdc` requires the agent to run the script after pushes and end with:
-
-`**Production chat:** Online` or `**Production chat:** Offline`
+Workflow **Chat production status** is **manual only** (Actions tab → Run workflow). It polls `https://www.chatfpl.ai/api/health/chat` after a short wait. It does not run on every push.
 
 ## What shallow health does not prove
 

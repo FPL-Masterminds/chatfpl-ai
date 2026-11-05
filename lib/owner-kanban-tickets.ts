@@ -33,8 +33,7 @@ export const OWNER_KANBAN_TICKET_DEFINITIONS: OwnerKanbanTicketDefinition[] = [
       "As the site owner, I want production chat verified after each deploy, so that I know quickly if customers cannot use chat.",
     acceptanceCriteria: [
       "- scripts/chat-production-status.mjs exits 0 when chat is healthy on https://www.chatfpl.ai.",
-      "- After push to main, deploy wait runs then the health script is executed.",
-      "- Cursor agent replies end with **Production chat:** Online or Offline for the owner.",
+      "- Owner runs the script manually when they care (npm run chat:status); default wait is zero.",
       "- When shallow checks fail, deep checks or Vercel /api/chat runtime logs are consulted per docs/CHAT-PRODUCTION-STATUS.md.",
     ].join("\n"),
     columnId: "done",
