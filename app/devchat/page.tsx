@@ -62,6 +62,7 @@ export default function DevChatPage() {
   const router = useRouter()
   const [authorized, setAuthorized] = useState(false)
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>(() => pickChatSuggestionPrompts())
+  const [personalPrompts, setPersonalPrompts] = useState<string[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -104,11 +105,28 @@ export default function DevChatPage() {
       .then(data => {
         if (data) {
           setSuggestedPrompts(
-            pickChatSuggestionPrompts(data.gw ?? null, Boolean(data.hasDGW), data.comparisonPrompt ?? null),
+            pickChatSuggestionPrompts(
+              data.gw ?? null,
+              Boolean(data.hasDGW),
+              data.comparisonPrompt ?? null,
+              true,
+              personalPrompts,
+            ),
           )
         }
       })
       .catch(() => {})
+  }, [personalPrompts])
+
+  useEffect(() => {
+    fetch("/api/chat/personal-suggestions")
+      .then((r) => (r.ok ? r.json() : { hitTransferPrompt: null }))
+      .then((data) => {
+        setPersonalPrompts(
+          data?.hitTransferPrompt ? [String(data.hitTransferPrompt)] : [],
+        )
+      })
+      .catch(() => setPersonalPrompts([]))
   }, [])
 
   // Email gate - silent redirect for anyone else

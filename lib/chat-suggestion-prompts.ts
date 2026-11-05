@@ -1,4 +1,9 @@
-/** Rotating suggestion pills on /chat and /devchat. */
+/** Always shown first on /chat and /devchat (Nov26 eval + common tasks). */
+export const FEATURED_SUGGESTION_PROMPTS = [
+  "Should I roll my free transfer?",
+  "What chips do I have left?",
+  "Who are the best DEFCON defenders?",
+] as const;
 
 const CORE_PROMPTS = [
   "Analyse my team using form, xP and fixtures, not vibes",
@@ -31,7 +36,7 @@ const CORE_PROMPTS = [
   "Should I play my Free Hit this gameweek?",
   "Who are the standout players from teams with a Double Gameweek?",
   "What does the Reddit community think about this week's transfer moves?",
-] as const
+] as const;
 
 /**
  * Data-led questions ChatFPL can answer from live FPL API fields:
@@ -343,6 +348,9 @@ export function promptRequiresLinkedFplTeam(prompt: string): boolean {
   if (/\bmy likely transfer\b/.test(lower)) return true
   if (/\bspend the extra.*\bmy squad\b/.test(lower)) return true
   if (/\bwasting money on\b/.test(lower) && /\bmy squad\b/.test(lower)) return true
+  if (/\bwhat chips do i have left\b/.test(lower)) return true
+  if (/\bshould i roll my free transfer\b/.test(lower)) return true
+  if (/\bshould i take a -4 to bring in\b/.test(lower)) return true
   return false
 }
 
@@ -351,18 +359,31 @@ export function pickChatSuggestionPrompts(
   hasDGW = false,
   comparisonPrompt: string | null = null,
   hasFplTeamId = true,
+  personalPrompts: string[] = [],
 ): string[] {
-  const gwPrompts = buildGWPrompts(gw, hasDGW)
+  const featured = [...FEATURED_SUGGESTION_PROMPTS];
+  const personal = hasFplTeamId
+    ? personalPrompts.filter((p) => p.trim().length > 0)
+    : [];
+
+  const gwPrompts = buildGWPrompts(gw, hasDGW);
   const allowedStatic = hasFplTeamId
     ? CHAT_SUGGESTION_PROMPTS
-    : CHAT_SUGGESTION_PROMPTS.filter((p) => !promptRequiresLinkedFplTeam(p))
-  const shuffledGW = [...gwPrompts].sort(() => Math.random() - 0.5)
-  const shuffledStatic = [...allowedStatic].sort(() => Math.random() - 0.5)
-  const gwPick = shuffledGW.slice(0, 2)
-  const staticPick = shuffledStatic.slice(0, comparisonPrompt ? 1 : 2)
-  const picks = [...gwPick, ...staticPick]
-  if (comparisonPrompt) picks.push(comparisonPrompt)
-  return picks
+    : CHAT_SUGGESTION_PROMPTS.filter((p) => !promptRequiresLinkedFplTeam(p));
+
+  const featuredKeys = new Set(featured.map((p) => p.toLowerCase()));
+  const shuffledGW = [...gwPrompts].sort(() => Math.random() - 0.5);
+  const shuffledStatic = [...allowedStatic]
+    .filter((p) => !featuredKeys.has(p.toLowerCase()))
+    .sort(() => Math.random() - 0.5);
+
+  const gwPick = shuffledGW.slice(0, 1);
+  const staticPick = shuffledStatic.slice(0, comparisonPrompt ? 1 : 2);
+
+  const tail = [...gwPick, ...staticPick];
+  if (comparisonPrompt) tail.push(comparisonPrompt);
+
+  return dedupePrompts([...featured, ...personal, ...tail])
     .filter((p) => hasFplTeamId || !promptRequiresLinkedFplTeam(p))
-    .sort(() => Math.random() - 0.5)
+    .slice(0, 6);
 }

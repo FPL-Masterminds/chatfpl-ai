@@ -104,6 +104,39 @@ function PlayerPhoto({
   );
 }
 
+function renderRichInlineContent(text: string, keyPrefix: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = [];
+  const re = /!\[([^\]]*)\]\(([^)]+)\)/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+  let idx = 0;
+  while ((match = re.exec(text)) !== null) {
+    if (match.index > last) {
+      nodes.push(...parseBold(text.slice(last, match.index), `${keyPrefix}-t-${idx}`));
+    }
+    const url = match[2];
+    if (isFplPlayerPhotoUrl(url)) {
+      nodes.push(
+        <PlayerPhoto
+          key={`${keyPrefix}-img-${idx}`}
+          alt={match[1]}
+          url={url}
+          size="sm"
+        />,
+      );
+    } else {
+      nodes.push(match[0]);
+    }
+    last = match.index + match[0].length;
+    idx += 1;
+  }
+  if (last < text.length) {
+    nodes.push(...parseBold(text.slice(last), `${keyPrefix}-tail`));
+  }
+  if (!nodes.length) return parseBold(text, keyPrefix);
+  return nodes;
+}
+
 function StructuredChatMessageLine({ line }: { line: string }) {
   if (!line.trim()) return null;
 
@@ -152,42 +185,23 @@ function StructuredChatMessageLine({ line }: { line: string }) {
 
   const inlineImg = rest.match(IMG_RE);
   if (inlineImg && inlineImg.index !== undefined && inlineImg.index > 0) {
-    const [, alt, url] = inlineImg;
-    if (isFplPlayerPhotoUrl(url)) {
-      const before = rest.slice(0, inlineImg.index);
-      const after = rest.slice(inlineImg.index + inlineImg[0].length);
-      const combined = `${before}${after}`.replace(/\s+/g, " ").trim();
-      return (
-        <div className="flex items-start gap-3">
-          <PlayerPhoto alt={alt} url={url} size="sm" />
-          <div className="min-w-0 flex-1 leading-7 text-white/85">
-            {bulletPrefix}
-            {parseBold(combined, "inline")}
-          </div>
+    return (
+      <div className="flex items-start gap-3">
+        {bulletPrefix ? (
+          <span className="shrink-0 text-white/85">{bulletPrefix.trim()}</span>
+        ) : null}
+        <div className="min-w-0 flex-1 leading-7 text-white/85 flex flex-wrap items-center gap-x-2 gap-y-1">
+          {renderRichInlineContent(rest, "inline-multi")}
         </div>
-      );
-    }
+      </div>
+    );
   }
 
   if (IMG_RE.test(rest)) {
-    const parts = rest.split(IMG_RE);
-    const nodes: React.ReactNode[] = [];
-    for (let i = 0; i < parts.length; i++) {
-      if (i % 3 === 0 && parts[i]) nodes.push(...parseBold(parts[i], `p-${i}`));
-      else if (i % 3 === 1) {
-        const url = parts[i + 1];
-        if (url && isFplPlayerPhotoUrl(url)) {
-          nodes.push(
-            <PlayerPhoto key={`img-${i}`} alt={parts[i]} url={url} size="sm" />,
-          );
-        }
-        i++;
-      }
-    }
     return (
-      <div className="leading-7 text-white/85">
+      <div className="leading-7 text-white/85 flex flex-wrap items-center gap-x-2 gap-y-1">
         {bulletPrefix}
-        {nodes}
+        {renderRichInlineContent(rest, "img-line")}
       </div>
     );
   }
@@ -201,22 +215,18 @@ function StructuredChatMessageLine({ line }: { line: string }) {
 }
 
 function renderLegacyLine(line: string, lineKey: string): React.ReactNode {
-  const parts = line.split(/!\[([^\]]*)\]\(([^)]+)\)/);
-  const elements: React.ReactNode[] = [];
-  for (let i = 0; i < parts.length; i++) {
-    if (i % 3 === 0 && parts[i]) elements.push(parts[i]);
-    else if (i % 3 === 1) {
-      const alt = parts[i];
-      const url = parts[i + 1];
-      if (url && isFplPlayerPhotoUrl(url)) {
-        elements.push(
-          <PlayerPhoto key={`${lineKey}-img-${i}`} alt={alt} url={url} />,
-        );
-      }
-      i++;
-    }
+  if (IMG_RE.test(line)) {
+    return (
+      <div className="leading-7 text-white/85 flex flex-wrap items-center gap-x-2 gap-y-1">
+        {renderRichInlineContent(line, lineKey)}
+      </div>
+    );
   }
-  return <div className="leading-7 text-white/85 whitespace-pre-wrap">{elements}</div>;
+  return (
+    <div className="leading-7 text-white/85 whitespace-pre-wrap">
+      {parseBold(line, lineKey)}
+    </div>
+  );
 }
 
 function LegacyChatMessageContent({ content }: { content: string }) {

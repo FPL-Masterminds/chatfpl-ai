@@ -172,6 +172,7 @@ export default function ChatPage() {
   const [mobileEdgeOpen, setMobileEdgeOpen] = useState(false)
   const [chatModelProfile, setChatModelProfile] = useState<ChatModelProfile>("legacy")
   const [hasFplTeamId, setHasFplTeamId] = useState(false)
+  const [personalPrompts, setPersonalPrompts] = useState<string[]>([])
   const inputBarRef = useRef<ChatInputBarHandle>(null)
   const [micListening, setMicListening] = useState(false)
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null)
@@ -228,12 +229,39 @@ export default function ChatPage() {
           setGwInfo({ gw: data.gw, hasDGW: data.hasDGW })
           setComparisonPrompt(data.comparisonPrompt ?? null)
           setSuggestedPrompts(
-            pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt, hasFplTeamId),
+            pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt, hasFplTeamId, personalPrompts),
           )
         }
       })
       .catch(() => {})
+  }, [hasFplTeamId, personalPrompts])
+
+  useEffect(() => {
+    if (!hasFplTeamId) {
+      setPersonalPrompts([])
+      return
+    }
+    fetch("/api/chat/personal-suggestions")
+      .then((r) => (r.ok ? r.json() : { hitTransferPrompt: null }))
+      .then((data) => {
+        setPersonalPrompts(
+          data?.hitTransferPrompt ? [String(data.hitTransferPrompt)] : [],
+        )
+      })
+      .catch(() => setPersonalPrompts([]))
   }, [hasFplTeamId])
+
+  useEffect(() => {
+    setSuggestedPrompts(
+      pickChatSuggestionPrompts(
+        gwInfo.gw,
+        gwInfo.hasDGW,
+        comparisonPrompt,
+        hasFplTeamId,
+        personalPrompts,
+      ),
+    )
+  }, [personalPrompts, hasFplTeamId, gwInfo.gw, gwInfo.hasDGW, comparisonPrompt])
 
   const refreshPrompts = () => {
     setPromptsSpinning(true)
@@ -244,17 +272,17 @@ export default function ChatPage() {
           setGwInfo({ gw: data.gw, hasDGW: data.hasDGW })
           setComparisonPrompt(data.comparisonPrompt ?? null)
           setSuggestedPrompts(
-            pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt, hasFplTeamId),
+            pickChatSuggestionPrompts(data.gw, data.hasDGW, data.comparisonPrompt, hasFplTeamId, personalPrompts),
           )
         } else {
           setSuggestedPrompts(
-            pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt, hasFplTeamId),
+            pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt, hasFplTeamId, personalPrompts),
           )
         }
       })
       .catch(() => {
         setSuggestedPrompts(
-          pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt, hasFplTeamId),
+          pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt, hasFplTeamId, personalPrompts),
         )
       })
       .finally(() => setTimeout(() => setPromptsSpinning(false), 500))
@@ -281,7 +309,7 @@ export default function ChatPage() {
           setUserPlan(d.subscription?.plan || "Free")
           setHasFplTeamId(linkedFplTeam)
           setSuggestedPrompts(
-            pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt, linkedFplTeam),
+            pickChatSuggestionPrompts(gwInfo.gw, gwInfo.hasDGW, comparisonPrompt, linkedFplTeam, personalPrompts),
           )
         }
 
@@ -947,7 +975,7 @@ export default function ChatPage() {
               <div className="shrink-0 border-t border-white/[0.07] bg-black/90 md:bg-black/20 backdrop-blur-xl md:backdrop-blur-none p-4">
                 <div className="mb-3">
                   {(() => {
-                    const visiblePrompts = suggestedPrompts.slice(0, 2)
+                    const visiblePrompts = suggestedPrompts.slice(0, 4)
                     if (!visiblePrompts.length) return null
 
                     return (
