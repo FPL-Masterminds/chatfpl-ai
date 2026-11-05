@@ -8,7 +8,7 @@ Working document for adding a "how to think" layer to ChatFPL answers, based on 
 
 We work through this one step at a time. Each step has a status, a "done when" check, and nothing moves to production until Step 10.
 
-**Current focus:** Step 1. Read the draft rules in this file (sections 1a through 1d), approve or edit them, then we apply them in Step 3 to `docs/dify/system-prompt-dev.md` and paste into ChatFPL DEV.
+**Current focus (5 Nov 2026):** Step 2 + Step 3. Build the new dev system prompt in git, fix chip context + DEFCON text, paste into ChatFPL DEV, test on devchat. Early-promote the two bug fixes to production if tests pass.
 
 ---
 
@@ -111,7 +111,14 @@ Checked against the live API: **xPNext equals form exactly for all three players
 
 ## Step 1: Distil the articles into rules
 
-**Status:** Draft below, awaiting your review
+**Status:** Approved (5 Nov 2026). Includes 1a, 1b, 1c (xPNext vs form), 1d.
+
+**Decisions locked in:**
+
+- Default risk mode: **Balanced**
+- Assumed risk mode: **always one line in the answer** (revisit after eval if noisy)
+- Principles: **approved as written** (no soften/strengthen changes)
+- Early promote: **DEFCON + chip fixes to production after devchat test**, if they look good (no need to wait for full framework)
 
 These replace the CAPTAINCY, TRANSFER, PLAYER COMPARISONS, DIFFERENTIALS and GENERAL GAMEWEEK INSIGHTS sections of the Dify REASONING FRAMEWORK (in the dev prompt only). Photo rules stay attached to each section exactly as now.
 
@@ -259,14 +266,11 @@ GENERAL GAMEWEEK INSIGHTS:
 
 - Change "Structure answers with clear sections" to: "Use sections only when the answer covers several topics. Short questions get short answers."
 
-### 1c. Amendment after the baseline test: xPNext is not independent of form
+### 1c. xPNext vs form (approved, merge into 1a and captaincy when writing Step 3)
 
-Found in the Step 0 test: FPL's xPNext tracks recent form closely (identical for Konsa, Gabriel and Haaland at GW10). The 1a and 1b drafts lean on xPNext as "the projection", so they would inherit the same form bias. Proposed changes, for your review alongside 1a and 1b:
-
-- Add to the core principles: "xPNext is FPL's short-horizon estimate and leans heavily on recent form. Treat it as one input, not the answer. Check it against season-long xGI (or DC90 for defensive picks), minutes and role before ranking anyone."
-- Captaincy step 1 becomes: "Shortlist by xPNext, then rank by season-long attacking threat (xGI, xG, shots role, penalties), minutes security and fixture. A defender or low-threat player topping xPNext on a short streak needs a structural reason (set pieces, penalties, new role) to be first choice."
-- Comparisons and differentials: same check. When xPNext and season xGI disagree, say so and explain which you trust and why.
-- Expected effect on the baseline question: Haaland or another high-threat attacker becomes the default first choice unless the data shows a real structural reason for the defender, and the answer states the risk mode.
+- Add to core principles: xPNext is FPL's short-horizon estimate and leans heavily on recent form. Treat it as one input, not the answer. Check it against season-long xGI (or DC90 for defensive picks), minutes and role before ranking anyone.
+- Captaincy step 1: Shortlist by xPNext, then rank by season-long attacking threat (xGI, xG, shots role, penalties), minutes security and fixture. A defender or low-threat player topping xPNext on a short streak needs a structural reason (set pieces, penalties, new role) to be first choice.
+- Comparisons and differentials: when xPNext and season xGI disagree, say so and explain which you trust and why.
 
 ### 1d. Things we deliberately leave out
 
@@ -274,7 +278,7 @@ Found in the Step 0 test: FPL's xPNext tracks recent form closely (identical for
 - "Never transfer within 24 hours of a rank drop". The bot can't see when a user is on tilt. We keep the underlying rule instead (don't move on results alone).
 - Detailed price-change strategy. Covered by one principle line.
 
-**Done when:** You've read 1a, 1b, 1c and 1d and either approved them or marked changes.
+**Done when:** ~~You've read 1a, 1b, 1c and 1d and either approved them or marked changes.~~ Done 5 Nov 2026.
 
 ---
 
@@ -488,12 +492,12 @@ Use devchat for normal questions for a few days. Note anything odd in the soak l
 
 ## Open questions for you
 
-1. Default risk mode when the user doesn't say: **Balanced** (proposed). Agree?
-2. Should the answer always include the one-line "assumed mode" note, or only for captaincy and hits?
-3. ~~Are you happy to create the duplicate Dify dev app?~~ Done (Step 0).
-4. Promote the two bug fixes (DEFCON definition, chip availability) to production early, once tested on devchat, or wait for the full framework?
-5. Any principles from the articles you disagree with or want stronger or softer?
-6. **Step 1:** Approve 1a, 1b, and **1c** (xPNext vs form). The GW10 captain test showed captaining Konsa on xPNext alone is exactly what we want to stop.
+1. Default risk mode: **Balanced** - agreed.
+2. Assumed mode line: **always** for now, revisit after Step 7 eval.
+3. Dify dev app: **done** (Step 0).
+4. Early promote DEFCON + chips: **yes, after devchat test passes**.
+5. Principles: **approved, no changes**.
+6. Step 1 (1a-1c): **approved**.
 
 ---
 
