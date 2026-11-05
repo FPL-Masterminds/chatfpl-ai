@@ -1,0 +1,28 @@
+---
+description: After push, report production chat status to the owner in Cursor (no long deploy wait)
+alwaysApply: true
+---
+
+# Post-push production chat status (for the site owner in Cursor)
+
+This is **not** the in-app customer toast. Tell **you** in this chat whether production chat is up after commits that affect production or when you pushed in the task.
+
+## Steps
+
+1. Run `node scripts/chat-production-status.mjs` with **no** deploy wait. Do **not** set `CHAT_HEALTH_WAIT_MS` unless the user explicitly asks to wait for Vercel.
+2. If the script exits non-zero or prints `Status: Chat Offline`, note what failed briefly.
+3. The **last line** of your reply after a push (or when the task included push) must be exactly one of:
+   - `**Production chat:** Online`
+   - `**Production chat:** Offline` (plus one short sentence on what failed)
+
+Do not run a multi-minute wait before the script. Default script wait is zero.
+
+## When to skip
+
+- Question-only or review-only tasks with no push.
+- User explicitly says not to report chat status for that task.
+- Doc-only or dev-only changes (`/devchat`, Dify dev, planning docs) with no production deploy concern, unless the user asks.
+
+## Reference
+
+See `docs/CHAT-PRODUCTION-STATUS.md` for URLs and optional deep checks.

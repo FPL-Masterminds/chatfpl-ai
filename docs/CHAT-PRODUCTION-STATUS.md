@@ -8,24 +8,17 @@ Use this when **you** want to know if real FPL chat can reach Dify, not just the
 node scripts/chat-production-status.mjs
 ```
 
-Default: no deploy wait (`CHAT_HEALTH_WAIT_MS` defaults to `0`).
+Default: no deploy wait (`CHAT_HEALTH_WAIT_MS` defaults to `0`). Run the script immediately after a push; do not block the reply on a two-minute Vercel wait unless the owner asks.
 
-If you just pushed and Vercel may still be building, wait on your side or set a short wait yourself:
+If you just pushed and want to poll until deploy finishes, set a wait yourself (optional):
 
 ```bash
-# bash (optional)
 CHAT_HEALTH_WAIT_MS=60000 node scripts/chat-production-status.mjs
 ```
 
-```powershell
-# PowerShell (optional)
-$env:CHAT_HEALTH_WAIT_MS=60000; node scripts/chat-production-status.mjs
-```
+After pushes that affect production chat, Cursor agents should run the script with **zero wait** and end the owner reply with:
 
-**Output you want:** `Status: Chat Online`  
-**Bad:** `Status: Chat Offline` (script exits code 1)
-
-Cursor agents must **not** run this script automatically after every push or block replies on a multi-minute deploy wait.
+`**Production chat:** Online` or `**Production chat:** Offline`
 
 ## HTTP endpoint
 
