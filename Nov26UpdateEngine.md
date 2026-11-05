@@ -298,7 +298,9 @@ Fix in the dev prompt: rewrite the DEFCON section to match the API and the route
 
 ### Bug 2: Chip availability in team context (live in production)
 
-`lib/chat-fpl-team-context.ts` and the inline Team ID block in the devchat route count wildcards up to 2, but treat Free Hit, Bench Boost and Triple Captain as once per season. Under the two-set rules, a user who used Bench Boost in GW5 still has one for GW20-38, but we tell the model it's gone.
+**Status:** Fixed in `lib/fpl-chip-availability.ts` + `buildFplTeamContext` (production `/api/chat` and devchat). Per-half GW1-19 / GW20-38 sets; friend can verify on prod after someone has used a first-half chip.
+
+Previously `lib/chat-fpl-team-context.ts` and the inline Team ID block in the devchat route count wildcards up to 2, but treat Free Hit, Bench Boost and Triple Captain as once per season. Under the two-set rules, a user who used Bench Boost in GW5 still has one for GW20-38, but we tell the model it's gone.
 
 Fix (devchat first): compute availability per half using the `chips` windows from `bootstrap-static` and `history.chips[].event`. Output something like:
 

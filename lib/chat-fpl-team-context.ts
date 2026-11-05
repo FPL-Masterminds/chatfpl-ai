@@ -4,6 +4,7 @@ import {
   fplLiveFetchOptions,
   teamFixtureStateInGw,
 } from "@/lib/fpl-gw-live-status";
+import { formatFplChipContextForChat } from "@/lib/fpl-chip-availability";
 
 export type ResolvedFplTeamId = {
   teamId: number | null;
@@ -152,19 +153,10 @@ export async function buildFplTeamContext(
     const totalTransfers = entryData.last_deadline_total_transfers ?? "?";
 
     const playedChips: any[] = historyData?.chips || entryData?.chips || [];
-    const chipsUsed: string[] = playedChips.map((c: any) => `${c.name} (GW${c.event})`);
-    const usedNames: string[] = playedChips.map((c: any) => c.name);
-
-    const wildcardsUsed = usedNames.filter((n) => n === "wildcard").length;
-    const chipsAvailable: string[] = [];
-    if (wildcardsUsed < 2) {
-      chipsAvailable.push(
-        `wildcard (${wildcardsUsed === 0 ? "both still available" : "1 used, 1 remaining"})`,
-      );
-    }
-    if (!usedNames.includes("freehit")) chipsAvailable.push("freehit");
-    if (!usedNames.includes("bboost")) chipsAvailable.push("bboost (bench boost)");
-    if (!usedNames.includes("3xc")) chipsAvailable.push("3xc (triple captain)");
+    const chipText = formatFplChipContextForChat(
+      playedChips.map((c: any) => ({ name: c.name, event: c.event })),
+      currentGW,
+    );
 
     const formatPick = (pick: any): string | null => {
       const p = elementMap[pick.element];
@@ -232,8 +224,9 @@ ${gwStats}${activeChip ? "\n" + activeChip : ""}`;
 ${loadedNote}${rosterLine}Team: ${teamName} | Manager: ${managerName}
 Overall Points: ${overallPoints} | Overall Rank: ${overallRank}
 Team Value: ${teamValue} | Bank: ${bank} | Total Transfers Used: ${totalTransfers}
-Chips Used: ${chipsUsed.length > 0 ? chipsUsed.join(", ") : "None yet"}
-Chips Still Available: ${chipsAvailable.length > 0 ? chipsAvailable.join(", ") : "All used"}
+Chips Used (all season): ${chipText.chipsUsedSummary}
+Chips Still Available (current half): ${chipText.chipsStillAvailableSummary}
+${chipText.chipsByHalfBlock}
 ${squadSection}
 
 IMPORTANT: When the user asks about "my team", "my squad", "my captain", "my transfers", or anything personal, refer to the squad data above. Use their actual picks and stats to give personalised advice. Never recommend selling or replacing a player they do not own.
